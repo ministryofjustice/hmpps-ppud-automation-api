@@ -6,10 +6,10 @@ orbs:
 parameters:
   alerts-slack-channel:
     type: string
-    default: dps_alerts_security
+    default: make-recall-decisions-pipeline
   releases-slack-channel:
     type: string
-    default: dps-releases
+    default: make-recall-decisions-pipeline
 
 jobs:
   validate:
