@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   hmpps: ministryofjustice/hmpps@7
+  slack: circleci/slack@4.10.1
 
 parameters:
   alerts-slack-channel:
@@ -10,6 +11,36 @@ parameters:
   releases-slack-channel:
     type: string
     default: make-recall-decisions-pipeline
+
+slack-fail-post-step: &slack-fail-post-step
+  post-steps:
+    - slack/notify:
+        event: fail
+        branch_pattern: main
+        channel: << pipeline.parameters.alerts-slack-channel >>
+        custom: |
+          {
+            "text": "",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Failure* `${CIRCLE_PROJECT_REPONAME}` - `${CIRCLE_JOB}` (Build: #${CIRCLE_BUILD_NUM}) on `${CIRCLE_BRANCH}`"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "View Job" },
+                    "url": "${CIRCLE_BUILD_URL}"
+                  }
+                ]
+              }
+            ]
+          }
 
 jobs:
   validate:
@@ -41,14 +72,17 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+          <<: *slack-fail-post-step
       - hmpps/helm_lint:
           name: helm_lint
+          <<: *slack-fail-post-step
       - hmpps/build_multiplatform_docker:
           name: build_docker
           filters:
             branches:
               only:
                 - main
+          <<: *slack-fail-post-step
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -63,10 +97,7 @@ workflows:
             - build_docker
             - helm_lint
           helm_timeout: 5m
-#      - request-preprod-approval:
-#          type: approval
-#          requires:
-#            - deploy_dev
+          <<: *slack-fail-post-step
 #      - hmpps/deploy_env:
 #          name: deploy_preprod
 #          env: "preprod"
@@ -78,6 +109,7 @@ workflows:
 #          requires:
 #            - request-preprod-approval
 #          helm_timeout: 5m
+#          <<: *slack-fail-post-step
 #      - request-prod-approval:
 #          type: approval
 #          requires:
@@ -95,7 +127,7 @@ workflows:
 #          requires:
 #            - request-prod-approval
 #          helm_timeout: 5m
-
+#          <<: *slack-fail-post-step
   security:
     triggers:
       - schedule:
