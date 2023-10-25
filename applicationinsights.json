@@ -1,6 +1,6 @@
 {
   "role": {
-    "name": "hmpps-template-kotlin"
+    "name": "hmpps-ppud-automation-api"
   },
   "customDimensions": {
     "service.version": "${BUILD_NUMBER}"

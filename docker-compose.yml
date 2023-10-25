@@ -1,10 +1,10 @@
 version: "3"
 services:
-  hmpps-template-kotlin:
+  hmpps-ppud-automation-api:
     build:
       context: .
     network_mode: "host"
-    container_name: hmpps-template-kotlin
+    container_name: hmpps-ppud-automation-api
     ports:
       - "8081:8080"
     healthcheck:
