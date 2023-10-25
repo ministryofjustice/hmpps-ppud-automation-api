@@ -1,19 +1,19 @@
 ---
 generic-service:
-  nameOverride: hmpps-template-kotlin
+  nameOverride: hmpps-ppud-automation-api
   productId: "UNASSIGNED"   # productId for the product that this belongs too, i.e. DPS001, see README.md for details
 
   replicaCount: 4
 
   image:
-    repository: quay.io/hmpps/hmpps-template-kotlin
+    repository: quay.io/hmpps/hmpps-ppud-automation-api
     tag: app_version    # override at deployment time
     port: 8080
 
   ingress:
     enabled: true
     host: app-hostname.local    # override per environment
-    tlsSecretName: hmpps-template-kotlin-cert
+    tlsSecretName: hmpps-ppud-automation-api-cert
 
   # Environment variables to load into the deployment
   env:
@@ -29,7 +29,7 @@ generic-service:
   #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
 
   namespace_secrets:
-    hmpps-template-kotlin:
+    hmpps-ppud-automation-api:
       APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
 
   allowlist:
@@ -43,4 +43,4 @@ generic-service:
     cloudplatform-live-3: "35.177.252.54/32"
 
 generic-prometheus-alerts:
-  targetApplication: hmpps-template-kotlin
+  targetApplication: hmpps-ppud-automation-api
