@@ -107,7 +107,7 @@ workflows:
             - hmpps-common-vars
             - hmpps-ppud-automation-api-preprod
           requires:
-            - deploy-dev
+            - deploy_dev
           helm_timeout: 5m
           <<: *slack-fail-post-step
       - request-prod-approval:
