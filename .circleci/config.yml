@@ -98,36 +98,36 @@ workflows:
             - helm_lint
           helm_timeout: 5m
           <<: *slack-fail-post-step
-#      - hmpps/deploy_env:
-#          name: deploy_preprod
-#          env: "preprod"
-#          jira_update: true
-#          jira_env_type: staging
-#          context:
-#            - hmpps-common-vars
-#            - hmpps-ppud-automation-api-preprod
-#          requires:
-#            - request-preprod-approval
-#          helm_timeout: 5m
-#          <<: *slack-fail-post-step
-#      - request-prod-approval:
-#          type: approval
-#          requires:
-#            - deploy_preprod
-#      - hmpps/deploy_env:
-#          name: deploy_prod
-#          env: "prod"
-#          jira_update: true
-#          jira_env_type: production
-#          slack_notification: true
-#          slack_channel_name: << pipeline.parameters.releases-slack-channel >>
-#          context:
-#            - hmpps-common-vars
-#            - hmpps-ppud-automation-api-prod
-#          requires:
-#            - request-prod-approval
-#          helm_timeout: 5m
-#          <<: *slack-fail-post-step
+      - hmpps/deploy_env:
+          name: deploy_preprod
+          env: "preprod"
+          jira_update: true
+          jira_env_type: staging
+          context:
+            - hmpps-common-vars
+            - hmpps-ppud-automation-api-preprod
+          requires:
+            - deploy_dev
+          helm_timeout: 5m
+          <<: *slack-fail-post-step
+      - request-prod-approval:
+          type: approval
+          requires:
+            - deploy_preprod
+      - hmpps/deploy_env:
+          name: deploy_prod
+          env: "prod"
+          jira_update: true
+          jira_env_type: production
+          slack_notification: true
+          slack_channel_name: << pipeline.parameters.releases-slack-channel >>
+          context:
+            - hmpps-common-vars
+            - hmpps-ppud-automation-api-prod
+          requires:
+            - request-prod-approval
+          helm_timeout: 5m
+          <<: *slack-fail-post-step
   security:
     triggers:
       - schedule:
