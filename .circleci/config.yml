@@ -54,7 +54,7 @@ jobs:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew check
+          command: ./gradlew check sonar
       - save_cache:
           paths:
             - ~/.gradle
@@ -72,6 +72,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+          context:
+            - SonarCloud
           <<: *slack-fail-post-step
       - hmpps/helm_lint:
           name: helm_lint
