@@ -73,7 +73,7 @@ workflows:
             tags:
               ignore: /.*/
           context:
-            - hmpps-common-vars
+            - SonarCloud
           <<: *slack-fail-post-step
       - hmpps/helm_lint:
           name: helm_lint
