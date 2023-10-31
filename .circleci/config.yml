@@ -72,6 +72,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+          context:
+            - hmpps-common-vars
           <<: *slack-fail-post-step
       - hmpps/helm_lint:
           name: helm_lint
