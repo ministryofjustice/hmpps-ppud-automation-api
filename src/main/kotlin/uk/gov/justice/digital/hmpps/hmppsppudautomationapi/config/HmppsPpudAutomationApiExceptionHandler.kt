@@ -6,8 +6,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+
 
 @RestControllerAdvice
 class HmppsPpudAutomationApiExceptionHandler {
@@ -20,6 +24,40 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException::class)
+  fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+    log.info("MethodArgumentNotValid exception: {}", e.message)
+    val userMessage = e.allErrors.joinToString(", ") { error ->
+      val fieldName = (error as FieldError).field
+      val errorMessage: String = error.defaultMessage ?: "Does not meet requirements"
+      "$fieldName: $errorMessage"
+    }
+
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Validation failure: $userMessage",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException::class)
+  fun handleHttpMessageNotReadableException(e: Exception): ResponseEntity<ErrorResponse> {
+    log.info("HttpMessageNotReadable exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "HTTP Message failure: ${e.message}",
           developerMessage = e.message,
         ),
       )
