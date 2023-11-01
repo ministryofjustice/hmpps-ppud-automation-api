@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 class HmppsPpudAutomationApiExceptionHandlerTest {
   @Test
   fun `given invalid field when handling MethodArgumentNotValidException then user message contains failure`() {
-
     val handler = HmppsPpudAutomationApiExceptionHandler()
 
     val errors = listOf(FieldError("", "fieldName", "Cannot be null"))
@@ -24,7 +23,6 @@ class HmppsPpudAutomationApiExceptionHandlerTest {
 
   @Test
   fun `given multiple invalid fields when handling MethodArgumentNotValidException then user message contains failures`() {
-
     val handler = HmppsPpudAutomationApiExceptionHandler()
 
     val errors = listOf(
