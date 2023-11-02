@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
 
 import jakarta.validation.constraints.Pattern
-import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
 data class OffenderSearchRequest(
