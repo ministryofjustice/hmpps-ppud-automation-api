@@ -217,4 +217,25 @@ class OffenderSearchTest : IntegrationTestBase() {
       .jsonPath("userMessage")
       .value(Consumer<String> { assertThat(it).contains("Cannot deserialize value of type `java.time.LocalDate`") })
   }
+
+  @Test
+  fun `given croNumber of existing offender when search called then offender details are returned`() {
+    val croNumber = "5159/08A"
+    val firstNames = "John"
+    val familyName = "Teal"
+    val requestBody = "{ " +
+      "\"croNumber\": \"$croNumber\"" +
+      "}"
+    webTestClient.post()
+      .uri("/offender/search")
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("results[0].croNumber").isEqualTo(croNumber)
+      .jsonPath("results[0].firstNames").isEqualTo(firstNames)
+      .jsonPath("results[0].familyName").isEqualTo(familyName)
+  }
 }

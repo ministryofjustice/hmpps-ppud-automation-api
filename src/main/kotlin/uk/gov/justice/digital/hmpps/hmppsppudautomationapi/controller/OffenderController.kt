@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.util.*
 
 @RestController
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class OffenderController {
+internal class OffenderController(private val ppudClient: PpudClient) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -26,10 +28,11 @@ internal class OffenderController {
     @Valid
     @RequestBody(required = true)
     criteria: OffenderSearchRequest,
-  ): ResponseEntity<String> {
+  ): ResponseEntity<OffenderSearchResponse> {
     log.info("Offender search endpoint hit")
     ensureSearchCriteriaProvided(criteria)
-    return ResponseEntity("", HttpStatus.OK)
+    val results = ppudClient.searchForOffender(criteria.croNumber)
+    return ResponseEntity(OffenderSearchResponse(results), HttpStatus.OK)
   }
 
   private fun ensureSearchCriteriaProvided(criteria: OffenderSearchRequest) {
