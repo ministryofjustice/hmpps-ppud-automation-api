@@ -10,7 +10,6 @@ data class OffenderSearchRequest(
   @field:Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$")
   val nomsId: String?,
   val familyName: String?,
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
   val dateOfBirth: LocalDate?,
 ) {
   val containsCriteria: Boolean
