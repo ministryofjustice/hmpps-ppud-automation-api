@@ -1,18 +1,31 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
+import java.time.LocalDate
 
-@Component
-class PpudClient() {
+internal class PpudClient(private val ppudUrl: String) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  suspend fun searchForOffender(croNumber: String?): List<Offender> {
+  suspend fun searchForOffender(
+    croNumber: String?,
+    nomsId: String?,
+    familyName: String?,
+    dateOfBirth: LocalDate?,
+  ): List<Offender> {
     log.info("Searching in PPUD Client")
-    return listOf(Offender(croNumber ?: "", "John", "Teal"))
+    return listOf(
+      Offender(
+        "1",
+        croNumber ?: "",
+        nomsId ?: "",
+        "John",
+        familyName ?: "Teal",
+        dateOfBirth ?: LocalDate.now(),
+      ),
+    )
   }
 }

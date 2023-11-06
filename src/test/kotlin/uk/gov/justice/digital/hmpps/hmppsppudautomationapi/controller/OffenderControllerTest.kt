@@ -9,18 +9,22 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClientFactory
 import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
-class OffenderControllerTest {
+internal class OffenderControllerTest {
+
+  @Mock
+  lateinit var ppudClientFactory: PpudClientFactory
 
   @Mock
   lateinit var ppudClient: PpudClient
 
   @Test
-  fun `given search criteria when search is called then criteria are passed to PPUD client`() {
+  fun `given search criteria when search is called then criteria are passed to new PPUD client`() {
     runBlocking {
-      val controller = OffenderController(ppudClient)
+      val controller = OffenderController(ppudClientFactory)
       val croNumber = "A123"
       val nomsId = "B456"
       val familyName = "Smith"
@@ -31,11 +35,12 @@ class OffenderControllerTest {
         familyName,
         dateOfBirth,
       )
-      whenever(ppudClient.searchForOffender(croNumber)).thenReturn(emptyList())
+      whenever(ppudClientFactory.create()).thenReturn(ppudClient)
+      whenever(ppudClient.searchForOffender(croNumber, nomsId, familyName, dateOfBirth)).thenReturn(emptyList())
 
       controller.search(criteria)
 
-      then(ppudClient).should().searchForOffender(croNumber)
+      then(ppudClient).should().searchForOffender(croNumber, nomsId, familyName, dateOfBirth)
     }
   }
 }
