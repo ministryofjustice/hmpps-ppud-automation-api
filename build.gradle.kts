@@ -16,7 +16,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.seleniumhq.selenium:selenium-java:4.14.1")
   implementation("org.seleniumhq.selenium:selenium-http-jdk-client:4.13.0")
-  implementation("io.github.bonigarcia:webdrivermanager:5.6.0")
+  implementation("io.github.bonigarcia:webdrivermanager:5.6.2")
   implementation("commons-io:commons-io:2.7") // Address CVE-2021-29425
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
