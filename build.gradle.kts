@@ -2,7 +2,10 @@ plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.8.0"
   kotlin("plugin.spring") version "1.9.20"
   id("org.sonarqube") version "4.4.1.3373"
+  id("jacoco")
 }
+
+jacoco.toolVersion = "0.8.11"
 
 configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
@@ -29,5 +32,16 @@ tasks {
     kotlinOptions {
       jvmTarget = "20"
     }
+  }
+}
+
+tasks.test {
+  finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+  dependsOn(tasks.test)
+  reports {
+    xml.required.set(true)
   }
 }

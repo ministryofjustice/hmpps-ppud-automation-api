@@ -65,6 +65,8 @@ jobs:
           path: build/test-results
       - store_artifacts:
           path: build/reports/tests
+      - store_artifacts:
+          path: build/reports/jacoco/test/html
 
 workflows:
   version: 2
