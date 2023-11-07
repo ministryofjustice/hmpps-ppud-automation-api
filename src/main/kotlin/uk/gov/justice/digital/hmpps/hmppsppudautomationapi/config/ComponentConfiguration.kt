@@ -14,6 +14,7 @@ class ComponentConfiguration {
   @RequestScope
   fun webDriver(): WebDriver {
     val options = FirefoxOptions()
+    options.setBinary("/usr/local/bin/firefox")
     return WebDriverManager.firefoxdriver().capabilities(options).create()
   }
 }
