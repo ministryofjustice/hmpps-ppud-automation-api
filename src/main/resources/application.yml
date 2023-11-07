@@ -52,3 +52,6 @@ management:
 
 ppud:
   url: https://internaltest.ppud.justice.gov.uk
+
+automation:
+  headless: true
