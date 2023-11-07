@@ -14,6 +14,7 @@ class ComponentConfiguration {
   @RequestScope
   fun webDriver(): WebDriver {
     val options = FirefoxOptions()
+    options.addArguments("-headless")
     return WebDriverManager.firefoxdriver().capabilities(options).create()
   }
 }
