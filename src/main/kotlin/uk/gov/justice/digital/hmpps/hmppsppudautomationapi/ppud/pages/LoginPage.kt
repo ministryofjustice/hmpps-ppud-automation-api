@@ -6,13 +6,17 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.springframework.stereotype.Component
+import org.springframework.web.context.annotation.RequestScope
 import java.time.Duration
 
-class LoginPage(private val driver: WebDriver) {
+@Component
+@RequestScope
+internal class LoginPage(private val driver: WebDriver) {
+
+  val urlFragment = "/Secure/MJSLogin.aspx"
 
   private val title = "PPUD - Login"
-
-  private val urlFragment = "Secure/MJSLogin.aspx"
 
   @FindBy(id = "Login1_UserName")
   private val userNameInput: WebElement? = null
@@ -31,10 +35,6 @@ class LoginPage(private val driver: WebDriver) {
     userNameInput?.sendKeys(userName)
     passwordInput?.sendKeys(password)
     loginButton?.click()
-  }
-
-  fun navigateTo() {
-    driver.get(urlFragment)
   }
 
   fun verifyOn(): LoginPage {
