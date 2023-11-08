@@ -49,3 +49,9 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+ppud:
+  url: https://internaltest.ppud.justice.gov.uk
+
+automation:
+  headless: true

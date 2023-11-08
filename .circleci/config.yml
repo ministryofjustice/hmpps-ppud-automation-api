@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   hmpps: ministryofjustice/hmpps@7
   slack: circleci/slack@4.10.1
+  browser-tools: circleci/browser-tools@1.4
 
 parameters:
   alerts-slack-channel:
@@ -49,6 +50,7 @@ jobs:
       tag: "20.0"
     steps:
       - checkout
+      - browser-tools/install-firefox
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
@@ -63,6 +65,8 @@ jobs:
           path: build/test-results
       - store_artifacts:
           path: build/reports/tests
+      - store_artifacts:
+          path: build/reports/jacoco/test/html
 
 workflows:
   version: 2
