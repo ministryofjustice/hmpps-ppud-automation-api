@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import java.time.LocalDate
 
 @Component
@@ -17,6 +19,8 @@ internal class PpudClient(
   @Value("\${ppud.password}") private val ppudPassword: String,
   private val driver: WebDriver,
   private val loginPage: LoginPage,
+  private val searchPage: SearchPage,
+  private val offenderPage: OffenderPage,
 ) {
 
   companion object {
@@ -33,21 +37,44 @@ internal class PpudClient(
 
     login()
 
-    return listOf(
-      Offender(
-        "1",
-        croNumber ?: "",
-        nomsId ?: "",
-        "John",
-        familyName ?: "Teal",
-        dateOfBirth ?: LocalDate.now(),
-      ),
-    )
+    val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
+
+    return resultLinks.map {
+      extractOffenderDetails(it)
+    }
   }
 
   private suspend fun login() {
-    driver.get("${ppudUrl}${loginPage.urlFragment}")
+    driver.get("${ppudUrl}${loginPage.urlPath}")
     loginPage.verifyOn()
     loginPage.login(ppudUsername, ppudPassword)
+  }
+
+  private fun searchUntilFound(
+    croNumber: String?,
+    nomsId: String?,
+    familyName: String?,
+    dateOfBirth: LocalDate?,
+  ): List<String> {
+    searchPage.verifyOn()
+
+    if (!croNumber.isNullOrBlank()) {
+      searchPage.searchByCroNumber(croNumber)
+    }
+
+    if (searchPage.searchResultsCount() == 0 && !nomsId.isNullOrBlank()) {
+      searchPage.searchByNomsId(nomsId)
+    }
+
+    if (searchPage.searchResultsCount() == 0 && !familyName.isNullOrBlank() && dateOfBirth != null) {
+      searchPage.searchByPersonalDetails(familyName, dateOfBirth)
+    }
+
+    return searchPage.searchResultsLinks()
+  }
+
+  private suspend fun extractOffenderDetails(it: String): Offender {
+    driver.get(it)
+    return offenderPage.extractOffenderDetails()
   }
 }

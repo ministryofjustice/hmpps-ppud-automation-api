@@ -14,7 +14,7 @@ import java.time.Duration
 @RequestScope
 internal class LoginPage(private val driver: WebDriver) {
 
-  val urlFragment = "/Secure/MJSLogin.aspx"
+  val urlPath = "/Secure/MJSLogin.aspx"
 
   private val title = "PPUD - Login"
 
@@ -31,15 +31,14 @@ internal class LoginPage(private val driver: WebDriver) {
     PageFactory.initElements(driver, this)
   }
 
+  fun verifyOn() {
+    WebDriverWait(driver, Duration.ofSeconds(2))
+      .until(ExpectedConditions.titleIs(title))
+  }
+
   fun login(userName: String, password: String) {
     userNameInput?.sendKeys(userName)
     passwordInput?.sendKeys(password)
     loginButton?.click()
-  }
-
-  fun verifyOn(): LoginPage {
-    WebDriverWait(driver, Duration.ofSeconds(2))
-      .until(ExpectedConditions.titleIs(title))
-    return this
   }
 }
