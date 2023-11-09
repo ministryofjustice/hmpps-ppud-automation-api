@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.util.*
 
 @RestController
+@RequestScope
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 internal class OffenderController(private val ppudClient: PpudClient) {
 
