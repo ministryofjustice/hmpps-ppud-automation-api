@@ -3,7 +3,8 @@ services:
   hmpps-ppud-automation-api:
     build:
       context: .
-    network_mode: "host"
+    networks:
+      - hmpps
     container_name: hmpps-ppud-automation-api
     ports:
       - "8081:8080"
@@ -12,6 +13,8 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
+      - PPUD_USERNAME=${PPUD_USERNAME}
+      - PPUD_PASSWORD=${PPUD_PASSWORD}
 
 networks:
   hmpps:

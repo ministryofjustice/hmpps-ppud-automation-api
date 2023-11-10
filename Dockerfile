@@ -13,9 +13,14 @@ LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
 
-RUN apt-get update && \
+RUN apt-get update -yq  && \
+    apt-get install -yq software-properties-common && \
+    add-apt-repository ppa:mozillateam/ppa && \
+    apt-get update && \
     apt-get -y upgrade && \
+    apt-get install -y firefox-esr && \
     rm -rf /var/lib/apt/lists/*
+ENV AUTOMATION_FIREFOX_BINARY /usr/bin/firefox-esr
 
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone

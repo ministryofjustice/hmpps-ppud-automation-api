@@ -180,6 +180,17 @@ class PpudClientTest {
     }
   }
 
+  @Test
+  fun `given search criteria and PPUD login page is failing when search offender is called then exception is bubbled up`() {
+    runBlocking {
+      given(loginPage.verifyOn()).willThrow(NotFoundException())
+
+      assertThrows<NotFoundException> {
+        client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
+      }
+    }
+  }
+
   private fun setUpMocksToReturnSingleSearchResult(
     searchResultLink: String,
     offender: Offender,
@@ -196,17 +207,6 @@ class PpudClientTest {
     given(searchPage.searchResultsCount()).willReturn(searchResultLinks.size)
     given(searchPage.searchResultsLinks()).willReturn(searchResultLinks)
     given(offenderPage.extractOffenderDetails()).willReturnConsecutively(offenders)
-  }
-
-  @Test
-  fun `given search criteria and PPUD login page is failing when search offender is called then exception is bubbled up`() {
-    runBlocking {
-      given(loginPage.verifyOn()).willThrow(NotFoundException())
-
-      assertThrows<NotFoundException> {
-        client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
-      }
-    }
   }
 
   private fun createOffender(

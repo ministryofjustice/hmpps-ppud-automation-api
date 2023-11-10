@@ -31,6 +31,8 @@ generic-service:
   namespace_secrets:
     hmpps-ppud-automation-api:
       APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
+      PPUD_USERNAME: "PPUD_USERNAME"
+      PPUD_PASSWORD: "PPUD_PASSWORD"
 
   allowlist:
     office: "217.33.148.210/32"
