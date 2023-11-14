@@ -1,8 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.health
 
+import io.github.bonigarcia.wdm.WebDriverManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
@@ -12,23 +14,32 @@ import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpStatusCode
 import org.mockserver.model.MediaType
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.firefox.FirefoxOptions
 import org.springframework.boot.actuate.health.Status
-import org.springframework.web.reactive.function.client.WebClient
 import java.util.concurrent.TimeUnit
 
 class PpudHealthTest {
 
-  private val ppudUrl = "http://localhost"
-
   private val ppudPort = 8100
+
+  private val ppudUrl = "http://localhost:$ppudPort"
 
   private val healthPath = "/login.aspx"
 
+  private val pageTitle = "Mock Page"
+
+  private val timeoutSeconds = 5L
+
   private val ppudMock: ClientAndServer = startClientAndServer(ppudPort)
 
-  private val webClient: WebClient = WebClient.create()
+  private lateinit var ppudHealth: PpudHealth
 
-  private val ppudHealth = PpudHealth(webClient, ppudUrl, ppudPort, healthPath)
+  @BeforeEach
+  fun beforeEach() {
+    val webDriver = setupWebDriver()
+    ppudHealth = PpudHealth(webDriver, ppudUrl, healthPath, pageTitle, timeoutSeconds)
+  }
 
   @AfterEach
   fun afterEach() {
@@ -37,43 +48,32 @@ class PpudHealthTest {
 
   @Test
   fun `given ppud is ok when called then return UP`() {
-    ppudMock
-      .`when`(HttpRequest.request().withPath(healthPath))
-      .respond(
-        HttpResponse.response()
-          .withContentType(MediaType.HTML_UTF_8)
-          .withStatusCode(HttpStatusCode.OK_200.code())
-          .withBody("<html><body>Some html</body></html>"),
-      )
+    val responseBody = createResponseBody(pageTitle, "Successful page load")
+    setupMockToRespondWith(HttpStatusCode.OK_200, responseBody)
 
     val result = ppudHealth.health()
 
     assertEquals(Status.UP, result?.status)
-    assertEquals("200 OK", result?.details?.get("statusCode"))
   }
 
   @Test
   fun `given ppud is returning 5xx responses when called then return DOWN`() {
-    val responseBody = "{ \"error\": \"5xx error occurred\" }"
-    setupMockToErrorWith(HttpStatusCode.INTERNAL_SERVER_ERROR_500, responseBody)
+    val responseBody = createResponseBody("Error", "5xx error occurred")
+    setupMockToRespondWith(HttpStatusCode.INTERNAL_SERVER_ERROR_500, responseBody)
 
     val result = ppudHealth.health()
 
     assertEquals(Status.DOWN, result?.status)
-    assertEquals("500 INTERNAL_SERVER_ERROR", result?.details?.get("statusCode"))
-    assertEquals(responseBody, result?.details?.get("body"))
   }
 
   @Test
   fun `given ppud is returning 4xx responses when called then return DOWN`() {
-    val responseBody = "{ \"error\": \"4xx error occurred\" }"
-    setupMockToErrorWith(HttpStatusCode.NOT_FOUND_404, responseBody)
+    val responseBody = createResponseBody("Error", "4xx error occurred")
+    setupMockToRespondWith(HttpStatusCode.NOT_FOUND_404, responseBody)
 
     val result = ppudHealth.health()
 
     assertEquals(Status.DOWN, result?.status)
-    assertEquals("404 NOT_FOUND", result?.details?.get("statusCode"))
-    assertEquals(responseBody, result?.details?.get("body"))
   }
 
   @Test
@@ -88,14 +88,24 @@ class PpudHealthTest {
     assertTrue(errorDetails.contains("Timeout"), "Detail was '$errorDetails'")
   }
 
-  private fun setupMockToErrorWith(statusCode: HttpStatusCode, responseBody: String) {
+  private fun setupWebDriver(): WebDriver {
+    val options = FirefoxOptions()
+    options.addArguments("-headless")
+    return WebDriverManager.firefoxdriver().capabilities(options).create()
+  }
+
+  private fun createResponseBody(responsePageTitle: String, text: String): String {
+    return "<html><head><title>$responsePageTitle</title></head><body>$text</body></html>"
+  }
+
+  private fun setupMockToRespondWith(statusCode: HttpStatusCode, responseBody: String) {
     ppudMock
       .`when`(HttpRequest.request().withPath(healthPath))
       .respond(
         HttpResponse.response()
-          .withContentType(MediaType.APPLICATION_JSON_UTF_8)
-          .withBody(responseBody)
-          .withStatusCode(statusCode.code()),
+          .withStatusCode(statusCode.code())
+          .withContentType(MediaType.HTML_UTF_8)
+          .withBody(responseBody),
       )
   }
 }
