@@ -52,6 +52,10 @@ management:
 
 ppud:
   url: https://internaltest.ppud.justice.gov.uk
+  health:
+    port: 443
+    path: /Secure/MJSLogin.aspx
+    timeoutSeconds: 1
 
 automation:
   headless: true
