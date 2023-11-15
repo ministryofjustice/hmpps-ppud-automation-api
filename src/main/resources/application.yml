@@ -46,12 +46,19 @@ management:
       show-details: always
       probes:
         enabled: true
+      group:
+        readiness:
+          include: readinessState, ppud
     info:
       cache:
         time-to-live: 2000ms
 
 ppud:
   url: https://internaltest.ppud.justice.gov.uk
+  health:
+    path: /Secure/MJSLogin.aspx
+    pageTitle: "PPUD - Login"
+    timeoutSeconds: 1
 
 automation:
   headless: true

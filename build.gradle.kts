@@ -21,6 +21,8 @@ dependencies {
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+  testImplementation("org.mock-server:mockserver-netty:5.15.0")
 }
 
 java {
