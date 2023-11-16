@@ -69,7 +69,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when recall called then ok is returned`() {
+  fun `given complete set of valid values in request body when recall called then created is returned`() {
     val requestBody = createRecallRequestBody()
     webTestClient.post()
       .uri("/offender/$offenderWithRelease.id/recall")
@@ -77,7 +77,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
       .expectStatus()
-      .isOk
+      .isCreated
   }
 
   class TestOffender(

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
@@ -42,6 +43,10 @@ internal class PpudClient(
     return resultLinks.map {
       extractOffenderDetails(it)
     }
+  }
+
+  fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): String {
+    return ""
   }
 
   private suspend fun login() {
