@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
@@ -36,6 +38,17 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     val results =
       ppudClient.searchForOffender(criteria.croNumber, criteria.nomsId, criteria.familyName, criteria.dateOfBirth)
     return ResponseEntity(OffenderSearchResponse(results), HttpStatus.OK)
+  }
+
+  @PostMapping("/offender/{offenderId}/recall")
+  suspend fun search(
+    @PathVariable(required = true) offenderId: String,
+    @Valid
+    @RequestBody(required = true)
+    offenderRecallRequest: OffenderRecallRequest,
+  ): ResponseEntity<OffenderSearchResponse> {
+    log.info("Offender recall endpoint hit")
+    return ResponseEntity(OffenderSearchResponse(), HttpStatus.OK)
   }
 
   private fun ensureSearchCriteriaProvided(criteria: OffenderSearchRequest) {
