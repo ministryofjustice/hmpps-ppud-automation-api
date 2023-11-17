@@ -4,6 +4,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
@@ -13,7 +14,10 @@ import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-internal class OffenderPage(private val driver: WebDriver) {
+internal class OffenderPage(
+  private val driver: WebDriver,
+  @Value("\${ppud.url}") private val ppudUrl: String,
+) {
 
   @FindBy(id = "cntDetails_txtCRO_PNC")
   private val croNumberInput: WebElement? = null
@@ -32,6 +36,14 @@ internal class OffenderPage(private val driver: WebDriver) {
 
   init {
     PageFactory.initElements(driver, this)
+  }
+
+  fun viewOffenderWithId(offenderId: String) {
+    driver.get("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
+  }
+
+  fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
+
   }
 
   fun extractOffenderDetails(): Offender {

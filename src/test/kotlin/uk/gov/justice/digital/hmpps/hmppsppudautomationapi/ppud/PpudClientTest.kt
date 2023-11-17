@@ -16,13 +16,19 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
-import java.util.UUID
-import kotlin.random.Random
 
 @ExtendWith(MockitoExtension::class)
 class PpudClientTest {
@@ -39,6 +45,9 @@ class PpudClientTest {
   @Mock
   private lateinit var offenderPage: OffenderPage
 
+  @Mock
+  private lateinit var recallPage: RecallPage
+
   private val ppudUrl = "https://ppud.example.com"
 
   private lateinit var ppudUsername: String
@@ -51,7 +60,7 @@ class PpudClientTest {
   fun beforeEach() {
     ppudUsername = randomString("username")
     ppudPassword = randomString("password")
-    client = PpudClient(ppudUrl, ppudUsername, ppudPassword, driver, loginPage, searchPage, offenderPage)
+    client = PpudClient(ppudUrl, ppudUsername, ppudPassword, driver, loginPage, searchPage, offenderPage, recallPage)
   }
 
   @Test
@@ -94,7 +103,7 @@ class PpudClientTest {
   fun `given only family name and date of birth when search offender is called then search is performed using only family name and date of birth`() {
     runBlocking {
       val familyName = randomString("name")
-      val dateOfBirth = randomDateOfBirth()
+      val dateOfBirth = randomDate()
 
       client.searchForOffender(null, null, familyName, dateOfBirth)
 
@@ -110,7 +119,7 @@ class PpudClientTest {
       val croNumber = randomCroNumber()
       val nomsId = randomNomsId()
       val familyName = randomString("name")
-      val dateOfBirth = randomDateOfBirth()
+      val dateOfBirth = randomDate()
       given(searchPage.searchResultsCount()).willReturn(0)
 
       client.searchForOffender(croNumber, nomsId, familyName, dateOfBirth)
@@ -158,7 +167,7 @@ class PpudClientTest {
   fun `given family name and date of birth that return multiple results when search offender is called then return offender details`() {
     runBlocking {
       val familyName = randomString("familyName")
-      val dateOfBirth = randomDateOfBirth()
+      val dateOfBirth = randomDate()
       val searchResultLinks = listOf(
         "/link/to/offender/details/1",
         "/link/to/offender/details/2",
@@ -188,6 +197,69 @@ class PpudClientTest {
       assertThrows<NotFoundException> {
         client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
       }
+    }
+  }
+
+  @Test
+  fun `given recall data when create recall is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val createRecallRequest = CreateRecallRequest(
+        sentenceDate = LocalDate.now(),
+        releaseDate = LocalDate.now(),
+      )
+      client.createRecall(randomPpudId(), createRecallRequest)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given recall data when create recall is called then create recall and return ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceDate = randomDate()
+      val releaseDate = randomDate()
+      val createRecallRequest = CreateRecallRequest(
+        sentenceDate = sentenceDate,
+        releaseDate = releaseDate,
+      )
+      val recallId = randomPpudId()
+      given(recallPage.extractRecallDetails()).willReturn(Recall(recallId))
+
+      val newRecall = client.createRecall(offenderId, createRecallRequest)
+
+      val inOrder = inOrder(offenderPage, recallPage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).navigateToNewRecallFor(sentenceDate, releaseDate)
+      then(recallPage).should(inOrder).createRecall(createRecallRequest)
+      then(recallPage).should(inOrder).addMinute(createRecallRequest)
+      assertEquals(recallId, newRecall.id)
+    }
+  }
+
+  @Test
+  fun `given data that PPUD considers invalid when create recall is called then bubble exception`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceDate = randomDate()
+      val releaseDate = randomDate()
+      val createRecallRequest = CreateRecallRequest(
+        sentenceDate = sentenceDate,
+        releaseDate = releaseDate,
+      )
+      val exceptionMessage = randomString("test-exception")
+      val exception = RuntimeException(exceptionMessage)
+      given(recallPage.throwIfInvalid()).willThrow(exception)
+
+      val actual = assertThrows<RuntimeException> {
+        client.createRecall(offenderId, createRecallRequest)
+      }
+      assertEquals(exceptionMessage, actual.message)
+      val inOrder = inOrder(recallPage)
+      then(recallPage).should(inOrder).createRecall(createRecallRequest)
+      then(recallPage).should(inOrder).throwIfInvalid()
     }
   }
 
@@ -221,26 +293,7 @@ class PpudClientTest {
       nomsId = nomsId ?: randomNomsId(),
       firstNames = randomString("firstNames"),
       familyName = familyName ?: randomString("familyName"),
-      dateOfBirth = dateOfBirth ?: randomDateOfBirth(),
+      dateOfBirth = dateOfBirth ?: randomDate(),
     )
-  }
-
-  private fun randomString(prefix: String): String {
-    return "$prefix-${UUID.randomUUID()}"
-  }
-
-  private fun randomCroNumber(): String {
-    val serial = Random.nextInt(100000, 999999)
-    val year = Random.nextInt(10, 23)
-    return "$serial/${year}A"
-  }
-
-  private fun randomNomsId(): String {
-    val serial = Random.nextInt(1000, 9999)
-    return "A${serial}BC"
-  }
-
-  private fun randomDateOfBirth(): LocalDate {
-    return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(20000))
   }
 }

@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import java.time.LocalDate
 
@@ -22,6 +24,7 @@ internal class PpudClient(
   private val loginPage: LoginPage,
   private val searchPage: SearchPage,
   private val offenderPage: OffenderPage,
+  private val recallPage: RecallPage,
 ) {
 
   companion object {
@@ -45,24 +48,27 @@ internal class PpudClient(
     }
   }
 
-  fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): String {
-    return ""
+  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): Recall {
+    log.info("Creating new recall in PPUD Client")
+
+    login()
+
+    return createNewRecall(offenderId, recallRequest)
   }
 
   private suspend fun login() {
     driver.get("${ppudUrl}${loginPage.urlPath}")
     loginPage.verifyOn()
     loginPage.login(ppudUsername, ppudPassword)
+    searchPage.verifyOn()
   }
 
-  private fun searchUntilFound(
+  private suspend fun searchUntilFound(
     croNumber: String?,
     nomsId: String?,
     familyName: String?,
     dateOfBirth: LocalDate?,
   ): List<String> {
-    searchPage.verifyOn()
-
     if (!croNumber.isNullOrBlank()) {
       searchPage.searchByCroNumber(croNumber)
     }
@@ -76,6 +82,18 @@ internal class PpudClient(
     }
 
     return searchPage.searchResultsLinks()
+  }
+
+  private suspend fun createNewRecall(
+    offenderId: String,
+    recallRequest: CreateRecallRequest,
+  ): Recall {
+    offenderPage.viewOffenderWithId(offenderId)
+    offenderPage.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
+    recallPage.createRecall(recallRequest)
+    recallPage.throwIfInvalid()
+    recallPage.addMinute(recallRequest)
+    return recallPage.extractRecallDetails()
   }
 
   private suspend fun extractOffenderDetails(it: String): Offender {

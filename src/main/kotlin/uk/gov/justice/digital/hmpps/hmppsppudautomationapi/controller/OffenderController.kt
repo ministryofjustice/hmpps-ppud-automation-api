@@ -49,8 +49,8 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     createRecallRequest: CreateRecallRequest,
   ): ResponseEntity<CreateRecallResponse> {
     log.info("Offender recall endpoint hit")
-    val recallId = ppudClient.createRecall(offenderId, createRecallRequest)
-    return ResponseEntity(CreateRecallResponse(recallId), HttpStatus.CREATED)
+    val recall = ppudClient.createRecall(offenderId, createRecallRequest)
+    return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
   }
 
   private fun ensureSearchCriteriaProvided(criteria: OffenderSearchRequest) {

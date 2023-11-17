@@ -12,6 +12,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.time.LocalDate
 import java.util.UUID
@@ -58,7 +59,7 @@ internal class OffenderControllerTest {
         sentenceDate = LocalDate.now(),
         releaseDate = LocalDate.now(),
       )
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn("")
+      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(""))
 
       controller.createRecall(offenderId, recallRequest)
 
@@ -75,12 +76,12 @@ internal class OffenderControllerTest {
         sentenceDate = LocalDate.now(),
         releaseDate = LocalDate.now(),
       )
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(recallId)
+      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(recallId))
 
       val result = controller.createRecall(offenderId, recallRequest)
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
-      assertEquals(recallId, result.body?.recallId)
+      assertEquals(recallId, result.body?.recall?.id)
     }
   }
 }
