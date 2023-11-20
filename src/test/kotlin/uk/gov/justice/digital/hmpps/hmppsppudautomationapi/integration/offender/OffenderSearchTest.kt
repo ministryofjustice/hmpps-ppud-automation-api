@@ -27,7 +27,7 @@ class OffenderSearchTest : IntegrationTestBase() {
     webTestClient.post()
       .uri("/offender/search")
       .contentType(MediaType.APPLICATION_JSON)
-      .bodyValue(BodyInserters.fromValue(requestBody))
+      .body(BodyInserters.fromValue(requestBody))
       .exchange()
       .expectStatus()
       .isBadRequest

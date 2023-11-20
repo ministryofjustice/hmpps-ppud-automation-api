@@ -17,7 +17,7 @@ class PpudHealth(
   @Value("\${ppud.url}") private val endpointUrl: String,
   @Value("\${ppud.health.path}") private val path: String,
   @Value("\${ppud.health.pageTitle}") private val pageTitle: String,
-  @Value("\${ppud.health.timeoutSeconds}") private val timeoutSeconds: Long = 1,
+  @Value("\${ppud.health.timeoutSeconds}") private val timeoutSeconds: Long = 5,
 ) : HealthIndicator {
   override fun health(): Health? {
     val timeout = Duration.ofSeconds(timeoutSeconds)
