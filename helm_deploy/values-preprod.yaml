@@ -10,6 +10,9 @@ generic-service:
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
     PPUD_URL: https://internaltest.ppud.justice.gov.uk
+    PPUD_RECALL_REVOCATIONISSUEDBYOWNER: "EO Recall(Recall Team)"
+    PPUD_RECALL_RECALLTYPE: "To be determined"
+    PPUD_RECALL_RETURNTOCUSTODYNOTIFICATIONMETHOD: "Already in custody"
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts

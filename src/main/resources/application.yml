@@ -62,6 +62,8 @@ ppud:
   recall:
     revocationIssuedByOwner: "EO Officer(Not Specified)"
     recallType: "Standard"
+    returnToCustodyNotificationMethod: "Not Applicable"
+    nextUalCheckMonths: 6
 
 automation:
   headless: true

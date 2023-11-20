@@ -20,25 +20,25 @@ internal class SearchPage(private val driver: WebDriver) {
   private val title = "Search"
 
   @FindBy(id = "content_txtCROPNC")
-  private val croNumberInput: WebElement? = null
+  private lateinit var croNumberInput: WebElement
 
   @FindBy(id = "content_txtNomId")
-  private val nomsIdInput: WebElement? = null
+  private lateinit var nomsIdInput: WebElement
 
   @FindBy(id = "content_txtFamilyName")
-  private val familyNameInput: WebElement? = null
+  private lateinit var familyNameInput: WebElement
 
   @FindBy(id = "igtxtcontent_dtpDOBFrom")
-  private val dateOfBirthFromInput: WebElement? = null
+  private lateinit var dateOfBirthFromInput: WebElement
 
   @FindBy(id = "igtxtcontent_dtpDOBTo")
-  private val dateOfBirthToInput: WebElement? = null
+  private lateinit var dateOfBirthToInput: WebElement
 
   @FindBy(id = "content_cmdSearch")
-  private val searchButton: WebElement? = null
+  private lateinit var searchButton: WebElement
 
   @FindBy(id = "content_cmdClear")
-  private val clearButton: WebElement? = null
+  private lateinit var clearButton: WebElement
 
   private val resultsTable: WebElement?
     get() = driver.findElements(By.id("content_gvSearch")).firstOrNull()
@@ -53,26 +53,26 @@ internal class SearchPage(private val driver: WebDriver) {
   }
 
   fun searchByCroNumber(croNumber: String) {
-    clearButton?.click()
-    croNumberInput?.sendKeys(croNumber)
-    searchButton?.click()
+    clearButton.click()
+    croNumberInput.sendKeys(croNumber)
+    searchButton.click()
   }
 
   fun searchByNomsId(nomsId: String) {
-    clearButton?.click()
-    nomsIdInput?.sendKeys(nomsId)
-    searchButton?.click()
+    clearButton.click()
+    nomsIdInput.sendKeys(nomsId)
+    searchButton.click()
   }
 
   fun searchByPersonalDetails(familyName: String, dateOfBirth: LocalDate) {
     val typingDateOfBirth = dateOfBirth.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-    clearButton?.click()
-    familyNameInput?.sendKeys(familyName)
-    dateOfBirthFromInput?.click()
-    dateOfBirthFromInput?.sendKeys(typingDateOfBirth)
-    dateOfBirthToInput?.click()
-    dateOfBirthToInput?.sendKeys(typingDateOfBirth)
-    searchButton?.click()
+    clearButton.click()
+    familyNameInput.sendKeys(familyName)
+    dateOfBirthFromInput.click()
+    dateOfBirthFromInput.sendKeys(typingDateOfBirth)
+    dateOfBirthToInput.click()
+    dateOfBirthToInput.sendKeys(typingDateOfBirth)
+    searchButton.click()
   }
 
   fun searchResultsCount(): Int {

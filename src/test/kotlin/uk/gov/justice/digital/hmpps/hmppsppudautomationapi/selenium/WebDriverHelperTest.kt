@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -23,8 +22,6 @@ class WebDriverHelperTest {
   @Mock
   private lateinit var element: WebElement
 
-  private val nullElement: WebElement? = null
-
   @ParameterizedTest
   @CsvSource(
     "simple,simple",
@@ -42,12 +39,6 @@ class WebDriverHelperTest {
   }
 
   @Test
-  fun `given element is null when getValue is called then empty string is returned`() {
-    val actual = nullElement.getValue()
-    assertEquals("", actual)
-  }
-
-  @Test
   fun `given element has no value when getValue is called then empty string is returned`() {
     given(element.getAttribute("value")).willReturn(null)
     val actual = element.getValue()
@@ -61,11 +52,6 @@ class WebDriverHelperTest {
     then(element).should().sendKeys(text)
   }
 
-  @Test
-  fun `given element is null when enterTextIfNotBlank is called then function succeeds`() {
-    assertDoesNotThrow { nullElement.enterTextIfNotBlank(randomString()) }
-  }
-
   @ParameterizedTest
   @NullAndEmptySource
   @ValueSource(strings = ["  ", "\t", "\n"])
@@ -76,8 +62,30 @@ class WebDriverHelperTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  fun `given a null or blank dropdown option value when selectDropdownOptionIfNotBlank is called then option is not selected`(option: String?) {
+  fun `given a null or blank dropdown option value when selectDropdownOptionIfNotBlank is called then option is not selected`(
+    option: String?,
+  ) {
     selectDropdownOptionIfNotBlank(element, option)
     then(element).shouldHaveNoInteractions()
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = [true, false])
+  fun `given a value different to the current state when selectCheckboxValue is called then checkbox is clicked`(
+    toBeChecked: Boolean,
+  ) {
+    given(element.isSelected).willReturn(!toBeChecked)
+    selectCheckboxValue(element, toBeChecked)
+    then(element).should().click()
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = [true, false])
+  fun `given a value same as the current state when selectCheckboxValue is called then checkbox is not clicked`(
+    toBeChecked: Boolean,
+  ) {
+    given(element.isSelected).willReturn(toBeChecked)
+    selectCheckboxValue(element, toBeChecked)
+    then(element).should(never()).click()
   }
 }

@@ -7,6 +7,8 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
+import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -22,7 +24,11 @@ class OffenderRecallTest : IntegrationTestBase() {
         releaseDate = "2013-02-02",
       )
 
-    private const val ppudValidUserFullName = "Consider a Recall Test"
+    private const val ppudValidUserFullName = "Consider a Recall Test(Recall 1)"
+
+    private const val ppudValidProbationArea = "Merseyside"
+
+    private const val ppudValidPoliceForce = "Kent Police"
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -30,6 +36,10 @@ class OffenderRecallTest : IntegrationTestBase() {
         MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
         MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
         MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
+        MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
+        MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
+        MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
+        MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
       )
     }
 
@@ -38,11 +48,21 @@ class OffenderRecallTest : IntegrationTestBase() {
       sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
       recommendedToOwner: String = ppudValidUserFullName,
+      probationArea: String = ppudValidProbationArea,
+      isInCustody: Boolean = false,
+      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
+      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
+      policeForce: String = ppudValidPoliceForce,
     ): String {
       return "{" +
         "\"sentenceDate\":\"$sentenceDate\", " +
         "\"releaseDate\":\"$releaseDate\", " +
-        "\"recommendedToOwner\":\"$recommendedToOwner\" " +
+        "\"recommendedToOwner\":\"$recommendedToOwner\", " +
+        "\"probationArea\":\"$probationArea\", " +
+        "\"isInCustody\":\"$isInCustody\", " +
+        "\"decisionDateTime\":\"${decisionDateTime}\", " +
+        "\"receivedDateTime\":\"${receivedDateTime}\", " +
+        "\"policeForce\":\"${policeForce}\" " +
         "}"
     }
   }
@@ -76,6 +96,18 @@ class OffenderRecallTest : IntegrationTestBase() {
   @Test
   fun `given complete set of valid values in request body when recall called then created is returned`() {
     val requestBody = createRecallRequestBody()
+    webTestClient.post()
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectStatus()
+      .isCreated
+  }
+
+  @Test
+  fun `given offender is already in custody when recall called then created is returned`() {
+    val requestBody = createRecallRequestBody(isInCustody = true)
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)
