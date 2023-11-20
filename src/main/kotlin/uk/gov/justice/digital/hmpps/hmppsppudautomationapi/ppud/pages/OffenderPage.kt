@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter
 @RequestScope
 internal class OffenderPage(
   private val driver: WebDriver,
+  private val dateFormatter: DateTimeFormatter,
   @Value("\${ppud.url}") private val ppudUrl: String,
 ) {
 
@@ -34,6 +36,9 @@ internal class OffenderPage(
   @FindBy(id = "igtxtcntDetails_dteDOB")
   private val dateOfBirthInput: WebElement? = null
 
+  @FindBy(id = "T_ctl00treetvOffender")
+  private val navigationTreeView: WebElement? = null
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -43,7 +48,15 @@ internal class OffenderPage(
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
-
+    val treeView = TreeView(navigationTreeView!!)
+    treeView
+      .expandNodeWithText("Sentences")
+      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
+      .expandNodeWithText("Releases")
+      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
+      .expandNodeWithTextContaining("Recalls")
+      .findNodeWithTextContaining("New")
+      .click()
   }
 
   fun extractOffenderDetails(): Offender {

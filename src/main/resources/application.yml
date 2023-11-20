@@ -58,7 +58,10 @@ ppud:
   health:
     path: /Secure/MJSLogin.aspx
     pageTitle: "PPUD - Login"
-    timeoutSeconds: 1
+    timeoutSeconds: 10
+  recall:
+    revocationIssuedByOwner: "EO Officer(Not Specified)"
+    recallType: "Standard"
 
 automation:
   headless: true

@@ -136,7 +136,7 @@ class PpudClientTest {
     runBlocking {
       val croNumber = randomCroNumber()
       val searchResultLink = "/link/to/offender/details"
-      val offender = createOffender(croNumber = croNumber)
+      val offender = generateOffender(croNumber = croNumber)
       setUpMocksToReturnSingleSearchResult(searchResultLink, offender)
 
       val result = client.searchForOffender(croNumber, null, null, null)
@@ -152,7 +152,7 @@ class PpudClientTest {
     runBlocking {
       val nomsId = randomNomsId()
       val searchResultLink = "/link/to/offender/details/matching/nomsId"
-      val offender = createOffender(nomsId = nomsId)
+      val offender = generateOffender(nomsId = nomsId)
       setUpMocksToReturnSingleSearchResult(searchResultLink, offender)
 
       val result = client.searchForOffender(null, nomsId, null, null)
@@ -173,8 +173,8 @@ class PpudClientTest {
         "/link/to/offender/details/2",
       )
       val offenders = listOf(
-        createOffender(familyName = familyName, dateOfBirth = dateOfBirth),
-        createOffender(familyName = familyName, dateOfBirth = dateOfBirth),
+        generateOffender(familyName = familyName, dateOfBirth = dateOfBirth),
+        generateOffender(familyName = familyName, dateOfBirth = dateOfBirth),
       )
       setUpMocksToReturnMultipleSearchResults(searchResultLinks, offenders)
 
@@ -203,10 +203,7 @@ class PpudClientTest {
   @Test
   fun `given recall data when create recall is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
-      val createRecallRequest = CreateRecallRequest(
-        sentenceDate = LocalDate.now(),
-        releaseDate = LocalDate.now(),
-      )
+      val createRecallRequest = generateCreateRecallRequest()
       client.createRecall(randomPpudId(), createRecallRequest)
 
       val inOrder = inOrder(loginPage, searchPage)
@@ -221,7 +218,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val sentenceDate = randomDate()
       val releaseDate = randomDate()
-      val createRecallRequest = CreateRecallRequest(
+      val createRecallRequest = generateCreateRecallRequest(
         sentenceDate = sentenceDate,
         releaseDate = releaseDate,
       )
@@ -243,12 +240,7 @@ class PpudClientTest {
   fun `given data that PPUD considers invalid when create recall is called then bubble exception`() {
     runBlocking {
       val offenderId = randomPpudId()
-      val sentenceDate = randomDate()
-      val releaseDate = randomDate()
-      val createRecallRequest = CreateRecallRequest(
-        sentenceDate = sentenceDate,
-        releaseDate = releaseDate,
-      )
+      val createRecallRequest = generateCreateRecallRequest()
       val exceptionMessage = randomString("test-exception")
       val exception = RuntimeException(exceptionMessage)
       given(recallPage.throwIfInvalid()).willThrow(exception)
@@ -281,7 +273,7 @@ class PpudClientTest {
     given(offenderPage.extractOffenderDetails()).willReturnConsecutively(offenders)
   }
 
-  private fun createOffender(
+  private fun generateOffender(
     croNumber: String? = null,
     nomsId: String? = null,
     familyName: String? = null,
@@ -294,6 +286,17 @@ class PpudClientTest {
       firstNames = randomString("firstNames"),
       familyName = familyName ?: randomString("familyName"),
       dateOfBirth = dateOfBirth ?: randomDate(),
+    )
+  }
+
+  private fun generateCreateRecallRequest(
+    sentenceDate: LocalDate? = null,
+    releaseDate: LocalDate? = null,
+  ): CreateRecallRequest {
+    return CreateRecallRequest(
+      sentenceDate = sentenceDate ?: randomDate(),
+      releaseDate = releaseDate ?: randomDate(),
+      recommendedToOwner = randomString("recommendedToOwner"),
     )
   }
 }

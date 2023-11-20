@@ -5,15 +5,22 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
-import java.time.format.DateTimeFormatter
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 
 @Component
 @RequestScope
-class RecallPage(private val driver: WebDriver) {
+class RecallPage(
+  private val driver: WebDriver,
+  @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
+  @Value("\${ppud.recall.recallType}") private val recallType: String,
+) {
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private val saveButton: WebElement? = null
@@ -120,10 +127,6 @@ class RecallPage(private val driver: WebDriver) {
   private val documentUploadStatuses: List<WebElement>
     get() = documentUploadStatusTable.findElements(By.xpath(".//td[starts-with(@id, 'upload_1')]"))
 
-  private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-  private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-
   private val validationSummary: WebElement?
     get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 
@@ -132,12 +135,26 @@ class RecallPage(private val driver: WebDriver) {
   }
 
   suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
+    // Complete these first as they trigger additional processing
+    // Autocomplete box doesn't work with brackets
+    val recommendedToOwnerSearchable = createRecallRequest.recommendedToOwner.takeWhile { (it == '(').not() }
+    recommendedToOwnerInput?.click()
+    recommendedToOwnerInput.enterTextIfNotBlank(recommendedToOwnerSearchable)
+    val revocationIssuedByOwnerSearchable = revocationIssuedByOwner.takeWhile { (it == '(').not() }
+    revocationIssuedByOwnerInput?.click()
+    revocationIssuedByOwnerInput.enterTextIfNotBlank(revocationIssuedByOwnerSearchable)
+
+    // Complete standalone fields
+    selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType)
   }
 
   suspend fun addMinute(createRecallRequest: CreateRecallRequest) {
   }
 
   fun throwIfInvalid() {
+    if (validationSummary?.text?.isNotBlank() == true) {
+      throw AutomationException("Validation Failed Creating Recall.${System.lineSeparator()}${validationSummary?.text}")
+    }
   }
 
   private fun generateMinuteText(createRecallRequest: CreateRecallRequest): String {

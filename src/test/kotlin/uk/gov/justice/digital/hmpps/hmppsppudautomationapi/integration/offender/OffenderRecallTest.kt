@@ -15,29 +15,34 @@ class OffenderRecallTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private val offenderWithRelease: TestOffender
+    private val ppudOffenderWithRelease: TestOffender
       get() = TestOffender(
         id = "4F6666656E64657269643D313632393134G721H665",
         sentenceDate = "2003-06-12",
         releaseDate = "2013-02-02",
       )
 
+    private const val ppudValidUserFullName = "Consider a Recall Test"
+
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
         MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
         MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
+        MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
       )
     }
 
     @JvmStatic
     private fun createRecallRequestBody(
-      sentenceDate: String = offenderWithRelease.sentenceDate,
-      releaseDate: String = offenderWithRelease.releaseDate,
+      sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
+      releaseDate: String = ppudOffenderWithRelease.releaseDate,
+      recommendedToOwner: String = ppudValidUserFullName,
     ): String {
       return "{" +
         "\"sentenceDate\":\"$sentenceDate\", " +
-        "\"releaseDate\":\"$releaseDate\" " +
+        "\"releaseDate\":\"$releaseDate\", " +
+        "\"recommendedToOwner\":\"$recommendedToOwner\" " +
         "}"
     }
   }
@@ -45,7 +50,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   @Test
   fun `given missing request body when recall called then bad request is returned`() {
     webTestClient.post()
-      .uri("/offender/${offenderWithRelease.id}/recall")
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .exchange()
       .expectStatus()
       .isBadRequest
@@ -57,7 +62,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     data: MandatoryFieldTestData,
   ) {
     webTestClient.post()
-      .uri("/offender/$offenderWithRelease.id/recall")
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(data.requestBody))
       .exchange()
@@ -72,7 +77,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   fun `given complete set of valid values in request body when recall called then created is returned`() {
     val requestBody = createRecallRequestBody()
     webTestClient.post()
-      .uri("/offender/$offenderWithRelease.id/recall")
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()

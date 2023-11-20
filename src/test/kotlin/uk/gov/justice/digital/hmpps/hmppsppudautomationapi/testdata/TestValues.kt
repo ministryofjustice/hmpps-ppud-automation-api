@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 private const val sixtyYearsInDays: Long = 21900
 
-fun randomString(prefix: String): String {
+fun randomString(prefix: String = "random"): String {
   return "$prefix-${UUID.randomUUID()}"
 }
 

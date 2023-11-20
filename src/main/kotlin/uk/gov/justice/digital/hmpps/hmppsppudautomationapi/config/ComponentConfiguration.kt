@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.context.annotation.RequestScope
+import java.time.format.DateTimeFormatter
 
 @Configuration
 class ComponentConfiguration {
@@ -34,4 +35,10 @@ class ComponentConfiguration {
 
     return WebDriverManager.firefoxdriver().capabilities(options).create()
   }
+
+  @Bean
+  fun dateFormatter(): DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+  @Bean
+  fun dateTimeFormatter(): DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
 }
