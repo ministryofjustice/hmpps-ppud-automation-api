@@ -19,13 +19,13 @@ internal class LoginPage(private val driver: WebDriver) {
   private val title = "PPUD - Login"
 
   @FindBy(id = "Login1_UserName")
-  private val userNameInput: WebElement? = null
+  private lateinit var userNameInput: WebElement
 
   @FindBy(id = "Login1_Password")
-  private val passwordInput: WebElement? = null
+  private lateinit var passwordInput: WebElement
 
   @FindBy(id = "Login1_LoginButton")
-  private val loginButton: WebElement? = null
+  private lateinit var loginButton: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -37,8 +37,8 @@ internal class LoginPage(private val driver: WebDriver) {
   }
 
   fun login(userName: String, password: String) {
-    userNameInput?.sendKeys(userName)
-    passwordInput?.sendKeys(password)
-    loginButton?.click()
+    userNameInput.sendKeys(userName)
+    passwordInput.sendKeys(password)
+    loginButton.click()
   }
 }

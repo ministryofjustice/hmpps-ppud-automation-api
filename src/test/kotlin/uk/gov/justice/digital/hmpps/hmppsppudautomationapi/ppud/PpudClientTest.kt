@@ -16,13 +16,13 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
@@ -203,7 +203,7 @@ class PpudClientTest {
   @Test
   fun `given recall data when create recall is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
-      val createRecallRequest = generateCreateRecallRequest()
+      val createRecallRequest = randomCreateRecallRequest()
       client.createRecall(randomPpudId(), createRecallRequest)
 
       val inOrder = inOrder(loginPage, searchPage)
@@ -218,7 +218,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val sentenceDate = randomDate()
       val releaseDate = randomDate()
-      val createRecallRequest = generateCreateRecallRequest(
+      val createRecallRequest = randomCreateRecallRequest(
         sentenceDate = sentenceDate,
         releaseDate = releaseDate,
       )
@@ -240,7 +240,7 @@ class PpudClientTest {
   fun `given data that PPUD considers invalid when create recall is called then bubble exception`() {
     runBlocking {
       val offenderId = randomPpudId()
-      val createRecallRequest = generateCreateRecallRequest()
+      val createRecallRequest = randomCreateRecallRequest()
       val exceptionMessage = randomString("test-exception")
       val exception = RuntimeException(exceptionMessage)
       given(recallPage.throwIfInvalid()).willThrow(exception)
@@ -286,17 +286,6 @@ class PpudClientTest {
       firstNames = randomString("firstNames"),
       familyName = familyName ?: randomString("familyName"),
       dateOfBirth = dateOfBirth ?: randomDate(),
-    )
-  }
-
-  private fun generateCreateRecallRequest(
-    sentenceDate: LocalDate? = null,
-    releaseDate: LocalDate? = null,
-  ): CreateRecallRequest {
-    return CreateRecallRequest(
-      sentenceDate = sentenceDate ?: randomDate(),
-      releaseDate = releaseDate ?: randomDate(),
-      recommendedToOwner = randomString("recommendedToOwner"),
     )
   }
 }

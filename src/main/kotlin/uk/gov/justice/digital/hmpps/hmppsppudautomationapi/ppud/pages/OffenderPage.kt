@@ -22,22 +22,22 @@ internal class OffenderPage(
 ) {
 
   @FindBy(id = "cntDetails_txtCRO_PNC")
-  private val croNumberInput: WebElement? = null
+  private lateinit var croNumberInput: WebElement
 
   @FindBy(id = "cntDetails_txtNOMS_ID")
-  private val nomsIdInput: WebElement? = null
+  private lateinit var nomsIdInput: WebElement
 
   @FindBy(id = "cntDetails_txtFIRST_NAMES")
-  private val firstNamesInput: WebElement? = null
+  private lateinit var firstNamesInput: WebElement
 
   @FindBy(id = "cntDetails_txtFAMILY_NAME")
-  private val familyNameInput: WebElement? = null
+  private lateinit var familyNameInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteDOB")
-  private val dateOfBirthInput: WebElement? = null
+  private lateinit var dateOfBirthInput: WebElement
 
   @FindBy(id = "T_ctl00treetvOffender")
-  private val navigationTreeView: WebElement? = null
+  private lateinit var navigationTreeView: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -48,7 +48,7 @@ internal class OffenderPage(
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
-    val treeView = TreeView(navigationTreeView!!)
+    val treeView = TreeView(navigationTreeView)
     treeView
       .expandNodeWithText("Sentences")
       .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
