@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
@@ -13,6 +14,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
@@ -22,10 +24,11 @@ import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-class RecallPage(
+internal class RecallPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
   private val dateTimeFormatter: DateTimeFormatter,
+  private val contentCreator: ContentCreator,
   @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
   @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
@@ -98,9 +101,11 @@ class RecallPage(
   @FindBy(id = "cntDetails_chkMAND_DOC_CHARGE_SHEET")
   private lateinit var missingChargeSheetCheckbox: WebElement
 
+  private val addMinuteButtonId = "cntDetails_PageFooter1_Minutes1_btnReplyTop"
+
   // We need to detect if the Add Minute button isn't available, rather than throw an exception
   private val addMinuteButton: WebElement?
-    get() = driver.findElements(By.id("cntDetails_PageFooter1_Minutes1_btnReplyTop")).firstOrNull()
+    get() = driver.findElements(By.id(addMinuteButtonId)).firstOrNull()
 
   private val minuteEditor: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_MinutesTextRich_tw"))
@@ -157,7 +162,13 @@ class RecallPage(
     saveButton.click()
   }
 
-  suspend fun addMinute(createRecallRequest: CreateRecallRequest) {
+  fun addMinute(createRecallRequest: CreateRecallRequest) {
+    WebDriverWait(driver, Duration.ofSeconds(2))
+      .until(ExpectedConditions.elementToBeClickable(By.id(addMinuteButtonId)))
+    addMinuteButton?.click()
+    minuteEditor.click()
+    minuteEditor.sendKeys(contentCreator.generateMinuteText(createRecallRequest))
+    saveMinuteButton.click()
   }
 
   fun throwIfInvalid() {

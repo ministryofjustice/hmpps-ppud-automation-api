@@ -5,15 +5,18 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class CreateRecallRequest(
-  val sentenceDate: LocalDate,
-  val releaseDate: LocalDate,
-  @field:NotBlank
-  val recommendedToOwner: String,
-  @field:NotBlank
-  val probationArea: String,
-  val isInCustody: Boolean = false,
   val decisionDateTime: LocalDateTime,
-  val receivedDateTime: LocalDateTime,
+  val isExtendedSentence: Boolean,
+  val isInCustody: Boolean,
   @field:NotBlank
   val policeForce: String,
+  @field:NotBlank
+  val probationArea: String,
+  val receivedDateTime: LocalDateTime,
+  @field:NotBlank
+  val recommendedToOwner: String,
+  val releaseDate: LocalDate,
+  @field:NotBlank
+  val riskOfSeriousHarmLevel: String,
+  val sentenceDate: LocalDate,
 )

@@ -39,18 +39,23 @@ fun randomPpudId(): String {
   return "4F${randomSerial}E64657269643D313632393134G721H665"
 }
 
-fun randomCreateRecallRequest(
+fun generateCreateRecallRequest(
   sentenceDate: LocalDate? = null,
   releaseDate: LocalDate? = null,
+  isExtendedSentence: Boolean? = null,
+  isInCustody: Boolean? = null,
+  riskOfSeriousHarmLevel: String? = null,
 ): CreateRecallRequest {
   return CreateRecallRequest(
-    sentenceDate = sentenceDate ?: randomDate(),
-    releaseDate = releaseDate ?: randomDate(),
-    recommendedToOwner = randomString("recommendedToOwner"),
-    probationArea = randomString("probationArea"),
-    isInCustody = Random.nextBoolean(),
     decisionDateTime = randomTimeToday(),
-    receivedDateTime = randomTimeToday(),
+    isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),
+    isInCustody = isInCustody ?: Random.nextBoolean(),
     policeForce = randomString("policeForce"),
+    probationArea = randomString("probationArea"),
+    receivedDateTime = randomTimeToday(),
+    recommendedToOwner = randomString("recommendedToOwner"),
+    releaseDate = releaseDate ?: randomDate(),
+    riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomString("rosh"),
+    sentenceDate = sentenceDate ?: randomDate(),
   )
 }

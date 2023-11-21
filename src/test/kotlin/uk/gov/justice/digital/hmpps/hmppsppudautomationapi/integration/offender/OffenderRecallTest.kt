@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -34,36 +35,41 @@ class OffenderRecallTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
-        MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
-        MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
-        MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
         MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
-        MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
         MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
+        MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
+        MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
+        MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
+        MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
+        MandatoryFieldTestData("riskOfSeriousHarmLevel", createRecallRequestBody(riskOfSeriousHarmLevel = "")),
+        MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
       )
     }
 
     @JvmStatic
     private fun createRecallRequestBody(
-      sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
-      releaseDate: String = ppudOffenderWithRelease.releaseDate,
-      recommendedToOwner: String = ppudValidUserFullName,
-      probationArea: String = ppudValidProbationArea,
-      isInCustody: Boolean = false,
       decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
-      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
+      isInCustody: String = "false",
+      isExtendedSentence: String = "false",
       policeForce: String = ppudValidPoliceForce,
+      probationArea: String = ppudValidProbationArea,
+      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
+      recommendedToOwner: String = ppudValidUserFullName,
+      releaseDate: String = ppudOffenderWithRelease.releaseDate,
+      riskOfSeriousHarmLevel: String = randomString("rosh"),
+      sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
     ): String {
       return "{" +
-        "\"sentenceDate\":\"$sentenceDate\", " +
-        "\"releaseDate\":\"$releaseDate\", " +
-        "\"recommendedToOwner\":\"$recommendedToOwner\", " +
-        "\"probationArea\":\"$probationArea\", " +
-        "\"isInCustody\":\"$isInCustody\", " +
         "\"decisionDateTime\":\"${decisionDateTime}\", " +
+        "\"isInCustody\":\"$isInCustody\", " +
+        "\"isExtendedSentence\":\"$isExtendedSentence\", " +
+        "\"policeForce\":\"${policeForce}\", " +
+        "\"probationArea\":\"$probationArea\", " +
         "\"receivedDateTime\":\"${receivedDateTime}\", " +
-        "\"policeForce\":\"${policeForce}\" " +
+        "\"recommendedToOwner\":\"$recommendedToOwner\", " +
+        "\"releaseDate\":\"$releaseDate\", " +
+        "\"riskOfSeriousHarmLevel\":\"$riskOfSeriousHarmLevel\", " +
+        "\"sentenceDate\":\"$sentenceDate\" " +
         "}"
     }
   }
@@ -95,7 +101,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when recall called then 201 created and recall Id is returned`() {
+  fun `given complete set of valid values in request body when recall called then 201 created and recall Id are returned`() {
     val requestBody = createRecallRequestBody()
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
@@ -109,8 +115,8 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given offender is already in custody when recall called then 201 created and recall Id is returned`() {
-    val requestBody = createRecallRequestBody(isInCustody = true)
+  fun `given offender is already in custody when recall called then 201 created and recall Id are returned`() {
+    val requestBody = createRecallRequestBody(isInCustody = "true")
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)

@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import java.time.LocalDate
 import java.util.UUID
 
@@ -55,7 +55,7 @@ internal class OffenderControllerTest {
   fun `given recall data when createRecall is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderId = UUID.randomUUID().toString()
-      val recallRequest = randomCreateRecallRequest()
+      val recallRequest = generateCreateRecallRequest()
       whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(""))
 
       controller.createRecall(offenderId, recallRequest)
@@ -69,7 +69,7 @@ internal class OffenderControllerTest {
     runBlocking {
       val offenderId = UUID.randomUUID().toString()
       val recallId = UUID.randomUUID().toString()
-      val recallRequest = randomCreateRecallRequest()
+      val recallRequest = generateCreateRecallRequest()
       whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(recallId))
 
       val result = controller.createRecall(offenderId, recallRequest)
