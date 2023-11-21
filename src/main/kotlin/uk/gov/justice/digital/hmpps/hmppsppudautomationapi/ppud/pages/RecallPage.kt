@@ -98,6 +98,7 @@ class RecallPage(
   @FindBy(id = "cntDetails_chkMAND_DOC_CHARGE_SHEET")
   private lateinit var missingChargeSheetCheckbox: WebElement
 
+  // We need to detect if the Add Minute button isn't available, rather than throw an exception
   private val addMinuteButton: WebElement?
     get() = driver.findElements(By.id("cntDetails_PageFooter1_Minutes1_btnReplyTop")).firstOrNull()
 
@@ -166,7 +167,15 @@ class RecallPage(
   }
 
   fun extractRecallDetails(): Recall {
-    return Recall("")
+    // This should be performed when the Recall screen is in "existing recall" mode.
+    // The add minute button is shown then, but not for a new recall
+    if (addMinuteButton?.isDisplayed == true) {
+      val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
+      val (id) = idMatch.destructured
+      return Recall(id = id)
+    } else {
+      throw AutomationException("Recall screen not refreshed")
+    }
   }
 
   private fun waitForDropdownPopulation(dropdown: WebElement) {

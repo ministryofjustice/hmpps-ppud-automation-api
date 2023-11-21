@@ -16,6 +16,7 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
+    // This is an offender that exists in PPUD InternalTest
     @JvmStatic
     private val ppudOffenderWithRelease: TestOffender
       get() = TestOffender(
@@ -94,7 +95,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when recall called then created is returned`() {
+  fun `given complete set of valid values in request body when recall called then 201 created and recall Id is returned`() {
     val requestBody = createRecallRequestBody()
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
@@ -103,10 +104,12 @@ class OffenderRecallTest : IntegrationTestBase() {
       .exchange()
       .expectStatus()
       .isCreated
+      .expectBody()
+      .jsonPath("recall.id").isNotEmpty()
   }
 
   @Test
-  fun `given offender is already in custody when recall called then created is returned`() {
+  fun `given offender is already in custody when recall called then 201 created and recall Id is returned`() {
     val requestBody = createRecallRequestBody(isInCustody = true)
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
