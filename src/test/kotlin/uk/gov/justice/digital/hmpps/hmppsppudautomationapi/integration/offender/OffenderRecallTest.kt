@@ -6,8 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -26,6 +26,9 @@ class OffenderRecallTest : IntegrationTestBase() {
         releaseDate = "2013-02-02",
       )
 
+    // Watch out for the different hyphens in the dropdown options
+    private const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
+
     private const val ppudValidUserFullName = "Consider a Recall Test(Recall 1)"
 
     private const val ppudValidProbationArea = "Merseyside"
@@ -36,12 +39,17 @@ class OffenderRecallTest : IntegrationTestBase() {
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
         MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
+        MandatoryFieldTestData("mappaLevel", createRecallRequestBody(mappaLevel = "")),
         MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
         MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
         MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
         MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
         MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
-        MandatoryFieldTestData("riskOfSeriousHarmLevel", createRecallRequestBody(riskOfSeriousHarmLevel = "")),
+        MandatoryFieldTestData(
+          "riskOfSeriousHarmLevel",
+          createRecallRequestBody(riskOfSeriousHarmLevel = ""),
+          errorFragment = "RiskOfSeriousHarmLevel",
+        ),
         MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
       )
     }
@@ -51,18 +59,20 @@ class OffenderRecallTest : IntegrationTestBase() {
       decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
       isInCustody: String = "false",
       isExtendedSentence: String = "false",
+      mappaLevel: String = ppudValidMappaLevel,
       policeForce: String = ppudValidPoliceForce,
       probationArea: String = ppudValidProbationArea,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
       recommendedToOwner: String = ppudValidUserFullName,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
-      riskOfSeriousHarmLevel: String = randomString("rosh"),
+      riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
       sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
     ): String {
       return "{" +
         "\"decisionDateTime\":\"${decisionDateTime}\", " +
         "\"isInCustody\":\"$isInCustody\", " +
         "\"isExtendedSentence\":\"$isExtendedSentence\", " +
+        "\"mappaLevel\":\"${mappaLevel}\", " +
         "\"policeForce\":\"${policeForce}\", " +
         "\"probationArea\":\"$probationArea\", " +
         "\"receivedDateTime\":\"${receivedDateTime}\", " +
@@ -88,6 +98,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   fun `given missing mandatory value in request body when recall called then bad request is returned`(
     data: MandatoryFieldTestData,
   ) {
+    val errorFragment = data.errorFragment ?: data.propertyName
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +108,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .isBadRequest
       .expectBody()
       .jsonPath("userMessage")
-      .value(Consumer<String> { assertThat(it).contains(data.propertyName) })
+      .value(Consumer<String> { assertThat(it).contains(errorFragment) })
   }
 
   @Test
@@ -135,5 +146,6 @@ class OffenderRecallTest : IntegrationTestBase() {
   class MandatoryFieldTestData(
     val propertyName: String,
     val requestBody: String,
+    val errorFragment: String? = null,
   )
 }

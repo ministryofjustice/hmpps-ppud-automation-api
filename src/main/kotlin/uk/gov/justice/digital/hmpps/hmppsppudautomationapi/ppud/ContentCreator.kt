@@ -21,7 +21,7 @@ internal class ContentCreator {
     }
     return "BACKGROUND INFO ${System.lineSeparator()}" +
       "Extended sentence: $extended${System.lineSeparator()}" +
-      "Risk of Serious Harm Level: ${createRecallRequest.riskOfSeriousHarmLevel.uppercase()}${System.lineSeparator()}" +
+      "Risk of Serious Harm Level: ${createRecallRequest.riskOfSeriousHarmLevel.descriptor.uppercase()}${System.lineSeparator()}" +
       "In custody: $custody"
   }
 }

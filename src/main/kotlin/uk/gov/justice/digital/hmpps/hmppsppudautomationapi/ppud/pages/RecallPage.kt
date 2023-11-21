@@ -113,12 +113,6 @@ internal class RecallPage(
   private val saveMinuteButton: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_btnSave"))
 
-  private val deliveryActualInput: WebElement
-    get() = driver.findElement(By.id("igtxtcntDetails_PageFooter1_docEdit_dteDELIVERY_ACTUAL"))
-
-  private val replyActualInput: WebElement
-    get() = driver.findElement(By.id("igtxtcntDetails_PageFooter1_docEdit_dteREPLY_ACTUAL"))
-
   private val validationSummary: WebElement?
     get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 
@@ -146,6 +140,7 @@ internal class RecallPage(
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
     }
+    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createRecallRequest.mappaLevel) // Mappa level supposed to be populated automatically
     decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
     reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
     recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))

@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -39,23 +40,31 @@ fun randomPpudId(): String {
   return "4F${randomSerial}E64657269643D313632393134G721H665"
 }
 
+fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
+  val randomIndex = Random.nextInt(0, RiskOfSeriousHarmLevel.entries.count() - 1)
+  return RiskOfSeriousHarmLevel.entries[randomIndex]
+}
+
+// This will create a request that is useful for mocked testing but uses random values
+// so some of the values won't be acceptable to PPUD.
 fun generateCreateRecallRequest(
   sentenceDate: LocalDate? = null,
   releaseDate: LocalDate? = null,
   isExtendedSentence: Boolean? = null,
   isInCustody: Boolean? = null,
-  riskOfSeriousHarmLevel: String? = null,
+  riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
   return CreateRecallRequest(
     decisionDateTime = randomTimeToday(),
     isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),
     isInCustody = isInCustody ?: Random.nextBoolean(),
+    mappaLevel = randomString("mappaLevel"),
     policeForce = randomString("policeForce"),
     probationArea = randomString("probationArea"),
     receivedDateTime = randomTimeToday(),
     recommendedToOwner = randomString("recommendedToOwner"),
     releaseDate = releaseDate ?: randomDate(),
-    riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomString("rosh"),
+    riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
     sentenceDate = sentenceDate ?: randomDate(),
   )
 }

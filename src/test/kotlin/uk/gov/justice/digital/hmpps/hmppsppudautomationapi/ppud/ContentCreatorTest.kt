@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.junit.jupiter.MockitoExtension
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 
 @ExtendWith(MockitoExtension::class)
@@ -28,14 +29,17 @@ class ContentCreatorTest {
   @ParameterizedTest
   @CsvSource(
     "Low,LOW",
+    "Medium,MEDIUM",
     "High,HIGH",
+    "VeryHigh,VERY HIGH",
   )
   fun `given risk of serious harm level when generateMinuteText is called then text contains level`(
     riskOfSeriousHarmLevel: String,
     expected: String,
   ) {
     val creator = ContentCreator()
-    val request = generateCreateRecallRequest(riskOfSeriousHarmLevel = riskOfSeriousHarmLevel)
+    val request =
+      generateCreateRecallRequest(riskOfSeriousHarmLevel = RiskOfSeriousHarmLevel.valueOf(riskOfSeriousHarmLevel))
     val result = creator.generateMinuteText(request)
     assertTrue(result.contains("Risk of Serious Harm Level: $expected"), "Text was:\n$result")
   }
