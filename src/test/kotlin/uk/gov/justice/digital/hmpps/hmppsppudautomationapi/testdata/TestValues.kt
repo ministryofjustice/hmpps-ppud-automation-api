@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -68,5 +69,24 @@ fun generateCreateRecallRequest(
     riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
     riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
     sentenceDate = sentenceDate ?: randomDate(),
+  )
+}
+
+fun generateRecall(id: String = randomPpudId()): Recall {
+  return Recall(
+    id = id,
+    allMandatoryDocumentsReceived = "No",
+    decisionDateTime = randomTimeToday(),
+    isInCustody = Random.nextBoolean(),
+    mappaLevel = randomString("mappaLevel"),
+    owningTeam = randomString("owningTeam"),
+    policeForce = randomString("policeForce"),
+    probationArea = randomString("probationArea"),
+    recallType = randomString("recallType"),
+    receivedDateTime = randomTimeToday(),
+    recommendedToDateTime = randomTimeToday(),
+    recommendedToOwner = randomString("recommendedToOwner"),
+    returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
+    revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
   )
 }

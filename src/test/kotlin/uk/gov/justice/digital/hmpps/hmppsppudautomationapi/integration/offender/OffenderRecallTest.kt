@@ -1,16 +1,25 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.IsSameDayAs
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -30,11 +39,21 @@ class OffenderRecallTest : IntegrationTestBase() {
     // Watch out for the different hyphens in the dropdown options
     private const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
 
-    private const val ppudValidUserFullName = "Consider a Recall Test(Recall 1)"
+    private const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
+
+    private const val ppudValidUserFullName = "Consider a Recall Test"
 
     private const val ppudValidProbationArea = "Merseyside"
 
     private const val ppudValidPoliceForce = "Kent Police"
+
+    private const val ppudExpectedRecallType = "Standard"
+
+    private const val ppudExpectedOwningTeam = "Recall 1"
+
+    private const val ppudExpectedRevocationIssuedByOwner = "EO Officer"
+
+    private const val ppudExpectedReturnToCustodyNotificationMethod = "Not Applicable"
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -57,14 +76,14 @@ class OffenderRecallTest : IntegrationTestBase() {
 
     @JvmStatic
     private fun createRecallRequestBody(
-      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
+      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       isInCustody: String = "false",
       isExtendedSentence: String = "false",
       mappaLevel: String = ppudValidMappaLevel,
       policeForce: String = ppudValidPoliceForce,
       probationArea: String = ppudValidProbationArea,
-      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
-      recommendedToOwner: String = ppudValidUserFullName,
+      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      recommendedToOwner: String = ppudValidUserFullNameAndTeam,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
@@ -129,15 +148,58 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given offender is already in custody when recall called then 201 created and recall Id are returned`() {
+  fun `given valid values in request body when recall called then recall is created using supplied values`() {
+    val decisionDateTime = randomTimeToday()
+    val receivedDateTime = randomTimeToday().truncatedTo(ChronoUnit.MINUTES)
+    val requestBody = createRecallRequestBody(
+      decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+    )
+
+    val id = postRecall(requestBody)
+
+    val retrieved = retrieveRecall(id)
+    retrieved.jsonPath("recall.id").isEqualTo(id)
+      .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("No")
+      .jsonPath("recall.decisionDateTime").isEqualTo(decisionDateTime.withoutSeconds())
+      .jsonPath("recall.mappaLevel").isEqualTo(ppudValidMappaLevel)
+      .jsonPath("recall.owningTeam").isEqualTo(ppudExpectedOwningTeam)
+      .jsonPath("recall.policeForce").isEqualTo(ppudValidPoliceForce)
+      .jsonPath("recall.probationArea").isEqualTo(ppudValidProbationArea)
+      .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
+      .jsonPath("recall.recommendedToOwner").isEqualTo(ppudValidUserFullName)
+      .jsonPath("recall.recallType").isEqualTo(ppudExpectedRecallType)
+      .jsonPath("recall.revocationIssuedByOwner").isEqualTo(ppudExpectedRevocationIssuedByOwner)
+    val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
+    retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
+    assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
+  }
+
+  @Test
+  fun `given offender is already in custody when recall called then UAL is unchecked UAL check is not set and return to custody is set`() {
     val requestBody = createRecallRequestBody(isInCustody = "true")
-    webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
-      .expectStatus()
-      .isCreated
+
+    val id = postRecall(requestBody)
+
+    val retrieved = retrieveRecall(id)
+    retrieved
+      .jsonPath("recall.isInCustody").isEqualTo("true")
+      .jsonPath("recall.nextUalCheck").value(isNull())
+      .jsonPath("recall.returnToCustodyNotificationMethod")
+      .isEqualTo(ppudExpectedReturnToCustodyNotificationMethod)
+  }
+
+  @Test
+  fun `given offender is not in custody when recall called then UAL is checked UAL check is set and return to custody is not set`() {
+    val requestBody = createRecallRequestBody(isInCustody = "false")
+    val id = postRecall(requestBody)
+
+    val retrieved = retrieveRecall(id)
+    retrieved
+      .jsonPath("recall.isInCustody").isEqualTo("false")
+      .jsonPath("recall.nextUalCheck")
+      .isEqualTo(LocalDate.now().plusMonths(6).format(DateTimeFormatter.ISO_LOCAL_DATE))
+      .jsonPath("recall.returnToCustodyNotificationMethod").isEqualTo("Not Specified")
   }
 
   @Test
@@ -150,6 +212,32 @@ class OffenderRecallTest : IntegrationTestBase() {
       .exchange()
       .expectStatus()
       .isCreated
+  }
+
+  private fun postRecall(requestBody: String): String {
+    val idExtractor = ValueConsumer<String>()
+    webTestClient.post()
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectStatus()
+      .isCreated
+      .expectBody()
+      .jsonPath("recall.id").value(idExtractor)
+    val id = idExtractor.value
+    assertNotNull(id, "ID returned from create recall request is null")
+    assertTrue(id!!.isNotEmpty(), "ID returned from create recall request is empty")
+    return id
+  }
+
+  private fun retrieveRecall(id: String): BodyContentSpec {
+    return webTestClient.get()
+      .uri("/recall/$id")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
   }
 
   class TestOffender(

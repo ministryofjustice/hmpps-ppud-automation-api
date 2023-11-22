@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -35,6 +38,8 @@ internal class RecallPage(
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
 ) {
 
+  private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
+
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
 
@@ -49,6 +54,9 @@ internal class RecallPage(
 
   @FindBy(id = "cntDetails_ddliMAPPA_LEVEL")
   private lateinit var mappaLevelDropdown: WebElement
+
+  @FindBy(id = "cntDetails_aceiOWNING_TEAM_AutoCompleteTextBox")
+  private lateinit var owningTeamInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteUAL_CHECK")
   private lateinit var nextUalCheckInput: WebElement
@@ -133,14 +141,17 @@ internal class RecallPage(
     // Complete standalone fields
     selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType)
     selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea)
-    selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody)
+    selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
       selectDropdownOptionIfNotBlank(returnToCustodyNotificationMethodDropdown, returnToCustodyNotificationMethod)
     } else {
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
     }
-    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createRecallRequest.mappaLevel) // Mappa level supposed to be populated automatically
+    selectDropdownOptionIfNotBlank(
+      mappaLevelDropdown,
+      createRecallRequest.mappaLevel,
+    ) // Mappa level supposed to be populated automatically
     decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
     reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
     recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))
@@ -173,16 +184,39 @@ internal class RecallPage(
     }
   }
 
-  fun extractRecallDetails(): Recall {
+  fun extractRecallSummaryDetails(): RecallSummary {
     // This should be performed when the Recall screen is in "existing recall" mode.
     // The add minute button is shown then, but not for a new recall
     if (addMinuteButton?.isDisplayed == true) {
-      val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
-      val (id) = idMatch.destructured
-      return Recall(id = id)
+      return RecallSummary(id = extractIdFromUrl())
     } else {
       throw AutomationException("Recall screen not refreshed")
     }
+  }
+
+  fun extractRecallDetails(): Recall {
+    val nextUalCheckValue = nextUalCheckInput.getValue()
+    return Recall(
+      id = extractIdFromUrl(),
+      allMandatoryDocumentsReceived = Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text,
+      decisionDateTime = LocalDateTime.parse(decisionFollowingBreachDateInput.getValue(), dateTimeFormatter),
+      isInCustody = ualCheckbox.isSelected.not(),
+      mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
+      nextUalCheck = if (nextUalCheckValue.isNotEmpty()) LocalDate.parse(nextUalCheckValue, dateFormatter) else null,
+      owningTeam = owningTeamInput.getValue(),
+      policeForce = Select(policeForceDropdown).firstSelectedOption.text,
+      probationArea = Select(probationAreaDropdown).firstSelectedOption.text,
+      recallType = Select(recallTypeDropdown).firstSelectedOption.text,
+      receivedDateTime = LocalDateTime.parse(reportReceivedDateInput.getValue(), dateTimeFormatter),
+      recommendedToDateTime = LocalDateTime.parse(recommendedToDateInput.getValue(), dateTimeFormatter),
+      recommendedToOwner = recommendedToOwnerInput.getValue(),
+      returnToCustodyNotificationMethod = Select(returnToCustodyNotificationMethodDropdown).firstSelectedOption.text,
+      revocationIssuedByOwner = revocationIssuedByOwnerInput.getValue(),
+    )
+  }
+
+  fun urlFor(id: String): String {
+    return urlPathTemplate.replace("{id}", id)
   }
 
   private fun waitForDropdownPopulation(dropdown: WebElement) {
@@ -207,5 +241,11 @@ internal class RecallPage(
     minuteEditor.click()
     minuteEditor.sendKeys(text)
     saveMinuteButton.click()
+  }
+
+  private fun extractIdFromUrl(): String {
+    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
+    val (id) = idMatch.destructured
+    return id
   }
 }

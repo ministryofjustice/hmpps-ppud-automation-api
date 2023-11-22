@@ -1,5 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
 
-class CreateRecallResponse(
-  val recall: RecallSummary,
+class GetRecallResponse(
+  val recall: Recall,
 )
