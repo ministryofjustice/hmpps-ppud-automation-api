@@ -8,6 +8,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -65,6 +66,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_DATE_TIME),
       recommendedToOwner: String = ppudValidUserFullName,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
+      riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
       sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
     ): String {
@@ -78,6 +80,7 @@ class OffenderRecallTest : IntegrationTestBase() {
         "\"receivedDateTime\":\"${receivedDateTime}\", " +
         "\"recommendedToOwner\":\"$recommendedToOwner\", " +
         "\"releaseDate\":\"$releaseDate\", " +
+        "\"riskOfContrabandDetails\":\"$riskOfContrabandDetails\", " +
         "\"riskOfSeriousHarmLevel\":\"$riskOfSeriousHarmLevel\", " +
         "\"sentenceDate\":\"$sentenceDate\" " +
         "}"
@@ -128,6 +131,18 @@ class OffenderRecallTest : IntegrationTestBase() {
   @Test
   fun `given offender is already in custody when recall called then 201 created and recall Id are returned`() {
     val requestBody = createRecallRequestBody(isInCustody = "true")
+    webTestClient.post()
+      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectStatus()
+      .isCreated
+  }
+
+  @Test
+  fun `given risk of contraband details when recall called then 201 created and recall Id are returned`() {
+    val requestBody = createRecallRequestBody(riskOfContrabandDetails = randomString("riskOfContrabandDetails"))
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
       .contentType(MediaType.APPLICATION_JSON)

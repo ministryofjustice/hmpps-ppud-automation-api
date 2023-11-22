@@ -52,6 +52,7 @@ fun generateCreateRecallRequest(
   releaseDate: LocalDate? = null,
   isExtendedSentence: Boolean? = null,
   isInCustody: Boolean? = null,
+  riskOfContrabandDetails: String? = null,
   riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
   return CreateRecallRequest(
@@ -64,6 +65,7 @@ fun generateCreateRecallRequest(
     receivedDateTime = randomTimeToday(),
     recommendedToOwner = randomString("recommendedToOwner"),
     releaseDate = releaseDate ?: randomDate(),
+    riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
     riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
     sentenceDate = sentenceDate ?: randomDate(),
   )

@@ -92,7 +92,8 @@ internal class PpudClient(
     offenderPage.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
     recallPage.createRecall(recallRequest)
     recallPage.throwIfInvalid()
-    recallPage.addMinute(recallRequest)
+    recallPage.addDetailsMinute(recallRequest)
+    recallPage.addContrabandMinuteIfNeeded(recallRequest)
     return recallPage.extractRecallDetails()
   }
 

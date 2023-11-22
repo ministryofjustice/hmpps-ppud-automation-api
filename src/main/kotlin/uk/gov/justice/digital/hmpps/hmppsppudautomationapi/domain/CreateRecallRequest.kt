@@ -19,6 +19,7 @@ class CreateRecallRequest(
   @field:NotBlank
   val recommendedToOwner: String,
   val releaseDate: LocalDate,
+  val riskOfContrabandDetails: String = "",
   @field:NotNull
   val riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel,
   val sentenceDate: LocalDate,

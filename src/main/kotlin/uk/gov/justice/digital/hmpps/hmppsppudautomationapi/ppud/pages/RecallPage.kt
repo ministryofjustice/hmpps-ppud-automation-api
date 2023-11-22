@@ -157,13 +157,14 @@ internal class RecallPage(
     saveButton.click()
   }
 
-  fun addMinute(createRecallRequest: CreateRecallRequest) {
-    WebDriverWait(driver, Duration.ofSeconds(2))
-      .until(ExpectedConditions.elementToBeClickable(By.id(addMinuteButtonId)))
-    addMinuteButton?.click()
-    minuteEditor.click()
-    minuteEditor.sendKeys(contentCreator.generateMinuteText(createRecallRequest))
-    saveMinuteButton.click()
+  fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
+    addMinute(contentCreator.generateMinuteText(createRecallRequest))
+  }
+
+  fun addContrabandMinuteIfNeeded(createRecallRequest: CreateRecallRequest) {
+    if (createRecallRequest.riskOfContrabandDetails.isNotBlank()) {
+      addMinute(createRecallRequest.riskOfContrabandDetails)
+    }
   }
 
   fun throwIfInvalid() {
@@ -197,5 +198,14 @@ internal class RecallPage(
     selectCheckboxValue(missingPreviousConvictionsCheckbox, true)
     selectCheckboxValue(missingLicenceCheckbox, true)
     selectCheckboxValue(missingChargeSheetCheckbox, true)
+  }
+
+  private fun addMinute(text: String) {
+    WebDriverWait(driver, Duration.ofSeconds(2))
+      .until(ExpectedConditions.elementToBeClickable(By.id(addMinuteButtonId)))
+    addMinuteButton?.click()
+    minuteEditor.click()
+    minuteEditor.sendKeys(text)
+    saveMinuteButton.click()
   }
 }

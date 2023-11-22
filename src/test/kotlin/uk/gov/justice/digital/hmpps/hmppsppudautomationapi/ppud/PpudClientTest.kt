@@ -231,8 +231,24 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(offenderPage).should(inOrder).navigateToNewRecallFor(sentenceDate, releaseDate)
       then(recallPage).should(inOrder).createRecall(createRecallRequest)
-      then(recallPage).should(inOrder).addMinute(createRecallRequest)
+      then(recallPage).should(inOrder).addDetailsMinute(createRecallRequest)
       assertEquals(recallId, newRecall.id)
+    }
+  }
+
+  @Test
+  fun `given contraband risk detail when create recall is called then add contraband minute`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val createRecallRequest = generateCreateRecallRequest(riskOfContrabandDetails = randomString("contraband"))
+      val recallId = randomPpudId()
+      given(recallPage.extractRecallDetails()).willReturn(Recall(recallId))
+
+      client.createRecall(offenderId, createRecallRequest)
+
+      val inOrder = inOrder(recallPage)
+      then(recallPage).should(inOrder).addDetailsMinute(createRecallRequest)
+      then(recallPage).should(inOrder).addContrabandMinuteIfNeeded(createRecallRequest)
     }
   }
 
