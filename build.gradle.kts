@@ -17,10 +17,24 @@ dependencies {
   implementation("org.seleniumhq.selenium:selenium-java:4.15.0")
   implementation("org.seleniumhq.selenium:selenium-http-jdk-client:4.13.0")
   implementation("io.github.bonigarcia:webdrivermanager:5.6.2")
-  implementation("commons-io:commons-io:2.15.0") // Address CVE-2021-29425
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+  implementation("commons-io:commons-io:2.15.0") // Address CVE-2021-29425
+  implementation("org.seleniumhq.selenium:selenium-api:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-chrome-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-chromium-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-devtools-v85:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-edge-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-firefox-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-http:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-ie-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-json:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-manager:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-remote-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-safari-driver:4.15.0") // Address CVE-2023-5590
+  implementation("org.seleniumhq.selenium:selenium-support:4.15.0") // Address CVE-2023-5590
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
 }
