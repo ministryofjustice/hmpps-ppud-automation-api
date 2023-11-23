@@ -8,6 +8,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
@@ -48,12 +49,20 @@ internal class PpudClient(
     }
   }
 
-  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): Recall {
+  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): RecallSummary {
     log.info("Creating new recall in PPUD Client")
 
     login()
 
     return createNewRecall(offenderId, recallRequest)
+  }
+
+  suspend fun retrieveRecall(id: String): Recall {
+    log.info("Retrieving recall in PPUD Client with ID '$id'")
+
+    login()
+
+    return extractRecallDetails(id)
   }
 
   private suspend fun login() {
@@ -87,17 +96,23 @@ internal class PpudClient(
   private suspend fun createNewRecall(
     offenderId: String,
     recallRequest: CreateRecallRequest,
-  ): Recall {
+  ): RecallSummary {
     offenderPage.viewOffenderWithId(offenderId)
     offenderPage.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
     recallPage.createRecall(recallRequest)
     recallPage.throwIfInvalid()
-    recallPage.addMinute(recallRequest)
-    return recallPage.extractRecallDetails()
+    recallPage.addDetailsMinute(recallRequest)
+    recallPage.addContrabandMinuteIfNeeded(recallRequest)
+    return recallPage.extractRecallSummaryDetails()
   }
 
-  private suspend fun extractOffenderDetails(it: String): Offender {
-    driver.get(it)
+  private suspend fun extractOffenderDetails(url: String): Offender {
+    driver.get(url)
     return offenderPage.extractOffenderDetails()
+  }
+
+  private suspend fun extractRecallDetails(id: String): Recall {
+    driver.get("$ppudUrl${recallPage.urlFor(id)}")
+    return recallPage.extractRecallDetails()
   }
 }

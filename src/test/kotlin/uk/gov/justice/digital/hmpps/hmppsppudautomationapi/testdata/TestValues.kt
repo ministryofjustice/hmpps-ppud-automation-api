@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -39,18 +41,52 @@ fun randomPpudId(): String {
   return "4F${randomSerial}E64657269643D313632393134G721H665"
 }
 
-fun randomCreateRecallRequest(
+fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
+  val randomIndex = Random.nextInt(0, RiskOfSeriousHarmLevel.entries.count() - 1)
+  return RiskOfSeriousHarmLevel.entries[randomIndex]
+}
+
+// This will create a request that is useful for mocked testing but uses random values
+// so some of the values won't be acceptable to PPUD.
+fun generateCreateRecallRequest(
   sentenceDate: LocalDate? = null,
   releaseDate: LocalDate? = null,
+  isExtendedSentence: Boolean? = null,
+  isInCustody: Boolean? = null,
+  riskOfContrabandDetails: String? = null,
+  riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
   return CreateRecallRequest(
-    sentenceDate = sentenceDate ?: randomDate(),
-    releaseDate = releaseDate ?: randomDate(),
-    recommendedToOwner = randomString("recommendedToOwner"),
-    probationArea = randomString("probationArea"),
-    isInCustody = Random.nextBoolean(),
     decisionDateTime = randomTimeToday(),
-    receivedDateTime = randomTimeToday(),
+    isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),
+    isInCustody = isInCustody ?: Random.nextBoolean(),
+    mappaLevel = randomString("mappaLevel"),
     policeForce = randomString("policeForce"),
+    probationArea = randomString("probationArea"),
+    receivedDateTime = randomTimeToday(),
+    recommendedToOwner = randomString("recommendedToOwner"),
+    releaseDate = releaseDate ?: randomDate(),
+    riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
+    riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
+    sentenceDate = sentenceDate ?: randomDate(),
+  )
+}
+
+fun generateRecall(id: String = randomPpudId()): Recall {
+  return Recall(
+    id = id,
+    allMandatoryDocumentsReceived = "No",
+    decisionDateTime = randomTimeToday(),
+    isInCustody = Random.nextBoolean(),
+    mappaLevel = randomString("mappaLevel"),
+    owningTeam = randomString("owningTeam"),
+    policeForce = randomString("policeForce"),
+    probationArea = randomString("probationArea"),
+    recallType = randomString("recallType"),
+    receivedDateTime = randomTimeToday(),
+    recommendedToDateTime = randomTimeToday(),
+    recommendedToOwner = randomString("recommendedToOwner"),
+    returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
+    revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
   )
 }

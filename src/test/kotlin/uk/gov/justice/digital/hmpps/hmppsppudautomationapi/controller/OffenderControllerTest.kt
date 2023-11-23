@@ -11,9 +11,9 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import java.time.LocalDate
 import java.util.UUID
 
@@ -55,8 +55,8 @@ internal class OffenderControllerTest {
   fun `given recall data when createRecall is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderId = UUID.randomUUID().toString()
-      val recallRequest = randomCreateRecallRequest()
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(""))
+      val recallRequest = generateCreateRecallRequest()
+      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(RecallSummary(""))
 
       controller.createRecall(offenderId, recallRequest)
 
@@ -69,8 +69,8 @@ internal class OffenderControllerTest {
     runBlocking {
       val offenderId = UUID.randomUUID().toString()
       val recallId = UUID.randomUUID().toString()
-      val recallRequest = randomCreateRecallRequest()
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(Recall(recallId))
+      val recallRequest = generateCreateRecallRequest()
+      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(RecallSummary(recallId))
 
       val result = controller.createRecall(offenderId, recallRequest)
 

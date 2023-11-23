@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
@@ -12,25 +13,32 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-class RecallPage(
+internal class RecallPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
   private val dateTimeFormatter: DateTimeFormatter,
+  private val contentCreator: ContentCreator,
   @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
   @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
 ) {
+
+  private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -46,6 +54,9 @@ class RecallPage(
 
   @FindBy(id = "cntDetails_ddliMAPPA_LEVEL")
   private lateinit var mappaLevelDropdown: WebElement
+
+  @FindBy(id = "cntDetails_aceiOWNING_TEAM_AutoCompleteTextBox")
+  private lateinit var owningTeamInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteUAL_CHECK")
   private lateinit var nextUalCheckInput: WebElement
@@ -98,20 +109,17 @@ class RecallPage(
   @FindBy(id = "cntDetails_chkMAND_DOC_CHARGE_SHEET")
   private lateinit var missingChargeSheetCheckbox: WebElement
 
+  private val addMinuteButtonId = "cntDetails_PageFooter1_Minutes1_btnReplyTop"
+
+  // We need to detect if the Add Minute button isn't available, rather than throw an exception
   private val addMinuteButton: WebElement?
-    get() = driver.findElements(By.id("cntDetails_PageFooter1_Minutes1_btnReplyTop")).firstOrNull()
+    get() = driver.findElements(By.id(addMinuteButtonId)).firstOrNull()
 
   private val minuteEditor: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_MinutesTextRich_tw"))
 
   private val saveMinuteButton: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_btnSave"))
-
-  private val deliveryActualInput: WebElement
-    get() = driver.findElement(By.id("igtxtcntDetails_PageFooter1_docEdit_dteDELIVERY_ACTUAL"))
-
-  private val replyActualInput: WebElement
-    get() = driver.findElement(By.id("igtxtcntDetails_PageFooter1_docEdit_dteREPLY_ACTUAL"))
 
   private val validationSummary: WebElement?
     get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
@@ -133,13 +141,17 @@ class RecallPage(
     // Complete standalone fields
     selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType)
     selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea)
-    selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody)
+    selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
       selectDropdownOptionIfNotBlank(returnToCustodyNotificationMethodDropdown, returnToCustodyNotificationMethod)
     } else {
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
     }
+    selectDropdownOptionIfNotBlank(
+      mappaLevelDropdown,
+      createRecallRequest.mappaLevel,
+    ) // Mappa level supposed to be populated automatically
     decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
     reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
     recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))
@@ -156,7 +168,14 @@ class RecallPage(
     saveButton.click()
   }
 
-  suspend fun addMinute(createRecallRequest: CreateRecallRequest) {
+  fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
+    addMinute(contentCreator.generateMinuteText(createRecallRequest))
+  }
+
+  fun addContrabandMinuteIfNeeded(createRecallRequest: CreateRecallRequest) {
+    if (createRecallRequest.riskOfContrabandDetails.isNotBlank()) {
+      addMinute(createRecallRequest.riskOfContrabandDetails)
+    }
   }
 
   fun throwIfInvalid() {
@@ -165,8 +184,39 @@ class RecallPage(
     }
   }
 
+  fun extractRecallSummaryDetails(): RecallSummary {
+    // This should be performed when the Recall screen is in "existing recall" mode.
+    // The add minute button is shown then, but not for a new recall
+    if (addMinuteButton?.isDisplayed == true) {
+      return RecallSummary(id = extractIdFromUrl())
+    } else {
+      throw AutomationException("Recall screen not refreshed")
+    }
+  }
+
   fun extractRecallDetails(): Recall {
-    return Recall("")
+    val nextUalCheckValue = nextUalCheckInput.getValue()
+    return Recall(
+      id = extractIdFromUrl(),
+      allMandatoryDocumentsReceived = Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text,
+      decisionDateTime = LocalDateTime.parse(decisionFollowingBreachDateInput.getValue(), dateTimeFormatter),
+      isInCustody = ualCheckbox.isSelected.not(),
+      mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
+      nextUalCheck = if (nextUalCheckValue.isNotEmpty()) LocalDate.parse(nextUalCheckValue, dateFormatter) else null,
+      owningTeam = owningTeamInput.getValue(),
+      policeForce = Select(policeForceDropdown).firstSelectedOption.text,
+      probationArea = Select(probationAreaDropdown).firstSelectedOption.text,
+      recallType = Select(recallTypeDropdown).firstSelectedOption.text,
+      receivedDateTime = LocalDateTime.parse(reportReceivedDateInput.getValue(), dateTimeFormatter),
+      recommendedToDateTime = LocalDateTime.parse(recommendedToDateInput.getValue(), dateTimeFormatter),
+      recommendedToOwner = recommendedToOwnerInput.getValue(),
+      returnToCustodyNotificationMethod = Select(returnToCustodyNotificationMethodDropdown).firstSelectedOption.text,
+      revocationIssuedByOwner = revocationIssuedByOwnerInput.getValue(),
+    )
+  }
+
+  fun urlFor(id: String): String {
+    return urlPathTemplate.replace("{id}", id)
   }
 
   private fun waitForDropdownPopulation(dropdown: WebElement) {
@@ -182,5 +232,20 @@ class RecallPage(
     selectCheckboxValue(missingPreviousConvictionsCheckbox, true)
     selectCheckboxValue(missingLicenceCheckbox, true)
     selectCheckboxValue(missingChargeSheetCheckbox, true)
+  }
+
+  private fun addMinute(text: String) {
+    WebDriverWait(driver, Duration.ofSeconds(2))
+      .until(ExpectedConditions.elementToBeClickable(By.id(addMinuteButtonId)))
+    addMinuteButton?.click()
+    minuteEditor.click()
+    minuteEditor.sendKeys(text)
+    saveMinuteButton.click()
+  }
+
+  private fun extractIdFromUrl(): String {
+    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
+    val (id) = idMatch.destructured
+    return id
   }
 }
