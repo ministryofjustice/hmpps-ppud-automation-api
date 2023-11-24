@@ -9,7 +9,7 @@ generic-service:
 
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
-    PPUD_URL: https://internaltest.ppud.justice.gov.uk
+    PPUD_URL: https://uat.ppud.justice.gov.uk
     PPUD_RECALL_REVOCATIONISSUEDBYOWNER: "EO Recall(Recall Team)"
     PPUD_RECALL_RECALLTYPE: "To be determined"
     PPUD_RECALL_RETURNTOCUSTODYNOTIFICATIONMETHOD: "Already in custody"
