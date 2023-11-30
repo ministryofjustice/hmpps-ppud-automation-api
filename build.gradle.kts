@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.9.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.10.0"
   kotlin("plugin.spring") version "1.9.21"
   id("org.sonarqube") version "4.4.1.3373"
   id("jacoco")
@@ -21,7 +21,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("commons-io:commons-io:2.15.0") // Address CVE-2021-29425
+  implementation("commons-io:commons-io:2.15.1") // Address CVE-2021-29425
   implementation("org.seleniumhq.selenium:selenium-api:4.15.0") // Address CVE-2023-5590
   implementation("org.seleniumhq.selenium:selenium-chrome-driver:4.15.0") // Address CVE-2023-5590
   implementation("org.seleniumhq.selenium:selenium-chromium-driver:4.15.0") // Address CVE-2023-5590
