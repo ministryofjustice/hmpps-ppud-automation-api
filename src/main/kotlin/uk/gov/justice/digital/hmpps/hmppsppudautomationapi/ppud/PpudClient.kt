@@ -9,6 +9,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRe
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
@@ -23,6 +25,8 @@ internal class PpudClient(
   @Value("\${ppud.password}") private val ppudPassword: String,
   private val driver: WebDriver,
   private val loginPage: LoginPage,
+  private val adminPage: AdminPage,
+  private val editLookupsPage: EditLookupsPage,
   private val searchPage: SearchPage,
   private val offenderPage: OffenderPage,
   private val recallPage: RecallPage,
@@ -63,6 +67,14 @@ internal class PpudClient(
     login()
 
     return extractRecallDetails(id)
+  }
+
+  suspend fun retrieveLookupValues(): List<String> {
+    log.info("Retrieving lookup values for establishments")
+
+    login()
+
+    return extractLookupValues()
   }
 
   private suspend fun login() {
@@ -114,5 +126,12 @@ internal class PpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.get("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
+  }
+
+  private suspend fun extractLookupValues(): List<String> {
+    driver.get("$ppudUrl${adminPage.urlPath}")
+    adminPage.verifyOn()
+    adminPage.goToEditLookups()
+    return editLookupsPage.extractEstablishments()
   }
 }

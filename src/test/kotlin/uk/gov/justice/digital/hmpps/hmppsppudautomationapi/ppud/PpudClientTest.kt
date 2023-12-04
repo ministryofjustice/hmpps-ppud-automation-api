@@ -18,6 +18,8 @@ import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
@@ -41,6 +43,12 @@ class PpudClientTest {
   private lateinit var loginPage: LoginPage
 
   @Mock
+  private lateinit var adminPage: AdminPage
+
+  @Mock
+  private lateinit var editLookupsPage: EditLookupsPage
+
+  @Mock
   private lateinit var searchPage: SearchPage
 
   @Mock
@@ -61,7 +69,18 @@ class PpudClientTest {
   fun beforeEach() {
     ppudUsername = randomString("username")
     ppudPassword = randomString("password")
-    client = PpudClient(ppudUrl, ppudUsername, ppudPassword, driver, loginPage, searchPage, offenderPage, recallPage)
+    client = PpudClient(
+      ppudUrl,
+      ppudUsername,
+      ppudPassword,
+      driver,
+      loginPage,
+      adminPage,
+      editLookupsPage,
+      searchPage,
+      offenderPage,
+      recallPage,
+    )
   }
 
   @Test
@@ -299,6 +318,25 @@ class PpudClientTest {
       then(driver).should(inOrder).get("$ppudUrl$urlForId")
       then(recallPage).should(inOrder).extractRecallDetails()
       assertEquals(recall, result)
+    }
+  }
+
+  @Test
+  fun `when retrieveLookupValues is called then navigate to edit lookups and extract details`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(loginPage.urlPath).willReturn("/login")
+      given(adminPage.urlPath).willReturn("/adminPage")
+      given(editLookupsPage.extractEstablishments()).willReturn(values)
+
+      val result = client.retrieveLookupValues()
+
+      val inOrder = inOrder(driver, adminPage, editLookupsPage)
+      then(driver).should(inOrder).get("$ppudUrl/login")
+      then(driver).should(inOrder).get("$ppudUrl/adminPage")
+      then(adminPage).should(inOrder).goToEditLookups()
+      then(editLookupsPage).should(inOrder).extractEstablishments()
+      assertEquals(values, result)
     }
   }
 
