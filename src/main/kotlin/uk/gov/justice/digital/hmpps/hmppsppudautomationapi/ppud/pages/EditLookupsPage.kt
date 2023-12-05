@@ -27,7 +27,9 @@ internal class EditLookupsPage(driver: WebDriver) {
     selectLookupType("Establishment")
     val rows = lookupsTable.findElements(By.xpath(".//tr"))
     rows.removeFirst()
-    return rows.map { it.findElement(By.xpath(".//td[4]")).text }
+    return rows
+      .filter { it.findElement(By.xpath(".//td[last()]")).text == "Delete" }
+      .map { it.findElement(By.xpath(".//td[4]")).text }
   }
 
   private fun selectLookupType(lookupType: String) {
