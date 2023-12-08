@@ -69,3 +69,6 @@ automation:
   headless: true
   firefox:
     binary: ''
+
+cache:
+  timeToLiveSeconds: 20

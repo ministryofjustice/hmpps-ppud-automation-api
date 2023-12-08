@@ -21,6 +21,8 @@ generic-service:
     SPRING_PROFILES_ACTIVE: "logstash"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
+    SPRING_DATA_REDIS_SSL_ENABLED: "true"
+    CACHE_TIMETOLIVESECONDS: 43200  # 12 hours
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:
@@ -32,6 +34,9 @@ generic-service:
       APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
       PPUD_USERNAME: "PPUD_USERNAME"
       PPUD_PASSWORD: "PPUD_PASSWORD"
+    elasticache-redis:
+      SPRING_DATA_REDIS_HOST: "primary_endpoint_address"
+      SPRING_DATA_REDIS_PASSWORD: "auth_token"
 
   allowlist:
     groups:

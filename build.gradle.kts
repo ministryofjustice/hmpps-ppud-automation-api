@@ -15,6 +15,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
+  implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.seleniumhq.selenium:selenium-java:4.15.0")
   implementation("org.seleniumhq.selenium:selenium-http-jdk-client:4.13.0")
   implementation("io.github.bonigarcia:webdrivermanager:5.6.2")
