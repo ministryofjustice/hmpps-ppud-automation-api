@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.ReferenceResponse
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import java.util.*
 
 @RestController
 @RequestScope
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class ReferenceController(private val ppudClient: PpudClient) {
+internal class ReferenceController(private val referenceService: ReferenceService) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -24,7 +24,7 @@ internal class ReferenceController(private val ppudClient: PpudClient) {
   @GetMapping("/reference/establishments")
   suspend fun establishments(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data establishments endpoint hit")
-    val values = ppudClient.retrieveLookupValues()
+    val values = referenceService.retrieveEstablishments()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
 }
