@@ -19,17 +19,23 @@ internal class EditLookupsPage(driver: WebDriver) {
   @FindBy(id = "content_grdLOV")
   private lateinit var lookupsTable: WebElement
 
+  private val columnMap: Map<String, Int> = mapOf(
+    "Establishment" to 4,
+    "Ethnicity" to 2,
+  )
+
   init {
     PageFactory.initElements(driver, this)
   }
 
-  fun extractEstablishments(): List<String> {
-    selectLookupType("Establishment")
+  fun extractLookupValues(lookupName: String): List<String> {
+    selectLookupType(lookupName)
     val rows = lookupsTable.findElements(By.xpath(".//tr"))
     rows.removeFirst()
+    val column = columnMap[lookupName]
     return rows
       .filter { it.findElement(By.xpath(".//td[last()]")).text == "Delete" }
-      .map { it.findElement(By.xpath(".//td[4]")).text }
+      .map { it.findElement(By.xpath(".//td[$column]")).text }
   }
 
   private fun selectLookupType(lookupType: String) {

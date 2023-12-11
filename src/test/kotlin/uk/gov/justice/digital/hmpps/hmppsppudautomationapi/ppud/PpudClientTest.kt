@@ -325,17 +325,18 @@ class PpudClientTest {
   fun `when retrieveLookupValues is called then navigate to edit lookups and extract details`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
+      val lookupName = randomString("lookupName")
       given(loginPage.urlPath).willReturn("/login")
       given(adminPage.urlPath).willReturn("/adminPage")
-      given(editLookupsPage.extractEstablishments()).willReturn(values)
+      given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
 
-      val result = client.retrieveLookupValues()
+      val result = client.retrieveLookupValues(lookupName)
 
       val inOrder = inOrder(driver, adminPage, editLookupsPage)
       then(driver).should(inOrder).get("$ppudUrl/login")
       then(driver).should(inOrder).get("$ppudUrl/adminPage")
       then(adminPage).should(inOrder).goToEditLookups()
-      then(editLookupsPage).should(inOrder).extractEstablishments()
+      then(editLookupsPage).should(inOrder).extractLookupValues(lookupName)
       assertEquals(values, result)
     }
   }

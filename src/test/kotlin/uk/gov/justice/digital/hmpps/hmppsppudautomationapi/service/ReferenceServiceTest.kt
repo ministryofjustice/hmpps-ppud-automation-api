@@ -37,7 +37,7 @@ class ReferenceServiceTest {
   @TestConfiguration
   internal class CachingTestConfig {
     @Bean
-    fun cacheManager(): CacheManager = ConcurrentMapCacheManager("establishments")
+    fun cacheManager(): CacheManager = ConcurrentMapCacheManager("establishments", "ethnicities")
 
     @Bean
     fun referenceService(ppudClient: PpudClient): ReferenceService = ReferenceServiceImpl(ppudClient)
@@ -47,7 +47,7 @@ class ReferenceServiceTest {
   fun `given caching when retrieveEstablishments called then establishments cached`() {
     runBlocking {
       val values = listOf(randomString(), randomString())
-      given(ppudClient.retrieveLookupValues())
+      given(ppudClient.retrieveLookupValues("Establishment"))
         .willReturn(values)
 
       val valuesCacheMiss = service.retrieveEstablishments()
@@ -56,7 +56,24 @@ class ReferenceServiceTest {
       assertEquals(values, valuesCacheMiss)
       assertEquals(values, valuesCacheHit)
       assertEquals(values, cache.getCache("establishments")?.get(SimpleKey.EMPTY)?.get())
-      then(ppudClient).should(times(1)).retrieveLookupValues()
+      then(ppudClient).should(times(1)).retrieveLookupValues("Establishment")
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveEthnicities called then ethnicities cached`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString())
+      given(ppudClient.retrieveLookupValues("Ethnicity"))
+        .willReturn(values)
+
+      val valuesCacheMiss = service.retrieveEthnicities()
+      val valuesCacheHit = service.retrieveEthnicities()
+
+      assertEquals(values, valuesCacheMiss)
+      assertEquals(values, valuesCacheHit)
+      assertEquals(values, cache.getCache("ethnicities")?.get(SimpleKey.EMPTY)?.get())
+      then(ppudClient).should(times(1)).retrieveLookupValues("Ethnicity")
     }
   }
 }

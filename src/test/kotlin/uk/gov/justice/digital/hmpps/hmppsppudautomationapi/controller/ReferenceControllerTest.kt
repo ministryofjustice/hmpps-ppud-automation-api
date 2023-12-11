@@ -39,4 +39,18 @@ internal class ReferenceControllerTest {
       assertEquals(values, result.body?.values)
     }
   }
+
+  @Test
+  fun `when ethnicities is called then ppud client is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveEthnicities()).willReturn(values)
+
+      val result = controller.ethnicities()
+
+      then(referenceService).should().retrieveEthnicities()
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+    }
+  }
 }

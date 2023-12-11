@@ -27,4 +27,11 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveEstablishments()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/ethnicities")
+  suspend fun ethnicities(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data ethnicities endpoint hit")
+    val values = referenceService.retrieveEthnicities()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }
