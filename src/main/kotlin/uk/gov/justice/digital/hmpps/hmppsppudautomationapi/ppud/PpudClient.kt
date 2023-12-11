@@ -129,6 +129,18 @@ internal class PpudClient(
   }
 
   private suspend fun extractLookupValues(lookupName: String): List<String> {
+    return if (lookupName == "Gender") {
+      extractGenderLookupValues()
+    } else {
+      extractAdminPageLookupValues(lookupName)
+    }
+  }
+
+  private fun extractGenderLookupValues(): List<String> {
+    return searchPage.genderValues()
+  }
+
+  private fun extractAdminPageLookupValues(lookupName: String): List<String> {
     driver.get("$ppudUrl${adminPage.urlPath}")
     adminPage.verifyOn()
     adminPage.goToEditLookups()

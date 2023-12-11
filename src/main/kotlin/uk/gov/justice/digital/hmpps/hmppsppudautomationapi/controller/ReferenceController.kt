@@ -34,4 +34,11 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveEthnicities()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/genders")
+  suspend fun genders(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data genders endpoint hit")
+    val values = referenceService.retrieveGenders()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }

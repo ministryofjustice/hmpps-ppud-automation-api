@@ -30,4 +30,16 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("Asian or Asian British - Bangladeshi")
       .jsonPath("values.last()").isEqualTo("White – Other")
   }
+
+  @Test
+  fun `when genders called then genders are returned`() {
+    webTestClient.get()
+      .uri("/reference/genders")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("F")
+      .jsonPath("values.last()").isEqualTo("M ( Was F )")
+  }
 }
