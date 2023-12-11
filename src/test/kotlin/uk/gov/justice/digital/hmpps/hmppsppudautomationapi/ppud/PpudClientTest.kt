@@ -325,7 +325,7 @@ class PpudClientTest {
   fun `given lookup is not Gender when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = randomString("lookupName")
+      val lookupName = LookupName.entries.filter { it != LookupName.Gender }.shuffled().first()
       given(loginPage.urlPath).willReturn("/login")
       given(adminPage.urlPath).willReturn("/adminPage")
       given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
@@ -345,7 +345,7 @@ class PpudClientTest {
   fun `given lookup is Gender when retrieveLookupValues is called then navigate to search page and extract values`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = "Gender"
+      val lookupName = LookupName.Gender
       given(loginPage.urlPath).willReturn("/login")
       given(searchPage.genderValues()).willReturn(values)
 

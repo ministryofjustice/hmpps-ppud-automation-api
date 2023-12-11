@@ -69,7 +69,7 @@ internal class PpudClient(
     return extractRecallDetails(id)
   }
 
-  suspend fun retrieveLookupValues(lookupName: String): List<String> {
+  suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
     log.info("Retrieving lookup values for $lookupName")
 
     login()
@@ -128,8 +128,8 @@ internal class PpudClient(
     return recallPage.extractRecallDetails()
   }
 
-  private suspend fun extractLookupValues(lookupName: String): List<String> {
-    return if (lookupName == "Gender") {
+  private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
+    return if (lookupName == LookupName.Gender) {
       extractGenderLookupValues()
     } else {
       extractAdminPageLookupValues(lookupName)
@@ -140,7 +140,7 @@ internal class PpudClient(
     return searchPage.genderValues()
   }
 
-  private fun extractAdminPageLookupValues(lookupName: String): List<String> {
+  private fun extractAdminPageLookupValues(lookupName: LookupName): List<String> {
     driver.get("$ppudUrl${adminPage.urlPath}")
     adminPage.verifyOn()
     adminPage.goToEditLookups()

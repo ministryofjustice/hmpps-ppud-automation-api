@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 
 @Component
@@ -21,18 +22,18 @@ internal class ReferenceServiceImpl(private val ppudClient: PpudClient) : Refere
   @Cacheable(ESTABLISHMENTS_CACHE_KEY)
   override suspend fun retrieveEstablishments(): List<String> {
     log.info("Retrieving '$ESTABLISHMENTS_CACHE_KEY'")
-    return ppudClient.retrieveLookupValues("Establishment")
+    return ppudClient.retrieveLookupValues(LookupName.Establishment)
   }
 
   @Cacheable(ETHNICITIES_CACHE_KEY)
   override suspend fun retrieveEthnicities(): List<String> {
     log.info("Retrieving '$ETHNICITIES_CACHE_KEY'")
-    return ppudClient.retrieveLookupValues("Ethnicity")
+    return ppudClient.retrieveLookupValues(LookupName.Ethnicity)
   }
 
   @Cacheable(GENDERS_CACHE_KEY)
   override suspend fun retrieveGenders(): List<String> {
     log.info("Retrieving '$GENDERS_CACHE_KEY'")
-    return ppudClient.retrieveLookupValues("Gender")
+    return ppudClient.retrieveLookupValues(LookupName.Gender)
   }
 }
