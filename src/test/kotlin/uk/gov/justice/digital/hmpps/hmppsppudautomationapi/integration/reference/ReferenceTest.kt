@@ -8,6 +8,18 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 class ReferenceTest : IntegrationTestBase() {
 
   @Test
+  fun `when custody-types called then custody types are returned`() {
+    webTestClient.get()
+      .uri("/reference/custody-types")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Automatic")
+      .jsonPath("values.last()").isEqualTo("Unrestricted Patient")
+  }
+
+  @Test
   fun `when establishments called then establishments are returned`() {
     webTestClient.get()
       .uri("/reference/establishments")
