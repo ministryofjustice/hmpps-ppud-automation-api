@@ -29,6 +29,15 @@ The user is `car_test`
 
 Username and password for this user are set in the CircleCI environment variables.
 
+## Running Local Instance
+
+Run the following to start Redis for caching
+```
+docker-compose up redis
+```
+
+Start the service in IntelliJ
+
 ## Testing
 The project uses a couple of testing levels - unit testing and integration testing.
 

@@ -43,11 +43,23 @@ slack-fail-post-step: &slack-fail-post-step
             ]
           }
 
+executors:
+  java:
+    docker:
+      - image: cimg/openjdk:20.0
+        environment:
+          _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
+            -XX:ParallelGCThreads=2
+            -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
+            -Dorg.gradle.daemon=false
+      - image: cimg/redis:7.0.11
+        environment:
+          ALLOW_EMPTY_PASSWORD: yes
+    working_directory: ~/app
+
 jobs:
   validate:
-    executor:
-      name: hmpps/java
-      tag: "20.0"
+    executor: java
     steps:
       - checkout
       - browser-tools/install-firefox

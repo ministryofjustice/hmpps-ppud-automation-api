@@ -16,5 +16,12 @@ services:
       - PPUD_USERNAME=${PPUD_USERNAME}
       - PPUD_PASSWORD=${PPUD_PASSWORD}
 
+  redis:
+    image: "redis:7.0.11-alpine"
+    networks:
+      - hmpps
+    ports:
+      - "6379:6379"
+
 networks:
   hmpps:
