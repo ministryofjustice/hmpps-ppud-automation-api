@@ -17,6 +17,7 @@ import org.springframework.cache.interceptor.SimpleKey
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
@@ -37,7 +38,7 @@ class ReferenceServiceTest {
   @TestConfiguration
   internal class CachingTestConfig {
     @Bean
-    fun cacheManager(): CacheManager = ConcurrentMapCacheManager("establishments")
+    fun cacheManager(): CacheManager = ConcurrentMapCacheManager("establishments", "ethnicities", "genders")
 
     @Bean
     fun referenceService(ppudClient: PpudClient): ReferenceService = ReferenceServiceImpl(ppudClient)
@@ -46,17 +47,38 @@ class ReferenceServiceTest {
   @Test
   fun `given caching when retrieveEstablishments called then establishments cached`() {
     runBlocking {
-      val values = listOf(randomString(), randomString())
-      given(ppudClient.retrieveLookupValues())
-        .willReturn(values)
-
-      val valuesCacheMiss = service.retrieveEstablishments()
-      val valuesCacheHit = service.retrieveEstablishments()
-
-      assertEquals(values, valuesCacheMiss)
-      assertEquals(values, valuesCacheHit)
-      assertEquals(values, cache.getCache("establishments")?.get(SimpleKey.EMPTY)?.get())
-      then(ppudClient).should(times(1)).retrieveLookupValues()
+      testValuesAreRetrievedAndCached("establishments", LookupName.Establishment) { service.retrieveEstablishments() }
     }
+  }
+
+  @Test
+  fun `given caching when retrieveEthnicities called then ethnicities cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("ethnicities", LookupName.Ethnicity) { service.retrieveEthnicities() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveGenders called then genders cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("genders", LookupName.Gender) { service.retrieveGenders() }
+    }
+  }
+
+  private suspend fun testValuesAreRetrievedAndCached(
+    cacheKey: String,
+    lookupName: LookupName,
+    retrieve: suspend () -> List<String>,
+  ) {
+    val values = listOf(randomString(), randomString())
+    given(ppudClient.retrieveLookupValues(lookupName)).willReturn(values)
+
+    val valuesCacheMiss = retrieve()
+    val valuesCacheHit = retrieve()
+
+    assertEquals(values, valuesCacheMiss)
+    assertEquals(values, valuesCacheHit)
+    assertEquals(values, cache.getCache(cacheKey)?.get(SimpleKey.EMPTY)?.get())
+    then(ppudClient).should(times(1)).retrieveLookupValues(lookupName)
   }
 }

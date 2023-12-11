@@ -6,9 +6,11 @@ import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,6 +41,9 @@ internal class SearchPage(private val driver: WebDriver) {
 
   @FindBy(id = "content_cmdClear")
   private lateinit var clearButton: WebElement
+
+  @FindBy(id = "content_wpanExtraSearch_cboGender")
+  private lateinit var genderDropdown: WebElement
 
   private val resultsTable: WebElement?
     get() = driver.findElements(By.id("content_gvSearch")).firstOrNull()
@@ -83,5 +88,11 @@ internal class SearchPage(private val driver: WebDriver) {
   fun searchResultsLinks(): List<String> {
     val resultsElements = resultsTable?.findElements(By.linkText("Select")) ?: emptyList<WebElement>()
     return resultsElements.map { it.getAttribute("href") }
+  }
+
+  fun genderValues(): List<String> {
+    return Select(genderDropdown).options
+      .map { it.getValue() }
+      .filter { it.isNotBlank() }
   }
 }
