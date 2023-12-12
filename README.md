@@ -10,28 +10,26 @@ Public Protection Unit Database (PPUD). Rather than speak to the PPUD database,
 it uses Selenium to automate the PPUD UI in order to perform its operations.
 
 ## Environment Variables
+
 The project uses the following environment variables, which need to be set in order to run the tests or run the
 application.
 
 * PPUD_USERNAME - your username for logging in to PPUD. For the Internal Test instance of PPUD, the user
   should belong to the Recall 1 team and be Level 5.
 * PPUD_PASSWORD - password for your PPUD account
+* PPUD_ADMIN_USERNAME - a username for logging in to PPUD to perform admin functions such as retrieving reference data
+  values. For the Internal Test instance of PPUD, the user can be the same as the non-admin user.
+* PPUD_ADMIN_PASSWORD - password for admin PPUD account
 
 The following additional environment variables can be used if required.
 
 * PPUD_URL - the URL of the PPUD application. If not set, defaults to "https://internaltest.ppud.justice.gov.uk"
 * AUTOMATION_HEADLESS - set this to false if you want to view browser interactions. If not set, defaults to true.
 
-## Users
-A user has been set up in the PPUD Internal Test instance that is used for tests in the pipelines.
-
-The user is `car_test`
-
-Username and password for this user are set in the CircleCI environment variables.
-
 ## Running Local Instance
 
 Run the following to start Redis for caching
+
 ```
 docker-compose up redis
 ```
@@ -39,6 +37,7 @@ docker-compose up redis
 Start the service in IntelliJ
 
 ## Testing
+
 The project uses a couple of testing levels - unit testing and integration testing.
 
 Unit tests can be run without external dependencies.

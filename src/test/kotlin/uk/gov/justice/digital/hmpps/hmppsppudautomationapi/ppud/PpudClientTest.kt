@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomLookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -63,16 +64,24 @@ class PpudClientTest {
 
   private lateinit var ppudPassword: String
 
+  private lateinit var ppudAdminUsername: String
+
+  private lateinit var ppudAdminPassword: String
+
   private lateinit var client: PpudClient
 
   @BeforeEach
   fun beforeEach() {
     ppudUsername = randomString("username")
     ppudPassword = randomString("password")
+    ppudAdminUsername = randomString("adminUsername")
+    ppudAdminPassword = randomString("adminPassword")
     client = PpudClient(
       ppudUrl,
       ppudUsername,
       ppudPassword,
+      ppudAdminUsername,
+      ppudAdminPassword,
       driver,
       loginPage,
       adminPage,
@@ -322,10 +331,25 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given any lookup when retrieveLookupValues is called then log in as admin`() {
+    runBlocking {
+      val lookupName = randomLookupName()
+
+      given(loginPage.urlPath).willReturn("/login")
+
+      client.retrieveLookupValues(lookupName)
+
+      val inOrder = inOrder(driver, loginPage)
+      then(driver).should(inOrder).get("$ppudUrl/login")
+      then(loginPage).should(inOrder).login(ppudAdminUsername, ppudAdminPassword)
+    }
+  }
+
+  @Test
   fun `given lookup is not Genders when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = LookupName.entries.filter { it != LookupName.Genders }.shuffled().first()
+      val lookupName = randomLookupName(exclude = listOf(LookupName.Genders))
       given(loginPage.urlPath).willReturn("/login")
       given(adminPage.urlPath).willReturn("/adminPage")
       given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
