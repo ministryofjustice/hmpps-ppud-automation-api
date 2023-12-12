@@ -18,28 +18,35 @@ internal class EditLookupsPage(driver: WebDriver) {
   private lateinit var lookupTypeDropdown: WebElement
 
   @FindBy(id = "content_grdLOV")
-  private lateinit var lookupsTable: WebElement
+  private lateinit var lookupsTable1: WebElement
 
-  private val columnMap: Map<LookupName, Int> = mapOf(
-    LookupName.Establishment to 4,
-    LookupName.Ethnicity to 2,
+  @FindBy(id = "content_grdExtraBit")
+  private lateinit var lookupsTable2: WebElement
+
+  private lateinit var configMap: Map<LookupName, LookupConfig>
+
+  private data class LookupConfig(
+    val dropdownText: String,
+    val grid: WebElement,
+    val columnNumber: Int,
   )
 
   init {
     PageFactory.initElements(driver, this)
+    configMap = mapOf(
+      LookupName.CustodyTypes to LookupConfig("Custody Type", lookupsTable2, 2),
+      LookupName.Establishments to LookupConfig("Establishment", lookupsTable1, 4),
+      LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsTable1, 2),
+    )
   }
 
   fun extractLookupValues(lookupName: LookupName): List<String> {
-    selectLookupType(lookupName)
-    val rows = lookupsTable.findElements(By.xpath(".//tr"))
+    val config = configMap.getValue(lookupName)
+    Select(lookupTypeDropdown).selectByVisibleText(config.dropdownText)
+    val rows = config.grid.findElements(By.xpath(".//tr"))
     rows.removeFirst()
-    val column = columnMap[lookupName]
     return rows
       .filter { it.findElement(By.xpath(".//td[last()]")).text == "Delete" }
-      .map { it.findElement(By.xpath(".//td[$column]")).text }
-  }
-
-  private fun selectLookupType(lookupType: LookupName) {
-    Select(lookupTypeDropdown).selectByVisibleText(lookupType.name)
+      .map { it.findElement(By.xpath(".//td[${config.columnNumber}]")).text }
   }
 }

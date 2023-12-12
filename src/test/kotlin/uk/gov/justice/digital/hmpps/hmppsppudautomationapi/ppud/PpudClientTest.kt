@@ -322,10 +322,10 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given lookup is not Gender when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
+  fun `given lookup is not Genders when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = LookupName.entries.filter { it != LookupName.Gender }.shuffled().first()
+      val lookupName = LookupName.entries.filter { it != LookupName.Genders }.shuffled().first()
       given(loginPage.urlPath).willReturn("/login")
       given(adminPage.urlPath).willReturn("/adminPage")
       given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
@@ -342,10 +342,10 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given lookup is Gender when retrieveLookupValues is called then navigate to search page and extract values`() {
+  fun `given lookup is Genders when retrieveLookupValues is called then navigate to search page and extract values`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = LookupName.Gender
+      val lookupName = LookupName.Genders
       given(loginPage.urlPath).willReturn("/login")
       given(searchPage.genderValues()).willReturn(values)
 

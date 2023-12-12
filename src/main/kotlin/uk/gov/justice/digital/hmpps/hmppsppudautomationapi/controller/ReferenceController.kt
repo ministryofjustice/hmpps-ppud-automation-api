@@ -21,6 +21,13 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
+  @GetMapping("/reference/custody-types")
+  suspend fun custodyTypes(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data custody-types endpoint hit")
+    val values = referenceService.retrieveCustodyTypes()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
   @GetMapping("/reference/establishments")
   suspend fun establishments(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data establishments endpoint hit")

@@ -38,30 +38,38 @@ class ReferenceServiceTest {
   @TestConfiguration
   internal class CachingTestConfig {
     @Bean
-    fun cacheManager(): CacheManager = ConcurrentMapCacheManager("establishments", "ethnicities", "genders")
+    fun cacheManager(): CacheManager =
+      ConcurrentMapCacheManager("custody-types", "establishments", "ethnicities", "genders")
 
     @Bean
     fun referenceService(ppudClient: PpudClient): ReferenceService = ReferenceServiceImpl(ppudClient)
   }
 
   @Test
-  fun `given caching when retrieveEstablishments called then establishments cached`() {
+  fun `given caching when retrieveCustodyTypes called then custody types retrieved and cached`() {
     runBlocking {
-      testValuesAreRetrievedAndCached("establishments", LookupName.Establishment) { service.retrieveEstablishments() }
+      testValuesAreRetrievedAndCached("custody-types", LookupName.CustodyTypes) { service.retrieveCustodyTypes() }
     }
   }
 
   @Test
-  fun `given caching when retrieveEthnicities called then ethnicities cached`() {
+  fun `given caching when retrieveEstablishments called then establishments retrieved and cached`() {
     runBlocking {
-      testValuesAreRetrievedAndCached("ethnicities", LookupName.Ethnicity) { service.retrieveEthnicities() }
+      testValuesAreRetrievedAndCached("establishments", LookupName.Establishments) { service.retrieveEstablishments() }
     }
   }
 
   @Test
-  fun `given caching when retrieveGenders called then genders cached`() {
+  fun `given caching when retrieveEthnicities called then ethnicities retrieved and cached`() {
     runBlocking {
-      testValuesAreRetrievedAndCached("genders", LookupName.Gender) { service.retrieveGenders() }
+      testValuesAreRetrievedAndCached("ethnicities", LookupName.Ethnicities) { service.retrieveEthnicities() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveGenders called then genders retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("genders", LookupName.Genders) { service.retrieveGenders() }
     }
   }
 
@@ -76,9 +84,9 @@ class ReferenceServiceTest {
     val valuesCacheMiss = retrieve()
     val valuesCacheHit = retrieve()
 
-    assertEquals(values, valuesCacheMiss)
-    assertEquals(values, valuesCacheHit)
-    assertEquals(values, cache.getCache(cacheKey)?.get(SimpleKey.EMPTY)?.get())
+    assertEquals(values, valuesCacheMiss, "Values not retrieved from initial call")
+    assertEquals(values, valuesCacheHit, "Values not retrieved from subsequent call")
+    assertEquals(values, cache.getCache(cacheKey)?.get(SimpleKey.EMPTY)?.get(), "Values not present in cache")
     then(ppudClient).should(times(1)).retrieveLookupValues(lookupName)
   }
 }

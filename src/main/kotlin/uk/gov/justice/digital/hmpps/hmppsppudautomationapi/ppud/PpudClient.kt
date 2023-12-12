@@ -129,7 +129,7 @@ internal class PpudClient(
   }
 
   private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
-    return if (lookupName == LookupName.Gender) {
+    return if (lookupName == LookupName.Genders) {
       extractGenderLookupValues()
     } else {
       extractAdminPageLookupValues(lookupName)

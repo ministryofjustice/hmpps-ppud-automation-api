@@ -27,6 +27,20 @@ internal class ReferenceControllerTest {
   }
 
   @Test
+  fun `when custodyTypes is called then ppud client is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveCustodyTypes()).willReturn(values)
+
+      val result = controller.custodyTypes()
+
+      then(referenceService).should().retrieveCustodyTypes()
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+    }
+  }
+
+  @Test
   fun `when establishments is called then ppud client is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
