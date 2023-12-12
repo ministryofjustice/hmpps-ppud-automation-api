@@ -6,6 +6,7 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import java.time.Duration
@@ -27,6 +28,10 @@ internal class LoginPage(private val driver: WebDriver) {
   @FindBy(id = "Login1_LoginButton")
   private lateinit var loginButton: WebElement
 
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -37,6 +42,7 @@ internal class LoginPage(private val driver: WebDriver) {
   }
 
   fun login(userName: String, password: String) {
+    log.info("***** DEBUG **** Logging in as '$userName' with password '$password'")
     userNameInput.sendKeys(userName)
     passwordInput.sendKeys(password)
     loginButton.click()
