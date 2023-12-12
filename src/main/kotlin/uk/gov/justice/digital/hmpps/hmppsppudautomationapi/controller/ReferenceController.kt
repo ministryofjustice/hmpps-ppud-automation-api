@@ -48,4 +48,11 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveGenders()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/index-offences")
+  suspend fun indexOffences(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data index offences endpoint hit")
+    val values = referenceService.retrieveIndexOffences()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }

@@ -54,4 +54,17 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("F")
       .jsonPath("values.last()").isEqualTo("M ( Was F )")
   }
+
+  @Test
+  fun `when index-offences called then index offences are returned`() {
+    webTestClient.get()
+      .uri("/reference/index-offences")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Abduction")
+      .jsonPath("values.last()")
+      .isEqualTo("Wounding with intent to cause grievous bodily harm (section 18 of the Offences against the Person Act 1861)")
+  }
 }

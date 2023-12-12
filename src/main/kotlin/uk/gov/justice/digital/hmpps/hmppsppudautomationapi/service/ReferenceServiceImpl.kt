@@ -18,6 +18,7 @@ internal class ReferenceServiceImpl(private val ppudClient: PpudClient) : Refere
     const val ESTABLISHMENTS_CACHE_KEY: String = "establishments"
     const val ETHNICITIES_CACHE_KEY: String = "ethnicities"
     const val GENDERS_CACHE_KEY: String = "genders"
+    const val INDEX_OFFENCES_CACHE_KEY: String = "index-offences"
   }
 
   @Cacheable(CUSTODY_TYPES_CACHE_KEY)
@@ -42,5 +43,11 @@ internal class ReferenceServiceImpl(private val ppudClient: PpudClient) : Refere
   override suspend fun retrieveGenders(): List<String> {
     log.info("Retrieving '$GENDERS_CACHE_KEY'")
     return ppudClient.retrieveLookupValues(LookupName.Genders)
+  }
+
+  @Cacheable(INDEX_OFFENCES_CACHE_KEY)
+  override suspend fun retrieveIndexOffences(): List<String> {
+    log.info("Retrieving '$INDEX_OFFENCES_CACHE_KEY'")
+    return ppudClient.retrieveLookupValues(LookupName.IndexOffences)
   }
 }
