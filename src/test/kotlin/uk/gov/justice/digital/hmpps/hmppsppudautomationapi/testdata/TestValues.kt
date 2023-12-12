@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -39,6 +40,10 @@ fun randomTimeToday(): LocalDateTime {
 fun randomPpudId(): String {
   val randomSerial = Random.nextInt(1000000, 9999999)
   return "4F${randomSerial}E64657269643D313632393134G721H665"
+}
+
+fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName {
+  return LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
 }
 
 fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {

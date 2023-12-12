@@ -23,6 +23,8 @@ internal class PpudClient(
   @Value("\${ppud.url}") private val ppudUrl: String,
   @Value("\${ppud.username}") private val ppudUsername: String,
   @Value("\${ppud.password}") private val ppudPassword: String,
+  @Value("\${ppud.admin.username}") private val ppudAdminUsername: String,
+  @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
   private val driver: WebDriver,
   private val loginPage: LoginPage,
   private val adminPage: AdminPage,
@@ -72,15 +74,19 @@ internal class PpudClient(
   suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
     log.info("Retrieving lookup values for $lookupName")
 
-    login()
+    loginAsAdmin()
 
     return extractLookupValues(lookupName)
   }
 
-  private suspend fun login() {
+  private suspend fun loginAsAdmin() {
+    login(ppudAdminUsername, ppudAdminPassword)
+  }
+
+  private suspend fun login(username: String = ppudUsername, password: String = ppudPassword) {
     driver.get("${ppudUrl}${loginPage.urlPath}")
     loginPage.verifyOn()
-    loginPage.login(ppudUsername, ppudPassword)
+    loginPage.login(username, password)
     searchPage.verifyOn()
   }
 
