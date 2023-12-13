@@ -7,4 +7,5 @@ enum class LookupName {
   Genders,
   IndexOffences,
   MappaLevels,
+  PoliceForces,
 }

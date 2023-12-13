@@ -79,4 +79,16 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("Level 1 – Single Agency Management")
       .jsonPath("values.last()").isEqualTo("TB LEVEL 4")
   }
+
+  @Test
+  fun `when police-forces called then police forces are returned`() {
+    webTestClient.get()
+      .uri("/reference/police-forces")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Avon & Somerset Constabulary")
+      .jsonPath("values.last()").isEqualTo("Wiltshire Constabulary")
+  }
 }
