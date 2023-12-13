@@ -8,6 +8,15 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 class ReferenceTest : IntegrationTestBase() {
 
   @Test
+  fun `when clear-caches called then OK is returned`() {
+    webTestClient.post()
+      .uri("/reference/clear-caches")
+      .exchange()
+      .expectStatus()
+      .isOk
+  }
+
+  @Test
   fun `when custody-types called then custody types are returned`() {
     webTestClient.get()
       .uri("/reference/custody-types")
