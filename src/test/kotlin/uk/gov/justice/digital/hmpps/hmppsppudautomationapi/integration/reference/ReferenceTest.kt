@@ -91,4 +91,16 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("Avon & Somerset Constabulary")
       .jsonPath("values.last()").isEqualTo("Wiltshire Constabulary")
   }
+
+  @Test
+  fun `when probation-services called then probation services are returned`() {
+    webTestClient.get()
+      .uri("/reference/probation-services")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Bedfordshire")
+      .jsonPath("values.last()").isEqualTo("Wiltshire")
+  }
 }

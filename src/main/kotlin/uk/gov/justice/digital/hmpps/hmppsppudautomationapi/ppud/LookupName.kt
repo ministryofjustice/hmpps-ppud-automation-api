@@ -8,4 +8,5 @@ enum class LookupName {
   IndexOffences,
   MappaLevels,
   PoliceForces,
+  ProbationServices,
 }
