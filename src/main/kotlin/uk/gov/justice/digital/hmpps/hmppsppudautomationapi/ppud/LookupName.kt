@@ -9,4 +9,5 @@ enum class LookupName {
   MappaLevels,
   PoliceForces,
   ProbationServices,
+  ReleasedUnders,
 }

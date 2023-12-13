@@ -48,6 +48,7 @@ class ReferenceServiceTest {
         "mappa-levels",
         "police-forces",
         "probation-services",
+        "released-unders",
       )
 
     @Bean
@@ -107,6 +108,13 @@ class ReferenceServiceTest {
   fun `given caching when retrieveProbationServices called then probation services retrieved and cached`() {
     runBlocking {
       testValuesAreRetrievedAndCached("probation-services", LookupName.ProbationServices) { service.retrieveProbationServices() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveReleasedUnders called then released unders retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("released-unders", LookupName.ReleasedUnders) { service.retrieveReleasedUnders() }
     }
   }
 

@@ -16,4 +16,6 @@ interface ReferenceService {
   suspend fun retrievePoliceForces(): List<String>
 
   suspend fun retrieveProbationServices(): List<String>
+
+  suspend fun retrieveReleasedUnders(): List<String>
 }

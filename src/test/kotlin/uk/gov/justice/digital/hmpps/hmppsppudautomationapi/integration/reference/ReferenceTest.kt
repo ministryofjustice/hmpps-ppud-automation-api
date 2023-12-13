@@ -103,4 +103,16 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("Bedfordshire")
       .jsonPath("values.last()").isEqualTo("Wiltshire")
   }
+
+  @Test
+  fun `when released-unders called then released unders are returned`() {
+    webTestClient.get()
+      .uri("/reference/released-unders")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("CJA 1991")
+      .jsonPath("values.last()").isEqualTo("Not Specified")
+  }
 }

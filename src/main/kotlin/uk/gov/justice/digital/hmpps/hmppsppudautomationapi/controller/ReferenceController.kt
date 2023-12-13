@@ -76,4 +76,11 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveProbationServices()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/released-unders")
+  suspend fun releaseUnders(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data released unders endpoint hit")
+    val values = referenceService.retrieveReleasedUnders()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }
