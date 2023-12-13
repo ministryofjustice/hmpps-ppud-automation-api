@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
@@ -19,6 +20,13 @@ internal class ReferenceController(private val referenceService: ReferenceServic
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
+  @PostMapping("/reference/clear-caches")
+  fun clearCaches(): ResponseEntity<Unit> {
+    log.info("Reference data clear-caches endpoint hit")
+    referenceService.clearCaches()
+    return ResponseEntity(HttpStatus.OK)
   }
 
   @GetMapping("/reference/custody-types")

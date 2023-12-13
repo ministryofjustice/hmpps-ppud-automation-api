@@ -27,7 +27,17 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when custodyTypes is called then ppud client is invoked and results returned`() {
+  fun `when clearCaches is called then reference service is invoked to clear caches`() {
+    runBlocking {
+      val result = controller.clearCaches()
+
+      then(referenceService).should().clearCaches()
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+    }
+  }
+
+  @Test
+  fun `when custodyTypes is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveCustodyTypes()).willReturn(values)
@@ -41,7 +51,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when establishments is called then ppud client is invoked and results returned`() {
+  fun `when establishments is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveEstablishments()).willReturn(values)
@@ -55,7 +65,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when ethnicities is called then ppud client is invoked and results returned`() {
+  fun `when ethnicities is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveEthnicities()).willReturn(values)
@@ -69,7 +79,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when genders is called then ppud client is invoked and results returned`() {
+  fun `when genders is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveGenders()).willReturn(values)
@@ -83,7 +93,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when indexOffences is called then ppud client is invoked and results returned`() {
+  fun `when indexOffences is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveIndexOffences()).willReturn(values)
@@ -97,7 +107,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when mappaLevels is called then ppud client is invoked and results returned`() {
+  fun `when mappaLevels is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveMappaLevels()).willReturn(values)
@@ -111,7 +121,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when policeForces is called then ppud client is invoked and results returned`() {
+  fun `when policeForces is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrievePoliceForces()).willReturn(values)
@@ -125,7 +135,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when probationServices is called then ppud client is invoked and results returned`() {
+  fun `when probationServices is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveProbationServices()).willReturn(values)
@@ -139,7 +149,7 @@ internal class ReferenceControllerTest {
   }
 
   @Test
-  fun `when releasedUnders is called then ppud client is invoked and results returned`() {
+  fun `when releasedUnders is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
       given(referenceService.retrieveReleasedUnders()).willReturn(values)

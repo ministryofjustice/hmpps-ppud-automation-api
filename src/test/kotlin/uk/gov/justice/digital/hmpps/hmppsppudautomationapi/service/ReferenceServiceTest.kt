@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
 
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,25 +35,42 @@ class ReferenceServiceTest {
   @Autowired
   private lateinit var cache: CacheManager
 
+  companion object {
+    val cacheNames = arrayOf(
+      "custody-types",
+      "establishments",
+      "ethnicities",
+      "genders",
+      "index-offences",
+      "mappa-levels",
+      "police-forces",
+      "probation-services",
+      "released-unders",
+    )
+  }
+
   @EnableCaching
   @TestConfiguration
   internal class CachingTestConfig {
     @Bean
-    fun cacheManager(): CacheManager =
-      ConcurrentMapCacheManager(
-        "custody-types",
-        "establishments",
-        "ethnicities",
-        "genders",
-        "index-offences",
-        "mappa-levels",
-        "police-forces",
-        "probation-services",
-        "released-unders",
-      )
+    fun cacheManager(): CacheManager = ConcurrentMapCacheManager(*Companion.cacheNames)
 
     @Bean
-    fun referenceService(ppudClient: PpudClient): ReferenceService = ReferenceServiceImpl(ppudClient)
+    fun referenceService(ppudClient: PpudClient, cacheManager: CacheManager): ReferenceService =
+      ReferenceServiceImpl(ppudClient, cacheManager)
+  }
+
+  @Test
+  fun `given caching when clearCaches called then all caches are cleared`() {
+    for (cacheName in cacheNames) {
+      cache.getCache(cacheName)?.put(SimpleKey.EMPTY, listOf(randomString()))
+    }
+
+    service.clearCaches()
+
+    for (cacheName in cacheNames) {
+      Assertions.assertNull(cache.getCache(cacheName)?.get(SimpleKey.EMPTY)?.get(), "$cacheName cache is not empty")
+    }
   }
 
   @Test
@@ -107,7 +125,10 @@ class ReferenceServiceTest {
   @Test
   fun `given caching when retrieveProbationServices called then probation services retrieved and cached`() {
     runBlocking {
-      testValuesAreRetrievedAndCached("probation-services", LookupName.ProbationServices) { service.retrieveProbationServices() }
+      testValuesAreRetrievedAndCached(
+        "probation-services",
+        LookupName.ProbationServices,
+      ) { service.retrieveProbationServices() }
     }
   }
 
