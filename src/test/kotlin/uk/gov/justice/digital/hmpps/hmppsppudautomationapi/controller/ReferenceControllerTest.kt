@@ -137,4 +137,18 @@ internal class ReferenceControllerTest {
       assertEquals(values, result.body?.values)
     }
   }
+
+  @Test
+  fun `when releasedUnders is called then ppud client is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveReleasedUnders()).willReturn(values)
+
+      val result = controller.releaseUnders()
+
+      then(referenceService).should().retrieveReleasedUnders()
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+    }
+  }
 }

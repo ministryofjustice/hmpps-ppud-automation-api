@@ -44,6 +44,7 @@ internal class EditLookupsPage(driver: WebDriver) {
       LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsGridLov, 2),
       LookupName.PoliceForces to LookupConfig("Police Force", lookupsGridAddressLov, 2),
       LookupName.ProbationServices to LookupConfig("Probation Service", lookupsGridExtraBit, 2),
+      LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsGridLov, 2),
     )
   }
 

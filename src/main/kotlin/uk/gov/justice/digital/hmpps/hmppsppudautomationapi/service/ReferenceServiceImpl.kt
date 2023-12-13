@@ -22,6 +22,7 @@ internal class ReferenceServiceImpl(private val ppudClient: PpudClient) : Refere
     const val MAPPA_LEVELS_CACHE_KEY: String = "mappa-levels"
     const val POLICE_FORCES_CACHE_KEY: String = "police-forces"
     const val PROBATION_SERVICES_CACHE_KEY: String = "probation-services"
+    const val RELEASED_UNDERS_CACHE_KEY: String = "released-unders"
   }
 
   @Cacheable(CUSTODY_TYPES_CACHE_KEY)
@@ -70,5 +71,11 @@ internal class ReferenceServiceImpl(private val ppudClient: PpudClient) : Refere
   override suspend fun retrieveProbationServices(): List<String> {
     log.info("Retrieving '$PROBATION_SERVICES_CACHE_KEY'")
     return ppudClient.retrieveLookupValues(LookupName.ProbationServices)
+  }
+
+  @Cacheable(RELEASED_UNDERS_CACHE_KEY)
+  override suspend fun retrieveReleasedUnders(): List<String> {
+    log.info("Retrieving '$RELEASED_UNDERS_CACHE_KEY'")
+    return ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
   }
 }
