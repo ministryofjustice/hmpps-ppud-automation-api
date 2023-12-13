@@ -8,4 +8,6 @@ interface ReferenceService {
   suspend fun retrieveEthnicities(): List<String>
 
   suspend fun retrieveGenders(): List<String>
+
+  suspend fun retrieveIndexOffences(): List<String>
 }

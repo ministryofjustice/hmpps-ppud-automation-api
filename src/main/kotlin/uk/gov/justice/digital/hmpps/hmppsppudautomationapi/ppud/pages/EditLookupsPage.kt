@@ -18,10 +18,10 @@ internal class EditLookupsPage(driver: WebDriver) {
   private lateinit var lookupTypeDropdown: WebElement
 
   @FindBy(id = "content_grdLOV")
-  private lateinit var lookupsTable1: WebElement
+  private lateinit var lookupsGridLov: WebElement
 
   @FindBy(id = "content_grdExtraBit")
-  private lateinit var lookupsTable2: WebElement
+  private lateinit var lookupsGridExtraBit: WebElement
 
   private lateinit var configMap: Map<LookupName, LookupConfig>
 
@@ -34,9 +34,10 @@ internal class EditLookupsPage(driver: WebDriver) {
   init {
     PageFactory.initElements(driver, this)
     configMap = mapOf(
-      LookupName.CustodyTypes to LookupConfig("Custody Type", lookupsTable2, 2),
-      LookupName.Establishments to LookupConfig("Establishment", lookupsTable1, 4),
-      LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsTable1, 2),
+      LookupName.CustodyTypes to LookupConfig("Custody Type", lookupsGridExtraBit, 2),
+      LookupName.Establishments to LookupConfig("Establishment", lookupsGridLov, 4),
+      LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsGridLov, 2),
+      LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
     )
   }
 
