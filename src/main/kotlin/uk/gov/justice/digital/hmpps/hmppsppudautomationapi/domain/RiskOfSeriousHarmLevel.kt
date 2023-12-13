@@ -5,4 +5,5 @@ enum class RiskOfSeriousHarmLevel(val descriptor: String) {
   Medium("Medium"),
   High("High"),
   VeryHigh("Very High"),
+  NotApplicable("Not Applicable"),
 }
