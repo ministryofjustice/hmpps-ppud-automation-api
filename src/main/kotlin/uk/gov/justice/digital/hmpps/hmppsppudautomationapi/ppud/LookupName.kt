@@ -6,4 +6,5 @@ enum class LookupName {
   Ethnicities,
   Genders,
   IndexOffences,
+  MappaLevels,
 }

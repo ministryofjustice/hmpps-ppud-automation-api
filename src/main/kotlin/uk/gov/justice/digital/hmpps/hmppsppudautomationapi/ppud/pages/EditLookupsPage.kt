@@ -38,6 +38,7 @@ internal class EditLookupsPage(driver: WebDriver) {
       LookupName.Establishments to LookupConfig("Establishment", lookupsGridLov, 4),
       LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsGridLov, 2),
       LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
+      LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsGridLov, 2),
     )
   }
 
