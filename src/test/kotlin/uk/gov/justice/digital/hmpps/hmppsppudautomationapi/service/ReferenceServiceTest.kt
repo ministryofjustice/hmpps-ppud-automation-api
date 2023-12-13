@@ -39,7 +39,16 @@ class ReferenceServiceTest {
   internal class CachingTestConfig {
     @Bean
     fun cacheManager(): CacheManager =
-      ConcurrentMapCacheManager("custody-types", "establishments", "ethnicities", "genders", "index-offences")
+      ConcurrentMapCacheManager(
+        "custody-types",
+        "establishments",
+        "ethnicities",
+        "genders",
+        "index-offences",
+        "mappa-levels",
+        "police-forces",
+        "probation-services",
+      )
 
     @Bean
     fun referenceService(ppudClient: PpudClient): ReferenceService = ReferenceServiceImpl(ppudClient)
@@ -77,6 +86,27 @@ class ReferenceServiceTest {
   fun `given caching when retrieveIndexOffences called then index offences retrieved and cached`() {
     runBlocking {
       testValuesAreRetrievedAndCached("index-offences", LookupName.IndexOffences) { service.retrieveIndexOffences() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveMappaLevels called then mappa levels retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("mappa-levels", LookupName.MappaLevels) { service.retrieveMappaLevels() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrievePoliceForces called then police forces retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("police-forces", LookupName.PoliceForces) { service.retrievePoliceForces() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveProbationServices called then probation services retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached("probation-services", LookupName.ProbationServices) { service.retrieveProbationServices() }
     }
   }
 

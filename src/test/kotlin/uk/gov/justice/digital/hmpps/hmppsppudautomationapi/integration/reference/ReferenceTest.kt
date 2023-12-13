@@ -67,4 +67,40 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values.last()")
       .isEqualTo("Wounding with intent to cause grievous bodily harm (section 18 of the Offences against the Person Act 1861)")
   }
+
+  @Test
+  fun `when mappa-levels called then mappa levels are returned`() {
+    webTestClient.get()
+      .uri("/reference/mappa-levels")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Level 1 – Single Agency Management")
+      .jsonPath("values.last()").isEqualTo("TB LEVEL 4")
+  }
+
+  @Test
+  fun `when police-forces called then police forces are returned`() {
+    webTestClient.get()
+      .uri("/reference/police-forces")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Avon & Somerset Constabulary")
+      .jsonPath("values.last()").isEqualTo("Wiltshire Constabulary")
+  }
+
+  @Test
+  fun `when probation-services called then probation services are returned`() {
+    webTestClient.get()
+      .uri("/reference/probation-services")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("values[0]").isEqualTo("Bedfordshire")
+      .jsonPath("values.last()").isEqualTo("Wiltshire")
+  }
 }

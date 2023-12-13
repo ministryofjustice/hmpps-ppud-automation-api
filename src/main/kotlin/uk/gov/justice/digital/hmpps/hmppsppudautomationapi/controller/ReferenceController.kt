@@ -55,4 +55,25 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveIndexOffences()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/mappa-levels")
+  suspend fun mappaLevels(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data mappa levels endpoint hit")
+    val values = referenceService.retrieveMappaLevels()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
+  @GetMapping("/reference/police-forces")
+  suspend fun policeForces(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data police forces endpoint hit")
+    val values = referenceService.retrievePoliceForces()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
+  @GetMapping("/reference/probation-services")
+  suspend fun probationServices(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data probation services endpoint hit")
+    val values = referenceService.retrieveProbationServices()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }
