@@ -32,6 +32,7 @@ class ContentCreatorTest {
     "Medium,MEDIUM",
     "High,HIGH",
     "VeryHigh,VERY HIGH",
+    "NotApplicable,NOT APPLICABLE",
   )
   fun `given risk of serious harm level when generateMinuteText is called then text contains level`(
     riskOfSeriousHarmLevel: String,
