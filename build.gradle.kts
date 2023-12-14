@@ -39,6 +39,14 @@ dependencies {
   implementation("org.seleniumhq.selenium:selenium-support:4.16.1") // Address CVE-2023-5590
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
+
+  // OAuth dependencies
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.security:spring-security-oauth2-client")
+  implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
+  // OpenAPI dependencies
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 }
 
 java {
@@ -59,7 +67,7 @@ tasks.test {
 
 tasks.jacocoTestReport {
   dependsOn(tasks.test)
-  reports {
-    xml.required.set(true)
-  }
+    reports {
+      xml.required.set(true)
+    }
 }
