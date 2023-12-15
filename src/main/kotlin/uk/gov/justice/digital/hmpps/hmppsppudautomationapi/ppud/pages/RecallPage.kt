@@ -184,7 +184,7 @@ internal class RecallPage(
     }
   }
 
-  fun extractRecallSummaryDetails(): CreatedRecall {
+  fun extractCreatedRecallDetails(): CreatedRecall {
     // This should be performed when the Recall screen is in "existing recall" mode.
     // The add minute button is shown then, but not for a new recall
     if (addMinuteButton?.isDisplayed == true) {

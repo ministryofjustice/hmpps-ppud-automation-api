@@ -6,15 +6,19 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateRecallResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.util.*
@@ -39,6 +43,24 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     val results =
       ppudClient.searchForOffender(criteria.croNumber, criteria.nomsId, criteria.familyName, criteria.dateOfBirth)
     return ResponseEntity(OffenderSearchResponse(results), HttpStatus.OK)
+  }
+
+  @GetMapping("/offender/{id}")
+  suspend fun get(@PathVariable(required = true) id: String): ResponseEntity<GetOffenderResponse> {
+    log.info("Offender get endpoint hit")
+    val offender = ppudClient.retrieveOffender(id)
+    return ResponseEntity(GetOffenderResponse(offender), HttpStatus.OK)
+  }
+
+  @PostMapping("/offender")
+  suspend fun createOffender(
+    @Valid
+    @RequestBody(required = true)
+    createOffenderRequest: CreateOffenderRequest,
+  ): ResponseEntity<CreateOffenderResponse> {
+    log.info("Offender creation endpoint hit")
+    val offender = ppudClient.createOffender(createOffenderRequest)
+    return ResponseEntity(CreateOffenderResponse(offender), HttpStatus.CREATED)
   }
 
   @PostMapping("/offender/{offenderId}/recall")

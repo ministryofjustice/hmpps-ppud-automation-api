@@ -10,10 +10,13 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.given
 import org.mockito.kotlin.then
 import org.springframework.http.HttpStatus
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.time.LocalDate
 
@@ -48,6 +51,46 @@ internal class OffenderControllerTest {
       controller.search(criteria)
 
       then(ppudClient).should().searchForOffender(croNumber, nomsId, familyName, dateOfBirth)
+    }
+  }
+
+  @Test
+  fun `given offender ID when get is called then offender is returned`() {
+    runBlocking {
+      val id = randomPpudId()
+      val offender = generateOffender(id = id)
+      given(ppudClient.retrieveOffender(id)).willReturn(offender)
+
+      val result = controller.get(id)
+
+      then(ppudClient).should().retrieveOffender(id)
+      assertEquals(offender, result.body?.offender)
+    }
+  }
+
+  @Test
+  fun `given offender data when createOffender is called then data is passed to PPUD client`() {
+    runBlocking {
+      val offenderRequest = generateCreateOffenderRequest()
+      given(ppudClient.createOffender(offenderRequest)).willReturn(CreatedOffender(""))
+
+      controller.createOffender(offenderRequest)
+
+      then(ppudClient).should().createOffender(offenderRequest)
+    }
+  }
+
+  @Test
+  fun `given offender creation succeeds when createOffender is called then offender Id is returned`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val offenderRequest = generateCreateOffenderRequest()
+      given(ppudClient.createOffender(offenderRequest)).willReturn(CreatedOffender(offenderId))
+
+      val result = controller.createOffender(offenderRequest)
+
+      assertEquals(HttpStatus.CREATED, result.statusCode)
+      assertEquals(offenderId, result.body?.offender?.id)
     }
   }
 

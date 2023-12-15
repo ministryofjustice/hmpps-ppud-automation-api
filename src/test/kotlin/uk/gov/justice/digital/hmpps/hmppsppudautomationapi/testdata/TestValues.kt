@@ -1,7 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
@@ -9,6 +12,14 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
 import kotlin.random.Random
+
+const val ppudValidCustodyType = "Determinate"
+
+const val ppudValidEthnicity = "Chinese"
+
+const val ppudValidGender = "M"
+
+const val ppudValidIndexOffence = "ADMINISTER DRUGS"
 
 // Watch out for the different hyphens in the dropdown options
 const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
@@ -40,6 +51,17 @@ fun randomNomsId(): String {
   return "A${serial}BC"
 }
 
+fun randomPncNumber(): String {
+  val year = Random.nextInt(10, 20)
+  val serial = Random.nextInt(1000000, 9999999)
+  return "$year/${serial}Z"
+}
+
+fun randomPrisonNumber(): String {
+  val serial = Random.nextInt(1000, 9999)
+  return "AB$serial"
+}
+
 fun randomDate(): LocalDate {
   return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(sixtyYearsInDays))
 }
@@ -60,6 +82,59 @@ fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName {
 fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
   val randomIndex = Random.nextInt(0, RiskOfSeriousHarmLevel.entries.count() - 1)
   return RiskOfSeriousHarmLevel.entries[randomIndex]
+}
+
+// This will create a request that is useful for mocked testing but uses random values
+// so some of the values won't be acceptable to PPUD.
+fun generateCreateOffenderRequest(): CreateOffenderRequest {
+  return CreateOffenderRequest(
+    croNumber = randomCroNumber(),
+    custodyType = randomString("custodyType"),
+    dateOfBirth = randomDate(),
+    dateOfSentence = randomDate(),
+    ethnicity = randomString("ethnicity"),
+    firstNames = randomString("firstNames"),
+    familyName = randomString("familyName"),
+    gender = randomString("gender"),
+    indexOffence = randomString("indexOffence"),
+    mappaLevel = randomString("mappaLevel"),
+    nomsId = randomNomsId(),
+    pncNumber = randomPncNumber(),
+    prisonNumber = randomPrisonNumber(),
+  )
+}
+
+fun generateOffender(id: String = randomPpudId()): Offender {
+  val croOtherNumber = randomCroNumber()
+  return Offender(
+    id = id,
+    croOtherNumber = croOtherNumber,
+    dateOfBirth = randomDate(),
+    ethnicity = randomString("ethnicity"),
+    familyName = randomString("familyName"),
+    firstNames = randomString("firstNames"),
+    nomsId = randomNomsId(),
+    gender = randomString("gender"),
+  )
+}
+
+fun generateSearchResultOffender(
+  id: String? = null,
+  croOtherNumber: String? = null,
+  nomsId: String? = null,
+  familyName: String? = null,
+  dateOfBirth: LocalDate? = null,
+): SearchResultOffender {
+  val croOtherNumberResolved = croOtherNumber ?: randomCroNumber()
+  return SearchResultOffender(
+    id = id ?: randomPpudId(),
+    croNumber = croOtherNumberResolved,
+    croOtherNumber = croOtherNumberResolved,
+    nomsId = nomsId ?: randomNomsId(),
+    firstNames = randomString("firstNames"),
+    familyName = familyName ?: randomString("familyName"),
+    dateOfBirth = dateOfBirth ?: randomDate(),
+  )
 }
 
 // This will create a request that is useful for mocked testing but uses random values

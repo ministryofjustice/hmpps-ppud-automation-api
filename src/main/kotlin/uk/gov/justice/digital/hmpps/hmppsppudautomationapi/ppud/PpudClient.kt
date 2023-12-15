@@ -5,13 +5,17 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
@@ -31,6 +35,7 @@ internal class PpudClient(
   private val editLookupsPage: EditLookupsPage,
   private val searchPage: SearchPage,
   private val offenderPage: OffenderPage,
+  private val newOffenderPage: NewOffenderPage,
   private val recallPage: RecallPage,
 ) {
 
@@ -51,8 +56,25 @@ internal class PpudClient(
     val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
 
     return resultLinks.map {
-      extractOffenderDetails(it)
+      extractSearchResultOffenderDetails(it)
     }
+  }
+
+  suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
+    log.info("Creating new offender in PPUD Client")
+
+    login()
+
+    return createNewOffender(createOffenderRequest)
+  }
+
+  suspend fun retrieveOffender(id: String): Offender {
+    log.info("Retrieving offender in PPUD Client with ID '$id'")
+
+    login()
+
+    offenderPage.viewOffenderWithId(id)
+    return offenderPage.extractOffenderDetails()
   }
 
   suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
@@ -111,6 +133,14 @@ internal class PpudClient(
     return searchPage.searchResultsLinks()
   }
 
+  private suspend fun createNewOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
+    searchPage.navigateToNewOffender()
+    newOffenderPage.verifyOn()
+    newOffenderPage.createOffender(createOffenderRequest)
+    newOffenderPage.throwIfInvalid()
+    return offenderPage.extractCreatedOffenderDetails()
+  }
+
   private suspend fun createNewRecall(
     offenderId: String,
     recallRequest: CreateRecallRequest,
@@ -121,10 +151,10 @@ internal class PpudClient(
     recallPage.throwIfInvalid()
     recallPage.addDetailsMinute(recallRequest)
     recallPage.addContrabandMinuteIfNeeded(recallRequest)
-    return recallPage.extractRecallSummaryDetails()
+    return recallPage.extractCreatedRecallDetails()
   }
 
-  private suspend fun extractOffenderDetails(url: String): SearchResultOffender {
+  private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
     driver.get(url)
     return offenderPage.extractSearchResultOffenderDetails()
   }
