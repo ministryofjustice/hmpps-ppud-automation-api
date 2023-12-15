@@ -23,10 +23,9 @@ internal class ReferenceController(private val referenceService: ReferenceServic
   }
 
   @PostMapping("/reference/clear-caches")
-  fun clearCaches(): ResponseEntity<Unit> {
+  fun clearCaches() {
     log.info("Reference data clear-caches endpoint hit")
     referenceService.clearCaches()
-    return ResponseEntity(HttpStatus.OK)
   }
 
   @GetMapping("/reference/custody-types")

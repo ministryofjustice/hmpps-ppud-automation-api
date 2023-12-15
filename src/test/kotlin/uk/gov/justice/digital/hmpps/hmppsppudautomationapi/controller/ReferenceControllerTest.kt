@@ -29,10 +29,9 @@ internal class ReferenceControllerTest {
   @Test
   fun `when clearCaches is called then reference service is invoked to clear caches`() {
     runBlocking {
-      val result = controller.clearCaches()
+      controller.clearCaches()
 
       then(referenceService).should().clearCaches()
-      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
     }
   }
 
