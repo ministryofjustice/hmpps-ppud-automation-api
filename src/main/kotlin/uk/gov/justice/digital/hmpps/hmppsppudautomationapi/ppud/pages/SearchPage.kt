@@ -21,6 +21,9 @@ internal class SearchPage(private val driver: WebDriver) {
 
   private val title = "Search"
 
+  @FindBy(linkText = "New Offender")
+  private lateinit var newOffenderLink: WebElement
+
   @FindBy(id = "content_txtCROPNC")
   private lateinit var croNumberInput: WebElement
 
@@ -55,6 +58,10 @@ internal class SearchPage(private val driver: WebDriver) {
   fun verifyOn() {
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until(ExpectedConditions.titleIs(title))
+  }
+
+  fun navigateToNewOffender() {
+    newOffenderLink.click()
   }
 
   fun searchByCroNumber(croNumber: String) {

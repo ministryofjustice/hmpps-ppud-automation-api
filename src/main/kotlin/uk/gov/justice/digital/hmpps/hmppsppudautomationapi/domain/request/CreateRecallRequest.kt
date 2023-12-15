@@ -1,11 +1,12 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class CreateRecallRequest(
+data class CreateRecallRequest(
   val decisionDateTime: LocalDateTime,
   val isExtendedSentence: Boolean,
   val isInCustody: Boolean,

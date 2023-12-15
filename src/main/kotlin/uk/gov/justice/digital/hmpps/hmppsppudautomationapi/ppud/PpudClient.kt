@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
@@ -43,7 +43,7 @@ internal class PpudClient(
     nomsId: String?,
     familyName: String?,
     dateOfBirth: LocalDate?,
-  ): List<Offender> {
+  ): List<SearchResultOffender> {
     log.info("Searching in PPUD Client")
 
     login()
@@ -55,7 +55,7 @@ internal class PpudClient(
     }
   }
 
-  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): RecallSummary {
+  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
     log.info("Creating new recall in PPUD Client")
 
     login()
@@ -114,7 +114,7 @@ internal class PpudClient(
   private suspend fun createNewRecall(
     offenderId: String,
     recallRequest: CreateRecallRequest,
-  ): RecallSummary {
+  ): CreatedRecall {
     offenderPage.viewOffenderWithId(offenderId)
     offenderPage.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
     recallPage.createRecall(recallRequest)
@@ -124,9 +124,9 @@ internal class PpudClient(
     return recallPage.extractRecallSummaryDetails()
   }
 
-  private suspend fun extractOffenderDetails(url: String): Offender {
+  private suspend fun extractOffenderDetails(url: String): SearchResultOffender {
     driver.get(url)
-    return offenderPage.extractOffenderDetails()
+    return offenderPage.extractSearchResultOffenderDetails()
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {

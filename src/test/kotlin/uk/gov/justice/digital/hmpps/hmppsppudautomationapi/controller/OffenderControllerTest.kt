@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.given
 import org.mockito.kotlin.then
-import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.time.LocalDate
-import java.util.UUID
 
 @ExtendWith(MockitoExtension::class)
 internal class OffenderControllerTest {
@@ -43,7 +43,7 @@ internal class OffenderControllerTest {
         familyName,
         dateOfBirth,
       )
-      whenever(ppudClient.searchForOffender(croNumber, nomsId, familyName, dateOfBirth)).thenReturn(emptyList())
+      given(ppudClient.searchForOffender(croNumber, nomsId, familyName, dateOfBirth)).willReturn(emptyList())
 
       controller.search(criteria)
 
@@ -54,9 +54,9 @@ internal class OffenderControllerTest {
   @Test
   fun `given recall data when createRecall is called then data is passed to PPUD client`() {
     runBlocking {
-      val offenderId = UUID.randomUUID().toString()
+      val offenderId = randomPpudId()
       val recallRequest = generateCreateRecallRequest()
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(RecallSummary(""))
+      given(ppudClient.createRecall(offenderId, recallRequest)).willReturn(CreatedRecall(""))
 
       controller.createRecall(offenderId, recallRequest)
 
@@ -67,10 +67,10 @@ internal class OffenderControllerTest {
   @Test
   fun `given recall creation succeeds when createRecall is called then recall Id is returned`() {
     runBlocking {
-      val offenderId = UUID.randomUUID().toString()
-      val recallId = UUID.randomUUID().toString()
+      val offenderId = randomPpudId()
+      val recallId = randomPpudId()
       val recallRequest = generateCreateRecallRequest()
-      whenever(ppudClient.createRecall(offenderId, recallRequest)).thenReturn(RecallSummary(recallId))
+      given(ppudClient.createRecall(offenderId, recallRequest)).willReturn(CreatedRecall(recallId))
 
       val result = controller.createRecall(offenderId, recallRequest)
 

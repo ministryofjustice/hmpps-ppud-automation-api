@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.ApplicationScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 
 @Component
 @ApplicationScope

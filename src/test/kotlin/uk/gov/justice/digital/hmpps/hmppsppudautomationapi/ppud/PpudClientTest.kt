@@ -16,8 +16,8 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
@@ -165,13 +165,13 @@ class PpudClientTest {
     runBlocking {
       val croNumber = randomCroNumber()
       val searchResultLink = "/link/to/offender/details"
-      val offender = generateOffender(croNumber = croNumber)
+      val offender = generateSearchResultOffender(croOtherNumber = croNumber)
       setUpMocksToReturnSingleSearchResult(searchResultLink, offender)
 
       val result = client.searchForOffender(croNumber, null, null, null)
 
       then(driver).should().get(searchResultLink)
-      then(offenderPage).should().extractOffenderDetails()
+      then(offenderPage).should().extractSearchResultOffenderDetails()
       assertEquals(offender, result.single())
     }
   }
@@ -181,13 +181,13 @@ class PpudClientTest {
     runBlocking {
       val nomsId = randomNomsId()
       val searchResultLink = "/link/to/offender/details/matching/nomsId"
-      val offender = generateOffender(nomsId = nomsId)
+      val offender = generateSearchResultOffender(nomsId = nomsId)
       setUpMocksToReturnSingleSearchResult(searchResultLink, offender)
 
       val result = client.searchForOffender(null, nomsId, null, null)
 
       then(driver).should().get(searchResultLink)
-      then(offenderPage).should().extractOffenderDetails()
+      then(offenderPage).should().extractSearchResultOffenderDetails()
       assertEquals(offender, result.single())
     }
   }
@@ -202,8 +202,8 @@ class PpudClientTest {
         "/link/to/offender/details/2",
       )
       val offenders = listOf(
-        generateOffender(familyName = familyName, dateOfBirth = dateOfBirth),
-        generateOffender(familyName = familyName, dateOfBirth = dateOfBirth),
+        generateSearchResultOffender(familyName = familyName, dateOfBirth = dateOfBirth),
+        generateSearchResultOffender(familyName = familyName, dateOfBirth = dateOfBirth),
       )
       setUpMocksToReturnMultipleSearchResults(searchResultLinks, offenders)
 
@@ -211,9 +211,9 @@ class PpudClientTest {
 
       val inOrder = inOrder(driver, offenderPage)
       then(driver).should(inOrder).get(searchResultLinks[0])
-      then(offenderPage).should(inOrder).extractOffenderDetails()
+      then(offenderPage).should(inOrder).extractSearchResultOffenderDetails()
       then(driver).should(inOrder).get(searchResultLinks[1])
-      then(offenderPage).should(inOrder).extractOffenderDetails()
+      then(offenderPage).should(inOrder).extractSearchResultOffenderDetails()
       assertEquals(offenders, result)
     }
   }
@@ -252,7 +252,7 @@ class PpudClientTest {
         releaseDate = releaseDate,
       )
       val recallId = randomPpudId()
-      given(recallPage.extractRecallSummaryDetails()).willReturn(RecallSummary(recallId))
+      given(recallPage.extractRecallSummaryDetails()).willReturn(CreatedRecall(recallId))
 
       val newRecall = client.createRecall(offenderId, createRecallRequest)
 
@@ -271,7 +271,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val createRecallRequest = generateCreateRecallRequest(riskOfContrabandDetails = randomString("contraband"))
       val recallId = randomPpudId()
-      given(recallPage.extractRecallSummaryDetails()).willReturn(RecallSummary(recallId))
+      given(recallPage.extractRecallSummaryDetails()).willReturn(CreatedRecall(recallId))
 
       client.createRecall(offenderId, createRecallRequest)
 
@@ -385,31 +385,33 @@ class PpudClientTest {
 
   private fun setUpMocksToReturnSingleSearchResult(
     searchResultLink: String,
-    offender: Offender,
+    searchResultOffender: SearchResultOffender,
   ) {
     given(searchPage.searchResultsCount()).willReturn(1)
     given(searchPage.searchResultsLinks()).willReturn(listOf(searchResultLink))
-    given(offenderPage.extractOffenderDetails()).willReturn(offender)
+    given(offenderPage.extractSearchResultOffenderDetails()).willReturn(searchResultOffender)
   }
 
   private fun setUpMocksToReturnMultipleSearchResults(
     searchResultLinks: List<String>,
-    offenders: List<Offender>,
+    searchResultOffenders: List<SearchResultOffender>,
   ) {
     given(searchPage.searchResultsCount()).willReturn(searchResultLinks.size)
     given(searchPage.searchResultsLinks()).willReturn(searchResultLinks)
-    given(offenderPage.extractOffenderDetails()).willReturnConsecutively(offenders)
+    given(offenderPage.extractSearchResultOffenderDetails()).willReturnConsecutively(searchResultOffenders)
   }
 
-  private fun generateOffender(
-    croNumber: String? = null,
+  private fun generateSearchResultOffender(
+    croOtherNumber: String? = null,
     nomsId: String? = null,
     familyName: String? = null,
     dateOfBirth: LocalDate? = null,
-  ): Offender {
-    return Offender(
+  ): SearchResultOffender {
+    val resolvedCroOtherNumber = croOtherNumber ?: randomCroNumber()
+    return SearchResultOffender(
       id = randomString("id"),
-      croNumber = croNumber ?: randomCroNumber(),
+      croNumber = resolvedCroOtherNumber,
+      croOtherNumber = resolvedCroOtherNumber,
       nomsId = nomsId ?: randomNomsId(),
       firstNames = randomString("firstNames"),
       familyName = familyName ?: randomString("familyName"),

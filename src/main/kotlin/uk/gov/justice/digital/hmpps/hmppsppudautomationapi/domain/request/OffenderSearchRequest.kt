@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import java.time.LocalDate
 

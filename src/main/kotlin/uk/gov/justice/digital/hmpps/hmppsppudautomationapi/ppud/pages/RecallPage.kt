@@ -11,9 +11,9 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RecallSummary
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
@@ -184,11 +184,11 @@ internal class RecallPage(
     }
   }
 
-  fun extractRecallSummaryDetails(): RecallSummary {
+  fun extractRecallSummaryDetails(): CreatedRecall {
     // This should be performed when the Recall screen is in "existing recall" mode.
     // The add minute button is shown then, but not for a new recall
     if (addMinuteButton?.isDisplayed == true) {
-      return RecallSummary(id = extractIdFromUrl())
+      return CreatedRecall(id = extractIdFromUrl())
     } else {
       throw AutomationException("Recall screen not refreshed")
     }

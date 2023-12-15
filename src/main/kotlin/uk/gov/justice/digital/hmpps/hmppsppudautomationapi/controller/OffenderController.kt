@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallResponse
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.OffenderSearchResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateRecallResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.util.*
 

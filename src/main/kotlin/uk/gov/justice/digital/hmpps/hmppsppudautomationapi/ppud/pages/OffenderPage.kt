@@ -7,7 +7,7 @@ import org.openqa.selenium.support.PageFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
@@ -20,12 +20,17 @@ internal class OffenderPage(
   private val dateFormatter: DateTimeFormatter,
   @Value("\${ppud.url}") private val ppudUrl: String,
 ) {
-
   @FindBy(id = "cntDetails_txtCRO_PNC")
-  private lateinit var croNumberInput: WebElement
+  private lateinit var croOtherNumberInput: WebElement
 
-  @FindBy(id = "cntDetails_txtNOMS_ID")
-  private lateinit var nomsIdInput: WebElement
+  @FindBy(id = "igtxtcntDetails_dteDOB")
+  private lateinit var dateOfBirthInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliETHNICITY")
+  private lateinit var ethnicityDropdown: WebElement
+
+  @FindBy(id = "cntDetails_ddlsGENDER")
+  private lateinit var genderDropdown: WebElement
 
   @FindBy(id = "cntDetails_txtFIRST_NAMES")
   private lateinit var firstNamesInput: WebElement
@@ -33,8 +38,8 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_txtFAMILY_NAME")
   private lateinit var familyNameInput: WebElement
 
-  @FindBy(id = "igtxtcntDetails_dteDOB")
-  private lateinit var dateOfBirthInput: WebElement
+  @FindBy(id = "cntDetails_txtNOMS_ID")
+  private lateinit var nomsIdInput: WebElement
 
   @FindBy(id = "T_ctl00treetvOffender")
   private lateinit var navigationTreeView: WebElement
@@ -59,13 +64,14 @@ internal class OffenderPage(
       .click()
   }
 
-  fun extractOffenderDetails(): Offender {
+  fun extractSearchResultOffenderDetails(): SearchResultOffender {
     val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
     val (id) = idMatch.destructured
 
-    return Offender(
+    return SearchResultOffender(
       id = id,
-      croNumber = croNumberInput.getValue(),
+      croNumber = croOtherNumberInput.getValue(),
+      croOtherNumber = croOtherNumberInput.getValue(),
       nomsId = nomsIdInput.getValue(),
       firstNames = firstNamesInput.getValue(),
       familyName = familyNameInput.getValue(),

@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall
 
 import java.time.LocalDate
 import java.time.LocalDateTime
