@@ -16,16 +16,21 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateSearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomLookupName
@@ -54,6 +59,9 @@ class PpudClientTest {
 
   @Mock
   private lateinit var offenderPage: OffenderPage
+
+  @Mock
+  private lateinit var newOffenderPage: NewOffenderPage
 
   @Mock
   private lateinit var recallPage: RecallPage
@@ -88,6 +96,7 @@ class PpudClientTest {
       editLookupsPage,
       searchPage,
       offenderPage,
+      newOffenderPage,
       recallPage,
     )
   }
@@ -230,6 +239,64 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given ID when retrieveOffender is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      client.retrieveOffender(randomPpudId())
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given ID when retrieveOffender is called then navigate to offender and extract details`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val offender = generateOffender(id = offenderId)
+      given(loginPage.urlPath).willReturn("/login")
+      given(offenderPage.extractOffenderDetails()).willReturn(offender)
+
+      val result = client.retrieveOffender(offenderId)
+
+      val inOrder = inOrder(driver, offenderPage)
+      then(driver).should(inOrder).get("$ppudUrl/login")
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      assertEquals(offender, result)
+    }
+  }
+
+  @Test
+  fun `given offender data when create offender is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val createOffenderRequest = generateCreateOffenderRequest()
+      client.createOffender(createOffenderRequest)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given offender data when create offender is called then create offender and return ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val createOffenderRequest = generateCreateOffenderRequest()
+      given(offenderPage.extractCreatedOffenderDetails()).willReturn(CreatedOffender(offenderId))
+
+      val newOffender = client.createOffender(createOffenderRequest)
+
+      val inOrder = inOrder(newOffenderPage, searchPage)
+      then(searchPage).should(inOrder).navigateToNewOffender()
+      then(newOffenderPage).should(inOrder).verifyOn()
+      then(newOffenderPage).should(inOrder).createOffender(createOffenderRequest)
+      then(newOffenderPage).should(inOrder).throwIfInvalid()
+      assertEquals(offenderId, newOffender.id)
+    }
+  }
+
+  @Test
   fun `given recall data when create recall is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
       val createRecallRequest = generateCreateRecallRequest()
@@ -252,7 +319,7 @@ class PpudClientTest {
         releaseDate = releaseDate,
       )
       val recallId = randomPpudId()
-      given(recallPage.extractRecallSummaryDetails()).willReturn(CreatedRecall(recallId))
+      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
 
       val newRecall = client.createRecall(offenderId, createRecallRequest)
 
@@ -271,7 +338,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val createRecallRequest = generateCreateRecallRequest(riskOfContrabandDetails = randomString("contraband"))
       val recallId = randomPpudId()
-      given(recallPage.extractRecallSummaryDetails()).willReturn(CreatedRecall(recallId))
+      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
 
       client.createRecall(offenderId, createRecallRequest)
 
@@ -399,23 +466,5 @@ class PpudClientTest {
     given(searchPage.searchResultsCount()).willReturn(searchResultLinks.size)
     given(searchPage.searchResultsLinks()).willReturn(searchResultLinks)
     given(offenderPage.extractSearchResultOffenderDetails()).willReturnConsecutively(searchResultOffenders)
-  }
-
-  private fun generateSearchResultOffender(
-    croOtherNumber: String? = null,
-    nomsId: String? = null,
-    familyName: String? = null,
-    dateOfBirth: LocalDate? = null,
-  ): SearchResultOffender {
-    val resolvedCroOtherNumber = croOtherNumber ?: randomCroNumber()
-    return SearchResultOffender(
-      id = randomString("id"),
-      croNumber = resolvedCroOtherNumber,
-      croOtherNumber = resolvedCroOtherNumber,
-      nomsId = nomsId ?: randomNomsId(),
-      firstNames = randomString("firstNames"),
-      familyName = familyName ?: randomString("familyName"),
-      dateOfBirth = dateOfBirth ?: randomDate(),
-    )
   }
 }

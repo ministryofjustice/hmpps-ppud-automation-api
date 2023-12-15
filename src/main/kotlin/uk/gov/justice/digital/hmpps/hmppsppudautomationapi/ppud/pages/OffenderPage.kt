@@ -4,9 +4,12 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -64,12 +67,15 @@ internal class OffenderPage(
       .click()
   }
 
-  fun extractSearchResultOffenderDetails(): SearchResultOffender {
-    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
-    val (id) = idMatch.destructured
+  fun extractCreatedOffenderDetails(): CreatedOffender {
+    return CreatedOffender(
+      id = extractId(),
+    )
+  }
 
+  fun extractSearchResultOffenderDetails(): SearchResultOffender {
     return SearchResultOffender(
-      id = id,
+      id = extractId(),
       croNumber = croOtherNumberInput.getValue(),
       croOtherNumber = croOtherNumberInput.getValue(),
       nomsId = nomsIdInput.getValue(),
@@ -77,5 +83,24 @@ internal class OffenderPage(
       familyName = familyNameInput.getValue(),
       dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
     )
+  }
+
+  fun extractOffenderDetails(): Offender {
+    return Offender(
+      id = extractId(),
+      croOtherNumber = croOtherNumberInput.getValue(),
+      dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+      ethnicity = Select(ethnicityDropdown).firstSelectedOption.text,
+      familyName = familyNameInput.getValue(),
+      firstNames = firstNamesInput.getValue(),
+      gender = Select(genderDropdown).firstSelectedOption.text,
+      nomsId = nomsIdInput.getValue(),
+    )
+  }
+
+  private fun extractId(): String {
+    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
+    val (id) = idMatch.destructured
+    return id
   }
 }
