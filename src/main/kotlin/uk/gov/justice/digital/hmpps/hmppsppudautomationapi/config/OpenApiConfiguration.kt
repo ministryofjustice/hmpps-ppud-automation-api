@@ -17,7 +17,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     .servers(
       listOf(
         Server().url("https://hmpps-ppud-automation-api-dev.hmpps.service.justice.gov.uk").description("dev"),
-        Server().url("http://localhost:8081").description("local"),
+        Server().url("http://localhost:8080").description("local"),
       ),
     )
     .info(
