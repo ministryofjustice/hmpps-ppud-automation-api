@@ -18,6 +18,17 @@ spring:
       test:
         - "stdout"
 
+  security:
+    strategy: MODE_INHERITABLETHREADLOCAL
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${hmpps.auth.url}/.well-known/jwks.json
+      client:
+        provider:
+          hmpps-auth:
+            token-uri: ${hmpps.auth.url}/oauth/token
+
 server:
   port: 8080
   servlet:
@@ -72,3 +83,7 @@ automation:
 
 cache:
   timeToLiveSeconds: 20
+
+hmpps:
+  auth:
+    url: http://localhost:9090/auth

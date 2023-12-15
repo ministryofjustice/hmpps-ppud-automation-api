@@ -103,6 +103,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   fun `given missing request body when recall called then bad request is returned`() {
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isBadRequest
@@ -116,6 +117,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val errorFragment = data.errorFragment ?: data.propertyName
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(data.requestBody))
       .exchange()
@@ -131,6 +133,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val requestBody = createRecallRequestBody()
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -200,6 +203,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val requestBody = createRecallRequestBody(riskOfContrabandDetails = randomString("riskOfContrabandDetails"))
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -211,6 +215,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val idExtractor = ValueConsumer<String>()
     webTestClient.post()
       .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -227,6 +232,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   private fun retrieveRecall(id: String): BodyContentSpec {
     return webTestClient.get()
       .uri("/recall/$id")
+      .headers { it.authToken() }
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk

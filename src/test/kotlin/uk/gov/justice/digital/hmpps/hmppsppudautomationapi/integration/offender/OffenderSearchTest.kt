@@ -16,6 +16,7 @@ class OffenderSearchTest : IntegrationTestBase() {
   fun `given missing request body when search called then bad request is returned`() {
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isBadRequest
@@ -26,6 +27,7 @@ class OffenderSearchTest : IntegrationTestBase() {
     val requestBody = "{}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -46,6 +48,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -68,6 +71,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -94,6 +98,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -115,6 +120,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -138,6 +144,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -162,6 +169,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
@@ -184,6 +192,7 @@ class OffenderSearchTest : IntegrationTestBase() {
       "}"
     webTestClient.post()
       .uri("/offender/search")
+      .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
