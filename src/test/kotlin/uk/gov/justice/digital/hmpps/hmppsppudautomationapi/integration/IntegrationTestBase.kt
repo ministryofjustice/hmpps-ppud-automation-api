@@ -25,7 +25,6 @@ abstract class IntegrationTestBase {
       jwtAuthHelper.createJwt(
         subject = "$subject",
         roles = roles,
-        clientId = "make-recall-decisions-api",
       ),
     )
   }

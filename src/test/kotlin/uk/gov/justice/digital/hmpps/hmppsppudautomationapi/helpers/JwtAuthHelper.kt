@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers
 
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.context.annotation.Bean
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
@@ -15,7 +14,7 @@ import java.util.UUID
 
 @Component
 class JwtAuthHelper {
-  private val keyPair: KeyPair
+  private lateinit var keyPair: KeyPair
 
   init {
     val gen = KeyPairGenerator.getInstance("RSA")
@@ -32,21 +31,21 @@ class JwtAuthHelper {
     roles: List<String>? = listOf(),
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString(),
-    clientId: String = "community-api",
+    clientId: String = "hmpps-ppud-automation-api",
   ): String =
     mutableMapOf<String, Any>()
       .also { subject?.let { subject -> it["user_name"] = subject } }
-      .also { it["client_id"] = "make-recall-decision-client" }
+      .also { it["client_id"] = clientId }
       .also { subject?.let { subject -> it["name"] = subject.lowercase() } }
       .also { roles?.let { roles -> it["authorities"] = roles } }
       .also { scope?.let { scope -> it["scope"] = scope } }
       .let {
         Jwts.builder()
-          .setId(jwtId)
-          .setSubject(subject)
-          .addClaims(it.toMap())
-          .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-          .signWith(SignatureAlgorithm.RS256, keyPair.private)
+          .id(jwtId)
+          .subject(subject)
+          .claims(it.toMap())
+          .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+          .signWith(keyPair.private, Jwts.SIG.RS256)
           .compact()
       }
 }
