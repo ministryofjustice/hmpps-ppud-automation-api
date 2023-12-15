@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
+import io.swagger.v3.oas.annotations.Hidden
+import net.minidev.json.annotate.JsonIgnore
 import java.time.LocalDate
 
 data class OffenderSearchRequest(
@@ -8,7 +10,9 @@ data class OffenderSearchRequest(
   val familyName: String?,
   val dateOfBirth: LocalDate?,
 ) {
-  val containsCriteria: Boolean
+  @get:JsonIgnore
+  @get:Hidden
+  internal val containsCriteria: Boolean
     get() {
       return !croNumber.isNullOrBlank() ||
         !nomsId.isNullOrBlank() ||
