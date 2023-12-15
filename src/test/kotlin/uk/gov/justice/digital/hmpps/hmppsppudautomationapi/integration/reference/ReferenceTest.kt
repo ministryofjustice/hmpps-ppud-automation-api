@@ -11,6 +11,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when clear-caches called then OK is returned`() {
     webTestClient.post()
       .uri("/reference/clear-caches")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -20,6 +21,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when custody-types called then custody types are returned`() {
     webTestClient.get()
       .uri("/reference/custody-types")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -32,6 +34,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when establishments called then establishments are returned`() {
     webTestClient.get()
       .uri("/reference/establishments")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -44,6 +47,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when ethnicities called then ethnicities are returned`() {
     webTestClient.get()
       .uri("/reference/ethnicities")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -56,6 +60,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when genders called then genders are returned`() {
     webTestClient.get()
       .uri("/reference/genders")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -68,6 +73,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when index-offences called then index offences are returned`() {
     webTestClient.get()
       .uri("/reference/index-offences")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -81,6 +87,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when mappa-levels called then mappa levels are returned`() {
     webTestClient.get()
       .uri("/reference/mappa-levels")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -93,6 +100,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when police-forces called then police forces are returned`() {
     webTestClient.get()
       .uri("/reference/police-forces")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -105,6 +113,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when probation-services called then probation services are returned`() {
     webTestClient.get()
       .uri("/reference/probation-services")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
@@ -117,6 +126,7 @@ class ReferenceTest : IntegrationTestBase() {
   fun `when released-unders called then released unders are returned`() {
     webTestClient.get()
       .uri("/reference/released-unders")
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk

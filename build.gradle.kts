@@ -38,8 +38,6 @@ dependencies {
   implementation("org.seleniumhq.selenium:selenium-safari-driver:4.16.1") // Address CVE-2023-5590
   implementation("org.seleniumhq.selenium:selenium-support:4.16.1") // Address CVE-2023-5590
 
-  testImplementation("org.mock-server:mockserver-netty:5.15.0")
-
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-client")
@@ -47,6 +45,9 @@ dependencies {
 
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
+  testImplementation("org.mock-server:mockserver-netty:5.15.0")
+  testImplementation("io.jsonwebtoken:jjwt:0.12.3")
 }
 
 java {
