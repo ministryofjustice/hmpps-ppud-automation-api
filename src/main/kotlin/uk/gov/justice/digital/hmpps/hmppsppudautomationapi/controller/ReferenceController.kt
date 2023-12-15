@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.ReferenceResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.ReferenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import java.util.*
 

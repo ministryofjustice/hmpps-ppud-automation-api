@@ -15,6 +15,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidMappaLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidPoliceForce
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidProbationArea
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullName
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullNameAndTeam
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.LocalDate
@@ -27,26 +33,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
-    // This is an offender that exists in PPUD InternalTest
-    @JvmStatic
-    private val ppudOffenderWithRelease: TestOffender
-      get() = TestOffender(
-        id = "4F6666656E64657269643D313632393134G721H665",
-        sentenceDate = "2003-06-12",
-        releaseDate = "2013-02-02",
-      )
-
-    // Watch out for the different hyphens in the dropdown options
-    private const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
-
-    private const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
-
-    private const val ppudValidUserFullName = "Consider a Recall Test"
-
-    private const val ppudValidProbationArea = "Merseyside"
-
-    private const val ppudValidPoliceForce = "Kent Police"
-
     private const val ppudExpectedRecallType = "Standard"
 
     private const val ppudExpectedOwningTeam = "Recall 1"
@@ -54,6 +40,14 @@ class OffenderRecallTest : IntegrationTestBase() {
     private const val ppudExpectedRevocationIssuedByOwner = "EO Officer"
 
     private const val ppudExpectedReturnToCustodyNotificationMethod = "Not Applicable"
+
+    // This is an offender that exists in PPUD InternalTest
+    private val ppudOffenderWithRelease: TestOffender
+      get() = TestOffender(
+        id = "4F6666656E64657269643D313632393134G721H665",
+        sentenceDate = "2003-06-12",
+        releaseDate = "2013-02-02",
+      )
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -74,7 +68,6 @@ class OffenderRecallTest : IntegrationTestBase() {
       )
     }
 
-    @JvmStatic
     private fun createRecallRequestBody(
       decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       isInCustody: String = "false",
@@ -244,11 +237,5 @@ class OffenderRecallTest : IntegrationTestBase() {
     val id: String,
     val sentenceDate: String,
     val releaseDate: String,
-  )
-
-  class MandatoryFieldTestData(
-    val propertyName: String,
-    val requestBody: String,
-    val errorFragment: String? = null,
   )
 }

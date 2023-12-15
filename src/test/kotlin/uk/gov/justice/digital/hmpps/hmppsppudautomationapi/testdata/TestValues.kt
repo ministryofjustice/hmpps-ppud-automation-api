@@ -1,14 +1,25 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.CreateRecallRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
 import kotlin.random.Random
+
+// Watch out for the different hyphens in the dropdown options
+const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
+
+const val ppudValidPoliceForce = "Kent Police"
+
+const val ppudValidProbationArea = "Merseyside"
+
+const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
+
+const val ppudValidUserFullName = "Consider a Recall Test"
 
 private const val sixtyYearsInDays: Long = 21900
 
