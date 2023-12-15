@@ -16,7 +16,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
   fun customOpenAPI(): OpenAPI = OpenAPI()
     .servers(
       listOf(
-        Server().url("https://hmpps-ppud-automation-api.service.justice.gov.uk").description("dev"),
+        Server().url("https://hmpps-ppud-automation-api-dev.hmpps.service.justice.gov.uk/health").description("dev"),
         Server().url("http://localhost:8081").description("local"),
       ),
     )
