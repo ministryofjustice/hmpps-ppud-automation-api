@@ -47,6 +47,12 @@ the automation works correctly.
 
 ### Running Tests
 
+Run the following to start Redis for caching
+
+```
+docker-compose up redis
+```
+
 Run the following script to run all the integration and unit tests locally:
 
 ```

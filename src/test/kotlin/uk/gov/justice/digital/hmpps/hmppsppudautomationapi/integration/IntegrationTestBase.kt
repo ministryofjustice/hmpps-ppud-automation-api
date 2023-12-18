@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
-@AutoConfigureWebTestClient(timeout = "40000")
+@AutoConfigureWebTestClient(timeout = "60000")
 abstract class IntegrationTestBase {
 
   @Autowired

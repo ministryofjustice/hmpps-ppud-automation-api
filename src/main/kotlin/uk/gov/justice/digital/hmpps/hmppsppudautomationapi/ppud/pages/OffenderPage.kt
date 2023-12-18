@@ -11,6 +11,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
@@ -85,7 +86,7 @@ internal class OffenderPage(
     )
   }
 
-  fun extractOffenderDetails(): Offender {
+  fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender {
     return Offender(
       id = extractId(),
       croOtherNumber = croOtherNumberInput.getValue(),
@@ -95,7 +96,16 @@ internal class OffenderPage(
       firstNames = firstNamesInput.getValue(),
       gender = Select(genderDropdown).firstSelectedOption.text,
       nomsId = nomsIdInput.getValue(),
+      sentences = sentenceExtractor(determineSentenceLinks()),
     )
+  }
+
+  private fun determineSentenceLinks(): List<String> {
+    return TreeView(navigationTreeView)
+      .expandNodeWithText("Sentences")
+      .children()
+      .filter { it.text.startsWith("New").not() }
+      .map { it.getAttribute("igurl") }
   }
 
   private fun extractId(): String {

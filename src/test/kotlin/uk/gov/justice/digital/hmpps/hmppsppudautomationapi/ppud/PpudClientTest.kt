@@ -18,6 +18,7 @@ import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
@@ -26,6 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffende
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
@@ -64,6 +66,9 @@ class PpudClientTest {
   private lateinit var newOffenderPage: NewOffenderPage
 
   @Mock
+  private lateinit var sentencePageFactory: SentencePageFactory
+
+  @Mock
   private lateinit var recallPage: RecallPage
 
   private val ppudUrl = "https://ppud.example.com"
@@ -97,6 +102,7 @@ class PpudClientTest {
       searchPage,
       offenderPage,
       newOffenderPage,
+      sentencePageFactory,
       recallPage,
     )
   }
@@ -255,7 +261,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val offender = generateOffender(id = offenderId)
       given(loginPage.urlPath).willReturn("/login")
-      given(offenderPage.extractOffenderDetails()).willReturn(offender)
+      given(offenderPage.extractOffenderDetails(any<(List<String>) -> List<Sentence>>())).willReturn(offender)
 
       val result = client.retrieveOffender(offenderId)
 

@@ -8,6 +8,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffende
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import java.time.LocalDate
 
 @Component
@@ -36,6 +38,7 @@ internal class PpudClient(
   private val searchPage: SearchPage,
   private val offenderPage: OffenderPage,
   private val newOffenderPage: NewOffenderPage,
+  private val sentencePageFactory: SentencePageFactory,
   private val recallPage: RecallPage,
 ) {
 
@@ -74,7 +77,7 @@ internal class PpudClient(
     login()
 
     offenderPage.viewOffenderWithId(id)
-    return offenderPage.extractOffenderDetails()
+    return offenderPage.extractOffenderDetails { extractSentences(it) }
   }
 
   suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
@@ -157,6 +160,14 @@ internal class PpudClient(
   private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
     driver.get(url)
     return offenderPage.extractSearchResultOffenderDetails()
+  }
+
+  private fun extractSentences(urls: List<String>): List<Sentence> {
+    return urls.map {
+      driver.get("$ppudUrl$it")
+      val page = sentencePageFactory.sentencePage()
+      page.extractSentenceDetails()
+    }
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {
