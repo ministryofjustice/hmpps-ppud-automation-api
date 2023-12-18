@@ -9,6 +9,7 @@ generic-service:
 
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+    HMPPS_AUTH_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
     PPUD_URL: https://internaltest.ppud.justice.gov.uk
 
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
