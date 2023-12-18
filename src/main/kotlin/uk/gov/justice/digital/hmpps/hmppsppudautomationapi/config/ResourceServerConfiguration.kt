@@ -19,7 +19,10 @@ class ResourceServerConfiguration {
       headers { frameOptions { sameOrigin = true } }
       csrf { disable() }
       authorizeHttpRequests {
+        // TODO: Remove permitall for functional endpoints
         listOf(
+          "/offender/**",
+          "/reference/**",
           "/webjars/**",
           "/favicon.ico",
           "/health/**",
