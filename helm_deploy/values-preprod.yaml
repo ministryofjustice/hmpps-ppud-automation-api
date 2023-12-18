@@ -9,6 +9,7 @@ generic-service:
 
   env:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+    HMPPS_AUTH_URL: https://sign-in-preprod.hmpps.service.justice.gov.uk/auth
     PPUD_URL: https://uat.ppud.justice.gov.uk
     PPUD_RECALL_REVOCATIONISSUEDBYOWNER: "EO Recall(Recall Team)"
     PPUD_RECALL_RECALLTYPE: "To be determined"
