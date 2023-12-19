@@ -51,6 +51,9 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_txtPRISON_NUMBER")
   private lateinit var prisonNumberInput: WebElement
 
+  @FindBy(id = "cntDetails_ddliYOUNG_OFFENDER")
+  private lateinit var youngOffenderDropdown: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -100,6 +103,7 @@ internal class OffenderPage(
       gender = Select(genderDropdown).firstSelectedOption.text,
       nomsId = nomsIdInput.getValue(),
       prisonNumber = prisonNumberInput.getValue(),
+      youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
       sentences = sentenceExtractor(determineSentenceLinks()),
     )
   }

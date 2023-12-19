@@ -8,19 +8,23 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
 import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-class NewOffenderPage(
+internal class NewOffenderPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
+  private val youngOffenderCalculator: YoungOffenderCalculator,
+  @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
 ) {
 
   private val title = "New Offender"
@@ -79,6 +83,9 @@ class NewOffenderPage(
   @FindBy(id = "content_ddlStatus")
   private lateinit var statusDropdown: WebElement
 
+  @FindBy(id = "content_ddliYOUNG_OFFENDER")
+  private lateinit var youngOffenderDropdown: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -112,6 +119,9 @@ class NewOffenderPage(
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
     selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, "Not Applicable")
     selectDropdownOptionIfNotBlank(statusDropdown, "Recalled [*]")
+    if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
+      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes)
+    }
 
     // Complete fields that have been updated/refreshed.
     selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence)

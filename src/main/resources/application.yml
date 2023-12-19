@@ -75,6 +75,8 @@ ppud:
     recallType: "Standard"
     returnToCustodyNotificationMethod: "Not Applicable"
     nextUalCheckMonths: 6
+  offender:
+    youngOffenderYes: "Yes - Named"
 
 automation:
   headless: true

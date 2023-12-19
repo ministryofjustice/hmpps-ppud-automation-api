@@ -32,6 +32,10 @@ const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
 
 const val ppudValidUserFullName = "Consider a Recall Test"
 
+const val ppudYoungOffenderYes = "Yes - Named"
+
+const val ppudYoungOffenderNo = "No"
+
 private const val sixtyYearsInDays: Long = 21900
 
 private const val secondsInADay: Long = 86400
@@ -113,9 +117,10 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     ethnicity = randomString("ethnicity"),
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
+    gender = randomString("gender"),
     nomsId = randomNomsId(),
     prisonNumber = randomPrisonNumber(),
-    gender = randomString("gender"),
+    youngOffender = randomString("youngOffender"),
   )
 }
 

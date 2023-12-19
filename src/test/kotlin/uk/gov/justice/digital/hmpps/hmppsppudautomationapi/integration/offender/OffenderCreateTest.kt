@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -17,12 +18,15 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidEth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidGender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidIndexOffence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidMappaLevel
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudYoungOffenderNo
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudYoungOffenderYes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
@@ -150,7 +154,6 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   // TODO: Need to decide what to do with PNC Number
-  // TODO: Need to add young offender
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
@@ -194,6 +197,27 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].custodyType").isEqualTo(ppudValidCustodyType)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(ppudValidMappaLevel)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "18,$ppudYoungOffenderYes",
+    "50,$ppudYoungOffenderNo",
+  )
+  fun `given offender 21 years or younger when create offender called then offender marked as young offender`(
+    age: Long,
+    expected: String,
+  ) {
+    val dateOfBirth = LocalDate.now().minusYears(age).format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val requestBody = createOffenderRequestBody(
+      dateOfBirth = dateOfBirth,
+    )
+
+    val id = postOffender(requestBody)
+
+    val retrieved = retrieveOffender(id)
+    retrieved.jsonPath("offender.id").isEqualTo(id)
+      .jsonPath("offender.youngOffender").isEqualTo(expected)
   }
 
   private fun postOffender(requestBody: String): String {
