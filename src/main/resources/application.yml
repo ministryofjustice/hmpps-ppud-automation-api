@@ -19,6 +19,7 @@ spring:
         - "stdout"
 
   security:
+    # noinspection SpringBootApplicationYaml
     strategy: MODE_INHERITABLETHREADLOCAL
     oauth2:
       resourceserver:
