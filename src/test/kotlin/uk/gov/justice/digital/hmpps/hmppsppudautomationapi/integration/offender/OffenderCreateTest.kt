@@ -150,7 +150,9 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   // TODO: Need to decide what to do with PNC Number
-  // TODO: Need to include more fields
+  // TODO: Need to add young offender
+  // TODO: Need to verify prison number
+  // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
     val croNumber = randomCroNumber()
@@ -160,6 +162,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val firstNames = randomString("firstNames")
     val nomsId = randomNomsId()
     val pncNumber = randomPncNumber()
+    val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
       croNumber = croNumber,
       custodyType = ppudValidCustodyType,
@@ -169,8 +172,11 @@ class OffenderCreateTest : IntegrationTestBase() {
       familyName = familyName,
       firstNames = firstNames,
       gender = ppudValidGender,
+      indexOffence = ppudValidIndexOffence,
+      mappaLevel = ppudValidMappaLevel,
       nomsId = nomsId,
       pncNumber = pncNumber,
+      prisonNumber = prisonNumber,
     )
 
     val id = postOffender(requestBody)
@@ -184,6 +190,10 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(ppudValidGender)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
+      .jsonPath("offender.sentences.size()").isEqualTo(1)
+      .jsonPath("offender.sentences[0].custodyType").isEqualTo(ppudValidCustodyType)
+      .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
+      .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(ppudValidMappaLevel)
   }
 
   private fun postOffender(requestBody: String): String {

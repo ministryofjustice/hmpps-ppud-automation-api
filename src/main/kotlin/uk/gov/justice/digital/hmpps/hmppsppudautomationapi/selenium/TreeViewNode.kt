@@ -7,10 +7,37 @@ import org.openqa.selenium.Point
 import org.openqa.selenium.Rectangle
 import org.openqa.selenium.WebElement
 
-class TreeView(private val element: WebElement) : WebElement {
+class TreeViewNode(private val element: WebElement) : WebElement {
+
+  fun children(): List<TreeViewNode> {
+    return element.findElements(By.xpath("./div"))
+      .filter { it.isDisplayed }
+      .map { TreeViewNode(it) }
+  }
 
   fun expandNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(this).expandNodeWithText(text)
+    return TreeViewNode((expandNode(findNodeWithText(text))))
+  }
+
+  fun expandNodeWithTextContaining(text: String): TreeViewNode {
+    return TreeViewNode(expandNode(findNodeWithTextContaining(text)))
+  }
+
+  fun findNodeWithTextContaining(text: String): TreeViewNode {
+    return TreeViewNode(element.findElement(By.xpath(".//*[contains(text(), '$text')]")))
+  }
+
+  private fun findNodeWithText(text: String): TreeViewNode {
+    return TreeViewNode(element.findElement(By.xpath(".//*[text()='$text']")))
+  }
+
+  private fun expandNode(textNode: TreeViewNode): WebElement {
+    val expansionElement = textNode.findElement(By.xpath("../following-sibling::div"))
+    if (expansionElement.isDisplayed.not()) {
+      val expanderImage = textNode.findElement(By.xpath("../img[@imgtype='exp']"))
+      expanderImage.click()
+    }
+    return expansionElement
   }
 
   override fun findElements(by: By?): MutableList<WebElement> {
