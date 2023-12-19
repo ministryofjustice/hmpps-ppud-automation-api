@@ -32,6 +32,12 @@ const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
 
 const val ppudValidUserFullName = "Consider a Recall Test"
 
+const val ppudImmigrationStatus = "Not Applicable"
+
+const val ppudPrisonerCategory = "Not Applicable"
+
+const val ppudStatus = "Recalled [*]"
+
 const val ppudYoungOffenderYes = "Yes - Named"
 
 const val ppudYoungOffenderNo = "No"
@@ -118,8 +124,11 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
     gender = randomString("gender"),
+    immigrationStatus = randomString("immigrationStatus"),
     nomsId = randomNomsId(),
+    prisonerCategory = randomString("prisonerCategory"),
     prisonNumber = randomPrisonNumber(),
+    status = randomString("status"),
     youngOffender = randomString("youngOffender"),
   )
 }

@@ -13,6 +13,9 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudImmigrationStatus
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudPrisonerCategory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidEthnicity
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidGender
@@ -191,8 +194,11 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(ppudValidGender)
+      .jsonPath("offender.immigrationStatus").isEqualTo(ppudImmigrationStatus)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
+      .jsonPath("offender.prisonerCategory").isEqualTo(ppudPrisonerCategory)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
+      .jsonPath("offender.status").isEqualTo(ppudStatus)
       .jsonPath("offender.sentences.size()").isEqualTo(1)
       .jsonPath("offender.sentences[0].custodyType").isEqualTo(ppudValidCustodyType)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)

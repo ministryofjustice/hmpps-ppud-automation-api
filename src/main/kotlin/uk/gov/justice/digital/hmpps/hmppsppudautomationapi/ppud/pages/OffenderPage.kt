@@ -42,17 +42,26 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddlsGENDER")
   private lateinit var genderDropdown: WebElement
 
+  @FindBy(id = "cntDetails_ddliIMMIGRATION_STATUS")
+  private lateinit var immigrationStatusDropdown: WebElement
+
   @FindBy(id = "T_ctl00treetvOffender")
   private lateinit var navigationTreeView: WebElement
 
   @FindBy(id = "cntDetails_txtNOMS_ID")
   private lateinit var nomsIdInput: WebElement
 
+  @FindBy(id = "cntDetails_ddliPRISONER_CATEGORY")
+  private lateinit var prisonerCategoryDropdown: WebElement
+
   @FindBy(id = "cntDetails_txtPRISON_NUMBER")
   private lateinit var prisonNumberInput: WebElement
 
   @FindBy(id = "cntDetails_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
+
+  @FindBy(id = "cntDetails_ddliSTATUS")
+  private lateinit var statusDropdown: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -101,10 +110,13 @@ internal class OffenderPage(
       familyName = familyNameInput.getValue(),
       firstNames = firstNamesInput.getValue(),
       gender = Select(genderDropdown).firstSelectedOption.text,
+      immigrationStatus = Select(immigrationStatusDropdown).firstSelectedOption.text,
       nomsId = nomsIdInput.getValue(),
+      prisonerCategory = Select(prisonerCategoryDropdown).firstSelectedOption.text,
       prisonNumber = prisonNumberInput.getValue(),
       youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
-      sentences = sentenceExtractor(determineSentenceLinks()),
+      status = Select(statusDropdown).firstSelectedOption.text,
+      sentences = sentenceExtractor(determineSentenceLinks()), // Do this last because it navigates away
     )
   }
 

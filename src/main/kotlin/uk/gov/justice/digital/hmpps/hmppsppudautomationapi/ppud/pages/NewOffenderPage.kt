@@ -24,6 +24,9 @@ internal class NewOffenderPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
   private val youngOffenderCalculator: YoungOffenderCalculator,
+  @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
+  @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
+  @Value("\${ppud.offender.status}") private val status: String,
   @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
 ) {
 
@@ -114,11 +117,11 @@ internal class NewOffenderPage(
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
     dismissCheckCapitalisationAlert()
     selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender)
-    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, "Not Applicable")
+    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus)
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, "Not Applicable")
-    selectDropdownOptionIfNotBlank(statusDropdown, "Recalled [*]")
+    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory)
+    selectDropdownOptionIfNotBlank(statusDropdown, status)
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes)
     }

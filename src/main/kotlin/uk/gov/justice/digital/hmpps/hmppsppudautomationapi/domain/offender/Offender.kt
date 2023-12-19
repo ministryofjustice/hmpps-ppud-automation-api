@@ -10,8 +10,11 @@ data class Offender(
   val familyName: String,
   val firstNames: String,
   val gender: String,
+  val immigrationStatus: String,
   val nomsId: String,
+  val prisonerCategory: String,
   val prisonNumber: String,
   val sentences: List<Sentence> = listOf(),
+  val status: String,
   val youngOffender: String,
 )
