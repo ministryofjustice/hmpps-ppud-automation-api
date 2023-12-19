@@ -11,5 +11,6 @@ data class Offender(
   val firstNames: String,
   val gender: String,
   val nomsId: String,
+  val prisonNumber: String,
   val sentences: List<Sentence> = listOf(),
 )

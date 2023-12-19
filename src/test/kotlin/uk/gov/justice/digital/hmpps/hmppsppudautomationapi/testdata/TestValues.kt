@@ -114,6 +114,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
     nomsId = randomNomsId(),
+    prisonNumber = randomPrisonNumber(),
     gender = randomString("gender"),
   )
 }

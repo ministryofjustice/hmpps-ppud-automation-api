@@ -33,20 +33,23 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliETHNICITY")
   private lateinit var ethnicityDropdown: WebElement
 
-  @FindBy(id = "cntDetails_ddlsGENDER")
-  private lateinit var genderDropdown: WebElement
-
   @FindBy(id = "cntDetails_txtFIRST_NAMES")
   private lateinit var firstNamesInput: WebElement
 
   @FindBy(id = "cntDetails_txtFAMILY_NAME")
   private lateinit var familyNameInput: WebElement
 
-  @FindBy(id = "cntDetails_txtNOMS_ID")
-  private lateinit var nomsIdInput: WebElement
+  @FindBy(id = "cntDetails_ddlsGENDER")
+  private lateinit var genderDropdown: WebElement
 
   @FindBy(id = "T_ctl00treetvOffender")
   private lateinit var navigationTreeView: WebElement
+
+  @FindBy(id = "cntDetails_txtNOMS_ID")
+  private lateinit var nomsIdInput: WebElement
+
+  @FindBy(id = "cntDetails_txtPRISON_NUMBER")
+  private lateinit var prisonNumberInput: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -96,6 +99,7 @@ internal class OffenderPage(
       firstNames = firstNamesInput.getValue(),
       gender = Select(genderDropdown).firstSelectedOption.text,
       nomsId = nomsIdInput.getValue(),
+      prisonNumber = prisonNumberInput.getValue(),
       sentences = sentenceExtractor(determineSentenceLinks()),
     )
   }

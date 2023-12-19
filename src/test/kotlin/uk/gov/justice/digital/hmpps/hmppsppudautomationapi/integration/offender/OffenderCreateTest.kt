@@ -151,7 +151,6 @@ class OffenderCreateTest : IntegrationTestBase() {
 
   // TODO: Need to decide what to do with PNC Number
   // TODO: Need to add young offender
-  // TODO: Need to verify prison number
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
@@ -190,6 +189,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(ppudValidGender)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
+      .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
       .jsonPath("offender.sentences.size()").isEqualTo(1)
       .jsonPath("offender.sentences[0].custodyType").isEqualTo(ppudValidCustodyType)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
