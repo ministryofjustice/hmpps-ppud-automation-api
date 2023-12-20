@@ -42,6 +42,14 @@ const val ppudYoungOffenderYes = "Yes - Named"
 
 const val ppudYoungOffenderNo = "No"
 
+// This is an offender that exists in PPUD InternalTest
+internal val ppudOffenderWithRelease: TestOffender
+  get() = TestOffender(
+    id = "4F6666656E64657269643D313632393134G721H665",
+    sentenceDate = "2003-06-12",
+    releaseDate = "2013-02-02",
+  )
+
 private const val sixtyYearsInDays: Long = 21900
 
 private const val secondsInADay: Long = 86400

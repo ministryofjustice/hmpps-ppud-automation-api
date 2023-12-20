@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidMappaLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidPoliceForce
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidProbationArea
@@ -40,14 +41,6 @@ class OffenderRecallTest : IntegrationTestBase() {
     private const val ppudExpectedRevocationIssuedByOwner = "EO Officer"
 
     private const val ppudExpectedReturnToCustodyNotificationMethod = "Not Applicable"
-
-    // This is an offender that exists in PPUD InternalTest
-    private val ppudOffenderWithRelease: TestOffender
-      get() = TestOffender(
-        id = "4F6666656E64657269643D313632393134G721H665",
-        sentenceDate = "2003-06-12",
-        releaseDate = "2013-02-02",
-      )
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -211,6 +204,20 @@ class OffenderRecallTest : IntegrationTestBase() {
       .isCreated
   }
 
+  @Test
+  internal fun `Housekeeping - Delete recalls on the test offender`() {
+    webTestClient
+      .delete()
+      .uri(
+        "/offender/${ppudOffenderWithRelease.id}/recalls?" +
+          "sentenceDate=${ppudOffenderWithRelease.sentenceDate}" +
+          "&releaseDate=${ppudOffenderWithRelease.releaseDate}",
+      )
+      .exchange()
+      .expectStatus()
+      .isOk
+  }
+
   private fun postRecall(requestBody: String): String {
     val idExtractor = ValueConsumer<String>()
     webTestClient.post()
@@ -238,10 +245,4 @@ class OffenderRecallTest : IntegrationTestBase() {
       .expectStatus().isOk
       .expectBody()
   }
-
-  class TestOffender(
-    val id: String,
-    val sentenceDate: String,
-    val releaseDate: String,
-  )
 }

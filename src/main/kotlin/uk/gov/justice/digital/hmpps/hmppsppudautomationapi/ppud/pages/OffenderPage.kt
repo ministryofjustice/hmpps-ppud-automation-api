@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -72,15 +73,16 @@ internal class OffenderPage(
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
-    val treeView = TreeView(navigationTreeView)
-    treeView
-      .expandNodeWithText("Sentences")
-      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
-      .expandNodeWithText("Releases")
-      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
-      .expandNodeWithTextContaining("Recalls")
+    navigateToRecallsFor(sentenceDate, releaseDate)
       .findNodeWithTextContaining("New")
       .click()
+  }
+
+  fun extractRecallLinks(sentenceDate: LocalDate, releaseDate: LocalDate): List<String> {
+    return navigateToRecallsFor(sentenceDate, releaseDate)
+      .children()
+      .filter { it.text.startsWith("New").not() }
+      .map { it.getAttribute("igurl") }
   }
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
@@ -118,6 +120,15 @@ internal class OffenderPage(
       status = Select(statusDropdown).firstSelectedOption.text,
       sentences = sentenceExtractor(determineSentenceLinks()), // Do this last because it navigates away
     )
+  }
+
+  private fun navigateToRecallsFor(sentenceDate: LocalDate, releaseDate: LocalDate): TreeViewNode {
+    return TreeView(navigationTreeView)
+      .expandNodeWithText("Sentences")
+      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
+      .expandNodeWithText("Releases")
+      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
+      .expandNodeWithTextContaining("Recalls")
   }
 
   private fun determineSentenceLinks(): List<String> {

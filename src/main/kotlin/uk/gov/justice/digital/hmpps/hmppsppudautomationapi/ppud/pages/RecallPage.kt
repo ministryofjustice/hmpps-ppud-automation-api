@@ -43,6 +43,9 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
 
+  @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
+  private lateinit var deleteButton: WebElement
+
   @FindBy(id = "cntDetails_ddliRECALL_TYPE")
   private lateinit var recallTypeDropdown: WebElement
 
@@ -143,7 +146,11 @@ internal class RecallPage(
     selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea, "probation area")
     selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
-      selectDropdownOptionIfNotBlank(returnToCustodyNotificationMethodDropdown, returnToCustodyNotificationMethod, "return to custody notification method")
+      selectDropdownOptionIfNotBlank(
+        returnToCustodyNotificationMethodDropdown,
+        returnToCustodyNotificationMethod,
+        "return to custody notification method",
+      )
     } else {
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
@@ -162,9 +169,17 @@ internal class RecallPage(
 
     // Complete fields that have been updated/refreshed.
     waitForDropdownPopulation(recommendedToOwnerDropdown)
-    selectDropdownOptionIfNotBlank(recommendedToOwnerDropdown, createRecallRequest.recommendedToOwner, "recommended to owner")
+    selectDropdownOptionIfNotBlank(
+      recommendedToOwnerDropdown,
+      createRecallRequest.recommendedToOwner,
+      "recommended to owner",
+    )
     waitForDropdownPopulation(revocationIssuedByOwnerDropdown)
-    selectDropdownOptionIfNotBlank(revocationIssuedByOwnerDropdown, revocationIssuedByOwner, "revocation issued by owner")
+    selectDropdownOptionIfNotBlank(
+      revocationIssuedByOwnerDropdown,
+      revocationIssuedByOwner,
+      "revocation issued by owner",
+    )
 
     saveButton.click()
   }
@@ -216,6 +231,11 @@ internal class RecallPage(
     )
   }
 
+  suspend fun deleteRecall() {
+    deleteButton.click()
+    dismissConfirmDeleteAlert()
+  }
+
   fun urlFor(id: String): String {
     return urlPathTemplate.replace("{id}", id)
   }
@@ -248,5 +268,14 @@ internal class RecallPage(
     val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
     val (id) = idMatch.destructured
     return id
+  }
+
+  private fun dismissConfirmDeleteAlert() {
+    val alert = driver.switchTo().alert()
+    if (alert.text.contains("This will delete the whole record", ignoreCase = true)) {
+      alert.accept()
+    } else {
+      throw Exception("Alert shown with the text '${alert.text}")
+    }
   }
 }
