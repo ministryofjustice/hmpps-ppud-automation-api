@@ -19,6 +19,7 @@ spring:
         - "stdout"
 
   security:
+    # noinspection SpringBootApplicationYaml
     strategy: MODE_INHERITABLETHREADLOCAL
     oauth2:
       resourceserver:
@@ -75,6 +76,11 @@ ppud:
     recallType: "Standard"
     returnToCustodyNotificationMethod: "Not Applicable"
     nextUalCheckMonths: 6
+  offender:
+    immigrationStatus: "Not Applicable"
+    prisonerCategory: "Not Applicable"
+    status: "Recalled [*]"
+    youngOffenderYes: "Yes - Named"
 
 automation:
   headless: true

@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,20 +34,35 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliETHNICITY")
   private lateinit var ethnicityDropdown: WebElement
 
-  @FindBy(id = "cntDetails_ddlsGENDER")
-  private lateinit var genderDropdown: WebElement
-
   @FindBy(id = "cntDetails_txtFIRST_NAMES")
   private lateinit var firstNamesInput: WebElement
 
   @FindBy(id = "cntDetails_txtFAMILY_NAME")
   private lateinit var familyNameInput: WebElement
 
-  @FindBy(id = "cntDetails_txtNOMS_ID")
-  private lateinit var nomsIdInput: WebElement
+  @FindBy(id = "cntDetails_ddlsGENDER")
+  private lateinit var genderDropdown: WebElement
+
+  @FindBy(id = "cntDetails_ddliIMMIGRATION_STATUS")
+  private lateinit var immigrationStatusDropdown: WebElement
 
   @FindBy(id = "T_ctl00treetvOffender")
   private lateinit var navigationTreeView: WebElement
+
+  @FindBy(id = "cntDetails_txtNOMS_ID")
+  private lateinit var nomsIdInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliPRISONER_CATEGORY")
+  private lateinit var prisonerCategoryDropdown: WebElement
+
+  @FindBy(id = "cntDetails_txtPRISON_NUMBER")
+  private lateinit var prisonNumberInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliYOUNG_OFFENDER")
+  private lateinit var youngOffenderDropdown: WebElement
+
+  @FindBy(id = "cntDetails_ddliSTATUS")
+  private lateinit var statusDropdown: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -57,15 +73,16 @@ internal class OffenderPage(
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
-    val treeView = TreeView(navigationTreeView)
-    treeView
-      .expandNodeWithText("Sentences")
-      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
-      .expandNodeWithText("Releases")
-      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
-      .expandNodeWithTextContaining("Recalls")
+    navigateToRecallsFor(sentenceDate, releaseDate)
       .findNodeWithTextContaining("New")
       .click()
+  }
+
+  fun extractRecallLinks(sentenceDate: LocalDate, releaseDate: LocalDate): List<String> {
+    return navigateToRecallsFor(sentenceDate, releaseDate)
+      .children()
+      .filter { it.text.startsWith("New").not() }
+      .map { it.getAttribute("igurl") }
   }
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
@@ -95,9 +112,23 @@ internal class OffenderPage(
       familyName = familyNameInput.getValue(),
       firstNames = firstNamesInput.getValue(),
       gender = Select(genderDropdown).firstSelectedOption.text,
+      immigrationStatus = Select(immigrationStatusDropdown).firstSelectedOption.text,
       nomsId = nomsIdInput.getValue(),
-      sentences = sentenceExtractor(determineSentenceLinks()),
+      prisonerCategory = Select(prisonerCategoryDropdown).firstSelectedOption.text,
+      prisonNumber = prisonNumberInput.getValue(),
+      youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
+      status = Select(statusDropdown).firstSelectedOption.text,
+      sentences = sentenceExtractor(determineSentenceLinks()), // Do this last because it navigates away
     )
+  }
+
+  private fun navigateToRecallsFor(sentenceDate: LocalDate, releaseDate: LocalDate): TreeViewNode {
+    return TreeView(navigationTreeView)
+      .expandNodeWithText("Sentences")
+      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
+      .expandNodeWithText("Releases")
+      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
+      .expandNodeWithTextContaining("Recalls")
   }
 
   private fun determineSentenceLinks(): List<String> {

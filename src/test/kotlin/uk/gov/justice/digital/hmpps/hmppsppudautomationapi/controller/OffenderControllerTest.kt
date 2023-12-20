@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.time.LocalDate
 
@@ -119,6 +120,19 @@ internal class OffenderControllerTest {
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
       assertEquals(recallId, result.body?.recall?.id)
+    }
+  }
+
+  @Test
+  fun `given deletion criteria when deleteRecalls is called then data is passed to PPUD client`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceDate = randomDate()
+      val releaseDate = randomDate()
+
+      controller.deleteRecalls(offenderId, sentenceDate, releaseDate)
+
+      then(ppudClient).should().deleteRecalls(offenderId, sentenceDate, releaseDate)
     }
   }
 }

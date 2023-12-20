@@ -32,6 +32,24 @@ const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
 
 const val ppudValidUserFullName = "Consider a Recall Test"
 
+const val ppudImmigrationStatus = "Not Applicable"
+
+const val ppudPrisonerCategory = "Not Applicable"
+
+const val ppudStatus = "Recalled [*]"
+
+const val ppudYoungOffenderYes = "Yes - Named"
+
+const val ppudYoungOffenderNo = "No"
+
+// This is an offender that exists in PPUD InternalTest
+internal val ppudOffenderWithRelease: TestOffender
+  get() = TestOffender(
+    id = "4F6666656E64657269643D313632393134G721H665",
+    sentenceDate = "2003-06-12",
+    releaseDate = "2013-02-02",
+  )
+
 private const val sixtyYearsInDays: Long = 21900
 
 private const val secondsInADay: Long = 86400
@@ -113,8 +131,13 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     ethnicity = randomString("ethnicity"),
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
-    nomsId = randomNomsId(),
     gender = randomString("gender"),
+    immigrationStatus = randomString("immigrationStatus"),
+    nomsId = randomNomsId(),
+    prisonerCategory = randomString("prisonerCategory"),
+    prisonNumber = randomPrisonNumber(),
+    status = randomString("status"),
+    youngOffender = randomString("youngOffender"),
   )
 }
 

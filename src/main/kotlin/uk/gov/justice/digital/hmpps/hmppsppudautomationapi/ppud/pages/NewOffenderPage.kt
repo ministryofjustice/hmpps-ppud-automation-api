@@ -8,19 +8,26 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
 import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-class NewOffenderPage(
+internal class NewOffenderPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
+  private val youngOffenderCalculator: YoungOffenderCalculator,
+  @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
+  @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
+  @Value("\${ppud.offender.status}") private val status: String,
+  @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
 ) {
 
   private val title = "New Offender"
@@ -79,6 +86,9 @@ class NewOffenderPage(
   @FindBy(id = "content_ddlStatus")
   private lateinit var statusDropdown: WebElement
 
+  @FindBy(id = "content_ddliYOUNG_OFFENDER")
+  private lateinit var youngOffenderDropdown: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -93,7 +103,7 @@ class NewOffenderPage(
     // Complete these first as they trigger additional processing
     indexOffenceInput.click()
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
-    selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType)
+    selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
 
     // Complete standalone fields
     croNumberInput.enterTextIfNotBlank(createOffenderRequest.croNumber)
@@ -101,21 +111,24 @@ class NewOffenderPage(
     dateOfBirthInput.sendKeys(createOffenderRequest.dateOfBirth.format(dateFormatter))
     dateOfSentenceInput.click()
     dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
-    selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity)
+    selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
     dismissCheckCapitalisationAlert()
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
     dismissCheckCapitalisationAlert()
-    selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender)
-    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, "Not Applicable")
+    selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
+    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, "Not Applicable")
-    selectDropdownOptionIfNotBlank(statusDropdown, "Recalled [*]")
+    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prison category")
+    selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
+    if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
+      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
+    }
 
     // Complete fields that have been updated/refreshed.
-    selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence)
-    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel)
+    selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
+    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
 
     saveButton.click()
   }

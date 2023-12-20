@@ -1,16 +1,19 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import jakarta.validation.Valid
 import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -21,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import java.time.LocalDate
 import java.util.*
 
 @RestController
@@ -73,6 +77,17 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     log.info("Offender recall endpoint hit")
     val recall = ppudClient.createRecall(offenderId, createRecallRequest)
     return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
+  }
+
+  @Hidden
+  @DeleteMapping("/offender/{offenderId}/recalls")
+  suspend fun deleteRecalls(
+    @PathVariable(required = true) offenderId: String,
+    @RequestParam(required = true) sentenceDate: LocalDate,
+    @RequestParam(required = true) releaseDate: LocalDate,
+  ) {
+    log.info("Offender recall deletion endpoint hit")
+    ppudClient.deleteRecalls(offenderId, sentenceDate, releaseDate)
   }
 
   private fun ensureSearchCriteriaProvided(criteria: OffenderSearchRequest) {

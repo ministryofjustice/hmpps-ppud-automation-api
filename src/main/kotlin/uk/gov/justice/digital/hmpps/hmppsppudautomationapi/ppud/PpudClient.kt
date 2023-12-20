@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WindowType
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -96,6 +97,16 @@ internal class PpudClient(
     return extractRecallDetails(id)
   }
 
+  suspend fun deleteRecalls(offenderId: String, sentenceDate: LocalDate, releaseDate: LocalDate) {
+    log.info("Deleting recalls in PPUD Client for offender ID '$offenderId'")
+
+    login()
+
+    val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
+
+    deleteRecalls(links)
+  }
+
   suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
     log.info("Retrieving lookup values for $lookupName")
 
@@ -157,6 +168,17 @@ internal class PpudClient(
     return recallPage.extractCreatedRecallDetails()
   }
 
+  private suspend fun deleteRecalls(links: List<String>) {
+    var index = 1
+    for (link in links) {
+      log.info("Deleting recall $index $link")
+      driver.switchTo().newWindow(WindowType.TAB)
+      driver.get("${ppudUrl}$link")
+      recallPage.deleteRecall()
+      index++
+    }
+  }
+
   private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
     driver.get(url)
     return offenderPage.extractSearchResultOffenderDetails()
@@ -173,6 +195,17 @@ internal class PpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.get("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
+  }
+
+  private fun extractRecallLinks(
+    offenderId: String,
+    sentenceDate: LocalDate,
+    releaseDate: LocalDate,
+  ): List<String> {
+    offenderPage.viewOffenderWithId(offenderId)
+    val links = offenderPage.extractRecallLinks(sentenceDate, releaseDate)
+    log.info("There are ${links.size} recalls")
+    return links
   }
 
   private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
