@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudImmigrationStatus
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudPrisonerCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidCustodyType
@@ -103,12 +104,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     data: MandatoryFieldTestData,
   ) {
     val errorFragment = data.errorFragment ?: data.propertyName
-    webTestClient.post()
-      .uri("/offender")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(data.requestBody))
-      .exchange()
+    postOffender(data.requestBody)
       .expectStatus()
       .isBadRequest
       .expectBody()
@@ -131,12 +127,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
       "}"
 
-    webTestClient.post()
-      .uri("/offender")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBodyWithOnlyMandatoryFields))
-      .exchange()
+    postOffender(requestBodyWithOnlyMandatoryFields)
       .expectStatus()
       .isCreated
   }
@@ -144,12 +135,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given complete set of valid values in request body when create offender called then 201 created and offender details are returned`() {
     val requestBody = createOffenderRequestBody()
-    webTestClient.post()
-      .uri("/offender")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+    postOffender(requestBody)
       .expectStatus()
       .isCreated
       .expectBody()
@@ -184,7 +170,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       prisonNumber = prisonNumber,
     )
 
-    val id = postOffender(requestBody)
+    val id = testPostOffender(requestBody)
 
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
@@ -219,21 +205,48 @@ class OffenderCreateTest : IntegrationTestBase() {
       dateOfBirth = dateOfBirth,
     )
 
-    val id = postOffender(requestBody)
+    val id = testPostOffender(requestBody)
 
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
       .jsonPath("offender.youngOffender").isEqualTo(expected)
   }
 
-  private fun postOffender(requestBody: String): String {
+  @Test
+  fun `given duplicate offender in request body when create offender called then error returned`() {
+    val requestBody = createOffenderRequestBody(
+      dateOfBirth = ppudOffenderWithRelease.dateOfBirth,
+      familyName = ppudOffenderWithRelease.familyName,
+      firstNames = ppudOffenderWithRelease.firstNames,
+      prisonNumber = ppudOffenderWithRelease.prisonNumber,
+    )
+    postOffender(requestBody)
+      .expectStatus()
+      .is5xxServerError
+      .expectBody()
+      .jsonPath("userMessage")
+      .isEqualTo("Unexpected error: Duplicate details found on PPUD for this offender.")
+  }
+
+  @Test
+  fun `given duplicate identifier in request body when create offender called then error returned`() {
+    val requestBody = createOffenderRequestBody(
+      prisonNumber = ppudOffenderWithRelease.prisonNumber,
+    )
+    postOffender(requestBody)
+      .expectStatus()
+      .is5xxServerError
+      .expectBody()
+      .jsonPath("userMessage")
+      .isEqualTo(
+        "Unexpected error: Offender creation failed." +
+          " There is already an offender in the system with this file reference/Prison Number/Noms ID. Please check.",
+      )
+  }
+
+  private fun testPostOffender(requestBody: String): String {
     val idExtractor = ValueConsumer<String>()
-    webTestClient.post()
-      .uri("/offender")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+    postOffender(requestBody)
       .expectStatus()
       .isCreated
       .expectBody()
@@ -243,6 +256,14 @@ class OffenderCreateTest : IntegrationTestBase() {
     assertTrue(id!!.isNotEmpty(), "ID returned from create offender request is empty")
     return id
   }
+
+  private fun postOffender(requestBody: String): WebTestClient.ResponseSpec =
+    webTestClient.post()
+      .uri("/offender")
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
 
   private fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
     return webTestClient.get()

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
@@ -37,6 +38,12 @@ internal class NewOffenderPage(
 
   private val validationSummary: WebElement?
     get() = driver.findElements(By.id("content_valSummary")).firstOrNull()
+
+  private val errorLabel: WebElement?
+    get() = driver.findElements(By.id("content_lblError")).firstOrNull()
+
+  private val duplicatePanel: WebElement?
+    get() = driver.findElements(By.id("content_panelDuplicate")).firstOrNull()
 
   @FindBy(id = "content_txtCRO_PNC")
   private lateinit var croNumberInput: WebElement
@@ -135,7 +142,15 @@ internal class NewOffenderPage(
 
   fun throwIfInvalid() {
     if (validationSummary?.text?.isNotBlank() == true) {
-      throw Exception("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+    }
+
+    if (errorLabel?.text?.isNotBlank() == true) {
+      throw AutomationException("Offender creation failed. ${errorLabel?.text}")
+    }
+
+    if (duplicatePanel?.isDisplayed == true) {
+      throw AutomationException("Duplicate details found on PPUD for this offender.")
     }
   }
 
@@ -146,7 +161,7 @@ internal class NewOffenderPage(
       if (alert.text.contains("check that the capitalisation is correct")) {
         alert.accept()
       } else {
-        throw Exception("Alert shown with the text '${alert.text}")
+        throw AutomationException("Alert shown with the text '${alert.text}")
       }
     } catch (ex: NoAlertPresentException) {
       // No alert so we can proceed

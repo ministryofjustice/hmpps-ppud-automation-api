@@ -46,8 +46,12 @@ const val ppudYoungOffenderNo = "No"
 internal val ppudOffenderWithRelease: TestOffender
   get() = TestOffender(
     id = "4F6666656E64657269643D313632393134G721H665",
-    sentenceDate = "2003-06-12",
+    dateOfBirth = "1969-03-02",
+    familyName = "Mitchell",
+    firstNames = "Mandy Car Test",
+    prisonNumber = "132468435132",
     releaseDate = "2013-02-02",
+    sentenceDate = "2003-06-12",
   )
 
 private const val sixtyYearsInDays: Long = 21900
