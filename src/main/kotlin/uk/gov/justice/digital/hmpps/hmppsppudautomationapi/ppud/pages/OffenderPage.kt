@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -140,7 +141,9 @@ internal class OffenderPage(
   }
 
   private fun extractId(): String {
-    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
+    val url = driver.currentUrl
+    val idMatch = Regex(".+?data=(.+)").find(url)
+      ?: throw AutomationException("Expected the existing offender page but URL was '$url'")
     val (id) = idMatch.destructured
     return id
   }
