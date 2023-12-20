@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -14,6 +15,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.never
 import org.openqa.selenium.WebElement
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(MockitoExtension::class)
@@ -65,8 +67,20 @@ class WebDriverHelperTest {
   fun `given a null or blank dropdown option value when selectDropdownOptionIfNotBlank is called then option is not selected`(
     option: String?,
   ) {
-    selectDropdownOptionIfNotBlank(element, option)
+    selectDropdownOptionIfNotBlank(element, option, "")
     then(element).shouldHaveNoInteractions()
+  }
+
+  @Test
+  fun `given an unmatched dropdown option value when selectDropdownOptionIfNotBlank is called then friendly exception is thrown`() {
+    given(element.tagName).willReturn("select")
+    given(element.isEnabled).willReturn(true)
+    val option = randomString()
+    val description = randomString()
+    val exception = assertThrows<AutomationException> {
+      selectDropdownOptionIfNotBlank(element, option, description)
+    }
+    assertEquals("Cannot locate $description option with text '$option'", exception.message)
   }
 
   @ParameterizedTest

@@ -139,11 +139,11 @@ internal class RecallPage(
     revocationIssuedByOwnerInput.enterTextIfNotBlank(revocationIssuedByOwnerSearchable)
 
     // Complete standalone fields
-    selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType)
-    selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea)
+    selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
+    selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea, "probation area")
     selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
-      selectDropdownOptionIfNotBlank(returnToCustodyNotificationMethodDropdown, returnToCustodyNotificationMethod)
+      selectDropdownOptionIfNotBlank(returnToCustodyNotificationMethodDropdown, returnToCustodyNotificationMethod, "return to custody notification method")
     } else {
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
@@ -151,19 +151,20 @@ internal class RecallPage(
     selectDropdownOptionIfNotBlank(
       mappaLevelDropdown,
       createRecallRequest.mappaLevel,
+      "mappa level",
     ) // Mappa level supposed to be populated automatically
     decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
     reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
     recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))
-    selectDropdownOptionIfNotBlank(policeForceDropdown, createRecallRequest.policeForce)
-    selectDropdownOptionIfNotBlank(mandatoryDocumentsReceivedDropdown, "No")
+    selectDropdownOptionIfNotBlank(policeForceDropdown, createRecallRequest.policeForce, "police force")
+    selectDropdownOptionIfNotBlank(mandatoryDocumentsReceivedDropdown, "No", "mandatory documents received")
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
     waitForDropdownPopulation(recommendedToOwnerDropdown)
-    selectDropdownOptionIfNotBlank(recommendedToOwnerDropdown, createRecallRequest.recommendedToOwner)
+    selectDropdownOptionIfNotBlank(recommendedToOwnerDropdown, createRecallRequest.recommendedToOwner, "recommended to owner")
     waitForDropdownPopulation(revocationIssuedByOwnerDropdown)
-    selectDropdownOptionIfNotBlank(revocationIssuedByOwnerDropdown, revocationIssuedByOwner)
+    selectDropdownOptionIfNotBlank(revocationIssuedByOwnerDropdown, revocationIssuedByOwner, "revocation issued by owner")
 
     saveButton.click()
   }

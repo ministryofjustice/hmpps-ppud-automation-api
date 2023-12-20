@@ -103,7 +103,7 @@ internal class NewOffenderPage(
     // Complete these first as they trigger additional processing
     indexOffenceInput.click()
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
-    selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType)
+    selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
 
     // Complete standalone fields
     croNumberInput.enterTextIfNotBlank(createOffenderRequest.croNumber)
@@ -111,24 +111,24 @@ internal class NewOffenderPage(
     dateOfBirthInput.sendKeys(createOffenderRequest.dateOfBirth.format(dateFormatter))
     dateOfSentenceInput.click()
     dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
-    selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity)
+    selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
     dismissCheckCapitalisationAlert()
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
     dismissCheckCapitalisationAlert()
-    selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender)
-    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus)
+    selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
+    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory)
-    selectDropdownOptionIfNotBlank(statusDropdown, status)
+    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prison category")
+    selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
-      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes)
+      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
 
     // Complete fields that have been updated/refreshed.
-    selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence)
-    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel)
+    selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
+    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
 
     saveButton.click()
   }

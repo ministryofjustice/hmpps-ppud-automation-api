@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium
 
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.Select
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 
 fun WebElement.getValue(): String {
   return this.getAttribute("value")?.trim() ?: ""
@@ -13,9 +14,13 @@ fun WebElement.enterTextIfNotBlank(text: String?) {
   }
 }
 
-fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?) {
+fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {
   if (option?.isNotBlank() == true) {
-    Select(dropdown).selectByVisibleText(option)
+    try {
+      Select(dropdown).selectByVisibleText(option)
+    } catch (ex: org.openqa.selenium.NoSuchElementException) {
+      throw AutomationException("Cannot locate $description option with text '$option'")
+    }
   }
 }
 
