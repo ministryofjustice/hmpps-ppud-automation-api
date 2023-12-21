@@ -275,7 +275,7 @@ internal class RecallPage(
     if (alert.text.contains("This will delete the whole record", ignoreCase = true)) {
       alert.accept()
     } else {
-      throw Exception("Alert shown with the text '${alert.text}")
+      throw AutomationException("Alert shown with the text '${alert.text}")
     }
   }
 }
