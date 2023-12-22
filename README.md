@@ -9,6 +9,9 @@ This is an API project that exposes an interface for integrating with the
 Public Protection Unit Database (PPUD). Rather than speak to the PPUD database,
 it uses Selenium to automate the PPUD UI in order to perform its operations.
 
+## Runbook
+The [runbook](docs/runbooks/RUNBOOK.md) can be found in this repo in the docs/runbooks folder.
+
 ## Environment Variables
 
 The project uses the following environment variables, which need to be set in order to run the tests or run the
