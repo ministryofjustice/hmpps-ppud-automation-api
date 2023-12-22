@@ -120,7 +120,7 @@ internal class PpudClient(
   }
 
   private suspend fun login(username: String = ppudUsername, password: String = ppudPassword) {
-    driver.get("${ppudUrl}${loginPage.urlPath}")
+    driver.navigate().to("${ppudUrl}${loginPage.urlPath}")
     loginPage.verifyOn()
     loginPage.login(username, password)
     searchPage.verifyOn()
@@ -173,27 +173,27 @@ internal class PpudClient(
     for (link in links) {
       log.info("Deleting recall $index $link")
       driver.switchTo().newWindow(WindowType.TAB)
-      driver.get("${ppudUrl}$link")
+      driver.navigate().to("${ppudUrl}$link")
       recallPage.deleteRecall()
       index++
     }
   }
 
   private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
-    driver.get(url)
+    driver.navigate().to(url)
     return offenderPage.extractSearchResultOffenderDetails()
   }
 
   private fun extractSentences(urls: List<String>): List<Sentence> {
     return urls.map {
-      driver.get("$ppudUrl$it")
+      driver.navigate().to("$ppudUrl$it")
       val page = sentencePageFactory.sentencePage()
       page.extractSentenceDetails()
     }
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {
-    driver.get("$ppudUrl${recallPage.urlFor(id)}")
+    driver.navigate().to("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
   }
 
@@ -221,7 +221,7 @@ internal class PpudClient(
   }
 
   private fun extractAdminPageLookupValues(lookupName: LookupName): List<String> {
-    driver.get("$ppudUrl${adminPage.urlPath}")
+    driver.navigate().to("$ppudUrl${adminPage.urlPath}")
     adminPage.verifyOn()
     adminPage.goToEditLookups()
     return editLookupsPage.extractLookupValues(lookupName)

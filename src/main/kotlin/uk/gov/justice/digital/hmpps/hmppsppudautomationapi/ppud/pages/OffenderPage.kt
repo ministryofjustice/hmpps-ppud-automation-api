@@ -70,7 +70,7 @@ internal class OffenderPage(
   }
 
   fun viewOffenderWithId(offenderId: String) {
-    driver.get("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
+    driver.navigate().to("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {

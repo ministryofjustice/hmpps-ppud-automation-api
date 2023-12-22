@@ -7,7 +7,7 @@ import org.openqa.selenium.Point
 import org.openqa.selenium.Rectangle
 import org.openqa.selenium.WebElement
 
-class TreeViewNode(private val element: WebElement) : WebElement {
+open class TreeViewNode(private val element: WebElement) : WebElement {
 
   fun children(): List<TreeViewNode> {
     return element.findElements(By.xpath("./div"))

@@ -24,7 +24,7 @@ class PpudHealth(
     driver.manage().timeouts().pageLoadTimeout(timeout)
     val result =
       try {
-        driver.get("$endpointUrl$path")
+        driver.navigate().to("$endpointUrl$path")
         WebDriverWait(driver, Duration.ofSeconds(2))
           .until(ExpectedConditions.titleIs(pageTitle))
         Health.up().build()

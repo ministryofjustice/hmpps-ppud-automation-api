@@ -16,6 +16,7 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
@@ -46,6 +47,9 @@ class PpudClientTest {
 
   @Mock
   private lateinit var driver: WebDriver
+
+  @Mock
+  private lateinit var navigation: Navigation
 
   @Mock
   private lateinit var loginPage: LoginPage
@@ -105,6 +109,8 @@ class PpudClientTest {
       sentencePageFactory,
       recallPage,
     )
+
+    given(driver.navigate()).willReturn(navigation)
   }
 
   @Test
@@ -185,7 +191,7 @@ class PpudClientTest {
 
       val result = client.searchForOffender(croNumber, null, null, null)
 
-      then(driver).should().get(searchResultLink)
+      then(navigation).should().to(searchResultLink)
       then(offenderPage).should().extractSearchResultOffenderDetails()
       assertEquals(offender, result.single())
     }
@@ -201,7 +207,7 @@ class PpudClientTest {
 
       val result = client.searchForOffender(null, nomsId, null, null)
 
-      then(driver).should().get(searchResultLink)
+      then(navigation).should().to(searchResultLink)
       then(offenderPage).should().extractSearchResultOffenderDetails()
       assertEquals(offender, result.single())
     }
@@ -224,10 +230,10 @@ class PpudClientTest {
 
       val result = client.searchForOffender(null, null, familyName, dateOfBirth)
 
-      val inOrder = inOrder(driver, offenderPage)
-      then(driver).should(inOrder).get(searchResultLinks[0])
+      val inOrder = inOrder(navigation, offenderPage)
+      then(navigation).should(inOrder).to(searchResultLinks[0])
       then(offenderPage).should(inOrder).extractSearchResultOffenderDetails()
-      then(driver).should(inOrder).get(searchResultLinks[1])
+      then(navigation).should(inOrder).to(searchResultLinks[1])
       then(offenderPage).should(inOrder).extractSearchResultOffenderDetails()
       assertEquals(offenders, result)
     }
@@ -265,8 +271,8 @@ class PpudClientTest {
 
       val result = client.retrieveOffender(offenderId)
 
-      val inOrder = inOrder(driver, offenderPage)
-      then(driver).should(inOrder).get("$ppudUrl/login")
+      val inOrder = inOrder(navigation, offenderPage)
+      then(navigation).should(inOrder).to("$ppudUrl/login")
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       assertEquals(offender, result)
     }
@@ -395,9 +401,9 @@ class PpudClientTest {
       given(recallPage.extractRecallDetails()).willReturn(recall)
       val result = client.retrieveRecall(recallId)
 
-      val inOrder = inOrder(driver, recallPage)
-      then(driver).should(inOrder).get("$ppudUrl/login")
-      then(driver).should(inOrder).get("$ppudUrl$urlForId")
+      val inOrder = inOrder(navigation, recallPage)
+      then(navigation).should(inOrder).to("$ppudUrl/login")
+      then(navigation).should(inOrder).to("$ppudUrl$urlForId")
       then(recallPage).should(inOrder).extractRecallDetails()
       assertEquals(recall, result)
     }
@@ -412,8 +418,8 @@ class PpudClientTest {
 
       client.retrieveLookupValues(lookupName)
 
-      val inOrder = inOrder(driver, loginPage)
-      then(driver).should(inOrder).get("$ppudUrl/login")
+      val inOrder = inOrder(navigation, loginPage)
+      then(navigation).should(inOrder).to("$ppudUrl/login")
       then(loginPage).should(inOrder).login(ppudAdminUsername, ppudAdminPassword)
     }
   }
@@ -429,9 +435,9 @@ class PpudClientTest {
 
       val result = client.retrieveLookupValues(lookupName)
 
-      val inOrder = inOrder(driver, adminPage, editLookupsPage)
-      then(driver).should(inOrder).get("$ppudUrl/login")
-      then(driver).should(inOrder).get("$ppudUrl/adminPage")
+      val inOrder = inOrder(navigation, adminPage, editLookupsPage)
+      then(navigation).should(inOrder).to("$ppudUrl/login")
+      then(navigation).should(inOrder).to("$ppudUrl/adminPage")
       then(adminPage).should(inOrder).goToEditLookups()
       then(editLookupsPage).should(inOrder).extractLookupValues(lookupName)
       assertEquals(values, result)
@@ -448,8 +454,8 @@ class PpudClientTest {
 
       val result = client.retrieveLookupValues(lookupName)
 
-      val inOrder = inOrder(driver, searchPage)
-      then(driver).should(inOrder).get("$ppudUrl/login")
+      val inOrder = inOrder(navigation, searchPage)
+      then(navigation).should(inOrder).to("$ppudUrl/login")
       then(searchPage).should(inOrder).verifyOn()
       then(searchPage).should(inOrder).genderValues()
       assertEquals(values, result)

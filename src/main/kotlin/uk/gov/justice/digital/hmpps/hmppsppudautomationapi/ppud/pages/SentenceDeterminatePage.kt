@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormatter: DateTimeFormatter) :
-  SentencePage() {
+  SentencePage {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
