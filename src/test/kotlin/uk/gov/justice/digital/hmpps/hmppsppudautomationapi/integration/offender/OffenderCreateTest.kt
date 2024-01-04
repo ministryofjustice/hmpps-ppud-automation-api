@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
@@ -130,6 +131,17 @@ class OffenderCreateTest : IntegrationTestBase() {
     postOffender(requestBodyWithOnlyMandatoryFields)
       .expectStatus()
       .isCreated
+  }
+
+  @Test
+  fun `given missing token when create offender called then unauthorized is returned`() {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/offender")
+  }
+
+  @Test
+  fun `given token without recall role when create offender called then forbidden is returned`() {
+    val requestBody = createOffenderRequestBody()
+    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender", requestBody)
   }
 
   @Test
