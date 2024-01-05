@@ -50,6 +50,10 @@ tasks {
 
 tasks.test {
   finalizedBy(tasks.jacocoTestReport)
+  this.testLogging {
+    // Add this so that we get more information on test failures for integration tests, particularly in the pipeline
+    this.showStandardStreams = true
+  }
 }
 
 tasks.jacocoTestReport {
