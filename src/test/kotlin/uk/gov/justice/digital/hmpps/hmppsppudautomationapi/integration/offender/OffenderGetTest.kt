@@ -1,10 +1,22 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 
 class OffenderGetTest : IntegrationTestBase() {
+
+  @Test
+  fun `given missing token when get offender called then unauthorized is returned`() {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.GET, "/offender/${randomPpudId()}")
+  }
+
+  @Test
+  fun `given token without recall role when get offender called then forbidden is returned`() {
+    givenTokenWithoutRecallRoleWhenGettingThenForbiddenReturned("/offender/${randomPpudId()}")
+  }
 
   @Test
   fun `given Offender with determinate and indeterminate sentences when get offender called then both sentences are returned`() {

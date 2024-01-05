@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
 import org.springframework.web.reactive.function.BodyInserters
@@ -22,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidPol
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidProbationArea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullNameAndTeam
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.LocalDate
@@ -90,6 +92,17 @@ class OffenderRecallTest : IntegrationTestBase() {
         "\"sentenceDate\":\"$sentenceDate\" " +
         "}"
     }
+  }
+
+  @Test
+  fun `given missing token when create recall called then unauthorized is returned`() {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/offender/${randomPpudId()}/recall")
+  }
+
+  @Test
+  fun `given token without recall role when create recall called then forbidden is returned`() {
+    val requestBody = createRecallRequestBody()
+    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender/${randomPpudId()}/recall", requestBody)
   }
 
   @Test
@@ -213,6 +226,7 @@ class OffenderRecallTest : IntegrationTestBase() {
           "sentenceDate=${ppudOffenderWithRelease.sentenceDate}" +
           "&releaseDate=${ppudOffenderWithRelease.releaseDate}",
       )
+      .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk

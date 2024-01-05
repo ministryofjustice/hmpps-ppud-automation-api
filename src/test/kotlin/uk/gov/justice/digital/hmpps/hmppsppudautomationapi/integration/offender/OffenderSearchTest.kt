@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
@@ -11,6 +12,16 @@ import java.time.LocalDate
 import java.util.function.Consumer
 
 class OffenderSearchTest : IntegrationTestBase() {
+
+  @Test
+  fun `given missing token when search called then unauthorized is returned`() {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/offender/search")
+  }
+
+  @Test
+  fun `given token without recall role when search called then forbidden is returned`() {
+    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender/search", "{}")
+  }
 
   @Test
   fun `given missing request body when search called then bad request is returned`() {

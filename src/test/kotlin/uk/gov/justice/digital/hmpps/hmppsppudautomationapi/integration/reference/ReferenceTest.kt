@@ -3,9 +3,35 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.reference
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 
 class ReferenceTest : IntegrationTestBase() {
+
+  @ParameterizedTest
+  @ValueSource(
+    strings = [
+      "custody-types",
+      "establishments",
+      "ethnicities",
+      "genders",
+      "index-offences",
+      "mappa-levels",
+      "police-forces",
+      "probation-services",
+      "released-unders",
+    ],
+  )
+  fun `given missing token when reference endpoints called then unauthorized is returned`(endpoint: String) {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.GET, "/reference/$endpoint")
+  }
+
+  @Test
+  fun `given missing token when clear-caches called then unauthorized is returned`() {
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/reference/clear-caches")
+  }
 
   @Test
   fun `when clear-caches called then OK is returned`() {
