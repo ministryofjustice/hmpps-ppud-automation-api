@@ -49,6 +49,10 @@ class OffenderGetTest : IntegrationTestBase() {
       .expectStatus().isOk
       .expectBody()
       .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo("2013-02-02")
+      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
+      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo("CJA 2008")
+      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo("HMP Wakefield")
+      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("A")
       .jsonPath("offender.sentences[1].releases.size()").isEqualTo(0)
   }
 
