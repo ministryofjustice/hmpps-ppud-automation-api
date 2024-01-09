@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ApplicationControlPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -50,6 +51,9 @@ class PpudClientTest {
 
   @Mock
   private lateinit var navigation: Navigation
+
+  @Mock
+  private lateinit var applicationControlPage: ApplicationControlPage
 
   @Mock
   private lateinit var loginPage: LoginPage
@@ -100,6 +104,7 @@ class PpudClientTest {
       ppudAdminUsername,
       ppudAdminPassword,
       driver,
+      applicationControlPage,
       loginPage,
       adminPage,
       editLookupsPage,
@@ -120,6 +125,18 @@ class PpudClientTest {
 
       then(loginPage).should().login(ppudUsername, ppudPassword)
       then(searchPage).should().verifyOn()
+    }
+  }
+
+  @Test
+  fun `given search criteria when search offender is called then perform search and logout`() {
+    runBlocking {
+      client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+
+      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      then(searchPage).should(inOrder).searchByCroNumber(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
     }
   }
 

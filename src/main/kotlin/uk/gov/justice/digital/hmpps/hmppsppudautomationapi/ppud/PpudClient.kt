@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ApplicationControlPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -33,6 +34,7 @@ internal class PpudClient(
   @Value("\${ppud.admin.username}") private val ppudAdminUsername: String,
   @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
   private val driver: WebDriver,
+  private val applicationControlPage: ApplicationControlPage,
   private val loginPage: LoginPage,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
@@ -59,9 +61,13 @@ internal class PpudClient(
 
     val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
 
-    return resultLinks.map {
+    val results = resultLinks.map {
       extractSearchResultOffenderDetails(it)
     }
+
+    logout()
+
+    return results
   }
 
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
@@ -124,6 +130,11 @@ internal class PpudClient(
     loginPage.verifyOn()
     loginPage.login(username, password)
     searchPage.verifyOn()
+  }
+
+  private suspend fun logout() {
+    applicationControlPage.logout()
+    loginPage.verifyOn()
   }
 
   private suspend fun searchUntilFound(
