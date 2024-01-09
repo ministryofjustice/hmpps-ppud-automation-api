@@ -47,8 +47,8 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliIMMIGRATION_STATUS")
   private lateinit var immigrationStatusDropdown: WebElement
 
-  @FindBy(id = "T_ctl00treetvOffender")
-  private lateinit var navigationTreeView: WebElement
+  @FindBy(id = "M_ctl00treetvOffender")
+  private lateinit var navigationTreeViewRoot: WebElement
 
   @FindBy(id = "cntDetails_txtNOMS_ID")
   private lateinit var nomsIdInput: WebElement
@@ -124,7 +124,7 @@ internal class OffenderPage(
   }
 
   private fun navigateToRecallsFor(sentenceDate: LocalDate, releaseDate: LocalDate): TreeViewNode {
-    return TreeView(navigationTreeView)
+    return TreeView(navigationTreeViewRoot)
       .expandNodeWithText("Sentences")
       .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
       .expandNodeWithText("Releases")
@@ -133,7 +133,7 @@ internal class OffenderPage(
   }
 
   private fun determineSentenceLinks(): List<String> {
-    return TreeView(navigationTreeView)
+    return TreeView(navigationTreeViewRoot)
       .expandNodeWithText("Sentences")
       .children()
       .filter { it.text.startsWith("New").not() }

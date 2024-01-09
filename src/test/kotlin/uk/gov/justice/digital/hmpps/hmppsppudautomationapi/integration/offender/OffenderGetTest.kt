@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderIdWithNotSpecifiedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 
 class OffenderGetTest : IntegrationTestBase() {
@@ -20,7 +22,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with determinate and indeterminate sentences when get offender called then both sentences are returned`() {
-    val id = "4F6666656E64657269643D313632393134G721H665"
+    val id = ppudOffenderWithRelease.id
     webTestClient.get()
       .uri("/offender/$id")
       .headers { it.authToken() }
@@ -34,5 +36,32 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[1].custodyType").isEqualTo("Indeterminate (life)")
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo("2010-09-01")
       .jsonPath("offender.sentences[1].mappaLevel").isEqualTo("")
+  }
+
+  @Test
+  fun `given Offender with release when get offender called then release is returned`() {
+    val id = ppudOffenderWithRelease.id
+    webTestClient.get()
+      .uri("/offender/$id")
+      .headers { it.authToken() }
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo("2013-02-02")
+      .jsonPath("offender.sentences[1].releases.size()").isEqualTo(0)
+  }
+
+  @Test
+  fun `given Offender with Not Specified release when get offender called then release is not returned`() {
+    val id = ppudOffenderIdWithNotSpecifiedRelease
+    webTestClient.get()
+      .uri("/offender/$id")
+      .headers { it.authToken() }
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(0)
   }
 }

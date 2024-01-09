@@ -54,6 +54,8 @@ internal val ppudOffenderWithRelease: TestOffender
     sentenceDate = "2003-06-12",
   )
 
+internal const val ppudOffenderIdWithNotSpecifiedRelease = "4F6666656E64657249643D313732323738G687H671"
+
 private const val sixtyYearsInDays: Long = 21900
 
 private const val secondsInADay: Long = 86400
