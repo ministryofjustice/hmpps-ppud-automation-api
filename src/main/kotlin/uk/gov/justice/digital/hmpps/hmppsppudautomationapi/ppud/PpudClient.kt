@@ -57,17 +57,10 @@ internal class PpudClient(
   ): List<SearchResultOffender> {
     log.info("Searching in PPUD Client")
 
-    login()
-
-    val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
-
-    val results = resultLinks.map {
-      extractSearchResultOffenderDetails(it)
+    return performLoggedInOperation {
+      val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
+      resultLinks.map { extractSearchResultOffenderDetails(it) }
     }
-
-    logout()
-
-    return results
   }
 
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
@@ -81,10 +74,10 @@ internal class PpudClient(
   suspend fun retrieveOffender(id: String): Offender {
     log.info("Retrieving offender in PPUD Client with ID '$id'")
 
-    login()
-
-    offenderPage.viewOffenderWithId(id)
-    return offenderPage.extractOffenderDetails { extractSentences(it) }
+    return performLoggedInOperation {
+      offenderPage.viewOffenderWithId(id)
+      offenderPage.extractOffenderDetails { extractSentences(it) }
+    }
   }
 
   suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
@@ -119,6 +112,13 @@ internal class PpudClient(
     loginAsAdmin()
 
     return extractLookupValues(lookupName)
+  }
+
+  private suspend fun <T> performLoggedInOperation(operation: suspend () -> T): T {
+    login()
+    val result = operation()
+    logout()
+    return result
   }
 
   private suspend fun loginAsAdmin() {

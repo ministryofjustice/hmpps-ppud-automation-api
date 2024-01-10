@@ -129,7 +129,7 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given search criteria when search offender is called then perform search and logout`() {
+  fun `given search criteria when search offender is called then logout once done`() {
     runBlocking {
       client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
 
@@ -275,6 +275,18 @@ class PpudClientTest {
       val inOrder = inOrder(loginPage, searchPage)
       then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
       then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given ID when retrieveOffender is called then log out once done`() {
+    runBlocking {
+      client.retrieveOffender(randomPpudId())
+
+      val inOrder = inOrder(offenderPage, applicationControlPage, loginPage)
+      then(offenderPage).should(inOrder).extractOffenderDetails(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
     }
   }
 
