@@ -320,6 +320,19 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given offender data when create offender is called then log out once done`() {
+    runBlocking {
+      val createOffenderRequest = generateCreateOffenderRequest()
+      client.createOffender(createOffenderRequest)
+
+      val inOrder = inOrder(newOffenderPage, applicationControlPage, loginPage)
+      then(newOffenderPage).should(inOrder).createOffender(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
   fun `given offender data when create offender is called then create offender and return ID`() {
     runBlocking {
       val offenderId = randomPpudId()
@@ -346,6 +359,19 @@ class PpudClientTest {
       val inOrder = inOrder(loginPage, searchPage)
       then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
       then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given recall data when create recall is called then log out once done`() {
+    runBlocking {
+      val createRecallRequest = generateCreateRecallRequest()
+      client.createRecall(randomPpudId(), createRecallRequest)
+
+      val inOrder = inOrder(recallPage, applicationControlPage, loginPage)
+      then(recallPage).should(inOrder).createRecall(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
     }
   }
 
@@ -420,6 +446,18 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given ID when retrieveRecall is called then log out once done`() {
+    runBlocking {
+      client.retrieveRecall(randomPpudId())
+
+      val inOrder = inOrder(recallPage, applicationControlPage, loginPage)
+      then(recallPage).should(inOrder).extractRecallDetails()
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
   fun `given ID when retrieveRecall is called then navigate to recall and extract details`() {
     runBlocking {
       val recallId = randomPpudId()
@@ -442,7 +480,6 @@ class PpudClientTest {
   fun `given any lookup when retrieveLookupValues is called then log in as admin`() {
     runBlocking {
       val lookupName = randomLookupName()
-
       given(loginPage.urlPath).willReturn("/login")
 
       client.retrieveLookupValues(lookupName)
@@ -452,6 +489,35 @@ class PpudClientTest {
       then(loginPage).should(inOrder).login(ppudAdminUsername, ppudAdminPassword)
     }
   }
+
+  @Test
+  fun `given lookup is not Genders when retrieveLookupValues is called then logout once done`() {
+    runBlocking {
+      val lookupName = randomLookupName(exclude = listOf(LookupName.Genders))
+
+      client.retrieveLookupValues(lookupName)
+
+      val inOrder = inOrder(editLookupsPage, applicationControlPage, loginPage)
+      then(editLookupsPage).should(inOrder).extractLookupValues(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given lookup is Genders when retrieveLookupValues is called then logout once done`() {
+    runBlocking {
+      val lookupName = LookupName.Genders
+
+      client.retrieveLookupValues(lookupName)
+
+      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      then(searchPage).should(inOrder).genderValues()
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
+    }
+  }
+
 
   @Test
   fun `given lookup is not Genders when retrieveLookupValues is called then navigate to edit lookups and extract values`() {

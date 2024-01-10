@@ -66,9 +66,9 @@ internal class PpudClient(
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
     log.info("Creating new offender in PPUD Client")
 
-    login()
-
-    return createNewOffender(createOffenderRequest)
+    return performLoggedInOperation {
+      createNewOffender(createOffenderRequest)
+    }
   }
 
   suspend fun retrieveOffender(id: String): Offender {
@@ -83,39 +83,42 @@ internal class PpudClient(
   suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
     log.info("Creating new recall in PPUD Client")
 
-    login()
-
-    return createNewRecall(offenderId, recallRequest)
+    return performLoggedInOperation {
+      createNewRecall(offenderId, recallRequest)
+    }
   }
 
   suspend fun retrieveRecall(id: String): Recall {
     log.info("Retrieving recall in PPUD Client with ID '$id'")
 
-    login()
-
-    return extractRecallDetails(id)
+    return performLoggedInOperation {
+      extractRecallDetails(id)
+    }
   }
 
   suspend fun deleteRecalls(offenderId: String, sentenceDate: LocalDate, releaseDate: LocalDate) {
     log.info("Deleting recalls in PPUD Client for offender ID '$offenderId'")
 
-    login()
-
-    val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
-
-    deleteRecalls(links)
+    performLoggedInOperation {
+      val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
+      deleteRecalls(links)
+    }
   }
 
   suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
     log.info("Retrieving lookup values for $lookupName")
 
-    loginAsAdmin()
-
-    return extractLookupValues(lookupName)
+    return performLoggedInOperation(asAdmin = true) {
+      extractLookupValues(lookupName)
+    }
   }
 
-  private suspend fun <T> performLoggedInOperation(operation: suspend () -> T): T {
-    login()
+  private suspend fun <T> performLoggedInOperation(asAdmin: Boolean = false, operation: suspend () -> T): T {
+    if (asAdmin) {
+      loginAsAdmin()
+    } else {
+      login()
+    }
     val result = operation()
     logout()
     return result
