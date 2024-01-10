@@ -50,6 +50,8 @@ internal class PpudClient(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
+  private val relativeLogoutUrl = "/logout.aspx"
+
   suspend fun searchForOffender(
     croNumber: String?,
     nomsId: String?,
@@ -58,64 +60,74 @@ internal class PpudClient(
   ): List<SearchResultOffender> {
     log.info("Searching in PPUD Client")
 
-    login()
-
-    val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
-
-    return resultLinks.map {
-      extractSearchResultOffenderDetails(it)
+    return performLoggedInOperation {
+      val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
+      resultLinks.map { extractSearchResultOffenderDetails(it) }
     }
   }
 
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
     log.info("Creating new offender in PPUD Client")
 
-    login()
-
-    return createNewOffender(createOffenderRequest)
+    return performLoggedInOperation {
+      createNewOffender(createOffenderRequest)
+    }
   }
 
   suspend fun retrieveOffender(id: String): Offender {
     log.info("Retrieving offender in PPUD Client with ID '$id'")
 
-    login()
-
-    offenderPage.viewOffenderWithId(id)
-    return offenderPage.extractOffenderDetails { extractSentences(it) }
+    return performLoggedInOperation {
+      offenderPage.viewOffenderWithId(id)
+      offenderPage.extractOffenderDetails { extractSentences(it) }
+    }
   }
 
   suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
     log.info("Creating new recall in PPUD Client")
 
-    login()
-
-    return createNewRecall(offenderId, recallRequest)
+    return performLoggedInOperation {
+      createNewRecall(offenderId, recallRequest)
+    }
   }
 
   suspend fun retrieveRecall(id: String): Recall {
     log.info("Retrieving recall in PPUD Client with ID '$id'")
 
-    login()
-
-    return extractRecallDetails(id)
+    return performLoggedInOperation {
+      extractRecallDetails(id)
+    }
   }
 
   suspend fun deleteRecalls(offenderId: String, sentenceDate: LocalDate, releaseDate: LocalDate) {
     log.info("Deleting recalls in PPUD Client for offender ID '$offenderId'")
 
-    login()
-
-    val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
-
-    deleteRecalls(links)
+    performLoggedInOperation {
+      val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
+      deleteRecalls(links)
+    }
   }
 
   suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
     log.info("Retrieving lookup values for $lookupName")
 
-    loginAsAdmin()
+    return performLoggedInOperation(asAdmin = true) {
+      extractLookupValues(lookupName)
+    }
+  }
 
-    return extractLookupValues(lookupName)
+  private suspend fun <T> performLoggedInOperation(asAdmin: Boolean = false, operation: suspend () -> T): T {
+    if (asAdmin) {
+      loginAsAdmin()
+    } else {
+      login()
+    }
+    val result = try {
+      operation()
+    } finally {
+      logout()
+    }
+    return result
   }
 
   private suspend fun loginAsAdmin() {
@@ -127,6 +139,14 @@ internal class PpudClient(
     loginPage.verifyOn()
     loginPage.login(username, password)
     searchPage.verifyOn()
+  }
+
+  private suspend fun logout() {
+    try {
+      driver.navigate().to("$ppudUrl$relativeLogoutUrl")
+    } catch (ex: Exception) {
+      log.error("Error attempting to log out of PPUD", ex)
+    }
   }
 
   private suspend fun searchUntilFound(
