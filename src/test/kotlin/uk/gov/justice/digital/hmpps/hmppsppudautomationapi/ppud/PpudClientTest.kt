@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ApplicationControlPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
@@ -132,6 +133,23 @@ class PpudClientTest {
   fun `given search criteria when search offender is called then logout once done`() {
     runBlocking {
       client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+
+      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      then(searchPage).should(inOrder).searchByCroNumber(any())
+      then(applicationControlPage).should(inOrder).logout()
+      then(loginPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given a PPUD failure when an operation fails then still attempt to logout`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any call
+      given(searchPage.searchByCroNumber(any())).willThrow(AutomationException("Test exception"))
+
+      assertThrows<AutomationException> {
+        client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
+      }
 
       val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
       then(searchPage).should(inOrder).searchByCroNumber(any())

@@ -119,8 +119,12 @@ internal class PpudClient(
     } else {
       login()
     }
-    val result = operation()
-    logout()
+    val result = try {
+      operation()
+    }
+    finally {
+      logout()
+    }
     return result
   }
 
