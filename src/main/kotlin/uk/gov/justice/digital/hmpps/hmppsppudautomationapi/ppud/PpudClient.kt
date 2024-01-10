@@ -15,7 +15,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ApplicationControlPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -34,7 +33,6 @@ internal class PpudClient(
   @Value("\${ppud.admin.username}") private val ppudAdminUsername: String,
   @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
   private val driver: WebDriver,
-  private val applicationControlPage: ApplicationControlPage,
   private val loginPage: LoginPage,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
@@ -48,6 +46,8 @@ internal class PpudClient(
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
+
+  private val relativeLogoutUrl = "/logout.aspx"
 
   suspend fun searchForOffender(
     croNumber: String?,
@@ -121,8 +121,7 @@ internal class PpudClient(
     }
     val result = try {
       operation()
-    }
-    finally {
+    } finally {
       logout()
     }
     return result
@@ -140,8 +139,11 @@ internal class PpudClient(
   }
 
   private suspend fun logout() {
-    applicationControlPage.logout()
-    loginPage.verifyOn()
+    try {
+      driver.navigate().to("$ppudUrl$relativeLogoutUrl")
+    } catch (ex: Exception) {
+      log.error("Error attempting to log out of PPUD", ex)
+    }
   }
 
   private suspend fun searchUntilFound(

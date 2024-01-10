@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.given
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
@@ -23,7 +24,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ApplicationControlPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -54,9 +54,6 @@ class PpudClientTest {
   private lateinit var navigation: Navigation
 
   @Mock
-  private lateinit var applicationControlPage: ApplicationControlPage
-
-  @Mock
   private lateinit var loginPage: LoginPage
 
   @Mock
@@ -82,6 +79,8 @@ class PpudClientTest {
 
   private val ppudUrl = "https://ppud.example.com"
 
+  private val absoluteLogoutUrl = "$ppudUrl/logout.aspx"
+
   private lateinit var ppudUsername: String
 
   private lateinit var ppudPassword: String
@@ -105,7 +104,6 @@ class PpudClientTest {
       ppudAdminUsername,
       ppudAdminPassword,
       driver,
-      applicationControlPage,
       loginPage,
       adminPage,
       editLookupsPage,
@@ -134,10 +132,9 @@ class PpudClientTest {
     runBlocking {
       client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
 
-      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(searchPage, navigation)
       then(searchPage).should(inOrder).searchByCroNumber(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -148,13 +145,28 @@ class PpudClientTest {
       given(searchPage.searchByCroNumber(any())).willThrow(AutomationException("Test exception"))
 
       assertThrows<AutomationException> {
-        client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
       }
 
-      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(searchPage, navigation)
       then(searchPage).should(inOrder).searchByCroNumber(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given a PPUD failure and logout failure when an operation fails then propagate original exception`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any call
+      given(loginPage.urlPath).willReturn("/login")
+      doNothing().`when`(navigation).to("$ppudUrl/login")
+      given(navigation.to(absoluteLogoutUrl)).willThrow(RuntimeException("Should be hidden"))
+      given(searchPage.searchByCroNumber(any())).willThrow(AutomationException("Expected Test Exception"))
+
+      val actual = assertThrows<AutomationException> {
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+      }
+      assertEquals("Expected Test Exception", actual.message)
     }
   }
 
@@ -301,10 +313,9 @@ class PpudClientTest {
     runBlocking {
       client.retrieveOffender(randomPpudId())
 
-      val inOrder = inOrder(offenderPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(offenderPage, navigation)
       then(offenderPage).should(inOrder).extractOffenderDetails(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -343,10 +354,9 @@ class PpudClientTest {
       val createOffenderRequest = generateCreateOffenderRequest()
       client.createOffender(createOffenderRequest)
 
-      val inOrder = inOrder(newOffenderPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(newOffenderPage, navigation)
       then(newOffenderPage).should(inOrder).createOffender(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -386,10 +396,9 @@ class PpudClientTest {
       val createRecallRequest = generateCreateRecallRequest()
       client.createRecall(randomPpudId(), createRecallRequest)
 
-      val inOrder = inOrder(recallPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(recallPage, navigation)
       then(recallPage).should(inOrder).createRecall(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -468,10 +477,9 @@ class PpudClientTest {
     runBlocking {
       client.retrieveRecall(randomPpudId())
 
-      val inOrder = inOrder(recallPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(recallPage, navigation)
       then(recallPage).should(inOrder).extractRecallDetails()
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -515,10 +523,9 @@ class PpudClientTest {
 
       client.retrieveLookupValues(lookupName)
 
-      val inOrder = inOrder(editLookupsPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(editLookupsPage, navigation)
       then(editLookupsPage).should(inOrder).extractLookupValues(any())
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
@@ -529,13 +536,11 @@ class PpudClientTest {
 
       client.retrieveLookupValues(lookupName)
 
-      val inOrder = inOrder(searchPage, applicationControlPage, loginPage)
+      val inOrder = inOrder(searchPage, navigation)
       then(searchPage).should(inOrder).genderValues()
-      then(applicationControlPage).should(inOrder).logout()
-      then(loginPage).should(inOrder).verifyOn()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
-
 
   @Test
   fun `given lookup is not Genders when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
