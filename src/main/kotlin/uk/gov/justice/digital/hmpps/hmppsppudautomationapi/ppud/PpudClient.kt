@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
@@ -20,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import java.time.LocalDate
@@ -40,6 +42,7 @@ internal class PpudClient(
   private val offenderPage: OffenderPage,
   private val newOffenderPage: NewOffenderPage,
   private val sentencePageFactory: SentencePageFactory,
+  private val releasePage: ReleasePage,
   private val recallPage: RecallPage,
 ) {
 
@@ -207,8 +210,15 @@ internal class PpudClient(
   private fun extractSentences(urls: List<String>): List<Sentence> {
     return urls.map {
       driver.navigate().to("$ppudUrl$it")
-      val page = sentencePageFactory.sentencePage()
-      page.extractSentenceDetails()
+      val sentencePage = sentencePageFactory.sentencePage()
+      sentencePage.extractSentenceDetails(::extractReleases)
+    }
+  }
+
+  private fun extractReleases(urls: List<String>): List<Release> {
+    return urls.map {
+      driver.navigate().to("$ppudUrl$it")
+      releasePage.extractReleaseDetails()
     }
   }
 

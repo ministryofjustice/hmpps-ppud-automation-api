@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
@@ -75,6 +76,9 @@ class PpudClientTest {
   private lateinit var sentencePageFactory: SentencePageFactory
 
   @Mock
+  private lateinit var releasePage: ReleasePage
+
+  @Mock
   private lateinit var recallPage: RecallPage
 
   private val ppudUrl = "https://ppud.example.com"
@@ -111,6 +115,7 @@ class PpudClientTest {
       offenderPage,
       newOffenderPage,
       sentencePageFactory,
+      releasePage,
       recallPage,
     )
 

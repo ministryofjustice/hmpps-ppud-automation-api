@@ -9,35 +9,37 @@ import org.openqa.selenium.WebElement
 
 open class TreeViewNode(private val element: WebElement) : WebElement {
 
+  private val expansionElement by lazy { findElement(By.xpath("./following-sibling::div")) }
+
+  private val expanderImage by lazy { findElement(By.xpath("./img[@imgtype='exp']")) }
+
   fun children(): List<TreeViewNode> {
-    return element.findElements(By.xpath("./div"))
+    return expansionElement.findElements(By.xpath("./div"))
       .filter { it.isDisplayed }
       .map { TreeViewNode(it) }
   }
 
+  fun expandNode(): TreeViewNode {
+    if (expansionElement.isDisplayed.not()) {
+      expanderImage.click()
+    }
+    return this
+  }
+
   fun expandNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode((expandNode(findNodeWithText(text))))
+    return findNodeWithText(text).expandNode()
   }
 
   fun expandNodeWithTextContaining(text: String): TreeViewNode {
-    return TreeViewNode(expandNode(findNodeWithTextContaining(text)))
+    return findNodeWithTextContaining(text).expandNode()
   }
 
   fun findNodeWithTextContaining(text: String): TreeViewNode {
-    return TreeViewNode(element.findElement(By.xpath(".//*[contains(text(), '$text')]")))
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[contains(text(), '$text')]/parent::div")))
   }
 
   private fun findNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(element.findElement(By.xpath(".//*[text()='$text']")))
-  }
-
-  private fun expandNode(textNode: TreeViewNode): WebElement {
-    val expansionElement = textNode.findElement(By.xpath("../following-sibling::div"))
-    if (expansionElement.isDisplayed.not()) {
-      val expanderImage = textNode.findElement(By.xpath("../img[@imgtype='exp']"))
-      expanderImage.click()
-    }
-    return expansionElement
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
   }
 
   override fun findElements(by: By?): MutableList<WebElement> {
