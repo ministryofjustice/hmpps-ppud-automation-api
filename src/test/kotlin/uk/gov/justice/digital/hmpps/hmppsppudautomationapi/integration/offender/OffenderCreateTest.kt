@@ -114,7 +114,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given missing optional fields in request body when create offender called then 210 created is returned`() {
+  fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"custodyType\":\"${ppudValidCustodyType}\", " +
       "\"dateOfBirth\":\"${randomDate()}\", " +

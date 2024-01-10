@@ -6,4 +6,5 @@ data class Sentence(
   val dateOfSentence: LocalDate,
   val custodyType: String,
   val mappaLevel: String,
+  val releases: List<Release> = emptyList(),
 )
