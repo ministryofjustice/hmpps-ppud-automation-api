@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
@@ -15,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.IsSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
@@ -32,6 +34,7 @@ import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 import java.util.stream.Stream
 
+@ExtendWith(OffenderRecallTest.OffenderRecallDataTidyExtension::class)
 class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
@@ -91,6 +94,26 @@ class OffenderRecallTest : IntegrationTestBase() {
         "\"riskOfSeriousHarmLevel\":\"$riskOfSeriousHarmLevel\", " +
         "\"sentenceDate\":\"$sentenceDate\" " +
         "}"
+    }
+  }
+
+  internal class OffenderRecallDataTidyExtension : DataTidyExtensionBase() {
+    override fun afterAllTidy() {
+      deleteRecallsOnTestOffender()
+    }
+
+    private fun deleteRecallsOnTestOffender() {
+      webTestClient
+        .delete()
+        .uri(
+          "/offender/${ppudOffenderWithRelease.id}/recalls?" +
+            "sentenceDate=${ppudOffenderWithRelease.sentenceDate}" +
+            "&releaseDate=${ppudOffenderWithRelease.releaseDate}",
+        )
+        .headers { it.dataTidyAuthToken() }
+        .exchange()
+        .expectStatus()
+        .isOk
     }
   }
 
@@ -215,21 +238,6 @@ class OffenderRecallTest : IntegrationTestBase() {
       .exchange()
       .expectStatus()
       .isCreated
-  }
-
-  @Test
-  internal fun `Housekeeping - Delete recalls on the test offender`() {
-    webTestClient
-      .delete()
-      .uri(
-        "/offender/${ppudOffenderWithRelease.id}/recalls?" +
-          "sentenceDate=${ppudOffenderWithRelease.sentenceDate}" +
-          "&releaseDate=${ppudOffenderWithRelease.releaseDate}",
-      )
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
   }
 
   private fun postRecall(requestBody: String): String {

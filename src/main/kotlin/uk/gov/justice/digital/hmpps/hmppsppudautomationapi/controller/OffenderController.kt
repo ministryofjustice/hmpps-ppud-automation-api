@@ -82,6 +82,7 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @Hidden
+  @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__TESTS__READWRITE')")
   @DeleteMapping("/offender/{offenderId}/recalls")
   suspend fun deleteRecalls(
     @PathVariable(required = true) offenderId: String,
