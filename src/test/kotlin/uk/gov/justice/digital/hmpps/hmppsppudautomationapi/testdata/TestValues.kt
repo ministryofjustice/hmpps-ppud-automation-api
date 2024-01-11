@@ -13,34 +13,34 @@ import java.time.LocalTime
 import java.util.UUID
 import kotlin.random.Random
 
-const val ppudValidCustodyType = "Determinate"
+const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
 
-const val ppudValidEthnicity = "Chinese"
+const val PPUD_VALID_ETHNICITY = "Chinese"
 
-const val ppudValidGender = "M"
+const val PPUD_VALID_GENDER = "M"
 
-const val ppudValidIndexOffence = "ADMINISTER DRUGS"
+const val PPUD_VALID_INDEX_OFFENCE = "ADMINISTER DRUGS"
 
 // Watch out for the different hyphens in the dropdown options
-const val ppudValidMappaLevel = "Level 2 – Local Inter-Agency Management"
+const val PPUD_VALID_MAPPA_LEVEL = "Level 2 – Local Inter-Agency Management"
 
-const val ppudValidPoliceForce = "Kent Police"
+const val PPUD_VALID_POLICE_FORCE = "Kent Police"
 
-const val ppudValidProbationArea = "Merseyside"
+const val PPUD_VALID_PROBATION_AREA = "Merseyside"
 
-const val ppudValidUserFullNameAndTeam = "Consider a Recall Test(Recall 1)"
+const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "Consider a Recall Test(Recall 1)"
 
-const val ppudValidUserFullName = "Consider a Recall Test"
+const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test"
 
-const val ppudImmigrationStatus = "Not Applicable"
+const val PPUD_IMMIGRATION_STATUS = "Not Applicable"
 
-const val ppudPrisonerCategory = "Not Applicable"
+const val PPUD_PRISONER_CATEGORY = "Not Applicable"
 
-const val ppudStatus = "Recalled [*]"
+const val PPUD_STATUS = "Recalled [*]"
 
-const val ppudYoungOffenderYes = "Yes - Named"
+const val PPUD_YOUNG_OFFENDER_YES = "Yes - Named"
 
-const val ppudYoungOffenderNo = "No"
+const val PPUD_YOUNG_OFFENDER_NO = "No"
 
 // This is an offender that exists in PPUD InternalTest
 internal val ppudOffenderWithRelease: TestOffender
@@ -54,11 +54,11 @@ internal val ppudOffenderWithRelease: TestOffender
     sentenceDate = "2003-06-12",
   )
 
-internal const val ppudOffenderIdWithNotSpecifiedRelease = "4F6666656E64657249643D313732323738G687H671"
+internal const val PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE = "4F6666656E64657249643D313732323738G687H671"
 
-private const val sixtyYearsInDays: Long = 21900
+private const val SIXTY_YEARS_IN_DAYS: Long = 21900
 
-private const val secondsInADay: Long = 86400
+private const val SECONDS_IN_A_DAY: Long = 86400
 
 fun randomString(prefix: String = "random"): String {
   return "$prefix-${UUID.randomUUID()}"
@@ -87,11 +87,11 @@ fun randomPrisonNumber(): String {
 }
 
 fun randomDate(): LocalDate {
-  return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(sixtyYearsInDays))
+  return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
 }
 
 fun randomTimeToday(): LocalDateTime {
-  return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(secondsInADay)))
+  return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
 }
 
 fun randomPpudId(): String {

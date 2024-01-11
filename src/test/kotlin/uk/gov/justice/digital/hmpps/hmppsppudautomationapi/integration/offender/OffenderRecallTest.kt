@@ -17,12 +17,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_POLICE_FORCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_AREA
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME_AND_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidMappaLevel
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidPoliceForce
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidProbationArea
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullName
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidUserFullNameAndTeam
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
@@ -36,13 +36,13 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
-    private const val ppudExpectedRecallType = "Standard"
+    private const val PPUD_EXPECTED_RECALL_TYPE = "Standard"
 
-    private const val ppudExpectedOwningTeam = "Recall 1"
+    private const val PPUD_EXPECTED_OWNING_TEAM = "Recall 1"
 
-    private const val ppudExpectedRevocationIssuedByOwner = "EO Officer"
+    private const val PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER = "EO Officer"
 
-    private const val ppudExpectedReturnToCustodyNotificationMethod = "Not Applicable"
+    private const val PPUD_EXPECTED_RETURN_TO_CUSTODY_NOTIFICATION_METHOD = "Not Applicable"
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -67,11 +67,11 @@ class OffenderRecallTest : IntegrationTestBase() {
       decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       isInCustody: String = "false",
       isExtendedSentence: String = "false",
-      mappaLevel: String = ppudValidMappaLevel,
-      policeForce: String = ppudValidPoliceForce,
-      probationArea: String = ppudValidProbationArea,
+      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
+      policeForce: String = PPUD_VALID_POLICE_FORCE,
+      probationArea: String = PPUD_VALID_PROBATION_AREA,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      recommendedToOwner: String = ppudValidUserFullNameAndTeam,
+      recommendedToOwner: String = PPUD_VALID_USER_FULL_NAME_AND_TEAM,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
@@ -164,14 +164,14 @@ class OffenderRecallTest : IntegrationTestBase() {
     retrieved.jsonPath("recall.id").isEqualTo(id)
       .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("No")
       .jsonPath("recall.decisionDateTime").isEqualTo(decisionDateTime.withoutSeconds())
-      .jsonPath("recall.mappaLevel").isEqualTo(ppudValidMappaLevel)
-      .jsonPath("recall.owningTeam").isEqualTo(ppudExpectedOwningTeam)
-      .jsonPath("recall.policeForce").isEqualTo(ppudValidPoliceForce)
-      .jsonPath("recall.probationArea").isEqualTo(ppudValidProbationArea)
+      .jsonPath("recall.mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
+      .jsonPath("recall.owningTeam").isEqualTo(PPUD_EXPECTED_OWNING_TEAM)
+      .jsonPath("recall.policeForce").isEqualTo(PPUD_VALID_POLICE_FORCE)
+      .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_AREA)
       .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
-      .jsonPath("recall.recommendedToOwner").isEqualTo(ppudValidUserFullName)
-      .jsonPath("recall.recallType").isEqualTo(ppudExpectedRecallType)
-      .jsonPath("recall.revocationIssuedByOwner").isEqualTo(ppudExpectedRevocationIssuedByOwner)
+      .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
+      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_RECALL_TYPE)
+      .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
     val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
     retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
     assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
@@ -188,7 +188,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.isInCustody").isEqualTo("true")
       .jsonPath("recall.nextUalCheck").value(isNull())
       .jsonPath("recall.returnToCustodyNotificationMethod")
-      .isEqualTo(ppudExpectedReturnToCustodyNotificationMethod)
+      .isEqualTo(PPUD_EXPECTED_RETURN_TO_CUSTODY_NOTIFICATION_METHOD)
   }
 
   @Test

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderIdWithNotSpecifiedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 
@@ -58,7 +58,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with Not Specified release when get offender called then release is not returned`() {
-    val id = ppudOffenderIdWithNotSpecifiedRelease
+    val id = PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE
     webTestClient.get()
       .uri("/offender/$id")
       .headers { it.authToken() }
