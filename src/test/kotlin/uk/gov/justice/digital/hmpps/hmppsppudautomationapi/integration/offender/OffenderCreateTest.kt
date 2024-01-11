@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
@@ -33,12 +35,18 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrison
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.function.Consumer
 import java.util.stream.Stream
 
+@ExtendWith(OffenderCreateTest.OffenderCreateDataTidyExtension::class)
 class OffenderCreateTest : IntegrationTestBase() {
 
   companion object {
+
+    private const val FAMILY_NAME_PREFIX = "familyName"
+
+    private val testRunId = UUID.randomUUID()
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -63,7 +71,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
       firstNames: String = randomString("firstNames"),
-      familyName: String = randomString("familyName"),
+      familyName: String = "$FAMILY_NAME_PREFIX-$testRunId",
       gender: String = PPUD_VALID_GENDER,
       indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
@@ -86,6 +94,27 @@ class OffenderCreateTest : IntegrationTestBase() {
         "\"pncNumber\":\"$pncNumber\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
         "}"
+    }
+  }
+
+  internal class OffenderCreateDataTidyExtension : DataTidyExtensionBase() {
+    override fun afterAllTidy() {
+      println("TestRunId for this run: $testRunId")
+      deleteTestOffenders()
+    }
+
+    private fun deleteTestOffenders() {
+      webTestClient
+        .delete()
+        .uri(
+          "/offender?" +
+            "familyNamePrefix=$FAMILY_NAME_PREFIX" +
+            "&testRunId=$testRunId",
+        )
+        .headers { it.dataTidyAuthToken() }
+        .exchange()
+        .expectStatus()
+        .isOk
     }
   }
 
@@ -120,7 +149,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +
       "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
-      "\"familyName\":\"${randomString("familyName")}\", " +
+      "\"familyName\":\"$FAMILY_NAME_PREFIX-$testRunId\", " +
       "\"firstNames\":\"${randomString("firstNames")}\", " +
       "\"gender\":\"$PPUD_VALID_GENDER\", " +
       "\"indexOffence\":\"$PPUD_VALID_INDEX_OFFENCE\", " +
@@ -161,7 +190,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
-    val familyName = randomString("familyName")
+    val familyName = "$FAMILY_NAME_PREFIX-$testRunId"
     val firstNames = randomString("firstNames")
     val nomsId = randomNomsId()
     val pncNumber = randomPncNumber()

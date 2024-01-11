@@ -26,7 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOf
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @RestController
 @RequestScope
@@ -79,6 +79,17 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     log.info("Offender recall endpoint hit")
     val recall = ppudClient.createRecall(offenderId, createRecallRequest)
     return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
+  }
+
+  @Hidden
+  @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__TESTS__READWRITE')")
+  @DeleteMapping("/offender")
+  suspend fun deleteTestOffenders(
+    @RequestParam(required = true) familyNamePrefix: String,
+    @RequestParam(required = true) testRunId: UUID,
+  ) {
+    log.info("Offender deletion endpoint hit")
+    ppudClient.deleteOffenders(familyName = "$familyNamePrefix-$testRunId")
   }
 
   @Hidden

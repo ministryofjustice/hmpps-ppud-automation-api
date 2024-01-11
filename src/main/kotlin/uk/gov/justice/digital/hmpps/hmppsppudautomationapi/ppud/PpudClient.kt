@@ -99,6 +99,16 @@ internal class PpudClient(
     }
   }
 
+  suspend fun deleteOffenders(familyName: String) {
+    log.info("Deleting offenders in PPUD Client with family name '$familyName'")
+
+    performLoggedInOperation {
+      searchPage.searchByFamilyName(familyName)
+      val links = searchPage.searchResultsLinks()
+      deleteOffenders(links)
+    }
+  }
+
   suspend fun deleteRecalls(offenderId: String, sentenceDate: LocalDate, releaseDate: LocalDate) {
     log.info("Deleting recalls in PPUD Client for offender ID '$offenderId'")
 
@@ -191,9 +201,20 @@ internal class PpudClient(
     return recallPage.extractCreatedRecallDetails()
   }
 
-  private suspend fun deleteRecalls(links: List<String>) {
+  private suspend fun deleteOffenders(absoluteLinks: List<String>) {
     var index = 1
-    for (link in links) {
+    for (link in absoluteLinks) {
+      log.info("Deleting offender $index $link")
+      driver.navigate().to(link)
+      offenderPage.deleteOffender()
+      searchPage.verifyOn()
+      index++
+    }
+  }
+
+  private suspend fun deleteRecalls(relativeLinks: List<String>) {
+    var index = 1
+    for (link in relativeLinks) {
       log.info("Deleting recall $index $link")
       driver.switchTo().newWindow(WindowType.TAB)
       driver.navigate().to("${ppudUrl}$link")
