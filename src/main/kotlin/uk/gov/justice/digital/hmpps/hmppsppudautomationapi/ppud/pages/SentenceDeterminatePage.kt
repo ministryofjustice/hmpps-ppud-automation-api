@@ -34,7 +34,8 @@ internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormat
       dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
-      releases = releaseExtractor(determineReleaseLinks()), // Do this last because it navigates away
+      // Do releases last because it navigates away
+      releases = releaseExtractor(determineReleaseLinks()),
     )
   }
 }

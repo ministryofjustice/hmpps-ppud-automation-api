@@ -14,17 +14,17 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudImmigrationStatus
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_PRISONER_CATEGORY
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_STATUS
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudPrisonerCategory
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudStatus
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidCustodyType
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidEthnicity
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidGender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidIndexOffence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudValidMappaLevel
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudYoungOffenderNo
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudYoungOffenderYes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
@@ -58,15 +58,15 @@ class OffenderCreateTest : IntegrationTestBase() {
 
     private fun createOffenderRequestBody(
       croNumber: String = randomCroNumber(),
-      custodyType: String = ppudValidCustodyType,
+      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-      ethnicity: String = ppudValidEthnicity,
+      ethnicity: String = PPUD_VALID_ETHNICITY,
       firstNames: String = randomString("firstNames"),
       familyName: String = randomString("familyName"),
-      gender: String = ppudValidGender,
-      indexOffence: String = ppudValidIndexOffence,
-      mappaLevel: String = ppudValidMappaLevel,
+      gender: String = PPUD_VALID_GENDER,
+      indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
+      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = randomNomsId(),
       pncNumber: String = randomPncNumber(),
       prisonNumber: String = randomPrisonNumber(),
@@ -116,15 +116,15 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"${ppudValidCustodyType}\", " +
+      "\"custodyType\":\"${PPUD_VALID_CUSTODY_TYPE}\", " +
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"ethnicity\":\"$ppudValidEthnicity\", " +
+      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
       "\"familyName\":\"${randomString("familyName")}\", " +
       "\"firstNames\":\"${randomString("firstNames")}\", " +
-      "\"gender\":\"$ppudValidGender\", " +
-      "\"indexOffence\":\"$ppudValidIndexOffence\", " +
-      "\"mappaLevel\":\"$ppudValidMappaLevel\", " +
+      "\"gender\":\"$PPUD_VALID_GENDER\", " +
+      "\"indexOffence\":\"$PPUD_VALID_INDEX_OFFENCE\", " +
+      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\", " +
       "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
       "}"
 
@@ -168,15 +168,15 @@ class OffenderCreateTest : IntegrationTestBase() {
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
       croNumber = croNumber,
-      custodyType = ppudValidCustodyType,
+      custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
       dateOfSentence = dateOfSentence,
-      ethnicity = ppudValidEthnicity,
+      ethnicity = PPUD_VALID_ETHNICITY,
       familyName = familyName,
       firstNames = firstNames,
-      gender = ppudValidGender,
-      indexOffence = ppudValidIndexOffence,
-      mappaLevel = ppudValidMappaLevel,
+      gender = PPUD_VALID_GENDER,
+      indexOffence = PPUD_VALID_INDEX_OFFENCE,
+      mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
       pncNumber = pncNumber,
       prisonNumber = prisonNumber,
@@ -188,25 +188,25 @@ class OffenderCreateTest : IntegrationTestBase() {
     retrieved.jsonPath("offender.id").isEqualTo(id)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
-      .jsonPath("offender.ethnicity").isEqualTo(ppudValidEthnicity)
+      .jsonPath("offender.ethnicity").isEqualTo(PPUD_VALID_ETHNICITY)
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
-      .jsonPath("offender.gender").isEqualTo(ppudValidGender)
-      .jsonPath("offender.immigrationStatus").isEqualTo(ppudImmigrationStatus)
+      .jsonPath("offender.gender").isEqualTo(PPUD_VALID_GENDER)
+      .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
-      .jsonPath("offender.prisonerCategory").isEqualTo(ppudPrisonerCategory)
+      .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
-      .jsonPath("offender.status").isEqualTo(ppudStatus)
+      .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
       .jsonPath("offender.sentences.size()").isEqualTo(1)
-      .jsonPath("offender.sentences[0].custodyType").isEqualTo(ppudValidCustodyType)
+      .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
-      .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(ppudValidMappaLevel)
+      .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
   }
 
   @ParameterizedTest
   @CsvSource(
-    "18,$ppudYoungOffenderYes",
-    "50,$ppudYoungOffenderNo",
+    "18,$PPUD_YOUNG_OFFENDER_YES",
+    "50,$PPUD_YOUNG_OFFENDER_NO",
   )
   fun `given offender 21 years or younger when create offender called then offender marked as young offender`(
     age: Long,

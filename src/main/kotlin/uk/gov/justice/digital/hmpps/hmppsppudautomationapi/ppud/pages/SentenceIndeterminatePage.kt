@@ -31,7 +31,8 @@ internal class SentenceIndeterminatePage(driver: WebDriver, private val dateForm
       LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
       Select(custodyTypeDropdown).firstSelectedOption.text,
       "",
-      releases = releaseExtractor(determineReleaseLinks()), // Do this last because it navigates away
+      // Do releases last because it navigates away
+      releases = releaseExtractor(determineReleaseLinks()),
     )
   }
 }

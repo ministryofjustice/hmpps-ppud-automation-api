@@ -119,7 +119,8 @@ internal class OffenderPage(
       prisonNumber = prisonNumberInput.getValue(),
       youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
       status = Select(statusDropdown).firstSelectedOption.text,
-      sentences = sentenceExtractor(determineSentenceLinks()), // Do this last because it navigates away
+      // Do sentences last because it navigates away
+      sentences = sentenceExtractor(determineSentenceLinks()),
     )
   }
 
