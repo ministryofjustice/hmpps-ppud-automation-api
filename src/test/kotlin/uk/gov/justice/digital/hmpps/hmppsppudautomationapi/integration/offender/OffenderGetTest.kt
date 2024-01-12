@@ -17,7 +17,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given token without recall role when get offender called then forbidden is returned`() {
-    givenTokenWithoutRecallRoleWhenGettingThenForbiddenReturned("/offender/${randomPpudId()}")
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/${randomPpudId()}")
   }
 
   @Test

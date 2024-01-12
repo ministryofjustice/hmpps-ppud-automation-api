@@ -125,7 +125,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   @Test
   fun `given token without recall role when create recall called then forbidden is returned`() {
     val requestBody = createRecallRequestBody()
-    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender/${randomPpudId()}/recall", requestBody)
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/${randomPpudId()}/recall", requestBody)
   }
 
   @Test

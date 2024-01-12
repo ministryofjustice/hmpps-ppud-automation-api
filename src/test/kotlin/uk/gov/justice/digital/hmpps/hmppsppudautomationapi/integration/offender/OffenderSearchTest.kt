@@ -20,7 +20,7 @@ class OffenderSearchTest : IntegrationTestBase() {
 
   @Test
   fun `given token without recall role when search called then forbidden is returned`() {
-    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender/search", "{}")
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/search", "{}")
   }
 
   @Test
