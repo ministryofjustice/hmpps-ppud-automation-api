@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -233,7 +234,7 @@ internal class RecallPage(
 
   suspend fun deleteRecall() {
     deleteButton.click()
-    dismissConfirmDeleteAlert()
+    dismissConfirmDeleteAlert(driver)
   }
 
   fun urlFor(id: String): String {
@@ -268,14 +269,5 @@ internal class RecallPage(
     val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
     val (id) = idMatch.destructured
     return id
-  }
-
-  private fun dismissConfirmDeleteAlert() {
-    val alert = driver.switchTo().alert()
-    if (alert.text.contains("This will delete the whole record", ignoreCase = true)) {
-      alert.accept()
-    } else {
-      throw AutomationException("Alert shown with the text '${alert.text}")
-    }
   }
 }

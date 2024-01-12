@@ -87,6 +87,12 @@ internal class SearchPage(private val driver: WebDriver) {
     searchButton.click()
   }
 
+  fun searchByFamilyName(familyName: String) {
+    clearButton.click()
+    familyNameInput.sendKeys(familyName)
+    searchButton.click()
+  }
+
   fun searchResultsCount(): Int {
     val resultsLinks = resultsTable?.findElements(By.linkText("Select"))
     return resultsLinks?.size ?: 0

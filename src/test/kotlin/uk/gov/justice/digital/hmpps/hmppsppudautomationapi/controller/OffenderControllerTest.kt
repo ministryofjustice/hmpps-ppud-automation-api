@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffe
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.time.LocalDate
+import java.util.UUID
 
 @ExtendWith(MockitoExtension::class)
 internal class OffenderControllerTest {
@@ -120,6 +121,19 @@ internal class OffenderControllerTest {
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
       assertEquals(recallId, result.body?.recall?.id)
+    }
+  }
+
+  @Test
+  fun `given deletion criteria when deleteTestOffenders is called then family name is passed to PPUD client`() {
+    runBlocking {
+      val familyNamePrefix = "prefix"
+      val testRunDate = UUID.randomUUID()
+
+      controller.deleteTestOffenders(familyNamePrefix, testRunDate)
+      val expected = "$familyNamePrefix-$testRunDate"
+
+      then(ppudClient).should().deleteOffenders(expected)
     }
   }
 

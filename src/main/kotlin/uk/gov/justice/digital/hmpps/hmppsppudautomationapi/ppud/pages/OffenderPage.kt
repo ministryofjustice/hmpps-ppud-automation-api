@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -65,6 +66,9 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliSTATUS")
   private lateinit var statusDropdown: WebElement
 
+  @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
+  private lateinit var deleteButton: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -77,6 +81,11 @@ internal class OffenderPage(
     navigateToRecallsFor(sentenceDate, releaseDate)
       .findNodeWithTextContaining("New")
       .click()
+  }
+
+  suspend fun deleteOffender() {
+    deleteButton.click()
+    dismissConfirmDeleteAlert(driver)
   }
 
   fun extractRecallLinks(sentenceDate: LocalDate, releaseDate: LocalDate): List<String> {
