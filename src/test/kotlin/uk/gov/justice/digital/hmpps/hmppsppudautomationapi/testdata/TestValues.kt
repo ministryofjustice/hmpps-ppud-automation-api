@@ -50,7 +50,7 @@ internal val ppudOffenderWithRelease: TestOffender
     dateOfBirth = "1969-03-02",
     familyName = "Mitchell",
     firstNames = "Mandy Car Test",
-    prisonNumber = "132468435132",
+    prisonNumber = "XX4321",
     releaseDate = "2013-02-02",
     sentenceDate = "2003-06-12",
   )
@@ -133,7 +133,10 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
 // so some of the values won't be acceptable to PPUD.
 fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
   return UpdateOffenderRequest(
+    dateOfBirth = randomDate(),
     familyName = randomString("familyName"),
+    firstNames = randomString("firstNames"),
+    prisonNumber = randomPrisonNumber(),
   )
 }
 

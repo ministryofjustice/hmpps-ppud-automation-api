@@ -75,9 +75,13 @@ internal class PpudClient(
     }
   }
 
-  suspend fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
+  suspend fun updateOffender(offenderId: String, updateOffenderRequest: UpdateOffenderRequest) {
     log.info("Updating offender in PPUD Client")
-    // TODO: Not implemented
+    performLoggedInOperation {
+      offenderPage.viewOffenderWithId(offenderId)
+      offenderPage.updateOffender(updateOffenderRequest)
+      offenderPage.throwIfInvalid()
+    }
   }
 
   suspend fun retrieveOffender(id: String): Offender {

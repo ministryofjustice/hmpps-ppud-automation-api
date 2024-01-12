@@ -105,7 +105,7 @@ internal class OffenderControllerTest {
 
       controller.updateOffender(offenderId, offenderRequest)
 
-      then(ppudClient).should().updateOffender(offenderRequest)
+      then(ppudClient).should().updateOffender(offenderId, offenderRequest)
     }
   }
 

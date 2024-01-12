@@ -79,7 +79,7 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     offenderRequest: UpdateOffenderRequest,
   ) {
     log.info("Offender update endpoint hit")
-    ppudClient.updateOffender(offenderRequest)
+    ppudClient.updateOffender(offenderId, offenderRequest)
   }
 
   @PostMapping("/offender/{offenderId}/recall")

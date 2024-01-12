@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
-import org.openqa.selenium.NoAlertPresentException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
@@ -120,9 +120,9 @@ internal class NewOffenderPage(
     dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
     selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
-    dismissCheckCapitalisationAlert()
+    dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
-    dismissCheckCapitalisationAlert()
+    dismissCheckCapitalisationAlert(driver, nomsIdInput)
     selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
     selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
@@ -151,20 +151,6 @@ internal class NewOffenderPage(
 
     if (duplicatePanel?.isDisplayed == true) {
       throw AutomationException("Duplicate details found on PPUD for this offender.")
-    }
-  }
-
-  private fun dismissCheckCapitalisationAlert() {
-    try {
-      nomsIdInput.click()
-      val alert = driver.switchTo().alert()
-      if (alert.text.contains("check that the capitalisation is correct")) {
-        alert.accept()
-      } else {
-        throw AutomationException("Alert shown with the text '${alert.text}")
-      }
-    } catch (ex: NoAlertPresentException) {
-      // No alert so we can proceed
     }
   }
 }

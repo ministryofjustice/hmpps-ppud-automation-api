@@ -50,7 +50,7 @@ abstract class IntegrationTestBase {
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
       firstNames: String = randomString("firstNames"),
-      familyName: String = "${FAMILY_NAME_PREFIX}-${testRunId}",
+      familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
       gender: String = PPUD_VALID_GENDER,
       indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
@@ -101,6 +101,16 @@ abstract class IntegrationTestBase {
     val id = idExtractor.value
     Assertions.assertNotNull(id, "ID returned from create offender request is null")
     return id!!
+  }
+
+  protected fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
+    return webTestClient.get()
+      .uri("/offender/$id")
+      .headers { it.authToken() }
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
   }
 
   protected fun givenMissingTokenWhenCalledThenUnauthorizedReturned(method: HttpMethod, uri: String) {

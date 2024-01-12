@@ -254,14 +254,4 @@ class OffenderCreateTest : IntegrationTestBase() {
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
-
-  private fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
-    return webTestClient.get()
-      .uri("/offender/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-  }
 }

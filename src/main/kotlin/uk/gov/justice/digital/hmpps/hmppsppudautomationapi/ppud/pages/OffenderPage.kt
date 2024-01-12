@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
+import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -12,7 +13,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
@@ -27,6 +30,12 @@ internal class OffenderPage(
   private val dateFormatter: DateTimeFormatter,
   @Value("\${ppud.url}") private val ppudUrl: String,
 ) {
+  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
+  private lateinit var saveButton: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
+  private lateinit var deleteButton: WebElement
+
   @FindBy(id = "cntDetails_txtCRO_PNC")
   private lateinit var croOtherNumberInput: WebElement
 
@@ -66,8 +75,8 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliSTATUS")
   private lateinit var statusDropdown: WebElement
 
-  @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
-  private lateinit var deleteButton: WebElement
+  private val validationSummary: WebElement?
+    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 
   init {
     PageFactory.initElements(driver, this)
@@ -75,12 +84,28 @@ internal class OffenderPage(
 
   fun viewOffenderWithId(offenderId: String) {
     driver.navigate().to("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
+    // TODO: Verify we found one
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
     navigateToRecallsFor(sentenceDate, releaseDate)
       .findNodeWithTextContaining("New")
       .click()
+  }
+
+  fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
+    dateOfBirthInput.click()
+    dateOfBirthInput.sendKeys(updateOffenderRequest.dateOfBirth.format(dateFormatter))
+    familyNameInput.clear()
+    familyNameInput.sendKeys(updateOffenderRequest.familyName)
+    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    firstNamesInput.clear()
+    firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
+    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    prisonNumberInput.clear()
+    prisonNumberInput.sendKeys(updateOffenderRequest.prisonNumber)
+
+    saveButton.click()
   }
 
   suspend fun deleteOffender() {
@@ -131,6 +156,12 @@ internal class OffenderPage(
       // Do sentences last because it navigates away
       sentences = sentenceExtractor(determineSentenceLinks()),
     )
+  }
+
+  fun throwIfInvalid() {
+    if (validationSummary?.text?.isNotBlank() == true) {
+      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+    }
   }
 
   private fun navigateToRecallsFor(sentenceDate: LocalDate, releaseDate: LocalDate): TreeViewNode {
