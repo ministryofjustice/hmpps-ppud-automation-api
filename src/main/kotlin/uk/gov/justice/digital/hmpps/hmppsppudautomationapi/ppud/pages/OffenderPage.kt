@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
@@ -84,7 +85,7 @@ internal class OffenderPage(
 
   fun viewOffenderWithId(offenderId: String) {
     driver.navigate().to("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
-    // TODO: Verify we found one
+    throwIfInvalidOffenderId()
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
@@ -161,6 +162,12 @@ internal class OffenderPage(
   fun throwIfInvalid() {
     if (validationSummary?.text?.isNotBlank() == true) {
       throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+    }
+  }
+
+  private fun throwIfInvalidOffenderId() {
+    if (driver.title.equals("url checksum error", ignoreCase = true)) {
+      throw InvalidOffenderIdException("Offender ID is invalid. Checksum validation failed.")
     }
   }
 

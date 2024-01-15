@@ -43,7 +43,9 @@ const val PPUD_YOUNG_OFFENDER_YES = "Yes - Named"
 
 const val PPUD_YOUNG_OFFENDER_NO = "No"
 
-// This is an offender that exists in PPUD InternalTest
+/**
+ * This is an offender that exists in PPUD InternalTest
+ */
 internal val ppudOffenderWithRelease: TestOffender
   get() = TestOffender(
     id = "4F6666656E64657269643D313632393134G721H665",
@@ -95,6 +97,10 @@ fun randomTimeToday(): LocalDateTime {
   return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
 }
 
+/**
+ * Generate a randomPpudId. Note that this is not a properly valid ID (i.e. checksum isn't
+ * correct), but it looks like a PPUD ID.
+ */
 fun randomPpudId(): String {
   val randomSerial = Random.nextInt(1000000, 9999999)
   return "4F${randomSerial}E64657269643D313632393134G721H665"
@@ -109,8 +115,10 @@ fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
   return RiskOfSeriousHarmLevel.entries[randomIndex]
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateCreateOffenderRequest(): CreateOffenderRequest {
   return CreateOffenderRequest(
     croNumber = randomCroNumber(),
@@ -129,8 +137,10 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
   )
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
   return UpdateOffenderRequest(
     dateOfBirth = randomDate(),
@@ -178,8 +188,10 @@ fun generateSearchResultOffender(
   )
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateCreateRecallRequest(
   sentenceDate: LocalDate? = null,
   releaseDate: LocalDate? = null,

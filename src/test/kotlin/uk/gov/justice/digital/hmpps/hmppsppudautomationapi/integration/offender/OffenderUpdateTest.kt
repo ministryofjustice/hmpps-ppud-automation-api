@@ -73,6 +73,17 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .isBadRequest
   }
 
+  @Test
+  fun `given invalid offender ID when update offender called then bad request is returned`() {
+    val requestBody = updateOffenderRequestBody()
+    putOffender(randomPpudId(), requestBody)
+      .expectStatus()
+      .isBadRequest
+      .expectBody()
+      .jsonPath("userMessage")
+      .value(Consumer<String> { assertThat(it).contains("Offender ID is invalid") })
+  }
+
   @ParameterizedTest
   @MethodSource("mandatoryFieldTestData")
   fun `given missing mandatory value in request body when update offender called then bad request is returned`(
