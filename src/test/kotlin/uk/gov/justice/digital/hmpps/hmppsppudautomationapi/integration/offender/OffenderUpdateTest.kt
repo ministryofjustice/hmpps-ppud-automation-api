@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -12,14 +13,21 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_PRISONER_CATEGORY
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_STATUS
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.function.Consumer
@@ -45,6 +53,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     }
 
     private fun updateOffenderRequestBody(
+      croNumber: String = randomCroNumber(),
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
       familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
@@ -53,6 +62,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
+        "\"croNumber\":\"$croNumber\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
         "\"ethnicity\":\"$ethnicity\", " +
         "\"familyName\":\"$familyName\", " +
@@ -153,7 +163,8 @@ class OffenderUpdateTest : IntegrationTestBase() {
   fun `given valid values in request body when update offender called then offender is amended using supplied values`() {
     val testOffenderId = createTestOffenderInPpud()
     val amendUuid = UUID.randomUUID()
-    familyNameToDeleteUuids.add(amendUuid)
+    familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
+    val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val ethnicity = PPUD_VALID_ETHNICITY_2
     val familyName = "$FAMILY_NAME_PREFIX-$amendUuid"
@@ -161,6 +172,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val gender = PPUD_VALID_GENDER_2
     val prisonNumber = randomPrisonNumber()
     val requestBody = updateOffenderRequestBody(
+      croNumber = croNumber,
       dateOfBirth = dateOfBirth,
       ethnicity = ethnicity,
       familyName = familyName,
@@ -174,12 +186,50 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(ethnicity)
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(gender)
+      .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
+      .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
+      .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "17,18,$PPUD_YOUNG_OFFENDER_YES",
+    "30,19,$PPUD_YOUNG_OFFENDER_YES",
+    "17,50,$PPUD_YOUNG_OFFENDER_NO",
+    "30,50,$PPUD_YOUNG_OFFENDER_NO",
+  )
+  fun `given new date of birth when update offender called then young offender is re-evaluated`(
+    originalAge: Long,
+    newAge: Long,
+    expected: String,
+  ) {
+    val originalDateOfBirth = LocalDate.now().minusYears(originalAge).format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val newDateOfBirth = LocalDate.now().minusYears(newAge).format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val testOffenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(
+        dateOfBirth = originalDateOfBirth,
+      ),
+    )
+    val amendUuid = UUID.randomUUID()
+    familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
+    val requestBody = updateOffenderRequestBody(
+      dateOfBirth = newDateOfBirth,
+    )
+
+    putOffender(testOffenderId, requestBody)
+
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.dateOfBirth").isEqualTo(newDateOfBirth)
+      .jsonPath("offender.youngOffender").isEqualTo(expected)
   }
 
   @Test

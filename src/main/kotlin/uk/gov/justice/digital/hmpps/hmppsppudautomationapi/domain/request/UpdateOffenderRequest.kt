@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank
 import java.time.LocalDate
 
 data class UpdateOffenderRequest(
+  val croNumber: String = "",
   val dateOfBirth: LocalDate,
   @field:NotBlank
   val ethnicity: String,

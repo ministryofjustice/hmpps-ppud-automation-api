@@ -81,6 +81,7 @@ ppud:
     prisonerCategory: "Not Applicable"
     status: "Recalled [*]"
     youngOffenderYes: "Yes - Named"
+    youngOffenderNo: "No"
 
 automation:
   headless: true

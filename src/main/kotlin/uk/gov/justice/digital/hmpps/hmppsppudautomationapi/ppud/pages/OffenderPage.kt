@@ -20,8 +20,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckC
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -30,7 +32,13 @@ import java.time.format.DateTimeFormatter
 internal class OffenderPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
+  private val youngOffenderCalculator: YoungOffenderCalculator,
   @Value("\${ppud.url}") private val ppudUrl: String,
+  @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
+  @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
+  @Value("\${ppud.offender.status}") private val status: String,
+  @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
+  @Value("\${ppud.offender.youngOffenderNo}") private val youngOffenderNo: String,
 ) {
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -96,6 +104,8 @@ internal class OffenderPage(
   }
 
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
+    croOtherNumberInput.clear()
+    croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
     dateOfBirthInput.sendKeys(updateOffenderRequest.dateOfBirth.format(dateFormatter))
     selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
@@ -106,8 +116,16 @@ internal class OffenderPage(
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
     dismissCheckCapitalisationAlert(driver, nomsIdInput)
     selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
+    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
+    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
     prisonNumberInput.clear()
     prisonNumberInput.sendKeys(updateOffenderRequest.prisonNumber)
+    selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
+    if (youngOffenderCalculator.isYoungOffender(updateOffenderRequest.dateOfBirth)) {
+      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
+    } else {
+      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
+    }
 
     saveButton.click()
   }

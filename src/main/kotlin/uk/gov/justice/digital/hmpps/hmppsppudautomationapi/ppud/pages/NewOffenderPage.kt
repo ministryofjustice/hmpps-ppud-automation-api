@@ -127,7 +127,7 @@ internal class NewOffenderPage(
     selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prison category")
+    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
     selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")

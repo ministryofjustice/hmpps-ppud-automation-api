@@ -147,6 +147,7 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
  */
 fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
   return UpdateOffenderRequest(
+    croNumber = randomCroNumber(),
     dateOfBirth = randomDate(),
     ethnicity = randomString("ethnicity"),
     familyName = randomString("familyName"),
