@@ -20,7 +20,7 @@ class OffenderSearchTest : IntegrationTestBase() {
 
   @Test
   fun `given token without recall role when search called then forbidden is returned`() {
-    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender/search", "{}")
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/search", "{}")
   }
 
   @Test
@@ -123,7 +123,7 @@ class OffenderSearchTest : IntegrationTestBase() {
   @Test
   fun `given CRO number of existing offender when search called then offender details are returned`() {
     val croNumber = "5159/08A"
-    val firstNames = "John"
+    val firstNames = "John Car Test"
     val familyName = "Teal"
     val id = "4F6666656E64657269643D313731383134G721H664"
     val requestBody = "{ " +

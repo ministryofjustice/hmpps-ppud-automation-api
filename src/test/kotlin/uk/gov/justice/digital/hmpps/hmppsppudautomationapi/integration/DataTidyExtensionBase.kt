@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
+import java.util.UUID
 
 internal abstract class DataTidyExtensionBase : AfterAllCallback {
 
@@ -33,4 +34,19 @@ internal abstract class DataTidyExtensionBase : AfterAllCallback {
   }
 
   protected abstract fun afterAllTidy()
+
+  @Suppress("SameParameterValue")
+  protected fun deleteTestOffenders(familyNamePrefix: String, testRunId: UUID) {
+    webTestClient
+      .delete()
+      .uri(
+        "/offender?" +
+          "familyNamePrefix=$familyNamePrefix" +
+          "&testRunId=$testRunId",
+      )
+      .headers { it.dataTidyAuthToken() }
+      .exchange()
+      .expectStatus()
+      .isOk
+  }
 }

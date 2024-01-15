@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -49,7 +50,7 @@ internal val ppudOffenderWithRelease: TestOffender
     dateOfBirth = "1969-03-02",
     familyName = "Mitchell",
     firstNames = "Mandy Car Test",
-    prisonNumber = "132468435132",
+    prisonNumber = "XX4321",
     releaseDate = "2013-02-02",
     sentenceDate = "2003-06-12",
   )
@@ -124,6 +125,17 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
     mappaLevel = randomString("mappaLevel"),
     nomsId = randomNomsId(),
     pncNumber = randomPncNumber(),
+    prisonNumber = randomPrisonNumber(),
+  )
+}
+
+// This will create a request that is useful for mocked testing but uses random values
+// so some of the values won't be acceptable to PPUD.
+fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
+  return UpdateOffenderRequest(
+    dateOfBirth = randomDate(),
+    familyName = randomString("familyName"),
+    firstNames = randomString("firstNames"),
     prisonNumber = randomPrisonNumber(),
   )
 }

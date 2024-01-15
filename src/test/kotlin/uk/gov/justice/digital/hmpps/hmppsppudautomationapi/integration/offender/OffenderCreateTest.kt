@@ -35,7 +35,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrison
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -43,10 +42,6 @@ import java.util.stream.Stream
 class OffenderCreateTest : IntegrationTestBase() {
 
   companion object {
-
-    private const val FAMILY_NAME_PREFIX = "familyName"
-
-    private val testRunId = UUID.randomUUID()
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
@@ -63,58 +58,12 @@ class OffenderCreateTest : IntegrationTestBase() {
         MandatoryFieldTestData("prisonNumber", createOffenderRequestBody(prisonNumber = "")),
       )
     }
-
-    private fun createOffenderRequestBody(
-      croNumber: String = randomCroNumber(),
-      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
-      dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-      dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-      ethnicity: String = PPUD_VALID_ETHNICITY,
-      firstNames: String = randomString("firstNames"),
-      familyName: String = "$FAMILY_NAME_PREFIX-$testRunId",
-      gender: String = PPUD_VALID_GENDER,
-      indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
-      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
-      nomsId: String = randomNomsId(),
-      pncNumber: String = randomPncNumber(),
-      prisonNumber: String = randomPrisonNumber(),
-    ): String {
-      return "{" +
-        "\"croNumber\":\"${croNumber}\", " +
-        "\"custodyType\":\"${custodyType}\", " +
-        "\"dateOfBirth\":\"$dateOfBirth\", " +
-        "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"ethnicity\":\"$ethnicity\", " +
-        "\"familyName\":\"$familyName\", " +
-        "\"firstNames\":\"$firstNames\", " +
-        "\"gender\":\"$gender\", " +
-        "\"indexOffence\":\"$indexOffence\", " +
-        "\"mappaLevel\":\"$mappaLevel\", " +
-        "\"nomsId\":\"$nomsId\", " +
-        "\"pncNumber\":\"$pncNumber\", " +
-        "\"prisonNumber\":\"$prisonNumber\" " +
-        "}"
-    }
   }
 
   internal class OffenderCreateDataTidyExtension : DataTidyExtensionBase() {
     override fun afterAllTidy() {
       println("TestRunId for this run: $testRunId")
-      deleteTestOffenders()
-    }
-
-    private fun deleteTestOffenders() {
-      webTestClient
-        .delete()
-        .uri(
-          "/offender?" +
-            "familyNamePrefix=$FAMILY_NAME_PREFIX" +
-            "&testRunId=$testRunId",
-        )
-        .headers { it.dataTidyAuthToken() }
-        .exchange()
-        .expectStatus()
-        .isOk
+      deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
     }
   }
 
@@ -170,7 +119,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given token without recall role when create offender called then forbidden is returned`() {
     val requestBody = createOffenderRequestBody()
-    givenTokenWithoutRecallRoleWhenPostingThenForbiddenReturned("/offender", requestBody)
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender", requestBody)
   }
 
   @Test
@@ -305,14 +254,4 @@ class OffenderCreateTest : IntegrationTestBase() {
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
-
-  private fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
-    return webTestClient.get()
-      .uri("/offender/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-  }
 }

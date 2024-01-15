@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -20,6 +21,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
@@ -67,6 +69,17 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     log.info("Offender creation endpoint hit")
     val offender = ppudClient.createOffender(createOffenderRequest)
     return ResponseEntity(CreateOffenderResponse(offender), HttpStatus.CREATED)
+  }
+
+  @PutMapping("/offender/{offenderId}")
+  suspend fun updateOffender(
+    @PathVariable(required = true) offenderId: String,
+    @Valid
+    @RequestBody(required = true)
+    offenderRequest: UpdateOffenderRequest,
+  ) {
+    log.info("Offender update endpoint hit")
+    ppudClient.updateOffender(offenderId, offenderRequest)
   }
 
   @PostMapping("/offender/{offenderId}/recall")

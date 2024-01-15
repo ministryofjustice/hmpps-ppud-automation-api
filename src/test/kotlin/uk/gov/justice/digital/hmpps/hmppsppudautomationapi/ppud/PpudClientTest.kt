@@ -37,6 +37,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateSearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomLookupName
@@ -380,6 +381,49 @@ class PpudClientTest {
       then(newOffenderPage).should(inOrder).createOffender(createOffenderRequest)
       then(newOffenderPage).should(inOrder).throwIfInvalid()
       assertEquals(offenderId, newOffender.id)
+    }
+  }
+
+  @Test
+  fun `given offender id and data when update offender is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given offender id and data when update offender is called then log out once done`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(offenderPage, navigation)
+      then(offenderPage).should(inOrder).updateOffender(any())
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given offender id and data when update offender is called then update offender`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(offenderPage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).updateOffender(updateOffenderRequest)
+      then(offenderPage).should(inOrder).throwIfInvalid()
     }
   }
 
