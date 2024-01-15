@@ -12,6 +12,10 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
@@ -32,22 +36,28 @@ class OffenderUpdateTest : IntegrationTestBase() {
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
         MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
+        MandatoryFieldTestData("ethnicity", updateOffenderRequestBody(ethnicity = "")),
         MandatoryFieldTestData("familyName", updateOffenderRequestBody(familyName = "")),
         MandatoryFieldTestData("firstNames", updateOffenderRequestBody(firstNames = "")),
+        MandatoryFieldTestData("gender", updateOffenderRequestBody(gender = "")),
         MandatoryFieldTestData("prisonNumber", updateOffenderRequestBody(prisonNumber = "")),
       )
     }
 
     private fun updateOffenderRequestBody(
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      ethnicity: String = PPUD_VALID_ETHNICITY,
       familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
       firstNames: String = randomString("firstNames"),
+      gender: String = PPUD_VALID_GENDER,
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
+        "\"ethnicity\":\"$ethnicity\", " +
         "\"familyName\":\"$familyName\", " +
         "\"firstNames\":\"$firstNames\", " +
+        "\"gender\":\"$gender\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
         "}"
     }
@@ -103,8 +113,10 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val testOffenderId = createTestOffenderInPpud()
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"dateOfBirth\":\"${randomDate()}\", " +
+      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
       "\"familyName\":\"${FAMILY_NAME_PREFIX}-${testRunId}\", " +
       "\"firstNames\":\"${randomString("firstNames")}\", " +
+      "\"gender\":\"$PPUD_VALID_GENDER\", " +
       "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
       "}"
 
@@ -143,13 +155,17 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid)
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val ethnicity = PPUD_VALID_ETHNICITY_2
     val familyName = "$FAMILY_NAME_PREFIX-$amendUuid"
     val firstNames = randomString("firstNames")
+    val gender = PPUD_VALID_GENDER_2
     val prisonNumber = randomPrisonNumber()
     val requestBody = updateOffenderRequestBody(
       dateOfBirth = dateOfBirth,
+      ethnicity = ethnicity,
       familyName = familyName,
       firstNames = firstNames,
+      gender = gender,
       prisonNumber = prisonNumber,
     )
 
@@ -159,8 +175,10 @@ class OffenderUpdateTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
+      .jsonPath("offender.ethnicity").isEqualTo(ethnicity)
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
+      .jsonPath("offender.gender").isEqualTo(gender)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
   }
 

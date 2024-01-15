@@ -18,7 +18,11 @@ const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
 
 const val PPUD_VALID_ETHNICITY = "Chinese"
 
+const val PPUD_VALID_ETHNICITY_2 = "Other Ethnic Group"
+
 const val PPUD_VALID_GENDER = "M"
+
+const val PPUD_VALID_GENDER_2 = "F ( Was M )"
 
 const val PPUD_VALID_INDEX_OFFENCE = "ADMINISTER DRUGS"
 
@@ -144,8 +148,10 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
 fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
   return UpdateOffenderRequest(
     dateOfBirth = randomDate(),
+    ethnicity = randomString("ethnicity"),
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
+    gender = randomString("gender"),
     prisonNumber = randomPrisonNumber(),
   )
 }

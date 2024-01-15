@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfir
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -97,12 +98,14 @@ internal class OffenderPage(
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     dateOfBirthInput.click()
     dateOfBirthInput.sendKeys(updateOffenderRequest.dateOfBirth.format(dateFormatter))
+    selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.clear()
     familyNameInput.sendKeys(updateOffenderRequest.familyName)
     dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.clear()
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
     dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
     prisonNumberInput.clear()
     prisonNumberInput.sendKeys(updateOffenderRequest.prisonNumber)
 
