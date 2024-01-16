@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrison
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.random.Random
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -53,6 +54,7 @@ abstract class IntegrationTestBase {
       familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
       gender: String = PPUD_VALID_GENDER,
       indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
+      isInCustody: String = Random.nextBoolean().toString(),
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = randomNomsId(),
       pncNumber: String = randomPncNumber(),
@@ -68,6 +70,7 @@ abstract class IntegrationTestBase {
         "\"firstNames\":\"$firstNames\", " +
         "\"gender\":\"$gender\", " +
         "\"indexOffence\":\"$indexOffence\", " +
+        "\"isInCustody\":\"$isInCustody\", " +
         "\"mappaLevel\":\"$mappaLevel\", " +
         "\"nomsId\":\"$nomsId\", " +
         "\"pncNumber\":\"$pncNumber\", " +

@@ -134,6 +134,7 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
     familyName = randomString("familyName"),
     gender = randomString("gender"),
     indexOffence = randomString("indexOffence"),
+    isInCustody = Random.nextBoolean(),
     mappaLevel = randomString("mappaLevel"),
     nomsId = randomNomsId(),
     pncNumber = randomPncNumber(),
@@ -153,6 +154,7 @@ fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
     gender = randomString("gender"),
+    isInCustody = Random.nextBoolean(),
     prisonNumber = randomPrisonNumber(),
   )
 }
@@ -168,6 +170,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     firstNames = randomString("firstNames"),
     gender = randomString("gender"),
     immigrationStatus = randomString("immigrationStatus"),
+    isInCustody = Random.nextBoolean(),
     nomsId = randomNomsId(),
     prisonerCategory = randomString("prisonerCategory"),
     prisonNumber = randomPrisonNumber(),

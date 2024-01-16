@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.LocalDate
@@ -79,6 +80,9 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_txtPRISON_NUMBER")
   private lateinit var prisonNumberInput: WebElement
 
+  @FindBy(id = "cntDetails_chkUAL_FLAG")
+  private lateinit var ualCheckbox: WebElement
+
   @FindBy(id = "cntDetails_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
 
@@ -104,6 +108,10 @@ internal class OffenderPage(
   }
 
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
+    // Complete these first as they trigger additional processing
+    selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
+
+    // Complete standalone fields
     croOtherNumberInput.clear()
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
@@ -117,6 +125,8 @@ internal class OffenderPage(
     dismissCheckCapitalisationAlert(driver, nomsIdInput)
     selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
     selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
+    nomsIdInput.clear()
+    nomsIdInput.sendKeys(updateOffenderRequest.nomsId)
     selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
     prisonNumberInput.clear()
     prisonNumberInput.sendKeys(updateOffenderRequest.prisonNumber)
@@ -170,6 +180,7 @@ internal class OffenderPage(
       firstNames = firstNamesInput.getValue(),
       gender = Select(genderDropdown).firstSelectedOption.text,
       immigrationStatus = Select(immigrationStatusDropdown).firstSelectedOption.text,
+      isInCustody = ualCheckbox.isSelected.not(),
       nomsId = nomsIdInput.getValue(),
       prisonerCategory = Select(prisonerCategoryDropdown).firstSelectedOption.text,
       prisonNumber = prisonNumberInput.getValue(),

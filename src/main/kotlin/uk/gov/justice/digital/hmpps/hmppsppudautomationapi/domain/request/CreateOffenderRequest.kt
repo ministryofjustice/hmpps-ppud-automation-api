@@ -19,6 +19,7 @@ data class CreateOffenderRequest(
   val gender: String,
   @field:NotBlank
   val indexOffence: String,
+  val isInCustody: Boolean,
   @field:NotBlank
   val mappaLevel: String,
   val nomsId: String = "",

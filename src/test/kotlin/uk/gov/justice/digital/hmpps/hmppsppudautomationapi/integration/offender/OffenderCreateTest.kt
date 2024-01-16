@@ -37,6 +37,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.random.Random
 
 @ExtendWith(OffenderCreateTest.OffenderCreateDataTidyExtension::class)
 class OffenderCreateTest : IntegrationTestBase() {
@@ -141,6 +142,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val familyName = "$FAMILY_NAME_PREFIX-$testRunId"
     val firstNames = randomString("firstNames")
+    val isInCustody = Random.nextBoolean().toString()
     val nomsId = randomNomsId()
     val pncNumber = randomPncNumber()
     val prisonNumber = randomPrisonNumber()
@@ -154,6 +156,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       firstNames = firstNames,
       gender = PPUD_VALID_GENDER,
       indexOffence = PPUD_VALID_INDEX_OFFENCE,
+      isInCustody = isInCustody,
       mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
       pncNumber = pncNumber,
@@ -171,6 +174,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(PPUD_VALID_GENDER)
       .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
+      .jsonPath("offender.isInCustody").isEqualTo(isInCustody)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)

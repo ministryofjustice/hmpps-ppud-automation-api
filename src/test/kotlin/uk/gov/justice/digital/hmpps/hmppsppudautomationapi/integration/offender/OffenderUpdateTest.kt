@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_O
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -32,6 +33,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.random.Random
 
 @ExtendWith(OffenderUpdateTest.OffenderUpdateDataTidyExtension::class)
 class OffenderUpdateTest : IntegrationTestBase() {
@@ -59,6 +61,8 @@ class OffenderUpdateTest : IntegrationTestBase() {
       familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
       firstNames: String = randomString("firstNames"),
       gender: String = PPUD_VALID_GENDER,
+      isInCustody: String = "false",
+      nomsId: String = randomNomsId(),
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
@@ -68,6 +72,8 @@ class OffenderUpdateTest : IntegrationTestBase() {
         "\"familyName\":\"$familyName\", " +
         "\"firstNames\":\"$firstNames\", " +
         "\"gender\":\"$gender\", " +
+        "\"isInCustody\":\"$isInCustody\", " +
+        "\"nomsId\":\"$nomsId\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
         "}"
     }
@@ -161,7 +167,11 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when update offender called then offender is amended using supplied values`() {
-    val testOffenderId = createTestOffenderInPpud()
+    val originalIsInCustody = Random.nextBoolean()
+    val newIsInCustody = originalIsInCustody.not()
+    val testOffenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(isInCustody = originalIsInCustody.toString()),
+    )
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
     val croNumber = randomCroNumber()
@@ -170,6 +180,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val familyName = "$FAMILY_NAME_PREFIX-$amendUuid"
     val firstNames = randomString("firstNames")
     val gender = PPUD_VALID_GENDER_2
+    val nomsId = randomNomsId()
     val prisonNumber = randomPrisonNumber()
     val requestBody = updateOffenderRequestBody(
       croNumber = croNumber,
@@ -178,6 +189,8 @@ class OffenderUpdateTest : IntegrationTestBase() {
       familyName = familyName,
       firstNames = firstNames,
       gender = gender,
+      isInCustody = newIsInCustody.toString(),
+      nomsId = nomsId,
       prisonNumber = prisonNumber,
     )
 
@@ -193,6 +206,8 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(gender)
       .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
+      .jsonPath("offender.isInCustody").isEqualTo(newIsInCustody)
+      .jsonPath("offender.nomsId").isEqualTo(nomsId)
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
       .jsonPath("offender.status").isEqualTo(PPUD_STATUS)

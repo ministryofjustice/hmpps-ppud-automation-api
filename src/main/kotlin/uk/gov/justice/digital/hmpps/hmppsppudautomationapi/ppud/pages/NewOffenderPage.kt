@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
@@ -93,6 +94,9 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddlStatus")
   private lateinit var statusDropdown: WebElement
 
+  @FindBy(id = "content_chkUAL_FLAG")
+  private lateinit var ualCheckbox: WebElement
+
   @FindBy(id = "content_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
 
@@ -129,6 +133,7 @@ internal class NewOffenderPage(
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
     selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
     selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
+    selectCheckboxValue(ualCheckbox, createOffenderRequest.isInCustody.not())
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }

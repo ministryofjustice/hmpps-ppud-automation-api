@@ -11,6 +11,7 @@ data class Offender(
   val firstNames: String,
   val gender: String,
   val immigrationStatus: String,
+  val isInCustody: Boolean,
   val nomsId: String,
   val prisonerCategory: String,
   val prisonNumber: String,

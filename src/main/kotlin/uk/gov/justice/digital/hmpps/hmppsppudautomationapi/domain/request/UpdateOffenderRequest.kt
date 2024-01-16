@@ -14,6 +14,8 @@ data class UpdateOffenderRequest(
   val firstNames: String,
   @field:NotBlank
   val gender: String,
+  val isInCustody: Boolean,
+  val nomsId: String = "",
   @field:NotBlank
   val prisonNumber: String,
 )
