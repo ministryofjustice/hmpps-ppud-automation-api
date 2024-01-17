@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -101,6 +102,22 @@ fun randomTimeToday(): LocalDateTime {
   return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
 }
 
+fun randomPhoneNumber(): String {
+  val number = Random.nextInt(100000000, 999999999)
+  return "0$number"
+}
+
+fun randomPostcode(): String {
+  val postcodes = listOf(
+    "XX73 9XX",
+    "XX739XX",
+    "AC12 3ZZ",
+    "ZZ1 1FF",
+    "AA1W 1FF",
+  )
+  return postcodes.random()
+}
+
 /**
  * Generate a randomPpudId. Note that this is not a properly valid ID (i.e. checksum isn't
  * correct), but it looks like a PPUD ID.
@@ -125,6 +142,7 @@ fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
  */
 fun generateCreateOffenderRequest(): CreateOffenderRequest {
   return CreateOffenderRequest(
+    address = generateOffenderAddress(),
     croNumber = randomCroNumber(),
     custodyType = randomString("custodyType"),
     dateOfBirth = randomDate(),
@@ -163,6 +181,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
   val croOtherNumber = randomCroNumber()
   return Offender(
     id = id,
+    address = generateOffenderAddress(),
     croOtherNumber = croOtherNumber,
     dateOfBirth = randomDate(),
     ethnicity = randomString("ethnicity"),
@@ -195,6 +214,16 @@ fun generateSearchResultOffender(
     firstNames = randomString("firstNames"),
     familyName = familyName ?: randomString("familyName"),
     dateOfBirth = dateOfBirth ?: randomDate(),
+  )
+}
+
+fun generateOffenderAddress(): OffenderAddress {
+  return OffenderAddress(
+    premises = randomString("premises"),
+    line1 = randomString("line1"),
+    line2 = randomString("line2"),
+    postcode = randomString("postcode"),
+    phoneNumber = randomString("phoneNumber"),
   )
 }
 

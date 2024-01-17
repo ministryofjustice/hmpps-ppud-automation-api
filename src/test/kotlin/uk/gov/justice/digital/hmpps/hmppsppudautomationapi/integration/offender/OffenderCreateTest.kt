@@ -30,7 +30,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
@@ -47,6 +49,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
+        MandatoryFieldTestData("address", createOffenderRequestBody(address = null)),
         MandatoryFieldTestData("custodyType", createOffenderRequestBody(custodyType = "")),
         MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
         MandatoryFieldTestData("dateOfSentence", createOffenderRequestBody(dateOfSentence = "")),
@@ -95,7 +98,16 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"${PPUD_VALID_CUSTODY_TYPE}\", " +
+      "\"address\":${
+        addressRequestBody(
+          premises = "",
+          line1 = "",
+          line2 = "",
+          postcode = "",
+          phoneNumber = "",
+        )
+      }, " +
+      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +
       "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
@@ -137,6 +149,11 @@ class OffenderCreateTest : IntegrationTestBase() {
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
+    val addressPremises = randomString("premises")
+    val addressLine1 = randomString("line1")
+    val addressLine2 = randomString("line2")
+    val addressPostcode = randomPostcode()
+    val addressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -147,6 +164,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val pncNumber = randomPncNumber()
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
+      address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
       croNumber = croNumber,
       custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
@@ -167,6 +185,11 @@ class OffenderCreateTest : IntegrationTestBase() {
 
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
+      .jsonPath("offender.address.premises").isEqualTo(addressPremises)
+      .jsonPath("offender.address.line1").isEqualTo(addressLine1)
+      .jsonPath("offender.address.line2").isEqualTo(addressLine2)
+      .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
+      .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(PPUD_VALID_ETHNICITY)

@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
@@ -45,6 +46,21 @@ internal class NewOffenderPage(
 
   private val duplicatePanel: WebElement?
     get() = driver.findElements(By.id("content_panelDuplicate")).firstOrNull()
+
+  @FindBy(id = "content_txtPREMISES")
+  private lateinit var addressPremisesInput: WebElement
+
+  @FindBy(id = "content_txtLINE_1")
+  private lateinit var addressLine1Input: WebElement
+
+  @FindBy(id = "content_txtLINE_2")
+  private lateinit var addressLine2Input: WebElement
+
+  @FindBy(id = "content_txtPOSTCODE")
+  private lateinit var addressPostcodeInput: WebElement
+
+  @FindBy(id = "content_txtTELEPHONE")
+  private lateinit var addressPhoneNumberInput: WebElement
 
   @FindBy(id = "content_txtCRO_PNC")
   private lateinit var croNumberInput: WebElement
@@ -117,6 +133,7 @@ internal class NewOffenderPage(
     selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
 
     // Complete standalone fields
+    enterAddress(createOffenderRequest.address)
     croNumberInput.enterTextIfNotBlank(createOffenderRequest.croNumber)
     dateOfBirthInput.click()
     dateOfBirthInput.sendKeys(createOffenderRequest.dateOfBirth.format(dateFormatter))
@@ -157,5 +174,13 @@ internal class NewOffenderPage(
     if (duplicatePanel?.isDisplayed == true) {
       throw AutomationException("Duplicate details found on PPUD for this offender.")
     }
+  }
+
+  private fun enterAddress(address: OffenderAddress) {
+    addressPremisesInput.sendKeys(address.premises)
+    addressLine1Input.sendKeys(address.line1)
+    addressLine2Input.sendKeys(address.line2)
+    addressPostcodeInput.sendKeys(address.postcode)
+    addressPhoneNumberInput.sendKeys(address.phoneNumber)
   }
 }

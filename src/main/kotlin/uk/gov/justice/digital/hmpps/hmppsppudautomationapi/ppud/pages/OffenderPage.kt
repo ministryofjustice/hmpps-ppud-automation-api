@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
@@ -46,6 +47,33 @@ internal class OffenderPage(
 
   @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
   private lateinit var deleteButton: WebElement
+
+  @FindBy(id = "cntDetails_Address")
+  private lateinit var addressTextArea: WebElement
+
+  @FindBy(id = "cntDetails_btnEditAddress")
+  private lateinit var editAddressButton: WebElement
+
+  @FindBy(id = "cntDetails_cmdChange")
+  private lateinit var editAddressSubmitButton: WebElement
+
+  @FindBy(id = "cntDetails_cmdCancel")
+  private lateinit var editAddressCancelButton: WebElement
+
+  @FindBy(id = "cntDetails_Premises")
+  private lateinit var premisesInput: WebElement
+
+  @FindBy(id = "cntDetails_Line1")
+  private lateinit var line1Input: WebElement
+
+  @FindBy(id = "cntDetails_Line2")
+  private lateinit var line2Input: WebElement
+
+  @FindBy(id = "cntDetails_Postcode")
+  private lateinit var postcodeInput: WebElement
+
+  @FindBy(id = "cntDetails_Phone")
+  private lateinit var phoneNumberInput: WebElement
 
   @FindBy(id = "cntDetails_txtCRO_PNC")
   private lateinit var croOtherNumberInput: WebElement
@@ -112,6 +140,7 @@ internal class OffenderPage(
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
 
     // Complete standalone fields
+    // updateAddress(updateOffenderRequest.address)
     croOtherNumberInput.clear()
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
@@ -173,6 +202,7 @@ internal class OffenderPage(
   fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender {
     return Offender(
       id = extractId(),
+      address = extractAddress(),
       croOtherNumber = croOtherNumberInput.getValue(),
       dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
       ethnicity = Select(ethnicityDropdown).firstSelectedOption.text,
@@ -226,5 +256,17 @@ internal class OffenderPage(
       ?: throw AutomationException("Expected the existing offender page but URL was '$url'")
     val (id) = idMatch.destructured
     return id
+  }
+
+  private fun extractAddress(): OffenderAddress {
+    val lines = addressTextArea.getValue().split(System.lineSeparator())
+    val address = OffenderAddress(
+      premises = if (lines.isNotEmpty()) lines[0] else "",
+      line1 = if (lines.size > 1) lines[1] else "",
+      line2 = if (lines.size > 2) lines[2] else "",
+      postcode = if (lines.size > 3) lines[3] else "",
+      phoneNumber = if (lines.size > 4) lines[4].substring("Phone :".length) else "",
+    )
+    return address
   }
 }

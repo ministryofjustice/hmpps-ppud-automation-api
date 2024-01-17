@@ -45,6 +45,7 @@ abstract class IntegrationTestBase {
     val testRunId: UUID = UUID.randomUUID()
 
     fun createOffenderRequestBody(
+      address: String? = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -61,8 +62,9 @@ abstract class IntegrationTestBase {
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
-        "\"croNumber\":\"${croNumber}\", " +
-        "\"custodyType\":\"${custodyType}\", " +
+        "\"address\":$address, " +
+        "\"croNumber\":\"$croNumber\", " +
+        "\"custodyType\":\"$custodyType\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
         "\"dateOfSentence\":\"$dateOfSentence\", " +
         "\"ethnicity\":\"$ethnicity\", " +
@@ -75,6 +77,22 @@ abstract class IntegrationTestBase {
         "\"nomsId\":\"$nomsId\", " +
         "\"pncNumber\":\"$pncNumber\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
+        "}"
+    }
+
+    fun addressRequestBody(
+      premises: String = randomString("premises"),
+      line1: String = randomString("line1"),
+      line2: String = randomString("line2"),
+      postcode: String = randomString("postcode"),
+      phoneNumber: String = randomString("phoneNumber"),
+    ): String {
+      return "{" +
+        "\"premises\":\"$premises\", " +
+        "\"line1\":\"$line1\", " +
+        "\"line2\":\"$line2\", " +
+        "\"postcode\":\"$postcode\", " +
+        "\"phoneNumber\":\"$phoneNumber\" " +
         "}"
     }
   }
