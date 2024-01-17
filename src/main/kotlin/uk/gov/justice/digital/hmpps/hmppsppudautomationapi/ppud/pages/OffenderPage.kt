@@ -42,14 +42,40 @@ internal class OffenderPage(
   @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
   @Value("\${ppud.offender.youngOffenderNo}") private val youngOffenderNo: String,
 ) {
+
+  companion object {
+    private const val ADDRESS_HISTORY_TABLE_ID = "cntDetails_GridView2"
+  }
+
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
 
   @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
   private lateinit var deleteButton: WebElement
 
-  @FindBy(id = "cntDetails_Address")
-  private lateinit var addressTextArea: WebElement
+  @FindBy(id = "cntDetails_btnView")
+  private lateinit var viewAddressHistoryButton: WebElement
+
+  @FindBy(id = "cntDetails_cmdCancelView")
+  private lateinit var cancelAddressHistoryButton: WebElement
+
+  private val addressHistoryTable: WebElement?
+    get() = driver.findElements(By.id(ADDRESS_HISTORY_TABLE_ID)).firstOrNull()
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[1]")
+  private lateinit var addressHistoryPremises: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[2]")
+  private lateinit var addressHistoryLine1: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[3]")
+  private lateinit var addressHistoryLine2: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[4]")
+  private lateinit var addressHistoryPostcode: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[5]")
+  private lateinit var addressHistoryPhoneNumber: WebElement
 
   @FindBy(id = "cntDetails_btnEditAddress")
   private lateinit var editAddressButton: WebElement
@@ -266,14 +292,20 @@ internal class OffenderPage(
   }
 
   private fun extractAddress(): OffenderAddress {
-    val lines = addressTextArea.getValue().split(System.lineSeparator())
-    val address = OffenderAddress(
-      premises = if (lines.isNotEmpty()) lines[0] else "",
-      line1 = if (lines.size > 1) lines[1] else "",
-      line2 = if (lines.size > 2) lines[2] else "",
-      postcode = if (lines.size > 3) lines[3] else "",
-      phoneNumber = if (lines.size > 4) lines[4].substring("Phone :".length) else "",
-    )
+    viewAddressHistoryButton.click()
+    val address = if (addressHistoryTable != null) {
+      OffenderAddress(
+        premises = addressHistoryPremises.text.trim(),
+        line1 = addressHistoryLine1.text.trim(),
+        line2 = addressHistoryLine2.text.trim(),
+        postcode = addressHistoryPostcode.text.trim(),
+        phoneNumber = addressHistoryPhoneNumber.text.trim(),
+      )
+    } else {
+      OffenderAddress()
+    }
+    cancelAddressHistoryButton.click()
+
     return address
   }
 }

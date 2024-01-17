@@ -7,9 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
@@ -54,32 +51,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
         MandatoryFieldTestData("gender", updateOffenderRequestBody(gender = "")),
         MandatoryFieldTestData("prisonNumber", updateOffenderRequestBody(prisonNumber = "")),
       )
-    }
-
-    private fun updateOffenderRequestBody(
-      address: String = addressRequestBody(),
-      croNumber: String = randomCroNumber(),
-      dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-      ethnicity: String = PPUD_VALID_ETHNICITY,
-      familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
-      firstNames: String = randomString("firstNames"),
-      gender: String = PPUD_VALID_GENDER,
-      isInCustody: String = "false",
-      nomsId: String = randomNomsId(),
-      prisonNumber: String = randomPrisonNumber(),
-    ): String {
-      return "{" +
-        "\"address\":$address, " +
-        "\"croNumber\":\"$croNumber\", " +
-        "\"dateOfBirth\":\"$dateOfBirth\", " +
-        "\"ethnicity\":\"$ethnicity\", " +
-        "\"familyName\":\"$familyName\", " +
-        "\"firstNames\":\"$firstNames\", " +
-        "\"gender\":\"$gender\", " +
-        "\"isInCustody\":\"$isInCustody\", " +
-        "\"nomsId\":\"$nomsId\", " +
-        "\"prisonNumber\":\"$prisonNumber\" " +
-        "}"
     }
   }
 
@@ -280,12 +251,4 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
   }
-
-  private fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri("/offender/$offenderId")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
 }

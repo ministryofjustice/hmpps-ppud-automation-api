@@ -80,6 +80,32 @@ abstract class IntegrationTestBase {
         "}"
     }
 
+    fun updateOffenderRequestBody(
+      address: String = addressRequestBody(),
+      croNumber: String = randomCroNumber(),
+      dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      ethnicity: String = PPUD_VALID_ETHNICITY,
+      familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
+      firstNames: String = randomString("firstNames"),
+      gender: String = PPUD_VALID_GENDER,
+      isInCustody: String = "false",
+      nomsId: String = randomNomsId(),
+      prisonNumber: String = randomPrisonNumber(),
+    ): String {
+      return "{" +
+        "\"address\":$address, " +
+        "\"croNumber\":\"$croNumber\", " +
+        "\"dateOfBirth\":\"$dateOfBirth\", " +
+        "\"ethnicity\":\"$ethnicity\", " +
+        "\"familyName\":\"$familyName\", " +
+        "\"firstNames\":\"$firstNames\", " +
+        "\"gender\":\"$gender\", " +
+        "\"isInCustody\":\"$isInCustody\", " +
+        "\"nomsId\":\"$nomsId\", " +
+        "\"prisonNumber\":\"$prisonNumber\" " +
+        "}"
+    }
+
     fun addressRequestBody(
       premises: String = randomString("premises"),
       line1: String = randomString("line1"),
@@ -123,6 +149,14 @@ abstract class IntegrationTestBase {
     Assertions.assertNotNull(id, "ID returned from create offender request is null")
     return id!!
   }
+
+  protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
+    webTestClient.put()
+      .uri("/offender/$offenderId")
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
 
   protected fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
     return webTestClient.get()
