@@ -57,23 +57,20 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_cmdChange")
   private lateinit var editAddressSubmitButton: WebElement
 
-  @FindBy(id = "cntDetails_cmdCancel")
-  private lateinit var editAddressCancelButton: WebElement
-
   @FindBy(id = "cntDetails_Premises")
-  private lateinit var premisesInput: WebElement
+  private lateinit var addressPremisesInput: WebElement
 
   @FindBy(id = "cntDetails_Line1")
-  private lateinit var line1Input: WebElement
+  private lateinit var addressLine1Input: WebElement
 
   @FindBy(id = "cntDetails_Line2")
-  private lateinit var line2Input: WebElement
+  private lateinit var addressLine2Input: WebElement
 
   @FindBy(id = "cntDetails_Postcode")
-  private lateinit var postcodeInput: WebElement
+  private lateinit var addressPostcodeInput: WebElement
 
   @FindBy(id = "cntDetails_Phone")
-  private lateinit var phoneNumberInput: WebElement
+  private lateinit var addressPhoneNumberInput: WebElement
 
   @FindBy(id = "cntDetails_txtCRO_PNC")
   private lateinit var croOtherNumberInput: WebElement
@@ -140,7 +137,7 @@ internal class OffenderPage(
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
 
     // Complete standalone fields
-    // updateAddress(updateOffenderRequest.address)
+    enterAddress(updateOffenderRequest.address)
     croOtherNumberInput.clear()
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
@@ -256,6 +253,16 @@ internal class OffenderPage(
       ?: throw AutomationException("Expected the existing offender page but URL was '$url'")
     val (id) = idMatch.destructured
     return id
+  }
+
+  private fun enterAddress(address: OffenderAddress) {
+    editAddressButton.click()
+    addressPremisesInput.sendKeys(address.premises)
+    addressLine1Input.sendKeys(address.line1)
+    addressLine2Input.sendKeys(address.line2)
+    addressPostcodeInput.sendKeys(address.postcode)
+    addressPhoneNumberInput.sendKeys(address.phoneNumber)
+    editAddressSubmitButton.click()
   }
 
   private fun extractAddress(): OffenderAddress {

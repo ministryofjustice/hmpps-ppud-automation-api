@@ -5,7 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import java.time.LocalDate
 
 data class CreateOffenderRequest(
-  val address: OffenderAddress,
+  val address: OffenderAddress = OffenderAddress(),
   val croNumber: String = "",
   @field:NotBlank
   val custodyType: String,

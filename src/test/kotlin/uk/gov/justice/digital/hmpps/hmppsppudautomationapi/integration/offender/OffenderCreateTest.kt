@@ -49,7 +49,6 @@ class OffenderCreateTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("address", createOffenderRequestBody(address = null)),
         MandatoryFieldTestData("custodyType", createOffenderRequestBody(custodyType = "")),
         MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
         MandatoryFieldTestData("dateOfSentence", createOffenderRequestBody(dateOfSentence = "")),
@@ -98,15 +97,6 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"address\":${
-        addressRequestBody(
-          premises = "",
-          line1 = "",
-          line2 = "",
-          postcode = "",
-          phoneNumber = "",
-        )
-      }, " +
       "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +

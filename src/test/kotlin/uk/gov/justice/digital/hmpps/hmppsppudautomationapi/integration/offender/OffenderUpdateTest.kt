@@ -25,6 +25,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_O
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -55,6 +57,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     }
 
     private fun updateOffenderRequestBody(
+      address: String = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
@@ -66,6 +69,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
+        "\"address\":$address, " +
         "\"croNumber\":\"$croNumber\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
         "\"ethnicity\":\"$ethnicity\", " +
@@ -174,6 +178,11 @@ class OffenderUpdateTest : IntegrationTestBase() {
     )
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
+    val addressPremises = randomString("premises")
+    val addressLine1 = randomString("line1")
+    val addressLine2 = randomString("line2")
+    val addressPostcode = randomPostcode()
+    val addressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val ethnicity = PPUD_VALID_ETHNICITY_2
@@ -183,6 +192,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val nomsId = randomNomsId()
     val prisonNumber = randomPrisonNumber()
     val requestBody = updateOffenderRequestBody(
+      address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
       croNumber = croNumber,
       dateOfBirth = dateOfBirth,
       ethnicity = ethnicity,
@@ -199,6 +209,11 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.address.premises").isEqualTo(addressPremises)
+      .jsonPath("offender.address.line1").isEqualTo(addressLine1)
+      .jsonPath("offender.address.line2").isEqualTo(addressLine2)
+      .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
+      .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(ethnicity)
