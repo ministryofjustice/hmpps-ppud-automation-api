@@ -149,7 +149,7 @@ internal class OffenderPage(
 
   fun viewOffenderWithId(offenderId: String) {
     driver.navigate().to("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
-    throwIfInvalidOffenderId()
+    throwIfErrorViewingOffender()
   }
 
   fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
@@ -159,7 +159,7 @@ internal class OffenderPage(
   }
 
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
-    // Complete these first as they trigger additional processing
+    // Complete first as additional processing is triggered
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
 
     // Complete standalone fields
@@ -250,9 +250,12 @@ internal class OffenderPage(
     }
   }
 
-  private fun throwIfInvalidOffenderId() {
+  private fun throwIfErrorViewingOffender() {
     if (driver.title.equals("url checksum error", ignoreCase = true)) {
       throw InvalidOffenderIdException("Offender ID is invalid. Checksum validation failed.")
+    }
+    if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
+      throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
   }
 
