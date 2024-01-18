@@ -34,6 +34,12 @@ const val PPUD_VALID_POLICE_FORCE = "Kent Police"
 
 const val PPUD_VALID_PROBATION_AREA = "Merseyside"
 
+const val PPUD_VALID_RELEASED_FROM = "HMP Wakefield"
+
+const val PPUD_VALID_RELEASED_UNDER = "CJA 2008"
+
+const val PPUD_VALID_RELEASE_TYPE = "On Licence"
+
 const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "Consider a Recall Test(Recall 1)"
 
 const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test"
