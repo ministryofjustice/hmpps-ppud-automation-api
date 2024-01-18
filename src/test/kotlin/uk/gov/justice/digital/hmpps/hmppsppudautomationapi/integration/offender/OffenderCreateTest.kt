@@ -31,7 +31,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -135,7 +134,6 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.id").isNotEmpty()
   }
 
-  // TODO: Need to decide what to do with PNC Number
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
@@ -151,7 +149,6 @@ class OffenderCreateTest : IntegrationTestBase() {
     val firstNames = randomString("firstNames")
     val isInCustody = Random.nextBoolean().toString()
     val nomsId = randomNomsId()
-    val pncNumber = randomPncNumber()
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
@@ -167,7 +164,6 @@ class OffenderCreateTest : IntegrationTestBase() {
       isInCustody = isInCustody,
       mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
-      pncNumber = pncNumber,
       prisonNumber = prisonNumber,
     )
 
