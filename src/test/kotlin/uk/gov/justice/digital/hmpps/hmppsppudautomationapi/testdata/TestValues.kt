@@ -83,12 +83,6 @@ fun randomNomsId(): String {
   return "A${serial}BC"
 }
 
-fun randomPncNumber(): String {
-  val year = Random.nextInt(10, 20)
-  val serial = Random.nextInt(1000000, 9999999)
-  return "$year/${serial}Z"
-}
-
 fun randomPrisonNumber(): String {
   val serial = Random.nextInt(1000, 9999)
   return "AB$serial"
@@ -155,7 +149,6 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
     isInCustody = Random.nextBoolean(),
     mappaLevel = randomString("mappaLevel"),
     nomsId = randomNomsId(),
-    pncNumber = randomPncNumber(),
     prisonNumber = randomPrisonNumber(),
   )
 }

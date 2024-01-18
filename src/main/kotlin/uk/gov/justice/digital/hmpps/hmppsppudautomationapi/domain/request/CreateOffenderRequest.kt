@@ -25,7 +25,6 @@ data class CreateOffenderRequest(
   @field:NotBlank
   val mappaLevel: String,
   val nomsId: String = "",
-  val pncNumber: String = "",
   @field:NotBlank
   val prisonNumber: String,
 )

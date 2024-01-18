@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_M
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
@@ -58,7 +57,6 @@ abstract class IntegrationTestBase {
       isInCustody: String = Random.nextBoolean().toString(),
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = randomNomsId(),
-      pncNumber: String = randomPncNumber(),
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
@@ -75,7 +73,6 @@ abstract class IntegrationTestBase {
         "\"isInCustody\":\"$isInCustody\", " +
         "\"mappaLevel\":\"$mappaLevel\", " +
         "\"nomsId\":\"$nomsId\", " +
-        "\"pncNumber\":\"$pncNumber\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
         "}"
     }
