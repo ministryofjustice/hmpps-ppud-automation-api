@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 
 @RestControllerAdvice
 class HmppsPpudAutomationApiExceptionHandler {
@@ -72,6 +73,20 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "HTTP Message failure: ${e.message}",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(InvalidOffenderIdException::class)
+  fun handleInvalidOffenderIdException(e: Exception): ResponseEntity<ErrorResponse> {
+    log.info("Invalid offender ID exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Offender ID is invalid",
           developerMessage = e.message,
         ),
       )

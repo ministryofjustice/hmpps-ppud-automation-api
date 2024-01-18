@@ -30,13 +30,16 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.random.Random
 
 @ExtendWith(OffenderCreateTest.OffenderCreateDataTidyExtension::class)
 class OffenderCreateTest : IntegrationTestBase() {
@@ -94,7 +97,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"${PPUD_VALID_CUSTODY_TYPE}\", " +
+      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +
       "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
@@ -136,15 +139,22 @@ class OffenderCreateTest : IntegrationTestBase() {
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
+    val addressPremises = randomString("premises")
+    val addressLine1 = randomString("line1")
+    val addressLine2 = randomString("line2")
+    val addressPostcode = randomPostcode()
+    val addressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val familyName = "$FAMILY_NAME_PREFIX-$testRunId"
     val firstNames = randomString("firstNames")
+    val isInCustody = Random.nextBoolean().toString()
     val nomsId = randomNomsId()
     val pncNumber = randomPncNumber()
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
+      address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
       croNumber = croNumber,
       custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
@@ -154,6 +164,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       firstNames = firstNames,
       gender = PPUD_VALID_GENDER,
       indexOffence = PPUD_VALID_INDEX_OFFENCE,
+      isInCustody = isInCustody,
       mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
       pncNumber = pncNumber,
@@ -164,6 +175,11 @@ class OffenderCreateTest : IntegrationTestBase() {
 
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
+      .jsonPath("offender.address.premises").isEqualTo(addressPremises)
+      .jsonPath("offender.address.line1").isEqualTo(addressLine1)
+      .jsonPath("offender.address.line2").isEqualTo(addressLine2)
+      .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
+      .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(PPUD_VALID_ETHNICITY)
@@ -171,6 +187,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(PPUD_VALID_GENDER)
       .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
+      .jsonPath("offender.isInCustody").isEqualTo(isInCustody)
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)

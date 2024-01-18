@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class Offender(
   val id: String,
+  val address: OffenderAddress,
   val croOtherNumber: String,
   val dateOfBirth: LocalDate,
   val ethnicity: String,
@@ -11,6 +12,7 @@ data class Offender(
   val firstNames: String,
   val gender: String,
   val immigrationStatus: String,
+  val isInCustody: Boolean,
   val nomsId: String,
   val prisonerCategory: String,
   val prisonNumber: String,

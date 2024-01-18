@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -18,7 +19,11 @@ const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
 
 const val PPUD_VALID_ETHNICITY = "Chinese"
 
+const val PPUD_VALID_ETHNICITY_2 = "Other Ethnic Group"
+
 const val PPUD_VALID_GENDER = "M"
+
+const val PPUD_VALID_GENDER_2 = "F ( Was M )"
 
 const val PPUD_VALID_INDEX_OFFENCE = "ADMINISTER DRUGS"
 
@@ -43,7 +48,9 @@ const val PPUD_YOUNG_OFFENDER_YES = "Yes - Named"
 
 const val PPUD_YOUNG_OFFENDER_NO = "No"
 
-// This is an offender that exists in PPUD InternalTest
+/**
+ * This is an offender that exists in PPUD InternalTest
+ */
 internal val ppudOffenderWithRelease: TestOffender
   get() = TestOffender(
     id = "4F6666656E64657269643D313632393134G721H665",
@@ -95,6 +102,26 @@ fun randomTimeToday(): LocalDateTime {
   return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
 }
 
+fun randomPhoneNumber(): String {
+  val number = Random.nextInt(100000000, 999999999)
+  return "0$number"
+}
+
+fun randomPostcode(): String {
+  val postcodes = listOf(
+    "XX73 9XX",
+    "XX739XX",
+    "AC12 3ZZ",
+    "ZZ1 1FF",
+    "AA1W 1FF",
+  )
+  return postcodes.random()
+}
+
+/**
+ * Generate a randomPpudId. Note that this is not a properly valid ID (i.e. checksum isn't
+ * correct), but it looks like a PPUD ID.
+ */
 fun randomPpudId(): String {
   val randomSerial = Random.nextInt(1000000, 9999999)
   return "4F${randomSerial}E64657269643D313632393134G721H665"
@@ -109,10 +136,13 @@ fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
   return RiskOfSeriousHarmLevel.entries[randomIndex]
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateCreateOffenderRequest(): CreateOffenderRequest {
   return CreateOffenderRequest(
+    address = generateOffenderAddress(),
     croNumber = randomCroNumber(),
     custodyType = randomString("custodyType"),
     dateOfBirth = randomDate(),
@@ -122,6 +152,7 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
     familyName = randomString("familyName"),
     gender = randomString("gender"),
     indexOffence = randomString("indexOffence"),
+    isInCustody = Random.nextBoolean(),
     mappaLevel = randomString("mappaLevel"),
     nomsId = randomNomsId(),
     pncNumber = randomPncNumber(),
@@ -129,13 +160,19 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest {
   )
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
   return UpdateOffenderRequest(
+    croNumber = randomCroNumber(),
     dateOfBirth = randomDate(),
+    ethnicity = randomString("ethnicity"),
     familyName = randomString("familyName"),
     firstNames = randomString("firstNames"),
+    gender = randomString("gender"),
+    isInCustody = Random.nextBoolean(),
     prisonNumber = randomPrisonNumber(),
   )
 }
@@ -144,6 +181,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
   val croOtherNumber = randomCroNumber()
   return Offender(
     id = id,
+    address = generateOffenderAddress(),
     croOtherNumber = croOtherNumber,
     dateOfBirth = randomDate(),
     ethnicity = randomString("ethnicity"),
@@ -151,6 +189,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     firstNames = randomString("firstNames"),
     gender = randomString("gender"),
     immigrationStatus = randomString("immigrationStatus"),
+    isInCustody = Random.nextBoolean(),
     nomsId = randomNomsId(),
     prisonerCategory = randomString("prisonerCategory"),
     prisonNumber = randomPrisonNumber(),
@@ -178,8 +217,20 @@ fun generateSearchResultOffender(
   )
 }
 
-// This will create a request that is useful for mocked testing but uses random values
-// so some of the values won't be acceptable to PPUD.
+fun generateOffenderAddress(): OffenderAddress {
+  return OffenderAddress(
+    premises = randomString("premises"),
+    line1 = randomString("line1"),
+    line2 = randomString("line2"),
+    postcode = randomString("postcode"),
+    phoneNumber = randomString("phoneNumber"),
+  )
+}
+
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
 fun generateCreateRecallRequest(
   sentenceDate: LocalDate? = null,
   releaseDate: LocalDate? = null,
