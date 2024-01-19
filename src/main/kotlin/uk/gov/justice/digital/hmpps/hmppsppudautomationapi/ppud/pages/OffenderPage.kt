@@ -100,6 +100,9 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_Phone")
   private lateinit var addressPhoneNumberInput: WebElement
 
+  @FindBy(id = "cntDetails_aceiOWNING_CASEWORKER_AutoCompleteTextBox")
+  private lateinit var caseworkerInput: WebElement
+
   @FindBy(id = "cntDetails_txtGENERAL_COMMENTS")
   private lateinit var commentsTextArea: WebElement
 
@@ -237,6 +240,7 @@ internal class OffenderPage(
     return Offender(
       id = extractId(),
       address = extractAddress(),
+      caseworker = caseworkerInput.getValue(),
       comments = commentsTextArea.getValue(),
       croOtherNumber = croOtherNumberInput.getValue(),
       dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
@@ -326,6 +330,7 @@ internal class OffenderPage(
 
   private fun enterAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
     val currentComments = commentsTextArea.getValue()
+    commentsTextArea.clear()
     commentsTextArea.sendKeys(
       contentCreator.addAdditionalAddressesToComments(additionalAddresses, currentComments),
     )

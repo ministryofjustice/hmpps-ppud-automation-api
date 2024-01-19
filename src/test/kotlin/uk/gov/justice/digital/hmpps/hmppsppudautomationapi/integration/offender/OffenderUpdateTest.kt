@@ -144,8 +144,12 @@ class OffenderUpdateTest : IntegrationTestBase() {
   fun `given valid values in request body when update offender called then offender is amended using supplied values`() {
     val originalIsInCustody = Random.nextBoolean()
     val newIsInCustody = originalIsInCustody.not()
+    val originalAdditionalAddressPremises = randomString("originalpremises")
     val testOffenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(additionalAddresses = "", isInCustody = originalIsInCustody.toString()),
+      createOffenderRequestBody(
+        additionalAddresses = addressRequestBody(originalAdditionalAddressPremises, "", "", "", ""),
+        isInCustody = originalIsInCustody.toString(),
+      ),
     )
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
@@ -191,7 +195,10 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
     val expectedComments =
       "Additional address:${System.lineSeparator()}" +
-        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
+        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber${System.lineSeparator()}" +
+        System.lineSeparator() +
+        "Additional address:${System.lineSeparator()}" +
+        originalAdditionalAddressPremises
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
