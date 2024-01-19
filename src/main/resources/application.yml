@@ -77,6 +77,9 @@ ppud:
     returnToCustodyNotificationMethod: "Not Applicable"
     nextUalCheckMonths: 6
   offender:
+    caseworker:
+      inCustody: "Recall Reps Packs(Recall 1)"
+      ual: "Recall UAL Checks(Recall 1)"
     immigrationStatus: "Not Applicable"
     prisonerCategory: "Not Applicable"
     status: "Recalled [*]"

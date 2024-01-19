@@ -224,6 +224,29 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @ParameterizedTest
   @CsvSource(
+    "false,Recall UAL Checks",
+    "true,Recall Reps Packs",
+  )
+  fun `given custody status when update offender called then caseworker is set accordingly`(
+    isInCustody: Boolean,
+    expectedCaseworker: String,
+  ) {
+    val testOffenderId = createTestOffenderInPpud()
+    val requestBody = updateOffenderRequestBody(
+      isInCustody = isInCustody.toString(),
+    )
+
+    putOffender(testOffenderId, requestBody)
+
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.caseworker").isEqualTo(expectedCaseworker)
+      .jsonPath("offender.isInCustody").isEqualTo(isInCustody)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
     "17,18,$PPUD_YOUNG_OFFENDER_YES",
     "30,19,$PPUD_YOUNG_OFFENDER_YES",
     "17,50,$PPUD_YOUNG_OFFENDER_NO",
