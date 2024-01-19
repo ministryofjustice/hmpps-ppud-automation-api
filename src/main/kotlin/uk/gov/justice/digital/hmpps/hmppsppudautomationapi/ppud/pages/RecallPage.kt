@@ -186,7 +186,7 @@ internal class RecallPage(
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
-    addMinute(contentCreator.generateMinuteText(createRecallRequest))
+    addMinute(contentCreator.generateRecallMinuteText(createRecallRequest))
   }
 
   fun addContrabandMinuteIfNeeded(createRecallRequest: CreateRecallRequest) {

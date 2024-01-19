@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_M
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
@@ -46,6 +45,7 @@ abstract class IntegrationTestBase {
 
     fun createOffenderRequestBody(
       address: String? = addressRequestBody(),
+      additionalAddresses: String = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -58,11 +58,11 @@ abstract class IntegrationTestBase {
       isInCustody: String = Random.nextBoolean().toString(),
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = randomNomsId(),
-      pncNumber: String = randomPncNumber(),
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
         "\"address\":$address, " +
+        "\"additionalAddresses\":[$additionalAddresses], " +
         "\"croNumber\":\"$croNumber\", " +
         "\"custodyType\":\"$custodyType\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
@@ -75,13 +75,13 @@ abstract class IntegrationTestBase {
         "\"isInCustody\":\"$isInCustody\", " +
         "\"mappaLevel\":\"$mappaLevel\", " +
         "\"nomsId\":\"$nomsId\", " +
-        "\"pncNumber\":\"$pncNumber\", " +
         "\"prisonNumber\":\"$prisonNumber\" " +
         "}"
     }
 
     fun updateOffenderRequestBody(
       address: String = addressRequestBody(),
+      additionalAddresses: String = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
@@ -94,6 +94,7 @@ abstract class IntegrationTestBase {
     ): String {
       return "{" +
         "\"address\":$address, " +
+        "\"additionalAddresses\":[$additionalAddresses], " +
         "\"croNumber\":\"$croNumber\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
         "\"ethnicity\":\"$ethnicity\", " +

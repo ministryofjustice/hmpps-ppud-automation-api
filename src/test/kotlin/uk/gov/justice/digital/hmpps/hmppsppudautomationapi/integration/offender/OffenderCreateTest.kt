@@ -31,7 +31,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPncNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -135,7 +134,6 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.id").isNotEmpty()
   }
 
-  // TODO: Need to decide what to do with PNC Number
   // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
@@ -144,6 +142,11 @@ class OffenderCreateTest : IntegrationTestBase() {
     val addressLine2 = randomString("line2")
     val addressPostcode = randomPostcode()
     val addressPhoneNumber = randomPhoneNumber()
+    val additionalAddressPremises = randomString("additional premises")
+    val additionalAddressLine1 = randomString("additional line1")
+    val additionalAddressLine2 = randomString("additional line2")
+    val additionalAddressPostcode = randomPostcode()
+    val additionalAddressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -151,10 +154,16 @@ class OffenderCreateTest : IntegrationTestBase() {
     val firstNames = randomString("firstNames")
     val isInCustody = Random.nextBoolean().toString()
     val nomsId = randomNomsId()
-    val pncNumber = randomPncNumber()
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
+      additionalAddresses = addressRequestBody(
+        additionalAddressPremises,
+        additionalAddressLine1,
+        additionalAddressLine2,
+        additionalAddressPostcode,
+        additionalAddressPhoneNumber,
+      ),
       croNumber = croNumber,
       custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
@@ -167,12 +176,14 @@ class OffenderCreateTest : IntegrationTestBase() {
       isInCustody = isInCustody,
       mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
-      pncNumber = pncNumber,
       prisonNumber = prisonNumber,
     )
 
     val id = testPostOffender(requestBody)
 
+    val expectedComments =
+      "Additional address:${System.lineSeparator()}" +
+        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
       .jsonPath("offender.address.premises").isEqualTo(addressPremises)
@@ -180,6 +191,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.address.line2").isEqualTo(addressLine2)
       .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
       .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
+      .jsonPath("offender.comments").isEqualTo(expectedComments)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(PPUD_VALID_ETHNICITY)

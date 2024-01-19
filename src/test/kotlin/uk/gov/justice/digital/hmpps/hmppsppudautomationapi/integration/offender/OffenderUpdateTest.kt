@@ -145,7 +145,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val originalIsInCustody = Random.nextBoolean()
     val newIsInCustody = originalIsInCustody.not()
     val testOffenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(isInCustody = originalIsInCustody.toString()),
+      createOffenderRequestBody(additionalAddresses = "", isInCustody = originalIsInCustody.toString()),
     )
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
@@ -154,6 +154,11 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val addressLine2 = randomString("line2")
     val addressPostcode = randomPostcode()
     val addressPhoneNumber = randomPhoneNumber()
+    val additionalAddressPremises = randomString("additional premises")
+    val additionalAddressLine1 = randomString("additional line1")
+    val additionalAddressLine2 = randomString("additional line2")
+    val additionalAddressPostcode = randomPostcode()
+    val additionalAddressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val ethnicity = PPUD_VALID_ETHNICITY_2
@@ -164,6 +169,13 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val prisonNumber = randomPrisonNumber()
     val requestBody = updateOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
+      additionalAddresses = addressRequestBody(
+        additionalAddressPremises,
+        additionalAddressLine1,
+        additionalAddressLine2,
+        additionalAddressPostcode,
+        additionalAddressPhoneNumber,
+      ),
       croNumber = croNumber,
       dateOfBirth = dateOfBirth,
       ethnicity = ethnicity,
@@ -177,6 +189,9 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
     putOffender(testOffenderId, requestBody)
 
+    val expectedComments =
+      "Additional address:${System.lineSeparator()}" +
+        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
@@ -185,6 +200,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.address.line2").isEqualTo(addressLine2)
       .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
       .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
+      .jsonPath("offender.comments").isEqualTo(expectedComments)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(ethnicity)
