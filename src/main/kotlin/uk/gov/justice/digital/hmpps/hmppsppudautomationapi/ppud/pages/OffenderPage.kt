@@ -169,10 +169,7 @@ internal class OffenderPage(
 
     // Complete standalone fields
     enterAddress(updateOffenderRequest.address)
-    val currentComments = commentsTextArea.getValue()
-    commentsTextArea.sendKeys(
-      contentCreator.addAdditionalAddressesToComments(updateOffenderRequest.additionalAddresses, currentComments),
-    )
+    enterAdditionalAddresses(updateOffenderRequest.additionalAddresses)
     croOtherNumberInput.clear()
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
@@ -198,6 +195,11 @@ internal class OffenderPage(
       selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
     }
 
+    saveButton.click()
+  }
+
+  fun updateAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
+    enterAdditionalAddresses(additionalAddresses)
     saveButton.click()
   }
 
@@ -320,5 +322,12 @@ internal class OffenderPage(
     cancelAddressHistoryButton.click()
 
     return address
+  }
+
+  private fun enterAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
+    val currentComments = commentsTextArea.getValue()
+    commentsTextArea.sendKeys(
+      contentCreator.addAdditionalAddressesToComments(additionalAddresses, currentComments),
+    )
   }
 }

@@ -142,6 +142,11 @@ class OffenderCreateTest : IntegrationTestBase() {
     val addressLine2 = randomString("line2")
     val addressPostcode = randomPostcode()
     val addressPhoneNumber = randomPhoneNumber()
+    val additionalAddressPremises = randomString("additional premises")
+    val additionalAddressLine1 = randomString("additional line1")
+    val additionalAddressLine2 = randomString("additional line2")
+    val additionalAddressPostcode = randomPostcode()
+    val additionalAddressPhoneNumber = randomPhoneNumber()
     val croNumber = randomCroNumber()
     val dateOfBirth = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -152,6 +157,13 @@ class OffenderCreateTest : IntegrationTestBase() {
     val prisonNumber = randomPrisonNumber()
     val requestBody = createOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
+      additionalAddresses = addressRequestBody(
+        additionalAddressPremises,
+        additionalAddressLine1,
+        additionalAddressLine2,
+        additionalAddressPostcode,
+        additionalAddressPhoneNumber,
+      ),
       croNumber = croNumber,
       custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
@@ -169,6 +181,9 @@ class OffenderCreateTest : IntegrationTestBase() {
 
     val id = testPostOffender(requestBody)
 
+    val expectedComments =
+      "Additional address:${System.lineSeparator()}" +
+        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
     val retrieved = retrieveOffender(id)
     retrieved.jsonPath("offender.id").isEqualTo(id)
       .jsonPath("offender.address.premises").isEqualTo(addressPremises)
@@ -176,6 +191,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.address.line2").isEqualTo(addressLine2)
       .jsonPath("offender.address.postcode").isEqualTo(addressPostcode)
       .jsonPath("offender.address.phoneNumber").isEqualTo(addressPhoneNumber)
+      .jsonPath("offender.comments").isEqualTo(expectedComments)
       .jsonPath("offender.croOtherNumber").isEqualTo(croNumber)
       .jsonPath("offender.dateOfBirth").isEqualTo(dateOfBirth)
       .jsonPath("offender.ethnicity").isEqualTo(PPUD_VALID_ETHNICITY)
