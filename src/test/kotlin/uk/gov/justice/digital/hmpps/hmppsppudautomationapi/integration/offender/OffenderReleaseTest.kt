@@ -116,7 +116,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
     givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(
       constructUri(randomPpudId(), randomPpudId()),
       requestBody,
-      HttpMethod.PUT,
+      HttpMethod.POST,
     )
   }
 

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
@@ -80,6 +81,16 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   ) {
     log.info("Offender update endpoint hit")
     ppudClient.updateOffender(offenderId, offenderRequest)
+  }
+
+
+  @PostMapping("/offender/{offenderId}/sentence/{sentenceId}/release")
+  suspend fun createOrUpdateRelease(
+    @Valid
+    @RequestBody(required = true)
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ) {
+    log.info("Release create or update endpoint hit")
   }
 
   @PostMapping("/offender/{offenderId}/recall")
