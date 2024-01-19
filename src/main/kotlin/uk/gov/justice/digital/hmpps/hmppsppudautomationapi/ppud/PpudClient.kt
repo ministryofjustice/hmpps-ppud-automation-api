@@ -195,6 +195,8 @@ internal class PpudClient(
     newOffenderPage.verifyOn()
     newOffenderPage.createOffender(createOffenderRequest)
     newOffenderPage.throwIfInvalid()
+    offenderPage.updateAdditionalAddresses(createOffenderRequest.additionalAddresses)
+    offenderPage.throwIfInvalid()
     return offenderPage.extractCreatedOffenderDetails()
   }
 

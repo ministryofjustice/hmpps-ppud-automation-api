@@ -375,11 +375,13 @@ class PpudClientTest {
 
       val newOffender = client.createOffender(createOffenderRequest)
 
-      val inOrder = inOrder(newOffenderPage, searchPage)
+      val inOrder = inOrder(newOffenderPage, searchPage, offenderPage)
       then(searchPage).should(inOrder).navigateToNewOffender()
       then(newOffenderPage).should(inOrder).verifyOn()
       then(newOffenderPage).should(inOrder).createOffender(createOffenderRequest)
       then(newOffenderPage).should(inOrder).throwIfInvalid()
+      then(offenderPage).should(inOrder).updateAdditionalAddresses(any())
+      then(offenderPage).should(inOrder).throwIfInvalid()
       assertEquals(offenderId, newOffender.id)
     }
   }

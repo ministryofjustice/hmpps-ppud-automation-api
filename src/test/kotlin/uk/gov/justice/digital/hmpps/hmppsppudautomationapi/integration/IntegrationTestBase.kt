@@ -45,6 +45,7 @@ abstract class IntegrationTestBase {
 
     fun createOffenderRequestBody(
       address: String? = addressRequestBody(),
+      additionalAddresses: String = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -61,6 +62,7 @@ abstract class IntegrationTestBase {
     ): String {
       return "{" +
         "\"address\":$address, " +
+        "\"additionalAddresses\":[$additionalAddresses], " +
         "\"croNumber\":\"$croNumber\", " +
         "\"custodyType\":\"$custodyType\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
@@ -79,6 +81,7 @@ abstract class IntegrationTestBase {
 
     fun updateOffenderRequestBody(
       address: String = addressRequestBody(),
+      additionalAddresses: String = addressRequestBody(),
       croNumber: String = randomCroNumber(),
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
@@ -91,6 +94,7 @@ abstract class IntegrationTestBase {
     ): String {
       return "{" +
         "\"address\":$address, " +
+        "\"additionalAddresses\":[$additionalAddresses], " +
         "\"croNumber\":\"$croNumber\", " +
         "\"dateOfBirth\":\"$dateOfBirth\", " +
         "\"ethnicity\":\"$ethnicity\", " +

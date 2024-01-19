@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 data class CreateOffenderRequest(
   val address: OffenderAddress = OffenderAddress(),
+  val additionalAddresses: List<OffenderAddress> = emptyList(),
   val croNumber: String = "",
   @field:NotBlank
   val custodyType: String,

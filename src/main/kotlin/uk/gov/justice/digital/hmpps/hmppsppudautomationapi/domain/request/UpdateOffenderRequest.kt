@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 data class UpdateOffenderRequest(
   val address: OffenderAddress = OffenderAddress(),
+  val additionalAddresses: List<OffenderAddress> = emptyList(),
   val croNumber: String = "",
   val dateOfBirth: LocalDate,
   @field:NotBlank
