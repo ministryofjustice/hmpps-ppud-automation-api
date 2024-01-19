@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
@@ -34,6 +35,7 @@ import java.time.format.DateTimeFormatter
 internal class OffenderPage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
+  private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
   @Value("\${ppud.url}") private val ppudUrl: String,
   @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
@@ -97,6 +99,9 @@ internal class OffenderPage(
 
   @FindBy(id = "cntDetails_Phone")
   private lateinit var addressPhoneNumberInput: WebElement
+
+  @FindBy(id = "cntDetails_txtGENERAL_COMMENTS")
+  private lateinit var commentsTextArea: WebElement
 
   @FindBy(id = "cntDetails_txtCRO_PNC")
   private lateinit var croOtherNumberInput: WebElement
@@ -164,6 +169,10 @@ internal class OffenderPage(
 
     // Complete standalone fields
     enterAddress(updateOffenderRequest.address)
+    val currentComments = commentsTextArea.getValue()
+    commentsTextArea.sendKeys(
+      contentCreator.addAdditionalAddressesToComments(updateOffenderRequest.additionalAddresses, currentComments),
+    )
     croOtherNumberInput.clear()
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
@@ -226,6 +235,7 @@ internal class OffenderPage(
     return Offender(
       id = extractId(),
       address = extractAddress(),
+      comments = commentsTextArea.getValue(),
       croOtherNumber = croOtherNumberInput.getValue(),
       dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
       ethnicity = Select(ethnicityDropdown).firstSelectedOption.text,
