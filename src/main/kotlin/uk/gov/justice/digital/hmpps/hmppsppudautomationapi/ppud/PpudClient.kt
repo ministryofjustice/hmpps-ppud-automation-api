@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
@@ -14,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
@@ -90,6 +92,29 @@ internal class PpudClient(
     return performLoggedInOperation {
       offenderPage.viewOffenderWithId(id)
       offenderPage.extractOffenderDetails { extractSentences(it) }
+    }
+  }
+
+  suspend fun createOrUpdateRelease(
+    offenderId: String,
+    sentenceId: String,
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ): CreatedOrUpdatedRelease {
+    return performLoggedInOperation {
+      var id = ""
+      with(createOrUpdateReleaseRequest) {
+        offenderPage.viewOffenderWithId(offenderId)
+        val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, this.dateOfRelease)
+        for (link in releaseLinks) {
+          driver.navigate().to("$ppudUrl$link")
+          if (releasePage.isMatching(this.releasedFrom, this.releasedUnder)) {
+            id = releasePage.updateRelease(this)
+            break
+          }
+        }
+      }
+      releasePage.throwIfInvalid()
+      CreatedOrUpdatedRelease(id)
     }
   }
 

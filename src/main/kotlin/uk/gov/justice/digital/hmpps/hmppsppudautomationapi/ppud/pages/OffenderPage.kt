@@ -17,8 +17,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
@@ -168,8 +170,8 @@ internal class OffenderPage(
     throwIfErrorViewingOffender()
   }
 
-  fun navigateToNewRecallFor(sentenceDate: LocalDate, releaseDate: LocalDate) {
-    navigateToRecallsFor(sentenceDate, releaseDate)
+  fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {
+    navigateToRecallsFor(dateOfSentence, dateOfRelease)
       .findNodeWithTextContaining("New")
       .click()
   }
@@ -223,8 +225,26 @@ internal class OffenderPage(
     dismissConfirmDeleteAlert(driver)
   }
 
-  fun extractRecallLinks(sentenceDate: LocalDate, releaseDate: LocalDate): List<String> {
-    return navigateToRecallsFor(sentenceDate, releaseDate)
+  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
+    val sentencesNode = TreeView(navigationTreeViewRoot)
+      .expandNodeWithText("Sentences")
+
+    val sentenceNode = try {
+      sentencesNode
+        .expandNodeWithLinkContaining(sentenceId)
+    } catch (ex: org.openqa.selenium.NoSuchElementException) {
+      throw SentenceNotFoundException("Sentence ID does not exist on this offender", ex)
+    }
+
+    return sentenceNode
+      .expandNodeWithText("Releases")
+      .children()
+      .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
+      .map { it.getAttribute("igurl") }
+  }
+
+  fun extractRecallLinks(dateOfSentence: LocalDate, dateOfRelease: LocalDate): List<String> {
+    return navigateToRecallsFor(dateOfSentence, dateOfRelease)
       .children()
       .filter { it.text.startsWith("New").not() }
       .map { it.getAttribute("igurl") }
@@ -232,13 +252,13 @@ internal class OffenderPage(
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
     return CreatedOffender(
-      id = extractId(),
+      id = extractOffenderId(),
     )
   }
 
   fun extractSearchResultOffenderDetails(): SearchResultOffender {
     return SearchResultOffender(
-      id = extractId(),
+      id = extractOffenderId(),
       croNumber = croOtherNumberInput.getValue(),
       croOtherNumber = croOtherNumberInput.getValue(),
       nomsId = nomsIdInput.getValue(),
@@ -250,7 +270,7 @@ internal class OffenderPage(
 
   fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender {
     return Offender(
-      id = extractId(),
+      id = extractOffenderId(),
       address = extractAddress(),
       caseworker = caseworkerInput.getValue(),
       comments = commentsTextArea.getValue(),
@@ -287,12 +307,12 @@ internal class OffenderPage(
     }
   }
 
-  private fun navigateToRecallsFor(sentenceDate: LocalDate, releaseDate: LocalDate): TreeViewNode {
+  private fun navigateToRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {
     return TreeView(navigationTreeViewRoot)
       .expandNodeWithText("Sentences")
-      .expandNodeWithTextContaining(sentenceDate.format(dateFormatter))
+      .expandNodeWithTextContaining(dateOfSentence.format(dateFormatter))
       .expandNodeWithText("Releases")
-      .expandNodeWithTextContaining(releaseDate.format(dateFormatter))
+      .expandNodeWithTextContaining(dateOfRelease.format(dateFormatter))
       .expandNodeWithTextContaining("Recalls")
   }
 
@@ -304,13 +324,7 @@ internal class OffenderPage(
       .map { it.getAttribute("igurl") }
   }
 
-  private fun extractId(): String {
-    val url = driver.currentUrl
-    val idMatch = Regex(".+?data=(.+)").find(url)
-      ?: throw AutomationException("Expected the existing offender page but URL was '$url'")
-    val (id) = idMatch.destructured
-    return id
-  }
+  private fun extractOffenderId() = extractId(driver, "existing offender page")
 
   private fun enterCaseworkerText(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)

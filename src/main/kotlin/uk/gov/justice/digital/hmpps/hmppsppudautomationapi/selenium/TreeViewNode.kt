@@ -34,8 +34,16 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     return findNodeWithTextContaining(text).expandNode()
   }
 
+  fun expandNodeWithLinkContaining(value: String): TreeViewNode {
+    return findNodeWithLinkContaining(value).expandNode()
+  }
+
   fun findNodeWithTextContaining(text: String): TreeViewNode {
     return TreeViewNode(expansionElement.findElement(By.xpath(".//*[contains(text(), '$text')]/parent::div")))
+  }
+
+  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
   }
 
   private fun findNodeWithText(text: String): TreeViewNode {

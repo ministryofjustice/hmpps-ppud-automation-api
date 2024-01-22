@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
@@ -36,9 +37,7 @@ const val PPUD_VALID_PROBATION_AREA = "Merseyside"
 
 const val PPUD_VALID_RELEASED_FROM = "HMP Wakefield"
 
-const val PPUD_VALID_RELEASED_UNDER = "CJA 2008"
-
-const val PPUD_VALID_RELEASE_TYPE = "On Licence"
+const val PPUD_VALID_RELEASED_UNDER = "CJA 1991"
 
 const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "Consider a Recall Test(Recall 1)"
 
@@ -225,6 +224,22 @@ fun generateOffenderAddress(): OffenderAddress {
     line2 = randomString("line2"),
     postcode = randomString("postcode"),
     phoneNumber = randomString("phoneNumber"),
+  )
+}
+
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
+fun generateCreateOrUpdateReleaseRequest(
+  dateOfRelease: LocalDate = randomDate(),
+  releasedFrom: String = randomString("releasedFrom"),
+  releasedUnder: String = randomString("releasedUnder"),
+): CreateOrUpdateReleaseRequest {
+  return CreateOrUpdateReleaseRequest(
+    dateOfRelease = dateOfRelease,
+    releasedFrom = releasedFrom,
+    releasedUnder = releasedUnder,
   )
 }
 

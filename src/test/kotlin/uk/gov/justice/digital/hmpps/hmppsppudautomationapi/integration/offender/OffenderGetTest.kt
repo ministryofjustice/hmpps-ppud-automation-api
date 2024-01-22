@@ -52,7 +52,7 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
       .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo("CJA 2008")
       .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo("HMP Wakefield")
-      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("A")
+      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
       .jsonPath("offender.sentences[1].releases.size()").isEqualTo(0)
   }
 

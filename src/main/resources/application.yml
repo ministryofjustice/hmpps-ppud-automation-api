@@ -71,11 +71,6 @@ ppud:
     path: /Secure/MJSLogin.aspx
     pageTitle: "PPUD - Login"
     timeoutSeconds: 10
-  recall:
-    revocationIssuedByOwner: "EO Officer(Not Specified)"
-    recallType: "Standard"
-    returnToCustodyNotificationMethod: "Not Applicable"
-    nextUalCheckMonths: 6
   offender:
     caseworker:
       inCustody: "Recall Reps Packs(Recall 1)"
@@ -85,6 +80,14 @@ ppud:
     status: "Recalled [*]"
     youngOffenderYes: "Yes - Named"
     youngOffenderNo: "No"
+  release:
+    category: "Not Applicable"
+    releaseType: "On Licence"
+  recall:
+    revocationIssuedByOwner: "EO Officer(Not Specified)"
+    recallType: "Standard"
+    returnToCustodyNotificationMethod: "Not Applicable"
+    nextUalCheckMonths: 6
 
 automation:
   headless: true
