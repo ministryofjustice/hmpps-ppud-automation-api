@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
@@ -38,6 +39,8 @@ internal class OffenderPage(
   private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
   @Value("\${ppud.url}") private val ppudUrl: String,
+  @Value("\${ppud.offender.caseworker.inCustody}") private val caseworkerInCustody: String,
+  @Value("\${ppud.offender.caseworker.ual}") private val caseworkerUal: String,
   @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
   @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
   @Value("\${ppud.offender.status}") private val status: String,
@@ -100,6 +103,12 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_Phone")
   private lateinit var addressPhoneNumberInput: WebElement
 
+  @FindBy(id = "cntDetails_aceiOWNING_CASEWORKER_AutoCompleteTextBox")
+  private lateinit var caseworkerInput: WebElement
+
+  @FindBy(id = "cntDetails_aceiOWNING_CASEWORKER_AutoSelect")
+  private lateinit var caseworkerDropdown: WebElement
+
   @FindBy(id = "cntDetails_txtGENERAL_COMMENTS")
   private lateinit var commentsTextArea: WebElement
 
@@ -145,6 +154,8 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliSTATUS")
   private lateinit var statusDropdown: WebElement
 
+  private val caseworkers = mapOf(Pair(true, caseworkerInCustody), Pair(false, caseworkerUal))
+
   private val validationSummary: WebElement?
     get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 
@@ -166,6 +177,7 @@ internal class OffenderPage(
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     // Complete first as additional processing is triggered
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
+    enterCaseworkerText(updateOffenderRequest.isInCustody)
 
     // Complete standalone fields
     enterAddress(updateOffenderRequest.address)
@@ -194,6 +206,9 @@ internal class OffenderPage(
     } else {
       selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
     }
+
+    // Complete fields that have been updated/refreshed.
+    selectCaseworkerMatch(updateOffenderRequest.isInCustody)
 
     saveButton.click()
   }
@@ -237,6 +252,7 @@ internal class OffenderPage(
     return Offender(
       id = extractId(),
       address = extractAddress(),
+      caseworker = caseworkerInput.getValue(),
       comments = commentsTextArea.getValue(),
       croOtherNumber = croOtherNumberInput.getValue(),
       dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
@@ -296,6 +312,23 @@ internal class OffenderPage(
     return id
   }
 
+  private fun enterCaseworkerText(isInCustody: Boolean) {
+    val caseworker = caseworkers.getValue(isInCustody)
+    val caseworkerSearchable = caseworker.takeWhile { (it == '(').not() }
+    caseworkerInput.click()
+    caseworkerInput.enterTextIfNotBlank(caseworkerSearchable)
+  }
+
+  private fun selectCaseworkerMatch(isInCustody: Boolean) {
+    val caseworker = caseworkers.getValue(isInCustody)
+    waitForDropdownPopulation(driver, caseworkerDropdown)
+    selectDropdownOptionIfNotBlank(
+      caseworkerDropdown,
+      caseworker,
+      "caseworker",
+    )
+  }
+
   private fun enterAddress(address: OffenderAddress) {
     editAddressButton.click()
     addressPremisesInput.sendKeys(address.premises)
@@ -326,6 +359,7 @@ internal class OffenderPage(
 
   private fun enterAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
     val currentComments = commentsTextArea.getValue()
+    commentsTextArea.clear()
     commentsTextArea.sendKeys(
       contentCreator.addAdditionalAddressesToComments(additionalAddresses, currentComments),
     )

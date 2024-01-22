@@ -144,8 +144,12 @@ class OffenderUpdateTest : IntegrationTestBase() {
   fun `given valid values in request body when update offender called then offender is amended using supplied values`() {
     val originalIsInCustody = Random.nextBoolean()
     val newIsInCustody = originalIsInCustody.not()
+    val originalAdditionalAddressPremises = randomString("originalpremises")
     val testOffenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(additionalAddresses = "", isInCustody = originalIsInCustody.toString()),
+      createOffenderRequestBody(
+        additionalAddresses = addressRequestBody(originalAdditionalAddressPremises, "", "", "", ""),
+        isInCustody = originalIsInCustody.toString(),
+      ),
     )
     val amendUuid = UUID.randomUUID()
     familyNameToDeleteUuids.add(amendUuid) // Do this so we clear up test data
@@ -191,7 +195,10 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
     val expectedComments =
       "Additional address:${System.lineSeparator()}" +
-        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
+        "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber${System.lineSeparator()}" +
+        System.lineSeparator() +
+        "Additional address:${System.lineSeparator()}" +
+        originalAdditionalAddressPremises
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
@@ -213,6 +220,29 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
       .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "false,Recall UAL Checks",
+    "true,Recall Reps Packs",
+  )
+  fun `given custody status when update offender called then caseworker is set accordingly`(
+    isInCustody: Boolean,
+    expectedCaseworker: String,
+  ) {
+    val testOffenderId = createTestOffenderInPpud()
+    val requestBody = updateOffenderRequestBody(
+      isInCustody = isInCustody.toString(),
+    )
+
+    putOffender(testOffenderId, requestBody)
+
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.caseworker").isEqualTo(expectedCaseworker)
+      .jsonPath("offender.isInCustody").isEqualTo(isInCustody)
   }
 
   @ParameterizedTest
