@@ -181,6 +181,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
   return Offender(
     id = id,
     address = generateOffenderAddress(),
+    caseworker = randomString("caseworker"),
     comments = randomString("comments"),
     croOtherNumber = croOtherNumber,
     dateOfBirth = randomDate(),

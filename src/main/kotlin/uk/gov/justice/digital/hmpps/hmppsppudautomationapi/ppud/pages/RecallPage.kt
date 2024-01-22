@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -169,13 +170,13 @@ internal class RecallPage(
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
-    waitForDropdownPopulation(recommendedToOwnerDropdown)
+    waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
     selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
       createRecallRequest.recommendedToOwner,
       "recommended to owner",
     )
-    waitForDropdownPopulation(revocationIssuedByOwnerDropdown)
+    waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)
     selectDropdownOptionIfNotBlank(
       revocationIssuedByOwnerDropdown,
       revocationIssuedByOwner,
@@ -239,12 +240,6 @@ internal class RecallPage(
 
   fun urlFor(id: String): String {
     return urlPathTemplate.replace("{id}", id)
-  }
-
-  private fun waitForDropdownPopulation(dropdown: WebElement) {
-    val dropdownAsSelect = Select(dropdown)
-    WebDriverWait(driver, Duration.ofSeconds(2))
-      .until { dropdownAsSelect.options.any() }
   }
 
   private fun checkAllMissingMandatoryDocuments() {

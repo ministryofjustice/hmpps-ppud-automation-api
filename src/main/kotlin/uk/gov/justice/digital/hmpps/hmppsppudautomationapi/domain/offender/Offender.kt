@@ -6,6 +6,7 @@ data class Offender(
   val id: String,
   val address: OffenderAddress,
   val comments: String,
+  val caseworker: String,
   val croOtherNumber: String,
   val dateOfBirth: LocalDate,
   val ethnicity: String,

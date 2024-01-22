@@ -3,7 +3,10 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers
 import org.openqa.selenium.NoAlertPresentException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
+import org.openqa.selenium.support.ui.Select
+import org.openqa.selenium.support.ui.WebDriverWait
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import java.time.Duration
 
 fun dismissConfirmDeleteAlert(driver: WebDriver) {
   val alert = driver.switchTo().alert()
@@ -26,4 +29,10 @@ fun dismissCheckCapitalisationAlert(driver: WebDriver, nextElement: WebElement) 
   } catch (ex: NoAlertPresentException) {
     // No alert so we can proceed
   }
+}
+
+fun waitForDropdownPopulation(driver: WebDriver, dropdown: WebElement) {
+  val dropdownAsSelect = Select(dropdown)
+  WebDriverWait(driver, Duration.ofSeconds(2))
+    .until { dropdownAsSelect.options.any() }
 }
