@@ -37,7 +37,11 @@ const val PPUD_VALID_PROBATION_AREA = "Merseyside"
 
 const val PPUD_VALID_RELEASED_FROM = "HMP Wakefield"
 
+const val PPUD_VALID_RELEASED_FROM_2 = "HMP Shepton Mallet"
+
 const val PPUD_VALID_RELEASED_UNDER = "CJA 1991"
+
+const val PPUD_VALID_RELEASED_UNDER_2 = "CJA 2008"
 
 const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "Consider a Recall Test(Recall 1)"
 

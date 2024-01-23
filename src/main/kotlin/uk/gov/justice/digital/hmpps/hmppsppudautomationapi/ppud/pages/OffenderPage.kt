@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
+import org.openqa.selenium.NoSuchElementException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -170,6 +171,13 @@ internal class OffenderPage(
     throwIfErrorViewingOffender()
   }
 
+  fun navigateToNewReleaseFor(sentenceId: String) {
+    navigateToSentenceFor(sentenceId)
+      .expandNodeWithText("Releases")
+      .findNodeWithTextContaining("New")
+      .click()
+  }
+
   fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {
     navigateToRecallsFor(dateOfSentence, dateOfRelease)
       .findNodeWithTextContaining("New")
@@ -226,15 +234,7 @@ internal class OffenderPage(
   }
 
   fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    val sentencesNode = TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-
-    val sentenceNode = try {
-      sentencesNode
-        .expandNodeWithLinkContaining(sentenceId)
-    } catch (ex: org.openqa.selenium.NoSuchElementException) {
-      throw SentenceNotFoundException("Sentence ID does not exist on this offender", ex)
-    }
+    val sentenceNode = navigateToSentenceFor(sentenceId)
 
     return sentenceNode
       .expandNodeWithText("Releases")
@@ -305,6 +305,19 @@ internal class OffenderPage(
     if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
+  }
+
+  private fun navigateToSentenceFor(sentenceId: String): TreeViewNode {
+    val sentencesNode = TreeView(navigationTreeViewRoot)
+      .expandNodeWithText("Sentences")
+
+    val sentenceNode = try {
+      sentencesNode
+        .expandNodeWithLinkContaining(sentenceId)
+    } catch (ex: NoSuchElementException) {
+      throw SentenceNotFoundException("Sentence ID does not exist on this offender", ex)
+    }
+    return sentenceNode
   }
 
   private fun navigateToRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {

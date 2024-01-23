@@ -27,6 +27,8 @@ internal class ReleasePage(
   @Value("\${ppud.release.category}") private val category: String,
   @Value("\${ppud.release.releaseType}") private val releaseType: String,
 ) {
+  private val pageDescription = "release page"
+
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
 
@@ -62,17 +64,31 @@ internal class ReleasePage(
       )
   }
 
-  fun updateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest): String {
-    selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
-    selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
-    saveButton.click()
-    return extractId(driver, "release page")
+  fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest): String {
+    with(createdOrUpdatedRelease) {
+      // Complete first as additional processing is triggered
+      releasedFromInput.click()
+      releasedFromInput.sendKeys(this.releasedFrom)
+
+      // Complete standalone fields
+      dateOfReleaseInput.click()
+      dateOfReleaseInput.sendKeys(this.dateOfRelease.format(dateFormatter))
+      selectDropdownOptionIfNotBlank(releasedUnderDropdown, this.releasedUnder, "released under")
+      completeNonKeyFields()
+
+      // Complete fields that have been updated/refreshed.
+      waitForDropdownPopulation(driver, releasedFromDropdown)
+      selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
+
+      saveButton.click()
+      return extractId(driver, pageDescription)
+    }
   }
 
-  fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
-    releasedFromInput.click()
-    releasedFromInput.sendKeys(createdOrUpdatedRelease.releasedFrom)
-    selectReleasedFromMatch(createdOrUpdatedRelease.releasedFrom)
+  fun updateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest): String {
+    completeNonKeyFields()
+    saveButton.click()
+    return extractId(driver, pageDescription)
   }
 
   fun extractReleaseDetails(): Release {
@@ -91,8 +107,8 @@ internal class ReleasePage(
     }
   }
 
-  private fun selectReleasedFromMatch(releasedFrom: String) {
-    waitForDropdownPopulation(driver, releasedFromDropdown)
-    selectDropdownOptionIfNotBlank(releasedFromDropdown, releasedFrom, "released from")
+  private fun completeNonKeyFields() {
+    selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
+    selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
   }
 }

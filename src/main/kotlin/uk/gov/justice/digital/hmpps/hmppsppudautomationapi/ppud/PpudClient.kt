@@ -100,21 +100,10 @@ internal class PpudClient(
     sentenceId: String,
     createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
   ): CreatedOrUpdatedRelease {
+    log.info("Creating/updating release in PPUD Client")
+
     return performLoggedInOperation {
-      var id = ""
-      with(createOrUpdateReleaseRequest) {
-        offenderPage.viewOffenderWithId(offenderId)
-        val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, this.dateOfRelease)
-        for (link in releaseLinks) {
-          driver.navigate().to("$ppudUrl$link")
-          if (releasePage.isMatching(this.releasedFrom, this.releasedUnder)) {
-            id = releasePage.updateRelease(this)
-            break
-          }
-        }
-      }
-      releasePage.throwIfInvalid()
-      CreatedOrUpdatedRelease(id)
+      createOrUpdateReleaseInternal(createOrUpdateReleaseRequest, offenderId, sentenceId)
     }
   }
 
@@ -225,6 +214,23 @@ internal class PpudClient(
     return offenderPage.extractCreatedOffenderDetails()
   }
 
+  private fun createOrUpdateReleaseInternal(
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+    offenderId: String,
+    sentenceId: String,
+  ): CreatedOrUpdatedRelease {
+    offenderPage.viewOffenderWithId(offenderId)
+    val match = createOrUpdateReleaseRequest.findMatchingRelease(sentenceId)
+    val id = if (match.isNullOrBlank()) {
+      offenderPage.navigateToNewReleaseFor(sentenceId)
+      releasePage.createRelease(createOrUpdateReleaseRequest)
+    } else {
+      releasePage.updateRelease(createOrUpdateReleaseRequest)
+    }
+    releasePage.throwIfInvalid()
+    return CreatedOrUpdatedRelease(id)
+  }
+
   private suspend fun createNewRecall(
     offenderId: String,
     recallRequest: CreateRecallRequest,
@@ -313,5 +319,14 @@ internal class PpudClient(
     adminPage.verifyOn()
     adminPage.goToEditLookups()
     return editLookupsPage.extractLookupValues(lookupName)
+  }
+
+  private fun CreateOrUpdateReleaseRequest.findMatchingRelease(sentenceId: String): String? {
+    val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, this.dateOfRelease)
+    val match = releaseLinks.firstOrNull {
+      driver.navigate().to("$ppudUrl$it")
+      releasePage.isMatching(this.releasedFrom, this.releasedUnder)
+    }
+    return match
   }
 }
