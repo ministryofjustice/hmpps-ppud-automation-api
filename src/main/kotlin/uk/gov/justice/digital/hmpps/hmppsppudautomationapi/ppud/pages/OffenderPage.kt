@@ -228,7 +228,7 @@ internal class OffenderPage(
     saveButton.click()
   }
 
-  suspend fun deleteOffender() {
+  fun deleteOffender() {
     deleteButton.click()
     dismissConfirmDeleteAlert(driver)
   }

@@ -234,7 +234,7 @@ internal class RecallPage(
     )
   }
 
-  suspend fun deleteRecall() {
+  fun deleteRecall() {
     deleteButton.click()
     dismissConfirmDeleteAlert(driver)
   }
