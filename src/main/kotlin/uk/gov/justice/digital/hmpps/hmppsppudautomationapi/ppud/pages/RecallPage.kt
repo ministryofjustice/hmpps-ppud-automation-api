@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
@@ -206,7 +207,7 @@ internal class RecallPage(
     // This should be performed when the Recall screen is in "existing recall" mode.
     // The add minute button is shown then, but not for a new recall
     if (addMinuteButton?.isDisplayed == true) {
-      return CreatedRecall(id = extractIdFromUrl())
+      return CreatedRecall(id = extractRecallId())
     } else {
       throw AutomationException("Recall screen not refreshed")
     }
@@ -215,7 +216,7 @@ internal class RecallPage(
   fun extractRecallDetails(): Recall {
     val nextUalCheckValue = nextUalCheckInput.getValue()
     return Recall(
-      id = extractIdFromUrl(),
+      id = extractRecallId(),
       allMandatoryDocumentsReceived = Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text,
       decisionDateTime = LocalDateTime.parse(decisionFollowingBreachDateInput.getValue(), dateTimeFormatter),
       isInCustody = ualCheckbox.isSelected.not(),
@@ -260,9 +261,5 @@ internal class RecallPage(
     saveMinuteButton.click()
   }
 
-  private fun extractIdFromUrl(): String {
-    val idMatch = Regex(".+?data=(.+)").find(driver.currentUrl)!!
-    val (id) = idMatch.destructured
-    return id
-  }
+  private fun extractRecallId() = extractId(driver, "recall page")
 }

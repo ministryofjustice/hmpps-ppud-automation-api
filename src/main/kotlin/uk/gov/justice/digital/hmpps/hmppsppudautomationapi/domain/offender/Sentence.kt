@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 import java.time.LocalDate
 
 data class Sentence(
+  val id: String,
   val dateOfSentence: LocalDate,
   val custodyType: String,
   val mappaLevel: String,

@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOrUpdateReleaseResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
@@ -80,6 +82,19 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   ) {
     log.info("Offender update endpoint hit")
     ppudClient.updateOffender(offenderId, offenderRequest)
+  }
+
+  @PostMapping("/offender/{offenderId}/sentence/{sentenceId}/release")
+  suspend fun createOrUpdateRelease(
+    @PathVariable(required = true) offenderId: String,
+    @PathVariable(required = true) sentenceId: String,
+    @Valid
+    @RequestBody(required = true)
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ): ResponseEntity<CreateOrUpdateReleaseResponse> {
+    log.info("Release create or update endpoint hit")
+    val createdOrUpdatedRelease = ppudClient.createOrUpdateRelease(offenderId, sentenceId, createOrUpdateReleaseRequest)
+    return ResponseEntity(CreateOrUpdateReleaseResponse(createdOrUpdatedRelease), HttpStatus.OK)
   }
 
   @PostMapping("/offender/{offenderId}/recall")

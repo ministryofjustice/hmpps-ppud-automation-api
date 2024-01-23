@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
@@ -14,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
@@ -90,6 +92,18 @@ internal class PpudClient(
     return performLoggedInOperation {
       offenderPage.viewOffenderWithId(id)
       offenderPage.extractOffenderDetails { extractSentences(it) }
+    }
+  }
+
+  suspend fun createOrUpdateRelease(
+    offenderId: String,
+    sentenceId: String,
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ): CreatedOrUpdatedRelease {
+    log.info("Creating/updating release in PPUD Client")
+
+    return performLoggedInOperation {
+      createOrUpdateReleaseInternal(createOrUpdateReleaseRequest, offenderId, sentenceId)
     }
   }
 
@@ -200,6 +214,23 @@ internal class PpudClient(
     return offenderPage.extractCreatedOffenderDetails()
   }
 
+  private fun createOrUpdateReleaseInternal(
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+    offenderId: String,
+    sentenceId: String,
+  ): CreatedOrUpdatedRelease {
+    offenderPage.viewOffenderWithId(offenderId)
+    val match = createOrUpdateReleaseRequest.findMatchingRelease(sentenceId)
+    val id = if (match.isNullOrBlank()) {
+      offenderPage.navigateToNewReleaseFor(sentenceId)
+      releasePage.createRelease(createOrUpdateReleaseRequest)
+    } else {
+      releasePage.updateRelease(createOrUpdateReleaseRequest)
+    }
+    releasePage.throwIfInvalid()
+    return CreatedOrUpdatedRelease(id)
+  }
+
   private suspend fun createNewRecall(
     offenderId: String,
     recallRequest: CreateRecallRequest,
@@ -288,5 +319,14 @@ internal class PpudClient(
     adminPage.verifyOn()
     adminPage.goToEditLookups()
     return editLookupsPage.extractLookupValues(lookupName)
+  }
+
+  private fun CreateOrUpdateReleaseRequest.findMatchingRelease(sentenceId: String): String? {
+    val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, this.dateOfRelease)
+    val match = releaseLinks.firstOrNull {
+      driver.navigate().to("$ppudUrl$it")
+      releasePage.isMatching(this.releasedFrom, this.releasedUnder)
+    }
+    return match
   }
 }

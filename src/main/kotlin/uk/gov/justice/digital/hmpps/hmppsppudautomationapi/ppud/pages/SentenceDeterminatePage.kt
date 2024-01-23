@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -31,6 +32,7 @@ internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormat
 
   override fun extractSentenceDetails(releaseExtractor: (List<String>) -> List<Release>): Sentence {
     return Sentence(
+      id = extractId(driver, "determinate sentence page"),
       dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,

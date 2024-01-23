@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 
 @RestControllerAdvice
 class HmppsPpudAutomationApiExceptionHandler {
@@ -87,6 +89,20 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Offender ID is invalid",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(SentenceNotFoundException::class)
+  fun handleSentenceNotFoundException(e: SentenceNotFoundException): ResponseEntity<ErrorResponse> {
+    log.info("Sentence not found exception: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Sentence was not found",
           developerMessage = e.message,
         ),
       )

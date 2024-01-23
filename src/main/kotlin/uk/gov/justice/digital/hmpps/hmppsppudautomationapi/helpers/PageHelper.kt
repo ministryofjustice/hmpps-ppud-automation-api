@@ -31,6 +31,14 @@ fun dismissCheckCapitalisationAlert(driver: WebDriver, nextElement: WebElement) 
   }
 }
 
+fun extractId(driver: WebDriver, pageDescription: String): String {
+  val url = driver.currentUrl
+  val idMatch = Regex(".+?data=(.+)").find(url)
+    ?: throw AutomationException("Expected the $pageDescription but URL was '$url'")
+  val (id) = idMatch.destructured
+  return id
+}
+
 fun waitForDropdownPopulation(driver: WebDriver, dropdown: WebElement) {
   val dropdownAsSelect = Select(dropdown)
   WebDriverWait(driver, Duration.ofSeconds(2))

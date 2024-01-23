@@ -33,6 +33,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePag
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
@@ -426,6 +427,90 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(offenderPage).should(inOrder).updateOffender(updateOffenderRequest)
       then(offenderPage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Test
+  fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateReleaseRequest()
+      given(releasePage.createRelease(any())).willReturn(randomPpudId())
+
+      client.createOrUpdateRelease(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID and release data when create or update release is called then log out once done`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateReleaseRequest()
+      given(releasePage.createRelease(any())).willReturn(randomPpudId())
+
+      client.createOrUpdateRelease(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(releasePage, navigation)
+      then(releasePage).should(inOrder).throwIfInvalid()
+      then(navigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID and release data for matching release when create or update release is called then update matching release and return ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val dateOfRelease = randomDate()
+      val releasedFrom = randomString("releasedFrom")
+      val releasedUnder = randomString("releasedUnder")
+      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
+      val matchingReleaseLink = "/link/to/matching/release"
+      val releaseId = randomPpudId()
+      given(offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf(matchingReleaseLink))
+      given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true)
+      given(releasePage.updateRelease(any())).willReturn(releaseId)
+
+      val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(offenderPage, navigation, releasePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
+      then(navigation).should(inOrder).to("$ppudUrl$matchingReleaseLink")
+      then(releasePage).should(inOrder).updateRelease(request)
+      then(releasePage).should(inOrder).throwIfInvalid()
+      assertEquals(releaseId, updatedRelease.id)
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID and release data for new release when create or update release is called then create new release and return ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val dateOfRelease = randomDate()
+      val releasedFrom = randomString("releasedFrom")
+      val releasedUnder = randomString("releasedUnder")
+      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
+      val releaseId = randomPpudId()
+      given(offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf())
+      given(releasePage.createRelease(any())).willReturn(releaseId)
+
+      val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(offenderPage, navigation, releasePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
+      then(releasePage).should(inOrder).createRelease(request)
+      then(releasePage).should(inOrder).throwIfInvalid()
+      then(releasePage).should(never()).isMatching(any(), any())
+      assertEquals(releaseId, updatedRelease.id)
     }
   }
 
