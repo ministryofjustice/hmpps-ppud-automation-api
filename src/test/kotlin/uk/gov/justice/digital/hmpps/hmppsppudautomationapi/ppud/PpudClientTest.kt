@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookup
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
@@ -81,6 +82,9 @@ class PpudClientTest {
   private lateinit var releasePage: ReleasePage
 
   @Mock
+  private lateinit var postReleasePage: PostReleasePage
+
+  @Mock
   private lateinit var recallPage: RecallPage
 
   private val ppudUrl = "https://ppud.example.com"
@@ -118,6 +122,7 @@ class PpudClientTest {
       newOffenderPage,
       sentencePageFactory,
       releasePage,
+      postReleasePage,
       recallPage,
     )
 
@@ -436,7 +441,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
       val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.createRelease(any())).willReturn(randomPpudId())
+      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
 
       client.createOrUpdateRelease(offenderId, sentenceId, request)
 
@@ -452,7 +457,7 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
       val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.createRelease(any())).willReturn(randomPpudId())
+      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
 
       client.createOrUpdateRelease(offenderId, sentenceId, request)
 
@@ -475,7 +480,7 @@ class PpudClientTest {
       val releaseId = randomPpudId()
       given(offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf(matchingReleaseLink))
       given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true)
-      given(releasePage.updateRelease(any())).willReturn(releaseId)
+      given(releasePage.extractReleaseId()).willReturn(releaseId)
 
       val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
 
@@ -500,7 +505,7 @@ class PpudClientTest {
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
       val releaseId = randomPpudId()
       given(offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf())
-      given(releasePage.createRelease(any())).willReturn(releaseId)
+      given(releasePage.extractReleaseId()).willReturn(releaseId)
 
       val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
 

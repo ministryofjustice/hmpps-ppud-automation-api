@@ -21,7 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_POLICE_FORCE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_AREA
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME_AND_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
@@ -72,7 +72,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       isExtendedSentence: String = "false",
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       policeForce: String = PPUD_VALID_POLICE_FORCE,
-      probationArea: String = PPUD_VALID_PROBATION_AREA,
+      probationArea: String = PPUD_VALID_PROBATION_SERVICE,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       recommendedToOwner: String = PPUD_VALID_USER_FULL_NAME_AND_TEAM,
       releaseDate: String = ppudOffenderWithRelease.releaseDate,
@@ -190,7 +190,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
       .jsonPath("recall.owningTeam").isEqualTo(PPUD_EXPECTED_OWNING_TEAM)
       .jsonPath("recall.policeForce").isEqualTo(PPUD_VALID_POLICE_FORCE)
-      .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_AREA)
+      .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_SERVICE)
       .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
       .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_RECALL_TYPE)

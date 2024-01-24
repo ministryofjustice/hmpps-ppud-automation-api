@@ -9,11 +9,13 @@ import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import java.time.LocalDate
@@ -24,6 +26,7 @@ import java.time.format.DateTimeFormatter
 internal class ReleasePage(
   private val driver: WebDriver,
   private val dateFormatter: DateTimeFormatter,
+  private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.release.category}") private val category: String,
   @Value("\${ppud.release.releaseType}") private val releaseType: String,
 ) {
@@ -64,7 +67,7 @@ internal class ReleasePage(
       )
   }
 
-  fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest): String {
+  fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
     with(createdOrUpdatedRelease) {
       // Complete first as additional processing is triggered
       releasedFromInput.click()
@@ -81,24 +84,28 @@ internal class ReleasePage(
       selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
 
       saveButton.click()
-      return extractId(driver, pageDescription)
     }
   }
 
-  fun updateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest): String {
+  fun updateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
     completeNonKeyFields()
     saveButton.click()
-    return extractId(driver, pageDescription)
   }
 
-  fun extractReleaseDetails(): Release {
+  fun extractReleaseDetails(postReleaseExtractor: (String) -> PostRelease): Release {
     return Release(
       category = Select(categoryDropdown).firstSelectedOption.text,
       dateOfRelease = LocalDate.parse(dateOfReleaseInput.getValue(), dateFormatter),
       releasedFrom = releasedFromInput.getValue(),
       releasedUnder = Select(releasedUnderDropdown).firstSelectedOption.text,
       releaseType = Select(releaseTypeDropdown).firstSelectedOption.text,
+      // Do Post Release last because it navigates away
+      postRelease = postReleaseExtractor(determinePostReleaseLink()),
     )
+  }
+
+  fun extractReleaseId(): String {
+    return extractId(driver, pageDescription)
   }
 
   fun throwIfInvalid() {
@@ -110,5 +117,12 @@ internal class ReleasePage(
   private fun completeNonKeyFields() {
     selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
     selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
+  }
+
+  private fun determinePostReleaseLink(): String {
+    val releaseId = extractId(driver, pageDescription)
+    return navigationTreeViewComponent
+      .findPostReleaseNodeFor(releaseId)
+      .getAttribute("igurl")
   }
 }

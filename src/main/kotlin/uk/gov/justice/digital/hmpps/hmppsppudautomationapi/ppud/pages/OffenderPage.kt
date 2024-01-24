@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
-import org.openqa.selenium.NoSuchElementException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -18,12 +17,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
@@ -41,6 +40,7 @@ internal class OffenderPage(
   private val dateFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
+  private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.url}") private val ppudUrl: String,
   @Value("\${ppud.offender.caseworker.inCustody}") private val caseworkerInCustody: String,
   @Value("\${ppud.offender.caseworker.ual}") private val caseworkerUal: String,
@@ -172,7 +172,7 @@ internal class OffenderPage(
   }
 
   fun navigateToNewReleaseFor(sentenceId: String) {
-    navigateToSentenceFor(sentenceId)
+    navigationTreeViewComponent.findSentenceNodeFor(sentenceId)
       .expandNodeWithText("Releases")
       .findNodeWithTextContaining("New")
       .click()
@@ -234,7 +234,7 @@ internal class OffenderPage(
   }
 
   fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    val sentenceNode = navigateToSentenceFor(sentenceId)
+    val sentenceNode = navigationTreeViewComponent.findSentenceNodeFor(sentenceId)
 
     return sentenceNode
       .expandNodeWithText("Releases")
@@ -305,19 +305,6 @@ internal class OffenderPage(
     if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
-  }
-
-  private fun navigateToSentenceFor(sentenceId: String): TreeViewNode {
-    val sentencesNode = TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-
-    val sentenceNode = try {
-      sentencesNode
-        .expandNodeWithLinkContaining(sentenceId)
-    } catch (ex: NoSuchElementException) {
-      throw SentenceNotFoundException("Sentence ID does not exist on this offender", ex)
-    }
-    return sentenceNode
   }
 
   private fun navigateToRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {

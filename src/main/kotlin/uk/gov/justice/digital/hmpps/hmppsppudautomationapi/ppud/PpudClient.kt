@@ -9,6 +9,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
@@ -23,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookup
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
@@ -46,6 +48,7 @@ internal class PpudClient(
   private val newOffenderPage: NewOffenderPage,
   private val sentencePageFactory: SentencePageFactory,
   private val releasePage: ReleasePage,
+  private val postReleasePage: PostReleasePage,
   private val recallPage: RecallPage,
 ) {
 
@@ -103,7 +106,19 @@ internal class PpudClient(
     log.info("Creating/updating release in PPUD Client")
 
     return performLoggedInOperation {
-      createOrUpdateReleaseInternal(createOrUpdateReleaseRequest, offenderId, sentenceId)
+      createOrUpdateReleaseInternal(offenderId, sentenceId, createOrUpdateReleaseRequest)
+
+      // ID in URL after creating a new one is not the correct ID for the persisted release.
+      // Find the matching release and extract the release ID from that
+      navigateToMatchingRelease(
+        sentenceId,
+        createOrUpdateReleaseRequest.dateOfRelease,
+        createOrUpdateReleaseRequest.releasedFrom,
+        createOrUpdateReleaseRequest.releasedUnder,
+      )
+      val releaseId = releasePage.extractReleaseId()
+      updatePostRelease(releaseId, createOrUpdateReleaseRequest)
+      CreatedOrUpdatedRelease(releaseId)
     }
   }
 
@@ -215,20 +230,33 @@ internal class PpudClient(
   }
 
   private fun createOrUpdateReleaseInternal(
-    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
     offenderId: String,
     sentenceId: String,
-  ): CreatedOrUpdatedRelease {
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ) {
     offenderPage.viewOffenderWithId(offenderId)
-    val match = createOrUpdateReleaseRequest.findMatchingRelease(sentenceId)
-    val id = if (match.isNullOrBlank()) {
-      offenderPage.navigateToNewReleaseFor(sentenceId)
-      releasePage.createRelease(createOrUpdateReleaseRequest)
-    } else {
+    val foundMatch = navigateToMatchingRelease(
+      sentenceId,
+      createOrUpdateReleaseRequest.dateOfRelease,
+      createOrUpdateReleaseRequest.releasedFrom,
+      createOrUpdateReleaseRequest.releasedUnder,
+    )
+    if (foundMatch) {
       releasePage.updateRelease(createOrUpdateReleaseRequest)
+    } else {
+      offenderPage.navigateToNewReleaseFor(sentenceId) // TODO: We might not be on offender page
+      releasePage.createRelease(createOrUpdateReleaseRequest)
     }
     releasePage.throwIfInvalid()
-    return CreatedOrUpdatedRelease(id)
+  }
+
+  private fun updatePostRelease(
+    releaseId: String,
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ) {
+    postReleasePage.navigateToPostReleaseFor(releaseId)
+    postReleasePage.updatePostRelease(createOrUpdateReleaseRequest.postRelease)
+    postReleasePage.throwIfInvalid()
   }
 
   private suspend fun createNewRecall(
@@ -282,8 +310,13 @@ internal class PpudClient(
   private fun extractReleases(urls: List<String>): List<Release> {
     return urls.map {
       driver.navigate().to("$ppudUrl$it")
-      releasePage.extractReleaseDetails()
+      releasePage.extractReleaseDetails(::extractPostReleaseDetails)
     }
+  }
+
+  private fun extractPostReleaseDetails(link: String): PostRelease {
+    driver.navigate().to("$ppudUrl$link")
+    return postReleasePage.extractPostReleaseDetails()
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {
@@ -321,12 +354,16 @@ internal class PpudClient(
     return editLookupsPage.extractLookupValues(lookupName)
   }
 
-  private fun CreateOrUpdateReleaseRequest.findMatchingRelease(sentenceId: String): String? {
-    val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, this.dateOfRelease)
-    val match = releaseLinks.firstOrNull {
+  private fun navigateToMatchingRelease(
+    sentenceId: String,
+    dateOfRelease: LocalDate,
+    releasedFrom: String,
+    releasedUnder: String,
+  ): Boolean {
+    val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)
+    return releaseLinks.any {
       driver.navigate().to("$ppudUrl$it")
-      releasePage.isMatching(this.releasedFrom, this.releasedUnder)
+      releasePage.isMatching(releasedFrom, releasedUnder)
     }
-    return match
   }
 }
