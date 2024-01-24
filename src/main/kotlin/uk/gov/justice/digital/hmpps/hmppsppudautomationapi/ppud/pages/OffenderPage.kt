@@ -22,9 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfir
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
@@ -40,7 +38,6 @@ internal class OffenderPage(
   private val dateFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
-  private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.url}") private val ppudUrl: String,
   @Value("\${ppud.offender.caseworker.inCustody}") private val caseworkerInCustody: String,
   @Value("\${ppud.offender.caseworker.ual}") private val caseworkerUal: String,
@@ -171,19 +168,6 @@ internal class OffenderPage(
     throwIfErrorViewingOffender()
   }
 
-  fun navigateToNewReleaseFor(sentenceId: String) {
-    navigationTreeViewComponent.findSentenceNodeFor(sentenceId)
-      .expandNodeWithText("Releases")
-      .findNodeWithTextContaining("New")
-      .click()
-  }
-
-  fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {
-    navigateToRecallsFor(dateOfSentence, dateOfRelease)
-      .findNodeWithTextContaining("New")
-      .click()
-  }
-
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     // Complete first as additional processing is triggered
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
@@ -231,23 +215,6 @@ internal class OffenderPage(
   fun deleteOffender() {
     deleteButton.click()
     dismissConfirmDeleteAlert(driver)
-  }
-
-  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    val sentenceNode = navigationTreeViewComponent.findSentenceNodeFor(sentenceId)
-
-    return sentenceNode
-      .expandNodeWithText("Releases")
-      .children()
-      .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
-      .map { it.getAttribute("igurl") }
-  }
-
-  fun extractRecallLinks(dateOfSentence: LocalDate, dateOfRelease: LocalDate): List<String> {
-    return navigateToRecallsFor(dateOfSentence, dateOfRelease)
-      .children()
-      .filter { it.text.startsWith("New").not() }
-      .map { it.getAttribute("igurl") }
   }
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
@@ -305,15 +272,6 @@ internal class OffenderPage(
     if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
-  }
-
-  private fun navigateToRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {
-    return TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-      .expandNodeWithTextContaining(dateOfSentence.format(dateFormatter))
-      .expandNodeWithText("Releases")
-      .expandNodeWithTextContaining(dateOfRelease.format(dateFormatter))
-      .expandNodeWithTextContaining("Recalls")
   }
 
   private fun determineSentenceLinks(): List<String> {

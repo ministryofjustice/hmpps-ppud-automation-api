@@ -11,10 +11,15 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ReleaseNotF
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
-class NavigationTreeViewComponent(driver: WebDriver) {
+class NavigationTreeViewComponent(
+  driver: WebDriver,
+  private val dateFormatter: DateTimeFormatter,
+) {
 
   @FindBy(id = "M_ctl00treetvOffender")
   private lateinit var navigationTreeViewRoot: WebElement
@@ -64,6 +69,45 @@ class NavigationTreeViewComponent(driver: WebDriver) {
     }
 
     return matchingRelease.expandNode().findNodeWithTextContaining(POST_RELEASE_NODE_TEXT)
+  }
+
+  fun findRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {
+    return TreeView(navigationTreeViewRoot)
+      .expandNodeWithText("Sentences")
+      .expandNodeWithTextContaining(dateOfSentence.format(dateFormatter))
+      .expandNodeWithText("Releases")
+      .expandNodeWithTextContaining(dateOfRelease.format(dateFormatter))
+      .expandNodeWithTextContaining("Recalls")
+  }
+
+  fun navigateToNewReleaseFor(sentenceId: String) {
+    findSentenceNodeFor(sentenceId)
+      .expandNodeWithText(RELEASES_NODE_TEXT)
+      .findNodeWithText(NEW_NODE_TEXT)
+      .click()
+  }
+
+  fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {
+    findRecallsFor(dateOfSentence, dateOfRelease)
+      .findNodeWithTextContaining(NEW_NODE_TEXT)
+      .click()
+  }
+
+  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
+    val sentenceNode = findSentenceNodeFor(sentenceId)
+
+    return sentenceNode
+      .expandNodeWithText(RELEASES_NODE_TEXT)
+      .children()
+      .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
+      .map { it.url }
+  }
+
+  fun extractRecallLinks(dateOfSentence: LocalDate, dateOfRelease: LocalDate): List<String> {
+    return findRecallsFor(dateOfSentence, dateOfRelease)
+      .children()
+      .excludeNewNode()
+      .map { it.url }
   }
 
   private fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {

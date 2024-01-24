@@ -47,12 +47,12 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     return TreeViewNode(expansionElement.findElement(By.xpath(".//*[contains(text(), '$text')]/parent::div")))
   }
 
-  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
+  fun findNodeWithText(text: String): TreeViewNode {
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
   }
 
-  private fun findNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
+  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
   }
 
   override fun findElements(by: By?): MutableList<WebElement> {

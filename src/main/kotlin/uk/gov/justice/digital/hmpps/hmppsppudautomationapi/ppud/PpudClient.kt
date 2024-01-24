@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import java.time.LocalDate
 
 @Component
@@ -40,6 +41,7 @@ internal class PpudClient(
   @Value("\${ppud.admin.username}") private val ppudAdminUsername: String,
   @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
   private val driver: WebDriver,
+  private val navigationTreeViewComponent: NavigationTreeViewComponent,
   private val loginPage: LoginPage,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
@@ -244,7 +246,7 @@ internal class PpudClient(
     if (foundMatch) {
       releasePage.updateRelease(createOrUpdateReleaseRequest)
     } else {
-      offenderPage.navigateToNewReleaseFor(sentenceId) // TODO: We might not be on offender page
+      navigationTreeViewComponent.navigateToNewReleaseFor(sentenceId)
       releasePage.createRelease(createOrUpdateReleaseRequest)
     }
     releasePage.throwIfInvalid()
@@ -264,7 +266,7 @@ internal class PpudClient(
     recallRequest: CreateRecallRequest,
   ): CreatedRecall {
     offenderPage.viewOffenderWithId(offenderId)
-    offenderPage.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
+    navigationTreeViewComponent.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
     recallPage.createRecall(recallRequest)
     recallPage.throwIfInvalid()
     recallPage.addDetailsMinute(recallRequest)
@@ -330,7 +332,7 @@ internal class PpudClient(
     releaseDate: LocalDate,
   ): List<String> {
     offenderPage.viewOffenderWithId(offenderId)
-    val links = offenderPage.extractRecallLinks(sentenceDate, releaseDate)
+    val links = navigationTreeViewComponent.extractRecallLinks(sentenceDate, releaseDate)
     log.info("There are ${links.size} recalls")
     return links
   }
@@ -360,7 +362,7 @@ internal class PpudClient(
     releasedFrom: String,
     releasedUnder: String,
   ): Boolean {
-    val releaseLinks = offenderPage.extractReleaseLinks(sentenceId, dateOfRelease)
+    val releaseLinks = navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)
     return releaseLinks.any {
       driver.navigate().to("$ppudUrl$it")
       releasePage.isMatching(releasedFrom, releasedUnder)
