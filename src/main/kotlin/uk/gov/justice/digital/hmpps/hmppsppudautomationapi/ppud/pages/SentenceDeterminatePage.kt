@@ -38,6 +38,7 @@ internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormat
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
       // Do releases last because it navigates away
       releases = releaseExtractor(determineReleaseLinks()),
+      sentencingCourt = "",
     )
   }
 }
