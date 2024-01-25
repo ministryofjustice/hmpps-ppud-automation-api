@@ -38,14 +38,15 @@ internal class ReferenceControllerTest {
   @Test
   fun `when custodyTypes is called then reference service is invoked and results returned`() {
     runBlocking {
-      val values = listOf(randomString(), randomString(), randomString())
+      // Only returning Determinate for now until we can handle other types
+      val values = listOf(randomString(), randomString(), randomString(), "Determinate")
       given(referenceService.retrieveCustodyTypes()).willReturn(values)
 
       val result = controller.custodyTypes()
 
       then(referenceService).should().retrieveCustodyTypes()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
-      assertEquals(values, result.body?.values)
+      assertEquals(listOf("Determinate"), result.body?.values)
     }
   }
 

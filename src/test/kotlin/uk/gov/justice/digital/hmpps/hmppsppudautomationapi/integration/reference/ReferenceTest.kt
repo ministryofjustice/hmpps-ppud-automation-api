@@ -45,6 +45,7 @@ class ReferenceTest : IntegrationTestBase() {
 
   @Test
   fun `when custody-types called then custody types are returned`() {
+    // As a temporary measure, we are only handling Determinate, so only returning that
     webTestClient.get()
       .uri("/reference/custody-types")
       .headers { it.authToken() }
@@ -52,8 +53,8 @@ class ReferenceTest : IntegrationTestBase() {
       .expectStatus()
       .isOk
       .expectBody()
-      .jsonPath("values[0]").isEqualTo("Automatic")
-      .jsonPath("values.last()").isEqualTo("Unrestricted Patient")
+      .jsonPath("values.size()").isEqualTo(1)
+      .jsonPath("values[0]").isEqualTo("Determinate")
   }
 
   @Test
