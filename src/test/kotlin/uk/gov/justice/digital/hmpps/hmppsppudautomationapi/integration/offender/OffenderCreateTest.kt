@@ -94,6 +94,18 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given custody type is not determinate in request body when create offender called then bad request is returned`() {
+    // This is a temporary restriction until we handle indeterminate recalls
+    val requestBody = createOffenderRequestBody(custodyType = randomString("custodyType"))
+    postOffender(requestBody)
+      .expectStatus()
+      .isBadRequest
+      .expectBody()
+      .jsonPath("userMessage")
+      .value(Consumer<String> { assertThat(it).contains("custodyType") })
+  }
+
+  @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
