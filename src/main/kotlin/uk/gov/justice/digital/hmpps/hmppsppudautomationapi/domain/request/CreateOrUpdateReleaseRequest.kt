@@ -5,6 +5,7 @@ import java.time.LocalDate
 
 data class CreateOrUpdateReleaseRequest(
   val dateOfRelease: LocalDate,
+  val postRelease: UpdatePostReleaseRequest = UpdatePostReleaseRequest(),
   @field:NotBlank
   val releasedFrom: String,
   @field:NotBlank

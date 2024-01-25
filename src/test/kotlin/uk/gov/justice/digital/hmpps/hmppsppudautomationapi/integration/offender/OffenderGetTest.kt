@@ -57,6 +57,13 @@ class OffenderGetTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given Offender with release when get offender called then Post Release is returned`() {
+    retrieveOffender(ppudOffenderWithRelease.id)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo("Merseyside")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo("Standard")
+  }
+
+  @Test
   fun `given Offender with Not Specified release when get offender called then release is not returned`() {
     retrieveOffender(PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE)
       .jsonPath("offender.sentences[0].releases.size()").isEqualTo(0)
