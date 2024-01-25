@@ -83,6 +83,8 @@ ppud:
   release:
     category: "Not Applicable"
     releaseType: "On Licence"
+    postRelease:
+      licenceType: "Standard"
   recall:
     revocationIssuedByOwner: "EO Officer(Not Specified)"
     recallType: "Standard"

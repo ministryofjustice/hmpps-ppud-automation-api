@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_LICENCE_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM_2
@@ -218,6 +219,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].id").value(idExtractor)
     val sentenceId = idExtractor.value!!
     val probationService = PPUD_VALID_PROBATION_SERVICE
+    val licenceType = PPUD_LICENCE_TYPE
     val requestBody = releaseRequestBody(
       postRelease = postReleaseRequestBody(
         probationService = probationService,
@@ -232,6 +234,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo(licenceType)
       .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo(probationService)
   }
 
