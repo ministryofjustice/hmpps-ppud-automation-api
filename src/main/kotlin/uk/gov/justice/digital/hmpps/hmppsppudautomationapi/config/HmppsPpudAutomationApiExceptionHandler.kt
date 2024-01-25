@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ReleaseNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 
 @RestControllerAdvice
@@ -89,6 +90,20 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Offender ID is invalid",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(ReleaseNotFoundException::class)
+  fun handleReleaseNotFoundException(e: ReleaseNotFoundException): ResponseEntity<ErrorResponse> {
+    log.info("Release not found exception: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Release was not found",
           developerMessage = e.message,
         ),
       )

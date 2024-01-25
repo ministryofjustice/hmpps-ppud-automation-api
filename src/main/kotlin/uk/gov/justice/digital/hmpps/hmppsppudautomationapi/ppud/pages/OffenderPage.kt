@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
-import org.openqa.selenium.NoSuchElementException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -18,14 +17,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
@@ -171,19 +168,6 @@ internal class OffenderPage(
     throwIfErrorViewingOffender()
   }
 
-  fun navigateToNewReleaseFor(sentenceId: String) {
-    navigateToSentenceFor(sentenceId)
-      .expandNodeWithText("Releases")
-      .findNodeWithTextContaining("New")
-      .click()
-  }
-
-  fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {
-    navigateToRecallsFor(dateOfSentence, dateOfRelease)
-      .findNodeWithTextContaining("New")
-      .click()
-  }
-
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     // Complete first as additional processing is triggered
     selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
@@ -228,26 +212,9 @@ internal class OffenderPage(
     saveButton.click()
   }
 
-  suspend fun deleteOffender() {
+  fun deleteOffender() {
     deleteButton.click()
     dismissConfirmDeleteAlert(driver)
-  }
-
-  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    val sentenceNode = navigateToSentenceFor(sentenceId)
-
-    return sentenceNode
-      .expandNodeWithText("Releases")
-      .children()
-      .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
-      .map { it.getAttribute("igurl") }
-  }
-
-  fun extractRecallLinks(dateOfSentence: LocalDate, dateOfRelease: LocalDate): List<String> {
-    return navigateToRecallsFor(dateOfSentence, dateOfRelease)
-      .children()
-      .filter { it.text.startsWith("New").not() }
-      .map { it.getAttribute("igurl") }
   }
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
@@ -305,28 +272,6 @@ internal class OffenderPage(
     if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
-  }
-
-  private fun navigateToSentenceFor(sentenceId: String): TreeViewNode {
-    val sentencesNode = TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-
-    val sentenceNode = try {
-      sentencesNode
-        .expandNodeWithLinkContaining(sentenceId)
-    } catch (ex: NoSuchElementException) {
-      throw SentenceNotFoundException("Sentence ID does not exist on this offender", ex)
-    }
-    return sentenceNode
-  }
-
-  private fun navigateToRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {
-    return TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-      .expandNodeWithTextContaining(dateOfSentence.format(dateFormatter))
-      .expandNodeWithText("Releases")
-      .expandNodeWithTextContaining(dateOfRelease.format(dateFormatter))
-      .expandNodeWithTextContaining("Recalls")
   }
 
   private fun determineSentenceLinks(): List<String> {

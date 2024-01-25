@@ -7,6 +7,11 @@ import org.openqa.selenium.Point
 import org.openqa.selenium.Rectangle
 import org.openqa.selenium.WebElement
 
+private val WebElement.isExpansionElement: Boolean
+  get() {
+    return this.getAttribute("id").startsWith("M_")
+  }
+
 open class TreeViewNode(private val element: WebElement) : WebElement {
 
   private val expansionElement by lazy { findElement(By.xpath("./following-sibling::div")) }
@@ -15,7 +20,7 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
 
   fun children(): List<TreeViewNode> {
     return expansionElement.findElements(By.xpath("./div"))
-      .filter { it.isDisplayed }
+      .filter { !it.isExpansionElement }
       .map { TreeViewNode(it) }
   }
 
@@ -42,12 +47,12 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     return TreeViewNode(expansionElement.findElement(By.xpath(".//*[contains(text(), '$text')]/parent::div")))
   }
 
-  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
+  fun findNodeWithText(text: String): TreeViewNode {
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
   }
 
-  private fun findNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
+  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
+    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
   }
 
   override fun findElements(by: By?): MutableList<WebElement> {

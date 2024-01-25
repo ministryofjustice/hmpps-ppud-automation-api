@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
@@ -38,15 +39,25 @@ class OffenderReleaseTest : IntegrationTestBase() {
       )
     }
 
-    fun releaseRequestBody(
+    private fun releaseRequestBody(
       dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      postRelease: String = postReleaseRequestBody(),
       releasedFrom: String = PPUD_VALID_RELEASED_FROM,
       releasedUnder: String = PPUD_VALID_RELEASED_UNDER,
     ): String {
       return "{" +
         "\"dateOfRelease\":\"$dateOfRelease\", " +
+        "\"postRelease\":$postRelease, " +
         "\"releasedFrom\":\"$releasedFrom\", " +
         "\"releasedUnder\":\"$releasedUnder\" " +
+        "}"
+    }
+
+    private fun postReleaseRequestBody(
+      probationService: String = PPUD_VALID_PROBATION_SERVICE,
+    ): String {
+      return "{" +
+        "\"probationService\":\"$probationService\" " +
         "}"
     }
   }
@@ -196,6 +207,32 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)
       .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
       .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
+  }
+
+  @Test
+  fun `given valid values in request body when post release called then Post Release PPUD entity is updated`() {
+    val testOffenderId = createTestOffenderInPpud()
+    val idExtractor = ValueConsumer<String>()
+    retrieveOffender(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
+    val sentenceId = idExtractor.value!!
+    val probationService = PPUD_VALID_PROBATION_SERVICE
+    val requestBody = releaseRequestBody(
+      postRelease = postReleaseRequestBody(
+        probationService = probationService,
+      ),
+    )
+
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isOk
+      .expectBody()
+
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo(probationService)
   }
 
   private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =

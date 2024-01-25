@@ -33,7 +33,7 @@ const val PPUD_VALID_MAPPA_LEVEL = "Level 2 – Local Inter-Agency Management"
 
 const val PPUD_VALID_POLICE_FORCE = "Kent Police"
 
-const val PPUD_VALID_PROBATION_AREA = "Merseyside"
+const val PPUD_VALID_PROBATION_SERVICE = "Merseyside"
 
 const val PPUD_VALID_RELEASED_FROM = "HMP Wakefield"
 

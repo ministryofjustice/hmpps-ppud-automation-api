@@ -16,8 +16,9 @@ fun WebElement.enterTextIfNotBlank(text: String?) {
 
 fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {
   if (option?.isNotBlank() == true) {
+    val select = Select(dropdown)
     try {
-      Select(dropdown).selectByVisibleText(option)
+      select.selectByVisibleText(option)
     } catch (ex: org.openqa.selenium.NoSuchElementException) {
       throw AutomationException("Cannot locate $description option with text '$option'")
     }
