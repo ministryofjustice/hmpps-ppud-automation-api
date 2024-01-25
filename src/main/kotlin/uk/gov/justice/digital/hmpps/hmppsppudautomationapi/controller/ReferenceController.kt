@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.ReferenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
-import java.util.*
 
 @RestController
 @RequestScope
@@ -34,6 +33,7 @@ internal class ReferenceController(private val referenceService: ReferenceServic
   suspend fun custodyTypes(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data custody-types endpoint hit")
     val values = referenceService.retrieveCustodyTypes()
+      .filter { it == "Determinate" } // Temporary until we handle other types of recall
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
 
