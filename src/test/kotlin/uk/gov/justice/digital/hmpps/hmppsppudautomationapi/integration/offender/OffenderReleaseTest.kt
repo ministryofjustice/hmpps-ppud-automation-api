@@ -21,7 +21,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_R
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
@@ -55,10 +57,30 @@ class OffenderReleaseTest : IntegrationTestBase() {
     }
 
     private fun postReleaseRequestBody(
+      assistantChiefOfficerName: String = randomString("acoName"),
+      assistantChiefOfficerFaxEmail: String = randomString("acoFaxEmail"),
+      offenderManagerName: String = randomString("omName"),
+      offenderManagerFaxEmail: String = randomString("omFaxEmail"),
+      offenderManagerTelephone: String = randomPhoneNumber(),
       probationService: String = PPUD_VALID_PROBATION_SERVICE,
+      spocName: String = randomString("spocName"),
+      spocFaxEmail: String = randomString("spocFaxEmail"),
     ): String {
       return "{" +
-        "\"probationService\":\"$probationService\" " +
+        "\"assistantChiefOfficer\":{" +
+        "  \"name\":\"$assistantChiefOfficerName\", " +
+        "  \"faxEmail\":\"$assistantChiefOfficerFaxEmail\" " +
+        "}," +
+        "\"offenderManager\":{" +
+        "  \"name\":\"$offenderManagerName\", " +
+        "  \"faxEmail\":\"$offenderManagerFaxEmail\", " +
+        "  \"telephone\":\"$offenderManagerTelephone\" " +
+        "}," +
+        "\"probationService\":\"$probationService\", " +
+        "\"spoc\":{" +
+        "  \"name\":\"$spocName\", " +
+        "  \"faxEmail\":\"$spocFaxEmail\" " +
+        "}" +
         "}"
     }
   }
@@ -218,11 +240,25 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].id").isNotEmpty
       .jsonPath("offender.sentences[0].id").value(idExtractor)
     val sentenceId = idExtractor.value!!
-    val probationService = PPUD_VALID_PROBATION_SERVICE
+    val assistantChiefOfficerName = randomString("acoName")
+    val assistantChiefOfficerFaxEmail = randomString("acoFaxEmail")
     val licenceType = PPUD_LICENCE_TYPE
+    val offenderManagerName = randomString("omName")
+    val offenderManagerFaxEmail = randomString("omFaxEmail")
+    val offenderManagerTelephone = randomPhoneNumber()
+    val probationService = PPUD_VALID_PROBATION_SERVICE
+    val spocName = randomString("spocName")
+    val spocFaxEmail = randomString("spocFaxEmail")
     val requestBody = releaseRequestBody(
       postRelease = postReleaseRequestBody(
+        assistantChiefOfficerName = assistantChiefOfficerName,
+        assistantChiefOfficerFaxEmail = assistantChiefOfficerFaxEmail,
+        offenderManagerName = offenderManagerName,
+        offenderManagerFaxEmail = offenderManagerFaxEmail,
+        offenderManagerTelephone = offenderManagerTelephone,
         probationService = probationService,
+        spocName = spocName,
+        spocFaxEmail = spocFaxEmail,
       ),
     )
 
@@ -234,8 +270,18 @@ class OffenderReleaseTest : IntegrationTestBase() {
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.name")
+      .isEqualTo(assistantChiefOfficerName)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.faxEmail")
+      .isEqualTo(assistantChiefOfficerFaxEmail)
       .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo(licenceType)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.name").isEqualTo(offenderManagerName)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.faxEmail")
+      .isEqualTo(offenderManagerFaxEmail)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone").isEqualTo(offenderManagerTelephone)
       .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo(probationService)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.name").isEqualTo(spocName)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.faxEmail").isEqualTo(spocFaxEmail)
   }
 
   private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =

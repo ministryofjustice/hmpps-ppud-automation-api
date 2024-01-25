@@ -69,12 +69,26 @@ internal class PostReleasePage(
   }
 
   fun updatePostRelease(updatePostReleaseRequest: UpdatePostReleaseRequest) {
+    assistantChiefOfficerInput.clear()
+    assistantChiefOfficerInput.sendKeys(updatePostReleaseRequest.assistantChiefOfficer.name)
+    assistantChiefOfficerFaxEmailInput.clear()
+    assistantChiefOfficerFaxEmailInput.sendKeys(updatePostReleaseRequest.assistantChiefOfficer.faxEmail)
+    selectDropdownOptionIfNotBlank(licenceTypeDropdown, licenceType, "licence type")
+    offenderManagerInput.clear()
+    offenderManagerInput.sendKeys(updatePostReleaseRequest.offenderManager.name)
+    offenderManagerFaxEmailInput.clear()
+    offenderManagerFaxEmailInput.sendKeys(updatePostReleaseRequest.offenderManager.faxEmail)
+    offenderManagerTelephoneInput.clear()
+    offenderManagerTelephoneInput.sendKeys(updatePostReleaseRequest.offenderManager.telephone)
     selectDropdownOptionIfNotBlank(
       probationServiceDropdown,
       updatePostReleaseRequest.probationService,
       "probation service",
     )
-    selectDropdownOptionIfNotBlank(licenceTypeDropdown, licenceType, "licence type")
+    spocInput.clear()
+    spocInput.sendKeys(updatePostReleaseRequest.spoc.name)
+    spocFaxEmailInput.clear()
+    spocFaxEmailInput.sendKeys(updatePostReleaseRequest.spoc.faxEmail)
 
     saveButton.click()
   }
