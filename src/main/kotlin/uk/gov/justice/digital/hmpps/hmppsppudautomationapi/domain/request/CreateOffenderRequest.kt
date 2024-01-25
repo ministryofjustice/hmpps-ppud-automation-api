@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import java.time.LocalDate
 
@@ -9,6 +10,7 @@ data class CreateOffenderRequest(
   val additionalAddresses: List<OffenderAddress> = emptyList(),
   val croNumber: String = "",
   @field:NotBlank
+  @field:Pattern(regexp = "Determinate")
   val custodyType: String,
   val dateOfBirth: LocalDate,
   val dateOfSentence: LocalDate,

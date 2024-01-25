@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
@@ -82,6 +83,27 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   ) {
     log.info("Offender update endpoint hit")
     ppudClient.updateOffender(offenderId, offenderRequest)
+  }
+
+  @PostMapping("/offender/{offenderId}/sentence")
+  suspend fun createSentence(
+    @PathVariable(required = true) offenderId: String,
+    @Valid
+    @RequestBody(required = true)
+    createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
+  ) {
+    log.info("Sentence create endpoint hit")
+  }
+
+  @PutMapping("/offender/{offenderId}/sentence/{sentenceId}")
+  suspend fun updateSentence(
+    @PathVariable(required = true) offenderId: String,
+    @PathVariable(required = true) sentenceId: String,
+    @Valid
+    @RequestBody(required = true)
+    createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
+  ) {
+    log.info("Sentence update endpoint hit")
   }
 
   @PostMapping("/offender/{offenderId}/sentence/{sentenceId}/release")
