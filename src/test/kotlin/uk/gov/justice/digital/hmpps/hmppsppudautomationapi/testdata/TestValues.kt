@@ -49,6 +49,8 @@ const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test"
 
 const val PPUD_IMMIGRATION_STATUS = "Not Applicable"
 
+const val PPUD_LICENCE_TYPE = "Standard"
+
 const val PPUD_PRISONER_CATEGORY = "Not Applicable"
 
 const val PPUD_STATUS = "Recalled [*]"

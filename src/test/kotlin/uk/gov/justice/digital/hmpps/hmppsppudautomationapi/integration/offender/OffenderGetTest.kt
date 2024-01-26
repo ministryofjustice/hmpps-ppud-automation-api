@@ -71,8 +71,15 @@ class OffenderGetTest : IntegrationTestBase() {
   @Test
   fun `given Offender with release when get offender called then Post Release is returned`() {
     retrieveOffender(ppudOffenderWithRelease.id)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo("Merseyside")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.name").isEqualTo("Joe Bloggs")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.faxEmail").isEqualTo("Joe.Bloggs@example.com")
       .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo("Standard")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.name").isEqualTo("Jane Doe")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.faxEmail").isEqualTo("Jane.Doe@example.com")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone").isEqualTo("099 1234567")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo("Merseyside")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.name").isEqualTo("Merseyside Constabulary")
+      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.faxEmail").isEqualTo("spoc@example.com")
   }
 
   @Test
