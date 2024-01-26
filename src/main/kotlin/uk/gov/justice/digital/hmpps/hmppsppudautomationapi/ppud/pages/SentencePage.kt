@@ -12,9 +12,12 @@ internal abstract class SentencePage(protected val driver: WebDriver) {
   @FindBy(id = "M_ctl00treetvOffender")
   protected lateinit var navigationTreeViewRoot: WebElement
 
-  abstract fun extractSentenceDetails(releaseExtractor: (List<String>) -> List<Release>): Sentence
+  abstract fun extractSentenceDetails(
+    includeEmptyReleases: Boolean,
+    releaseExtractor: (List<String>) -> List<Release>,
+  ): Sentence
 
-  protected fun determineReleaseLinks(): List<String> {
+  protected fun determineReleaseLinks(includeEmptyReleases: Boolean): List<String> {
     val sentenceNodes = TreeView(navigationTreeViewRoot)
       .expandNodeWithText("Sentences")
       .children()
@@ -28,7 +31,10 @@ internal abstract class SentencePage(protected val driver: WebDriver) {
       thisSentenceNode.expandNode()
         .expandNodeWithText("Releases")
         .children()
-        .filter { it.text.startsWith("New").not() && it.text.trim().startsWith("Not Specified").not() }
+        .filter {
+          it.text.startsWith("New").not() &&
+            (includeEmptyReleases || it.text.trim().startsWith("Not Specified").not())
+        }
 
     return releaseNodes.map { it.getAttribute("igurl") }
   }

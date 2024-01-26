@@ -196,7 +196,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given new release and valid values in request body when post release called then release is created`() {
+  fun `given values for new release in request body when post release called then release is created`() {
     val testOffenderId = createTestOffenderInPpud()
     val idExtractor = ValueConsumer<String>()
     retrieveOffender(testOffenderId)
@@ -222,6 +222,41 @@ class OffenderReleaseTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo(dateOfRelease)
+      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo(releasedFrom)
+      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)
+      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
+      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
+  }
+
+  @Test
+  fun `given values for new release in request body and not specified release exists when post release called then not specified release is updated`() {
+    val testOffenderId = createTestOffenderInPpud()
+    val idExtractor = ValueConsumer<String>()
+    retrieveOffender(testOffenderId, true)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
+    val sentenceId = idExtractor.value!!
+    val dateOfRelease = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val releasedFrom = PPUD_VALID_RELEASED_FROM_2
+    val releasedUnder = PPUD_VALID_RELEASED_UNDER_2
+    val requestBody = releaseRequestBody(
+      dateOfRelease = dateOfRelease,
+      releasedFrom = releasedFrom,
+      releasedUnder = releasedUnder,
+    )
+
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("release.id").isNotEmpty
+
+    val retrieved = retrieveOffender(testOffenderId, includeEmptyReleases = true)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(1)
       .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo(dateOfRelease)
       .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo(releasedFrom)
       .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)

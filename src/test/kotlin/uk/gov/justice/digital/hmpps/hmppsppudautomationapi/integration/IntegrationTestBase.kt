@@ -159,9 +159,10 @@ abstract class IntegrationTestBase {
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
 
-  protected fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
+  protected fun retrieveOffender(id: String, includeEmptyReleases: Boolean = false): WebTestClient.BodyContentSpec {
+    val includeEmptyReleasesParam = if (includeEmptyReleases) "?includeEmptyReleases=true" else ""
     return webTestClient.get()
-      .uri("/offender/$id")
+      .uri("/offender/$id$includeEmptyReleasesParam")
       .headers { it.authToken() }
       .accept(MediaType.APPLICATION_JSON)
       .exchange()

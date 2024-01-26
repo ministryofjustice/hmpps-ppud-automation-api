@@ -88,6 +88,12 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].releases.size()").isEqualTo(0)
   }
 
+  @Test
+  fun `given Offender with Not Specified release and includeEmptyReleases is set to true when get offender called then release is returned`() {
+    retrieveOffender(PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE, includeEmptyReleases = true)
+      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(1)
+  }
+
   @ParameterizedTest
   @CsvSource(
     "premises,line1,line2,postcode,phoneNumber",

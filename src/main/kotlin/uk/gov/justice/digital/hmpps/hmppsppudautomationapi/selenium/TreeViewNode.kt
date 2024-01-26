@@ -51,6 +51,11 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
   }
 
+  fun hasDescendentNodeWithTextContaining(text: String): Boolean {
+    val matches = expansionElement.findElements(By.xpath(".//*[contains(text(), '$text')]/parent::div"))
+    return matches.any()
+  }
+
   private fun findNodeWithLinkContaining(value: String): TreeViewNode {
     return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
   }

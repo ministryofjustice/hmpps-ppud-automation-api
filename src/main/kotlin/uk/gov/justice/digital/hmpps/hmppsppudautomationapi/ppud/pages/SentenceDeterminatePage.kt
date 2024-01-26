@@ -30,14 +30,14 @@ internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormat
     PageFactory.initElements(driver, this)
   }
 
-  override fun extractSentenceDetails(releaseExtractor: (List<String>) -> List<Release>): Sentence {
+  override fun extractSentenceDetails(includeEmptyReleases: Boolean, releaseExtractor: (List<String>) -> List<Release>): Sentence {
     return Sentence(
       id = extractId(driver, "determinate sentence page"),
       dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
       // Do releases last because it navigates away
-      releases = releaseExtractor(determineReleaseLinks()),
+      releases = releaseExtractor(determineReleaseLinks(includeEmptyReleases)),
       sentencingCourt = "",
     )
   }

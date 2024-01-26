@@ -29,6 +29,7 @@ class NavigationTreeViewComponent(
     private const val RELEASES_NODE_TEXT = "Releases"
     private const val POST_RELEASE_NODE_TEXT = "Post Release"
     private const val NEW_NODE_TEXT = "New..."
+    private const val NOT_SPECIFIED_TEXT = "Not Specified"
     private const val URL_ATTRIBUTE = "igurl"
   }
 
@@ -80,11 +81,17 @@ class NavigationTreeViewComponent(
       .expandNodeWithTextContaining("Recalls")
   }
 
-  fun navigateToNewReleaseFor(sentenceId: String) {
-    findSentenceNodeFor(sentenceId)
+  fun navigateToNewOrEmptyReleaseFor(sentenceId: String) {
+    val releasesNode = findSentenceNodeFor(sentenceId)
       .expandNodeWithText(RELEASES_NODE_TEXT)
-      .findNodeWithText(NEW_NODE_TEXT)
-      .click()
+
+    val resultNode = if (releasesNode.hasDescendentNodeWithTextContaining(NOT_SPECIFIED_TEXT)) {
+      releasesNode.findNodeWithTextContaining(NOT_SPECIFIED_TEXT)
+    } else {
+      releasesNode.findNodeWithText(NEW_NODE_TEXT)
+    }
+
+    resultNode.click()
   }
 
   fun navigateToNewRecallFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate) {

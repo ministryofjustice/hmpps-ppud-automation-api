@@ -27,7 +27,10 @@ internal class SentenceIndeterminatePage(driver: WebDriver, private val dateForm
     PageFactory.initElements(driver, this)
   }
 
-  override fun extractSentenceDetails(releaseExtractor: (List<String>) -> List<Release>): Sentence {
+  override fun extractSentenceDetails(
+    includeEmptyReleases: Boolean,
+    releaseExtractor: (List<String>) -> List<Release>,
+  ): Sentence {
     return Sentence(
       id = extractId(driver, "indeterminate sentence page"),
       dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
@@ -36,7 +39,7 @@ internal class SentenceIndeterminatePage(driver: WebDriver, private val dateForm
       licenceExpiryDate = null,
       mappaLevel = "",
       // Do releases last because it navigates away
-      releases = releaseExtractor(determineReleaseLinks()),
+      releases = releaseExtractor(determineReleaseLinks(includeEmptyReleases)),
       // TODO
       sentencingCourt = "",
     )

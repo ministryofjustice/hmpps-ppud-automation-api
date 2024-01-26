@@ -91,12 +91,12 @@ internal class PpudClient(
     }
   }
 
-  suspend fun retrieveOffender(id: String): Offender {
+  suspend fun retrieveOffender(id: String, includeEmptyReleases: Boolean = false): Offender {
     log.info("Retrieving offender in PPUD Client with ID '$id'")
 
     return performLoggedInOperation {
       offenderPage.viewOffenderWithId(id)
-      offenderPage.extractOffenderDetails { extractSentences(it) }
+      offenderPage.extractOffenderDetails(extractSentences(includeEmptyReleases))
     }
   }
 
@@ -246,7 +246,7 @@ internal class PpudClient(
     if (foundMatch) {
       releasePage.updateRelease(createOrUpdateReleaseRequest)
     } else {
-      navigationTreeViewComponent.navigateToNewReleaseFor(sentenceId)
+      navigationTreeViewComponent.navigateToNewOrEmptyReleaseFor(sentenceId)
       releasePage.createRelease(createOrUpdateReleaseRequest)
     }
     releasePage.throwIfInvalid()
@@ -301,11 +301,13 @@ internal class PpudClient(
     return offenderPage.extractSearchResultOffenderDetails()
   }
 
-  private fun extractSentences(urls: List<String>): List<Sentence> {
-    return urls.map {
-      driver.navigate().to("$ppudUrl$it")
-      val sentencePage = sentencePageFactory.sentencePage()
-      sentencePage.extractSentenceDetails(::extractReleases)
+  private fun extractSentences(includeEmptyReleases: Boolean = false): (List<String>) -> List<Sentence> {
+    return { urls ->
+      urls.map {
+        driver.navigate().to("$ppudUrl$it")
+        val sentencePage = sentencePageFactory.sentencePage()
+        sentencePage.extractSentenceDetails(includeEmptyReleases,::extractReleases)
+      }
     }
   }
 

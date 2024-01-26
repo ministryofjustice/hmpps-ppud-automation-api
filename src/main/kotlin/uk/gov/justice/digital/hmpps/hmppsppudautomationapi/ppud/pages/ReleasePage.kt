@@ -93,9 +93,10 @@ internal class ReleasePage(
   }
 
   fun extractReleaseDetails(postReleaseExtractor: (String) -> PostRelease): Release {
+    val dateOfRelease = dateOfReleaseInput.getValue()
     return Release(
       category = Select(categoryDropdown).firstSelectedOption.text,
-      dateOfRelease = LocalDate.parse(dateOfReleaseInput.getValue(), dateFormatter),
+      dateOfRelease = if (dateOfRelease.isEmpty()) LocalDate.MIN else LocalDate.parse(dateOfRelease, dateFormatter),
       releasedFrom = releasedFromInput.getValue(),
       releasedUnder = Select(releasedUnderDropdown).firstSelectedOption.text,
       releaseType = Select(releaseTypeDropdown).firstSelectedOption.text,
