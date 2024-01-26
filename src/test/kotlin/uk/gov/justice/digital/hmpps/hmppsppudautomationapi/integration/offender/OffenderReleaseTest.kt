@@ -157,29 +157,26 @@ class OffenderReleaseTest : IntegrationTestBase() {
   fun `given existing release and valid values in request body when post release called then category and release type are set`() {
     // TODO: This test worked OK to drive the initial work, but we need to be able to create an offender
     //  with a release that has different values for category and release type.
-    val testOffenderId = ppudOffenderWithRelease.id
+    val testOffenderId = createTestOffenderInPpud()
     val idExtractor = ValueConsumer<String>()
-    val dateOfReleaseExtractor = ValueConsumer<String>()
-    val releasedUnderExtractor = ValueConsumer<String>()
-    val releasedFromExtractor = ValueConsumer<String>()
     retrieveOffender(testOffenderId)
       .jsonPath("offender.sentences[0].id").isNotEmpty
       .jsonPath("offender.sentences[0].id").value(idExtractor)
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isNotEmpty
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").value(dateOfReleaseExtractor)
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isNotEmpty
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").value(releasedUnderExtractor)
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isNotEmpty
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").value(releasedFromExtractor)
     val sentenceId = idExtractor.value!!
-    val dateOfRelease = dateOfReleaseExtractor.value!!
-    val releasedUnder = releasedUnderExtractor.value!!
-    val releasedFrom = releasedFromExtractor.value!!
+    val dateOfRelease = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val releasedFrom = PPUD_VALID_RELEASED_FROM
+    val releasedUnder = PPUD_VALID_RELEASED_UNDER
     val requestBody = releaseRequestBody(
       dateOfRelease = dateOfRelease,
       releasedFrom = releasedFrom,
       releasedUnder = releasedUnder,
     )
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isOk
+    retrieveOffender(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
 
     postRelease(testOffenderId, sentenceId, requestBody)
       .expectStatus()
@@ -278,7 +275,8 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.name").isEqualTo(offenderManagerName)
       .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.faxEmail")
       .isEqualTo(offenderManagerFaxEmail)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone").isEqualTo(offenderManagerTelephone)
+      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone")
+      .isEqualTo(offenderManagerTelephone)
       .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo(probationService)
       .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.name").isEqualTo(spocName)
       .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.faxEmail").isEqualTo(spocFaxEmail)
