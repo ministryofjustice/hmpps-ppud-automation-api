@@ -269,6 +269,9 @@ internal class OffenderPage(
     if (driver.title.equals("url checksum error", ignoreCase = true)) {
       throw InvalidOffenderIdException("Offender ID is invalid. Checksum validation failed.")
     }
+    if (driver.title.equals("invalid url", ignoreCase = true)) {
+      throw InvalidOffenderIdException("Attempted to navigate to an invalid URL. This is probably due to an invalid offender ID.")
+    }
     if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }

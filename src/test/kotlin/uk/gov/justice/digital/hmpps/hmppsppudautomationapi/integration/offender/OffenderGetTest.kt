@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -13,6 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneN
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.util.function.Consumer
 
 @ExtendWith(OffenderGetTest.OffenderUpdateDataTidyExtension::class)
 class OffenderGetTest : IntegrationTestBase() {
@@ -32,6 +34,16 @@ class OffenderGetTest : IntegrationTestBase() {
   @Test
   fun `given token without recall role when get offender called then forbidden is returned`() {
     givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/${randomPpudId()}")
+  }
+
+  @Test
+  fun `given invalid offender ID when get offender called then 400 BAD REQUEST with invalid ID error is returned`() {
+    retrieveOffenderWhenNotOk("A7747DZ")
+      .expectStatus()
+      .isBadRequest
+      .expectBody()
+      .jsonPath("userMessage")
+      .value(Consumer<String> { assertThat(it).contains("Offender ID is invalid") })
   }
 
   @Test

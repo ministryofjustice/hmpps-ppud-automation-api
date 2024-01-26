@@ -10,7 +10,7 @@ data class Sentence(
   val mappaLevel: String,
   val offence: Offence = Offence(),
   val releases: List<Release> = emptyList(),
-  val sentenceExpiryDate: LocalDate? = null,
+  val sentenceEndDate: LocalDate? = null,
   val sentenceLength: SentenceLength = SentenceLength(),
   val espCustodialPeriod: EspPeriod = EspPeriod(),
   val espExtendedPeriod: EspPeriod = EspPeriod(),

@@ -169,6 +169,14 @@ abstract class IntegrationTestBase {
       .expectBody()
   }
 
+  protected fun retrieveOffenderWhenNotOk(id: String): WebTestClient.ResponseSpec {
+    return webTestClient.get()
+      .uri("/offender/$id")
+      .headers { it.authToken() }
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+  }
+
   protected fun givenMissingTokenWhenCalledThenUnauthorizedReturned(method: HttpMethod, uri: String) {
     webTestClient.method(method)
       .uri(uri)
