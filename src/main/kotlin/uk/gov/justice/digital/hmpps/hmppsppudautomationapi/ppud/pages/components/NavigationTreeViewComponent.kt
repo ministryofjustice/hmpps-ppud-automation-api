@@ -28,6 +28,7 @@ class NavigationTreeViewComponent(
     private const val SENTENCES_NODE_TEXT = "Sentences"
     private const val RELEASES_NODE_TEXT = "Releases"
     private const val POST_RELEASE_NODE_TEXT = "Post Release"
+    private const val RECALLS_NODE_TEXT = "Recalls"
     private const val NEW_NODE_TEXT = "New..."
     private const val NOT_SPECIFIED_TEXT = "Not Specified"
     private const val URL_ATTRIBUTE = "igurl"
@@ -36,6 +37,13 @@ class NavigationTreeViewComponent(
   init {
     PageFactory.initElements(driver, this)
   }
+
+  val sentenceNodes: List<TreeViewNode>
+    get() {
+      return TreeView(navigationTreeViewRoot)
+        .expandNodeWithText(SENTENCES_NODE_TEXT)
+        .children()
+    }
 
   fun findSentenceNodeFor(sentenceId: String): TreeViewNode {
     val sentencesNode = TreeView(navigationTreeViewRoot).expandNodeWithText(SENTENCES_NODE_TEXT)
@@ -74,22 +82,19 @@ class NavigationTreeViewComponent(
 
   fun findRecallsFor(dateOfSentence: LocalDate, dateOfRelease: LocalDate): TreeViewNode {
     return TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
+      .expandNodeWithText(SENTENCES_NODE_TEXT)
       .expandNodeWithTextContaining(dateOfSentence.format(dateFormatter))
-      .expandNodeWithText("Releases")
+      .expandNodeWithText(RELEASES_NODE_TEXT)
       .expandNodeWithTextContaining(dateOfRelease.format(dateFormatter))
-      .expandNodeWithTextContaining("Recalls")
+      .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
   }
 
   fun navigateToNewOrEmptyReleaseFor(sentenceId: String) {
     val releasesNode = findSentenceNodeFor(sentenceId)
       .expandNodeWithText(RELEASES_NODE_TEXT)
 
-    val resultNode = if (releasesNode.hasDescendentNodeWithTextContaining(NOT_SPECIFIED_TEXT)) {
-      releasesNode.findNodeWithTextContaining(NOT_SPECIFIED_TEXT)
-    } else {
-      releasesNode.findNodeWithText(NEW_NODE_TEXT)
-    }
+    val resultNode =
+      releasesNode.tryFindNodeWithTextContaining(NOT_SPECIFIED_TEXT) ?: releasesNode.findNodeWithText(NEW_NODE_TEXT)
 
     resultNode.click()
   }
@@ -117,10 +122,10 @@ class NavigationTreeViewComponent(
       .map { it.url }
   }
 
-  private fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {
+  fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {
     return this.filter { it.text != NEW_NODE_TEXT }
   }
 
-  private val TreeViewNode.url: String
+  val TreeViewNode.url: String
     get() = this.getAttribute(URL_ATTRIBUTE)
 }

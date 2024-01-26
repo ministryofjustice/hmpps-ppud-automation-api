@@ -230,7 +230,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given values for new release in request body and not specified release exists when post release called then not specified release is updated`() {
+  fun `given values for new release in request body and empty release exists when post release called then empty release is updated`() {
     val testOffenderId = createTestOffenderInPpud()
     val idExtractor = ValueConsumer<String>()
     retrieveOffender(testOffenderId, true)

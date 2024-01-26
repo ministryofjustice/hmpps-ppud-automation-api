@@ -306,7 +306,7 @@ internal class PpudClient(
       urls.map {
         driver.navigate().to("$ppudUrl$it")
         val sentencePage = sentencePageFactory.sentencePage()
-        sentencePage.extractSentenceDetails(includeEmptyReleases,::extractReleases)
+        sentencePage.extractSentenceDetails(includeEmptyReleases, ::extractReleases)
       }
     }
   }

@@ -1,16 +1,14 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WebElement
-import org.openqa.selenium.support.FindBy
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 
-internal abstract class SentencePage(protected val driver: WebDriver) {
-
-  @FindBy(id = "M_ctl00treetvOffender")
-  protected lateinit var navigationTreeViewRoot: WebElement
+internal abstract class SentencePage(
+  protected val driver: WebDriver,
+  private val navigationTreeViewComponent: NavigationTreeViewComponent,
+) {
 
   abstract fun extractSentenceDetails(
     includeEmptyReleases: Boolean,
@@ -18,9 +16,8 @@ internal abstract class SentencePage(protected val driver: WebDriver) {
   ): Sentence
 
   protected fun determineReleaseLinks(includeEmptyReleases: Boolean): List<String> {
-    val sentenceNodes = TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-      .children()
+    val sentenceNodes = navigationTreeViewComponent
+      .sentenceNodes
       .filter { it.text.startsWith("New").not() }
 
     val thisSentenceNode = sentenceNodes.first {
@@ -28,7 +25,8 @@ internal abstract class SentencePage(protected val driver: WebDriver) {
     }
 
     val releaseNodes =
-      thisSentenceNode.expandNode()
+      thisSentenceNode
+        .expandNode()
         .expandNodeWithText("Releases")
         .children()
         .filter {

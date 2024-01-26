@@ -9,13 +9,18 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-internal class SentenceIndeterminatePage(driver: WebDriver, private val dateFormatter: DateTimeFormatter) :
-  SentencePage(driver) {
+internal class SentenceIndeterminatePage(
+  driver: WebDriver,
+  private val dateFormatter: DateTimeFormatter,
+  navigationTreeViewComponent: NavigationTreeViewComponent,
+) :
+  SentencePage(driver, navigationTreeViewComponent) {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement

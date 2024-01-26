@@ -9,13 +9,18 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormatter: DateTimeFormatter) :
-  SentencePage(driver) {
+internal class SentenceDeterminatePage(
+  driver: WebDriver,
+  private val dateFormatter: DateTimeFormatter,
+  navigationTreeViewComponent: NavigationTreeViewComponent,
+) :
+  SentencePage(driver, navigationTreeViewComponent) {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
@@ -30,7 +35,10 @@ internal class SentenceDeterminatePage(driver: WebDriver, private val dateFormat
     PageFactory.initElements(driver, this)
   }
 
-  override fun extractSentenceDetails(includeEmptyReleases: Boolean, releaseExtractor: (List<String>) -> List<Release>): Sentence {
+  override fun extractSentenceDetails(
+    includeEmptyReleases: Boolean,
+    releaseExtractor: (List<String>) -> List<Release>,
+  ): Sentence {
     return Sentence(
       id = extractId(driver, "determinate sentence page"),
       dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
