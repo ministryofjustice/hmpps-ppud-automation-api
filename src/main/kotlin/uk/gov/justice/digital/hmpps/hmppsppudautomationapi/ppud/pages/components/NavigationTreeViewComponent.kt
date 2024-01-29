@@ -30,8 +30,16 @@ class NavigationTreeViewComponent(
     private const val POST_RELEASE_NODE_TEXT = "Post Release"
     private const val RECALLS_NODE_TEXT = "Recalls"
     private const val NEW_NODE_TEXT = "New..."
+    private const val OFFENCE_NODE_TEXT = "Offence"
     private const val NOT_SPECIFIED_TEXT = "Not Specified"
     private const val URL_ATTRIBUTE = "igurl"
+
+    val TreeViewNode.url: String
+      get() = this.getAttribute(URL_ATTRIBUTE)
+
+    fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {
+      return this.filter { it.text != NEW_NODE_TEXT }
+    }
   }
 
   init {
@@ -56,18 +64,28 @@ class NavigationTreeViewComponent(
     return sentenceNode
   }
 
-  fun findPostReleaseNodeFor(releaseId: String): TreeViewNode {
-    val sentenceNodes = TreeView(navigationTreeViewRoot)
-      .expandNodeWithText(SENTENCES_NODE_TEXT)
-      .children()
-      .excludeNewNode()
+  fun findOffenceNodeFor(sentenceId: String): TreeViewNode {
+    return findSentenceNodeFor(sentenceId)
+      .expandNode()
+      .findNodeWithText(OFFENCE_NODE_TEXT)
+  }
 
-    val releaseNodes = sentenceNodes.flatMap {
-      it.expandNode()
-        .expandNodeWithText(RELEASES_NODE_TEXT)
-        .children()
-        .excludeNewNode()
-    }
+  fun findReleaseNodesFor(sentenceId: String): List<TreeViewNode> {
+    return findSentenceNodeFor(sentenceId)
+      .expandNode()
+      .expandNodeWithText(RELEASES_NODE_TEXT)
+      .children()
+  }
+
+  fun findPostReleaseNodeFor(releaseId: String): TreeViewNode {
+    val releaseNodes = sentenceNodes
+      .excludeNewNode()
+      .flatMap {
+        it.expandNode()
+          .expandNodeWithText(RELEASES_NODE_TEXT)
+          .children()
+          .excludeNewNode()
+      }
 
     val matchingRelease = releaseNodes.firstOrNull {
       it.url.contains("data=$releaseId")
@@ -105,12 +123,17 @@ class NavigationTreeViewComponent(
       .click()
   }
 
-  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    val sentenceNode = findSentenceNodeFor(sentenceId)
+  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> {
+    return findReleaseNodesFor(sentenceId)
+      .filter {
+        it.text.startsWith(NEW_NODE_TEXT).not() &&
+          (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
+      }
+      .map { it.url }
+  }
 
-    return sentenceNode
-      .expandNodeWithText(RELEASES_NODE_TEXT)
-      .children()
+  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
+    return findReleaseNodesFor(sentenceId)
       .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
       .map { it.url }
   }
@@ -121,11 +144,4 @@ class NavigationTreeViewComponent(
       .excludeNewNode()
       .map { it.url }
   }
-
-  fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {
-    return this.filter { it.text != NEW_NODE_TEXT }
-  }
-
-  val TreeViewNode.url: String
-    get() = this.getAttribute(URL_ATTRIBUTE)
 }

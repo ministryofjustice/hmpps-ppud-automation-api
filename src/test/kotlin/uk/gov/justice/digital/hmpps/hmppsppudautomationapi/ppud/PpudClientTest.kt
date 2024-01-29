@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
@@ -74,10 +75,13 @@ class PpudClientTest {
   private lateinit var searchPage: SearchPage
 
   @Mock
+  private lateinit var newOffenderPage: NewOffenderPage
+
+  @Mock
   private lateinit var offenderPage: OffenderPage
 
   @Mock
-  private lateinit var newOffenderPage: NewOffenderPage
+  private lateinit var offencePage: OffencePage
 
   @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
@@ -119,16 +123,17 @@ class PpudClientTest {
       ppudAdminPassword,
       driver,
       navigationTreeViewComponent,
-      loginPage,
       adminPage,
       editLookupsPage,
-      searchPage,
-      offenderPage,
+      loginPage,
       newOffenderPage,
-      sentencePageFactory,
-      releasePage,
+      offenderPage,
+      offencePage,
       postReleasePage,
       recallPage,
+      releasePage,
+      searchPage,
+      sentencePageFactory,
     )
 
     given(driver.navigate()).willReturn(webDriverNavigation)
@@ -349,6 +354,7 @@ class PpudClientTest {
       val inOrder = inOrder(webDriverNavigation, offenderPage)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).extractOffenderDetails(any())
       assertEquals(offender, result)
     }
   }
