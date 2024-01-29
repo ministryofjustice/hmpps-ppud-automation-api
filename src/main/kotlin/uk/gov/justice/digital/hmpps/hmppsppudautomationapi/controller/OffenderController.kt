@@ -57,9 +57,12 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @GetMapping("/offender/{id}")
-  suspend fun get(@PathVariable(required = true) id: String): ResponseEntity<GetOffenderResponse> {
+  suspend fun get(
+    @PathVariable(required = true) id: String,
+    @RequestParam(required = false) includeEmptyReleases: Boolean = false,
+  ): ResponseEntity<GetOffenderResponse> {
     log.info("Offender get endpoint hit")
-    val offender = ppudClient.retrieveOffender(id)
+    val offender = ppudClient.retrieveOffender(id, includeEmptyReleases)
     return ResponseEntity(GetOffenderResponse(offender), HttpStatus.OK)
   }
 

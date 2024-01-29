@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
@@ -83,9 +83,15 @@ class OffenderGetTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given Offender with Not Specified release when get offender called then release is not returned`() {
-    retrieveOffender(PPUD_OFFENDER_ID_WITH_NOT_SPECIFIED_RELEASE)
+  fun `given Offender with empty release when get offender called then release is not returned`() {
+    retrieveOffender(PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE)
       .jsonPath("offender.sentences[0].releases.size()").isEqualTo(0)
+  }
+
+  @Test
+  fun `given Offender with empty release and includeEmptyReleases is set to true when get offender called then release is returned`() {
+    retrieveOffender(PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE, includeEmptyReleases = true)
+      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(1)
   }
 
   @ParameterizedTest
