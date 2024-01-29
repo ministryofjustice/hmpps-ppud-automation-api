@@ -6,22 +6,22 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceDeterminatePage(
   driver: WebDriver,
-  private val dateFormatter: DateTimeFormatter,
+  pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
 ) :
-  SentencePage(driver, navigationTreeViewComponent) {
+  SentencePage(driver, pageHelper, navigationTreeViewComponent) {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
@@ -29,8 +29,38 @@ internal class SentenceDeterminatePage(
   @FindBy(id = "igtxtcntDetails_dteDOS")
   private lateinit var dateOfSentenceInput: WebElement
 
+  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_YRS")
+  private lateinit var espCustodialPeriodYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_MNTHS")
+  private lateinit var espCustodialPeriodMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_YRS")
+  private lateinit var espExtendedPeriodYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_MNTHS")
+  private lateinit var espExtendedPeriodMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteLICENCE_END")
+  private lateinit var licenceExpiryDateInput: WebElement
+
   @FindBy(id = "cntDetails_ddliMAPPA_Level")
   private lateinit var mappaLevelDropdown: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteSED")
+  private lateinit var sentenceEndDateInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_YRS")
+  private lateinit var sentenceLengthPartYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_MNTHS")
+  private lateinit var sentenceLengthPartMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_DAYS")
+  private lateinit var sentenceLengthPartDaysInput: WebElement
+
+  @FindBy(id = "cntDetails_txtSENTENCING_COURT")
+  private lateinit var sentencingCourtInput: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -47,11 +77,26 @@ internal class SentenceDeterminatePage(
     val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     val offenceLink = determineOffenceLink()
     return Sentence(
-      id = extractId(driver, pageDescription),
-      dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
+      id = pageHelper.extractId(driver, pageDescription),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
+      dateOfSentence = pageHelper.readDate(dateOfSentenceInput),
+      espCustodialPeriod = EspPeriod(
+        years = pageHelper.readIntegerOrDefault(espCustodialPeriodYearsInput, 0),
+        months = pageHelper.readIntegerOrDefault(espCustodialPeriodMonthsInput, 0),
+      ),
+      espExtendedPeriod = EspPeriod(
+        years = pageHelper.readIntegerOrDefault(espExtendedPeriodYearsInput, 0),
+        months = pageHelper.readIntegerOrDefault(espExtendedPeriodMonthsInput, 0),
+      ),
+      licenceExpiryDate = pageHelper.readDateOrNull(licenceExpiryDateInput),
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
-      sentencingCourt = "",
+      sentenceEndDate = pageHelper.readDateOrNull(sentenceEndDateInput),
+      sentenceLength = SentenceLength(
+        partYears = pageHelper.readIntegerOrDefault(sentenceLengthPartYearsInput, 0),
+        partMonths = pageHelper.readIntegerOrDefault(sentenceLengthPartMonthsInput, 0),
+        partDays = pageHelper.readIntegerOrDefault(sentenceLengthPartDaysInput, 0),
+      ),
+      sentencingCourt = sentencingCourtInput.getValue(),
       // Do offence and releases last because it navigates away
       offence = offenceExtractor(offenceLink),
       releases = releaseExtractor(releaseLinks),

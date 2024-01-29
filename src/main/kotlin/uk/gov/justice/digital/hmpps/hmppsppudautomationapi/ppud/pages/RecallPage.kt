@@ -15,9 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
@@ -32,6 +30,7 @@ import java.time.format.DateTimeFormatter
 @RequestScope
 internal class RecallPage(
   private val driver: WebDriver,
+  private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
   private val dateTimeFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
@@ -171,13 +170,13 @@ internal class RecallPage(
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
-    waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
+    pageHelper.waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
     selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
       createRecallRequest.recommendedToOwner,
       "recommended to owner",
     )
-    waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)
+    pageHelper.waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)
     selectDropdownOptionIfNotBlank(
       revocationIssuedByOwnerDropdown,
       revocationIssuedByOwner,
@@ -236,7 +235,7 @@ internal class RecallPage(
 
   fun deleteRecall() {
     deleteButton.click()
-    dismissConfirmDeleteAlert(driver)
+    pageHelper.dismissConfirmDeleteAlert(driver)
   }
 
   fun urlFor(id: String): String {
@@ -261,5 +260,5 @@ internal class RecallPage(
     saveMinuteButton.click()
   }
 
-  private fun extractRecallId() = extractId(driver, "recall page")
+  private fun extractRecallId() = pageHelper.extractId(driver, "recall page")
 }
