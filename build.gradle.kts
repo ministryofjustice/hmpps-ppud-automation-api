@@ -33,7 +33,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
-  testImplementation("io.jsonwebtoken:jjwt:0.12.3")
+  testImplementation("io.jsonwebtoken:jjwt:0.12.4")
 }
 
 java {
