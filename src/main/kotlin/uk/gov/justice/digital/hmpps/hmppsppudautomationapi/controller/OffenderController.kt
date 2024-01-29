@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import io.swagger.v3.oas.annotations.Hidden
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
@@ -44,6 +46,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @PostMapping("/offender/search")
+  @Operation(
+    summary = "Search Offenders",
+    description = "Search for offenders that match the specified criteria.",
+  )
   suspend fun search(
     @Valid
     @RequestBody(required = true)
@@ -57,8 +63,16 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @GetMapping("/offender/{id}")
+  @Operation(
+    summary = "Get Offender",
+    description = "Retrieve data for a specific offender.",
+  )
   suspend fun get(
     @PathVariable(required = true) id: String,
+    @Parameter(
+      description = "Only required for testing/diagnostic purposes. If true, this will mean that releases " +
+        "that are titles as 'Not Specified - Not Specified' will be included.",
+    )
     @RequestParam(required = false) includeEmptyReleases: Boolean = false,
   ): ResponseEntity<GetOffenderResponse> {
     log.info("Offender get endpoint hit")
@@ -67,6 +81,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @PostMapping("/offender")
+  @Operation(
+    summary = "Create Offender",
+    description = "Create a new offender.",
+  )
   suspend fun createOffender(
     @Valid
     @RequestBody(required = true)
@@ -78,6 +96,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @PutMapping("/offender/{offenderId}")
+  @Operation(
+    summary = "Update Offender",
+    description = "Update an existing offender.",
+  )
   suspend fun updateOffender(
     @PathVariable(required = true) offenderId: String,
     @Valid
@@ -89,6 +111,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @PostMapping("/offender/{offenderId}/sentence")
+  @Operation(
+    summary = "Create Sentence",
+    description = "Create a new sentence against an existing offender.",
+  )
   suspend fun createSentence(
     @PathVariable(required = true) offenderId: String,
     @Valid
@@ -98,6 +124,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     log.info("Sentence create endpoint hit")
   }
 
+  @Operation(
+    summary = "Update Sentence",
+    description = "Update an existing sentence on an offender.",
+  )
   @PutMapping("/offender/{offenderId}/sentence/{sentenceId}")
   suspend fun updateSentence(
     @PathVariable(required = true) offenderId: String,
@@ -109,6 +139,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     log.info("Sentence update endpoint hit")
   }
 
+  @Operation(
+    summary = "Create or Update a Release and Post Release",
+    description = "Create a new release and post release, or update an existing release and post release when the release matches the key values.",
+  )
   @PostMapping("/offender/{offenderId}/sentence/{sentenceId}/release")
   suspend fun createOrUpdateRelease(
     @PathVariable(required = true) offenderId: String,
@@ -123,6 +157,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   }
 
   @PostMapping("/offender/{offenderId}/recall")
+  @Operation(
+    summary = "Create Recall",
+    description = "Create a recall against an existing offender.",
+  )
   suspend fun createRecall(
     @PathVariable(required = true) offenderId: String,
     @Valid
