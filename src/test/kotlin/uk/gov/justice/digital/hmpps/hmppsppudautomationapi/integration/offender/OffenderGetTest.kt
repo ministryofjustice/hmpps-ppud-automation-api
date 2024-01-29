@@ -57,7 +57,7 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].espExtendedPeriod.months").isEqualTo("8")
       .jsonPath("offender.sentences[0].licenceExpiryDate").isEqualTo("2020-06-30")
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo("Level 2 – Local Inter-Agency Management")
-      .jsonPath("offender.sentences[0].sentenceEndDate").isEqualTo("2014-01-01")
+      .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo("2014-01-01")
       .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo("4")
       .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo("5")
       .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo("6")
@@ -73,7 +73,7 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[1].espExtendedPeriod").isEmpty
       .jsonPath("offender.sentences[1].licenceExpiryDate").isEmpty
       .jsonPath("offender.sentences[1].mappaLevel").isEqualTo("")
-      .jsonPath("offender.sentences[1].sentenceEndDate").isEmpty
+      .jsonPath("offender.sentences[1].sentenceExpiryDate").isEmpty
       .jsonPath("offender.sentences[1].sentenceLength").isEmpty
       .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo("Sheffield")
   }
