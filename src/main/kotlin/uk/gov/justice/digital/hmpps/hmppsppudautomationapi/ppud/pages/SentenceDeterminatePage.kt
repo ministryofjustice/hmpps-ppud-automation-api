@@ -48,7 +48,7 @@ internal class SentenceDeterminatePage(
   private lateinit var mappaLevelDropdown: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteSED")
-  private lateinit var sentenceEndDateInput: WebElement
+  private lateinit var sentenceExpiryDateInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_txtPART_YRS")
   private lateinit var sentenceLengthPartYearsInput: WebElement
@@ -90,7 +90,7 @@ internal class SentenceDeterminatePage(
       ),
       licenceExpiryDate = pageHelper.readDateOrNull(licenceExpiryDateInput),
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
-      sentenceEndDate = pageHelper.readDateOrNull(sentenceEndDateInput),
+      sentenceExpiryDate = pageHelper.readDateOrNull(sentenceExpiryDateInput),
       sentenceLength = SentenceLength(
         partYears = pageHelper.readIntegerOrDefault(sentenceLengthPartYearsInput, 0),
         partMonths = pageHelper.readIntegerOrDefault(sentenceLengthPartMonthsInput, 0),

@@ -52,7 +52,7 @@ internal class SentenceIndeterminatePage(
       espExtendedPeriod = null,
       licenceExpiryDate = null,
       mappaLevel = "",
-      sentenceEndDate = null,
+      sentenceExpiryDate = null,
       sentenceLength = null,
       sentencingCourt = sentencingCourtInput.getValue(),
       // Do offence and releases last because it navigates away
