@@ -17,10 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissConfirmDeleteAlert
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
@@ -35,6 +32,7 @@ import java.time.format.DateTimeFormatter
 @RequestScope
 internal class OffenderPage(
   private val driver: WebDriver,
+  private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
@@ -183,10 +181,10 @@ internal class OffenderPage(
     selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.clear()
     familyNameInput.sendKeys(updateOffenderRequest.familyName)
-    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.clear()
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
-    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
     selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.clear()
@@ -214,7 +212,7 @@ internal class OffenderPage(
 
   fun deleteOffender() {
     deleteButton.click()
-    dismissConfirmDeleteAlert(driver)
+    pageHelper.dismissConfirmDeleteAlert(driver)
   }
 
   fun extractCreatedOffenderDetails(): CreatedOffender {
@@ -285,7 +283,7 @@ internal class OffenderPage(
       .map { it.getAttribute("igurl") }
   }
 
-  private fun extractOffenderId() = extractId(driver, "existing offender page")
+  private fun extractOffenderId() = pageHelper.extractId(driver, "existing offender page")
 
   private fun enterCaseworkerText(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
@@ -296,7 +294,7 @@ internal class OffenderPage(
 
   private fun selectCaseworkerMatch(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
-    waitForDropdownPopulation(driver, caseworkerDropdown)
+    pageHelper.waitForDropdownPopulation(driver, caseworkerDropdown)
     selectDropdownOptionIfNotBlank(
       caseworkerDropdown,
       caseworker,

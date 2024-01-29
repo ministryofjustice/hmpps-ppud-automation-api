@@ -4,12 +4,13 @@ import org.openqa.selenium.WebDriver
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent.Companion.url
 
 internal abstract class SentencePage(
   protected val driver: WebDriver,
+  protected val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
 ) {
 
@@ -22,14 +23,14 @@ internal abstract class SentencePage(
   ): Sentence
 
   protected fun determineOffenceLink(): String {
-    val sentenceId = extractId(driver, pageDescription)
+    val sentenceId = pageHelper.extractId(driver, pageDescription)
     return navigationTreeViewComponent
       .findOffenceNodeFor(sentenceId)
       .url
   }
 
   protected fun determineReleaseLinks(includeEmptyReleases: Boolean): List<String> {
-    val sentenceId = extractId(driver, pageDescription)
+    val sentenceId = pageHelper.extractId(driver, pageDescription)
     return navigationTreeViewComponent.extractReleaseLinks(sentenceId, includeEmptyReleases)
   }
 }

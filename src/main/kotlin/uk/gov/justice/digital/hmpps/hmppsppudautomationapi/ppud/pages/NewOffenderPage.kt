@@ -13,7 +13,7 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.dismissCheckCapitalisationAlert
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter
 @RequestScope
 internal class NewOffenderPage(
   private val driver: WebDriver,
+  private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
   private val youngOffenderCalculator: YoungOffenderCalculator,
   @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
@@ -141,9 +142,9 @@ internal class NewOffenderPage(
     dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
     selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
-    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
-    dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
     selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)

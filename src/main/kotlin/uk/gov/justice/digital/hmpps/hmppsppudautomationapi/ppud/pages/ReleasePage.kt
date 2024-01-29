@@ -13,8 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostR
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.waitForDropdownPopulation
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
@@ -25,6 +24,7 @@ import java.time.format.DateTimeFormatter
 @RequestScope
 internal class ReleasePage(
   private val driver: WebDriver,
+  private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.release.category}") private val category: String,
@@ -80,7 +80,7 @@ internal class ReleasePage(
       completeNonKeyFields()
 
       // Complete fields that have been updated/refreshed.
-      waitForDropdownPopulation(driver, releasedFromDropdown)
+      pageHelper.waitForDropdownPopulation(driver, releasedFromDropdown)
       selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
 
       saveButton.click()
@@ -106,7 +106,7 @@ internal class ReleasePage(
   }
 
   fun extractReleaseId(): String {
-    return extractId(driver, pageDescription)
+    return pageHelper.extractId(driver, pageDescription)
   }
 
   fun throwIfInvalid() {
@@ -121,7 +121,7 @@ internal class ReleasePage(
   }
 
   private fun determinePostReleaseLink(): String {
-    val releaseId = extractId(driver, pageDescription)
+    val releaseId = pageHelper.extractId(driver, pageDescription)
     return navigationTreeViewComponent
       .findPostReleaseNodeFor(releaseId)
       .getAttribute("igurl")

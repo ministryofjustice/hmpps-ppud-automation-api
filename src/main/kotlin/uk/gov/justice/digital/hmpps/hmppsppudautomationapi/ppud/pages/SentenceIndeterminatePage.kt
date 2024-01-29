@@ -9,25 +9,26 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.extractId
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceIndeterminatePage(
   driver: WebDriver,
-  private val dateFormatter: DateTimeFormatter,
+  pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
 ) :
-  SentencePage(driver, navigationTreeViewComponent) {
+  SentencePage(driver, pageHelper, navigationTreeViewComponent) {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteDOS")
   private lateinit var dateOfSentenceInput: WebElement
+
+  @FindBy(id = "cntDetails_txtSENTENCING_COURT")
+  private lateinit var sentencingCourtInput: WebElement
 
   init {
     PageFactory.initElements(driver, this)
@@ -44,14 +45,16 @@ internal class SentenceIndeterminatePage(
     val offenceLink = determineOffenceLink()
     val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     return Sentence(
-      id = extractId(driver, pageDescription),
-      dateOfSentence = LocalDate.parse(dateOfSentenceInput.getValue(), dateFormatter),
+      id = pageHelper.extractId(driver, pageDescription),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
-      // TODO
+      dateOfSentence = pageHelper.readDate(dateOfSentenceInput),
+      espCustodialPeriod = null,
+      espExtendedPeriod = null,
       licenceExpiryDate = null,
       mappaLevel = "",
-      // TODO
-      sentencingCourt = "",
+      sentenceEndDate = null,
+      sentenceLength = null,
+      sentencingCourt = sentencingCourtInput.getValue(),
       // Do offence and releases last because it navigates away
       offence = offenceExtractor(offenceLink),
       releases = releaseExtractor(releaseLinks),
