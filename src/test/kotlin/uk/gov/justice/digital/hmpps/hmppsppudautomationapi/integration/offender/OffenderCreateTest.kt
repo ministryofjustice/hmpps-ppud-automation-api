@@ -146,7 +146,6 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.id").isNotEmpty()
   }
 
-  // TODO: Need to verify Index Offence
   @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values`() {
     val addressPremises = randomString("premises")
@@ -220,6 +219,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
+      .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo(PPUD_VALID_INDEX_OFFENCE)
   }
 
   @ParameterizedTest

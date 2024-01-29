@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
@@ -23,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
@@ -42,16 +44,17 @@ internal class PpudClient(
   @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
   private val driver: WebDriver,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
-  private val loginPage: LoginPage,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
-  private val searchPage: SearchPage,
-  private val offenderPage: OffenderPage,
+  private val loginPage: LoginPage,
   private val newOffenderPage: NewOffenderPage,
-  private val sentencePageFactory: SentencePageFactory,
-  private val releasePage: ReleasePage,
+  private val offenderPage: OffenderPage,
+  private val offencePage: OffencePage,
   private val postReleasePage: PostReleasePage,
   private val recallPage: RecallPage,
+  private val releasePage: ReleasePage,
+  private val searchPage: SearchPage,
+  private val sentencePageFactory: SentencePageFactory,
 ) {
 
   companion object {
@@ -306,9 +309,14 @@ internal class PpudClient(
       urls.map {
         driver.navigate().to("$ppudUrl$it")
         val sentencePage = sentencePageFactory.sentencePage()
-        sentencePage.extractSentenceDetails(includeEmptyReleases, ::extractReleases)
+        sentencePage.extractSentenceDetails(includeEmptyReleases, ::extractOffenceDetails, ::extractReleases)
       }
     }
+  }
+
+  private fun extractOffenceDetails(link: String): Offence {
+    driver.navigate().to("$ppudUrl$link")
+    return offencePage.extractOffenceDetails()
   }
 
   private fun extractReleases(urls: List<String>): List<Release> {

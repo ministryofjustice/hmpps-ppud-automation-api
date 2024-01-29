@@ -58,6 +58,15 @@ class OffenderGetTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given Offender with sentence when get offender called then offence is returned`() {
+    retrieveOffender(ppudOffenderWithRelease.id)
+      .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo("ATTEMPTED MURDER")
+      .jsonPath("offender.sentences[0].offence.dateOfIndexOffence").isEqualTo("2001-02-12")
+      .jsonPath("offender.sentences[1].offence.indexOffence").isEqualTo("Not Specified")
+      .jsonPath("offender.sentences[1].offence.dateOfIndexOffence").isEmpty
+  }
+
+  @Test
   fun `given Offender with release when get offender called then release is returned`() {
     retrieveOffender(ppudOffenderWithRelease.id)
       .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo("2013-02-02")
