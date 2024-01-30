@@ -13,10 +13,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostR
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -76,12 +75,12 @@ internal class ReleasePage(
       // Complete standalone fields
       dateOfReleaseInput.click()
       dateOfReleaseInput.sendKeys(this.dateOfRelease.format(dateFormatter))
-      selectDropdownOptionIfNotBlank(releasedUnderDropdown, this.releasedUnder, "released under")
+      pageHelper.selectDropdownOptionIfNotBlank(releasedUnderDropdown, this.releasedUnder, "released under")
       completeNonKeyFields()
 
       // Complete fields that have been updated/refreshed.
       pageHelper.waitForDropdownPopulation(driver, releasedFromDropdown)
-      selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
+      pageHelper.selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
 
       saveButton.click()
     }
@@ -116,8 +115,8 @@ internal class ReleasePage(
   }
 
   private fun completeNonKeyFields() {
-    selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
-    selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
+    pageHelper.selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
+    pageHelper.selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
   }
 
   private fun determinePostReleaseLink(): String {

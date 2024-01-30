@@ -13,10 +13,8 @@ import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
 import java.time.format.DateTimeFormatter
@@ -131,7 +129,7 @@ internal class NewOffenderPage(
     // Complete these first as they trigger additional processing
     indexOffenceInput.click()
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
-    selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
+    pageHelper.selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
 
     // Complete standalone fields
     enterAddress(createOffenderRequest.address)
@@ -140,25 +138,25 @@ internal class NewOffenderPage(
     dateOfBirthInput.sendKeys(createOffenderRequest.dateOfBirth.format(dateFormatter))
     dateOfSentenceInput.click()
     dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
-    selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
+    pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
-    selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
-    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
+    pageHelper.selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
+    pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
-    selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
-    selectCheckboxValue(ualCheckbox, createOffenderRequest.isInCustody.not())
+    pageHelper.selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
+    pageHelper.selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
+    pageHelper.selectCheckboxValue(ualCheckbox, createOffenderRequest.isInCustody.not())
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
-      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
+      pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
 
     // Complete fields that have been updated/refreshed.
-    selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
-    selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
+    pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
+    pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
 
     saveButton.click()
   }

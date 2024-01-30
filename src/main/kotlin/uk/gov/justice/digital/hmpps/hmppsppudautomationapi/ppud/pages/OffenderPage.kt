@@ -17,13 +17,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -168,7 +166,7 @@ internal class OffenderPage(
 
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     // Complete first as additional processing is triggered
-    selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
+    pageHelper.selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
     enterCaseworkerText(updateOffenderRequest.isInCustody)
 
     // Complete standalone fields
@@ -178,25 +176,25 @@ internal class OffenderPage(
     croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
     dateOfBirthInput.sendKeys(updateOffenderRequest.dateOfBirth.format(dateFormatter))
-    selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
+    pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.clear()
     familyNameInput.sendKeys(updateOffenderRequest.familyName)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.clear()
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
-    selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
-    selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
+    pageHelper.selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
+    pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.clear()
     nomsIdInput.sendKeys(updateOffenderRequest.nomsId)
-    selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
+    pageHelper.selectDropdownOptionIfNotBlank(prisonerCategoryDropdown, prisonerCategory, "prisoner category")
     prisonNumberInput.clear()
     prisonNumberInput.sendKeys(updateOffenderRequest.prisonNumber)
-    selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
+    pageHelper.selectDropdownOptionIfNotBlank(statusDropdown, status, "status")
     if (youngOffenderCalculator.isYoungOffender(updateOffenderRequest.dateOfBirth)) {
-      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
+      pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     } else {
-      selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
+      pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
     }
 
     // Complete fields that have been updated/refreshed.
@@ -295,7 +293,7 @@ internal class OffenderPage(
   private fun selectCaseworkerMatch(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
     pageHelper.waitForDropdownPopulation(driver, caseworkerDropdown)
-    selectDropdownOptionIfNotBlank(
+    pageHelper.selectDropdownOptionIfNotBlank(
       caseworkerDropdown,
       caseworker,
       "caseworker",

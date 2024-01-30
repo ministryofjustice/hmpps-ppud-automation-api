@@ -15,13 +15,14 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostR
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdatePostReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 
 @Component
 @RequestScope
 internal class PostReleasePage(
   private val driver: WebDriver,
+  private val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.release.postRelease.licenceType}") private val licenceType: String,
 ) {
@@ -73,14 +74,14 @@ internal class PostReleasePage(
     assistantChiefOfficerInput.sendKeys(updatePostReleaseRequest.assistantChiefOfficer.name)
     assistantChiefOfficerFaxEmailInput.clear()
     assistantChiefOfficerFaxEmailInput.sendKeys(updatePostReleaseRequest.assistantChiefOfficer.faxEmail)
-    selectDropdownOptionIfNotBlank(licenceTypeDropdown, licenceType, "licence type")
+    pageHelper.selectDropdownOptionIfNotBlank(licenceTypeDropdown, licenceType, "licence type")
     offenderManagerInput.clear()
     offenderManagerInput.sendKeys(updatePostReleaseRequest.offenderManager.name)
     offenderManagerFaxEmailInput.clear()
     offenderManagerFaxEmailInput.sendKeys(updatePostReleaseRequest.offenderManager.faxEmail)
     offenderManagerTelephoneInput.clear()
     offenderManagerTelephoneInput.sendKeys(updatePostReleaseRequest.offenderManager.telephone)
-    selectDropdownOptionIfNotBlank(
+    pageHelper.selectDropdownOptionIfNotBlank(
       probationServiceDropdown,
       updatePostReleaseRequest.probationService,
       "probation service",

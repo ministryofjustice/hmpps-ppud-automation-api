@@ -15,12 +15,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.enterTextIfNotBlank
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectCheckboxValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -144,11 +142,11 @@ internal class RecallPage(
     revocationIssuedByOwnerInput.enterTextIfNotBlank(revocationIssuedByOwnerSearchable)
 
     // Complete standalone fields
-    selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
-    selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea, "probation area")
-    selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
+    pageHelper.selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
+    pageHelper.selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea, "probation area")
+    pageHelper.selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
-      selectDropdownOptionIfNotBlank(
+      pageHelper.selectDropdownOptionIfNotBlank(
         returnToCustodyNotificationMethodDropdown,
         returnToCustodyNotificationMethod,
         "return to custody notification method",
@@ -157,7 +155,7 @@ internal class RecallPage(
       val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
       nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
     }
-    selectDropdownOptionIfNotBlank(
+    pageHelper.selectDropdownOptionIfNotBlank(
       mappaLevelDropdown,
       createRecallRequest.mappaLevel,
       "mappa level",
@@ -165,19 +163,19 @@ internal class RecallPage(
     decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
     reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
     recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))
-    selectDropdownOptionIfNotBlank(policeForceDropdown, createRecallRequest.policeForce, "police force")
-    selectDropdownOptionIfNotBlank(mandatoryDocumentsReceivedDropdown, "No", "mandatory documents received")
+    pageHelper.selectDropdownOptionIfNotBlank(policeForceDropdown, createRecallRequest.policeForce, "police force")
+    pageHelper.selectDropdownOptionIfNotBlank(mandatoryDocumentsReceivedDropdown, "No", "mandatory documents received")
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
     pageHelper.waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
-    selectDropdownOptionIfNotBlank(
+    pageHelper.selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
       createRecallRequest.recommendedToOwner,
       "recommended to owner",
     )
     pageHelper.waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)
-    selectDropdownOptionIfNotBlank(
+    pageHelper.selectDropdownOptionIfNotBlank(
       revocationIssuedByOwnerDropdown,
       revocationIssuedByOwner,
       "revocation issued by owner",
@@ -243,12 +241,12 @@ internal class RecallPage(
   }
 
   private fun checkAllMissingMandatoryDocuments() {
-    selectCheckboxValue(missingPartACheckbox, true)
-    selectCheckboxValue(missingOaSysCheckbox, true)
-    selectCheckboxValue(missingPreSentenceReportCheckbox, true)
-    selectCheckboxValue(missingPreviousConvictionsCheckbox, true)
-    selectCheckboxValue(missingLicenceCheckbox, true)
-    selectCheckboxValue(missingChargeSheetCheckbox, true)
+    pageHelper.selectCheckboxValue(missingPartACheckbox, true)
+    pageHelper.selectCheckboxValue(missingOaSysCheckbox, true)
+    pageHelper.selectCheckboxValue(missingPreSentenceReportCheckbox, true)
+    pageHelper.selectCheckboxValue(missingPreviousConvictionsCheckbox, true)
+    pageHelper.selectCheckboxValue(missingLicenceCheckbox, true)
+    pageHelper.selectCheckboxValue(missingChargeSheetCheckbox, true)
   }
 
   private fun addMinute(text: String) {

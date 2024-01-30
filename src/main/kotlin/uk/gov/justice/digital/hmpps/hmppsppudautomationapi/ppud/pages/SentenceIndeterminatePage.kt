@@ -11,10 +11,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 
 @Component
 internal class SentenceIndeterminatePage(
@@ -41,7 +40,7 @@ internal class SentenceIndeterminatePage(
     get() = "indeterminate sentence page"
 
   override fun selectCustodyType(custodyType: String) {
-    selectDropdownOptionIfNotBlank(custodyTypeDropdown, custodyType, "custody type")
+    pageHelper.selectDropdownOptionIfNotBlank(custodyTypeDropdown, custodyType, "custody type")
   }
 
   override fun createSentence(request: CreateOrUpdateSentenceRequest) {
