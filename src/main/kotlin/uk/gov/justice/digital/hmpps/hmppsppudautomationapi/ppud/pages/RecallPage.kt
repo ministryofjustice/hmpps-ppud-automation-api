@@ -17,7 +17,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.Duration
 import java.time.LocalDate
@@ -135,15 +134,17 @@ internal class RecallPage(
     // Complete these first as they trigger additional processing
     // Autocomplete box doesn't work with brackets
     val recommendedToOwnerSearchable = createRecallRequest.recommendedToOwner.takeWhile { (it == '(').not() }
-    recommendedToOwnerInput.click()
-    recommendedToOwnerInput.enterTextIfNotBlank(recommendedToOwnerSearchable)
+    pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, recommendedToOwnerSearchable)
     val revocationIssuedByOwnerSearchable = revocationIssuedByOwner.takeWhile { (it == '(').not() }
-    revocationIssuedByOwnerInput.click()
-    revocationIssuedByOwnerInput.enterTextIfNotBlank(revocationIssuedByOwnerSearchable)
+    pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerSearchable)
 
     // Complete standalone fields
     pageHelper.selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
-    pageHelper.selectDropdownOptionIfNotBlank(probationAreaDropdown, createRecallRequest.probationArea, "probation area")
+    pageHelper.selectDropdownOptionIfNotBlank(
+      probationAreaDropdown,
+      createRecallRequest.probationArea,
+      "probation area",
+    )
     pageHelper.selectCheckboxValue(ualCheckbox, createRecallRequest.isInCustody.not())
     if (createRecallRequest.isInCustody) {
       pageHelper.selectDropdownOptionIfNotBlank(
@@ -152,17 +153,23 @@ internal class RecallPage(
         "return to custody notification method",
       )
     } else {
-      val nextUalCheckDate = LocalDateTime.now().plusMonths(nextUalCheckMonths).format(dateFormatter)
-      nextUalCheckInput.enterTextIfNotBlank(nextUalCheckDate)
+      val nextUalCheckDate = LocalDate.now().plusMonths(nextUalCheckMonths)
+      pageHelper.enterDate(nextUalCheckInput, nextUalCheckDate)
     }
     pageHelper.selectDropdownOptionIfNotBlank(
       mappaLevelDropdown,
       createRecallRequest.mappaLevel,
       "mappa level",
     ) // Mappa level supposed to be populated automatically
-    decisionFollowingBreachDateInput.enterTextIfNotBlank(createRecallRequest.decisionDateTime.format(dateTimeFormatter))
-    reportReceivedDateInput.enterTextIfNotBlank(createRecallRequest.receivedDateTime.format(dateTimeFormatter))
-    recommendedToDateInput.enterTextIfNotBlank(LocalDateTime.now().format(dateTimeFormatter))
+    pageHelper.enterTextIfNotBlank(
+      decisionFollowingBreachDateInput,
+      createRecallRequest.decisionDateTime.format(dateTimeFormatter),
+    )
+    pageHelper.enterTextIfNotBlank(
+      reportReceivedDateInput,
+      createRecallRequest.receivedDateTime.format(dateTimeFormatter),
+    )
+    pageHelper.enterTextIfNotBlank(recommendedToDateInput, LocalDateTime.now().format(dateTimeFormatter))
     pageHelper.selectDropdownOptionIfNotBlank(policeForceDropdown, createRecallRequest.policeForce, "police force")
     pageHelper.selectDropdownOptionIfNotBlank(mandatoryDocumentsReceivedDropdown, "No", "mandatory documents received")
     checkAllMissingMandatoryDocuments()

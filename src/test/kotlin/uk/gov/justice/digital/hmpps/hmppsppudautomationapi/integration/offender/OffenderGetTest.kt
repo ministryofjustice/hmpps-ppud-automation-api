@@ -47,20 +47,22 @@ class OffenderGetTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given Offender with determinate sentence when get offender called then sentences is returned`() {
+  fun `given Offender with determinate sentence when get offender called then sentence is returned`() {
     retrieveOffender(ppudOffenderWithRelease.id)
       .jsonPath("offender.sentences[0].custodyType").isEqualTo("Determinate")
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo("2003-06-12")
-      .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo("1")
-      .jsonPath("offender.sentences[0].espCustodialPeriod.months").isEqualTo("2")
-      .jsonPath("offender.sentences[0].espExtendedPeriod.years").isEqualTo("7")
-      .jsonPath("offender.sentences[0].espExtendedPeriod.months").isEqualTo("8")
+      .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo(1)
+      .jsonPath("offender.sentences[0].espCustodialPeriod.months").isEqualTo(2)
+      .jsonPath("offender.sentences[0].espExtendedPeriod.years").isEqualTo(7)
+      .jsonPath("offender.sentences[0].espExtendedPeriod.months").isEqualTo(8)
       .jsonPath("offender.sentences[0].licenceExpiryDate").isEqualTo("2020-06-30")
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo("Level 2 – Local Inter-Agency Management")
+      .jsonPath("offender.sentences[0].releaseDate").isEqualTo("2013-02-15")
+      .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo("CJA 1991")
       .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo("2014-01-01")
-      .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo("4")
-      .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo("5")
-      .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo("6")
+      .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo(4)
+      .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(5)
+      .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo(6)
       .jsonPath("offender.sentences[0].sentencingCourt").isEqualTo("Leeds")
   }
 
@@ -73,6 +75,8 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[1].espExtendedPeriod").isEmpty
       .jsonPath("offender.sentences[1].licenceExpiryDate").isEmpty
       .jsonPath("offender.sentences[1].mappaLevel").isEqualTo("")
+      .jsonPath("offender.sentences[1].releaseDate").isEmpty
+      .jsonPath("offender.sentences[1].sentencedUnder").isEmpty
       .jsonPath("offender.sentences[1].sentenceExpiryDate").isEmpty
       .jsonPath("offender.sentences[1].sentenceLength").isEmpty
       .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo("Sheffield")

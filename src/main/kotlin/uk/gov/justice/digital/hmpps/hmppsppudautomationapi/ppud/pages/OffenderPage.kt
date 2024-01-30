@@ -19,7 +19,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
@@ -172,8 +171,7 @@ internal class OffenderPage(
     // Complete standalone fields
     enterAddress(updateOffenderRequest.address)
     enterAdditionalAddresses(updateOffenderRequest.additionalAddresses)
-    croOtherNumberInput.clear()
-    croOtherNumberInput.enterTextIfNotBlank(updateOffenderRequest.croNumber)
+    pageHelper.enterTextIfNotBlank(croOtherNumberInput, updateOffenderRequest.croNumber)
     dateOfBirthInput.click()
     dateOfBirthInput.sendKeys(updateOffenderRequest.dateOfBirth.format(dateFormatter))
     pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
@@ -286,8 +284,7 @@ internal class OffenderPage(
   private fun enterCaseworkerText(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
     val caseworkerSearchable = caseworker.takeWhile { (it == '(').not() }
-    caseworkerInput.click()
-    caseworkerInput.enterTextIfNotBlank(caseworkerSearchable)
+    pageHelper.enterTextIfNotBlank(caseworkerInput, caseworkerSearchable)
   }
 
   private fun selectCaseworkerMatch(isInCustody: Boolean) {

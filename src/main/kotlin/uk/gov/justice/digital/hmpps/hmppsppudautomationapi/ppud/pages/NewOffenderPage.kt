@@ -14,17 +14,14 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
-import java.time.format.DateTimeFormatter
 
 @Component
 @RequestScope
 internal class NewOffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
-  private val dateFormatter: DateTimeFormatter,
   private val youngOffenderCalculator: YoungOffenderCalculator,
   @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
   @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
@@ -133,11 +130,9 @@ internal class NewOffenderPage(
 
     // Complete standalone fields
     enterAddress(createOffenderRequest.address)
-    croNumberInput.enterTextIfNotBlank(createOffenderRequest.croNumber)
-    dateOfBirthInput.click()
-    dateOfBirthInput.sendKeys(createOffenderRequest.dateOfBirth.format(dateFormatter))
-    dateOfSentenceInput.click()
-    dateOfSentenceInput.enterTextIfNotBlank(createOffenderRequest.dateOfSentence.format(dateFormatter))
+    pageHelper.enterTextIfNotBlank(croNumberInput, createOffenderRequest.croNumber)
+    pageHelper.enterDate(dateOfBirthInput, createOffenderRequest.dateOfBirth)
+    pageHelper.enterDate(dateOfSentenceInput, createOffenderRequest.dateOfSentence)
     pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)

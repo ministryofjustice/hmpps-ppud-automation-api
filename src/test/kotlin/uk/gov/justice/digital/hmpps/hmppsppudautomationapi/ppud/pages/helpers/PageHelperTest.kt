@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,10 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.never
 import org.openqa.selenium.WebElement
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 @ExtendWith(MockitoExtension::class)
 class PageHelperTest {
@@ -28,8 +30,7 @@ class PageHelperTest {
   @Mock
   private lateinit var element: WebElement
 
-  @Mock
-  private lateinit var dateFormatter: DateTimeFormatter
+  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
   private lateinit var pageHelper: PageHelper
 
@@ -62,9 +63,43 @@ class PageHelperTest {
   }
 
   @Test
+  fun `given a date when enterDate is called then date is sent to element`() {
+    val date = LocalDate.parse("2000-08-31")
+    pageHelper.enterDate(element, date)
+    then(element).should().click()
+    then(element).should().clear()
+    then(element).should().sendKeys("31/08/2000")
+  }
+
+  @Test
+  fun `given a null date when enterDate is called then element is cleared`() {
+    val date: LocalDate? = null
+    pageHelper.enterDate(element, date)
+    then(element).should().click()
+    then(element).should().clear()
+    then(element).should(never()).sendKeys(any())
+  }
+
+  @Test
+  fun `given a number when enterInteger is called then number is sent to element`() {
+    val number = Random.nextInt()
+    pageHelper.enterInteger(element, number)
+    then(element).should().clear()
+    then(element).should().sendKeys(number.toString())
+  }
+
+  @Test
+  fun `given a null number when enterInteger is called then element is cleared`() {
+    val number: Int? = null
+    pageHelper.enterInteger(element, number)
+    then(element).should().clear()
+    then(element).should(never()).sendKeys(any())
+  }
+
+  @Test
   fun `given some text when enterTextIfNotBlank is called then text is sent`() {
     val text = randomString("text")
-    element.enterTextIfNotBlank(text)
+    pageHelper.enterTextIfNotBlank(element, text)
     then(element).should().sendKeys(text)
   }
 
@@ -72,8 +107,38 @@ class PageHelperTest {
   @NullAndEmptySource
   @ValueSource(strings = ["  ", "\t", "\n"])
   fun `given text is null or blank when enterTextIfNotBlank is called then text is not sent`(text: String?) {
-    element.enterTextIfNotBlank(text)
+    pageHelper.enterTextIfNotBlank(element, text)
     then(element).should(never()).sendKeys(any())
+  }
+
+  @Test
+  fun `given a date input with a date when readDate is called then date is returned`() {
+    given(element.getValue()).willReturn("31/12/2020")
+    val result = pageHelper.readDate(element)
+    assertEquals(LocalDate.parse("2020-12-31"), result)
+  }
+
+  @Test
+  fun `given a date input with a blank date when readDate is called then exception is thrown`() {
+    given(element.getValue()).willReturn("")
+    val ex = assertThrows<AutomationException> {
+      pageHelper.readDate(element)
+    }
+    assertEquals("Expected valid date in element but value was ''", ex.message)
+  }
+
+  @Test
+  fun `given a date input with a date when readDateOrNull is called then date is returned`() {
+    given(element.getValue()).willReturn("30/06/2015")
+    val result = pageHelper.readDateOrNull(element)
+    assertEquals(LocalDate.parse("2015-06-30"), result)
+  }
+
+  @Test
+  fun `given a date input with a blank date when readDateOrNull is called then null is returned`() {
+    given(element.getValue()).willReturn("")
+    val result = pageHelper.readDateOrNull(element)
+    assertNull(result)
   }
 
   @ParameterizedTest

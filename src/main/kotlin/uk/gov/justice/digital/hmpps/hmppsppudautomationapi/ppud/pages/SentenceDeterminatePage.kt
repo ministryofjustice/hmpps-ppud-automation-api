@@ -5,7 +5,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
-import org.openqa.selenium.support.ui.Select
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
@@ -18,14 +18,13 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
-import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceDeterminatePage(
   driver: WebDriver,
   pageHelper: PageHelper,
-  private val dateFormatter: DateTimeFormatter,
   navigationTreeViewComponent: NavigationTreeViewComponent,
+  @Value("\${ppud.sentence.sentencedUnder}") private val sentencedUnder: String,
 ) :
   SentencePage(driver, pageHelper, navigationTreeViewComponent) {
 
@@ -55,6 +54,12 @@ internal class SentenceDeterminatePage(
 
   @FindBy(id = "cntDetails_ddliMAPPA_Level")
   private lateinit var mappaLevelDropdown: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteLICENCE_START")
+  private lateinit var releaseDateInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliSENTENCED_UNDER")
+  private lateinit var sentencedUnderDropdown: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteSED")
   private lateinit var sentenceExpiryDateInput: WebElement
@@ -86,9 +91,22 @@ internal class SentenceDeterminatePage(
   }
 
   override fun createSentence(request: CreateOrUpdateSentenceRequest) {
-    dateOfSentenceInput.click()
-    dateOfSentenceInput.sendKeys((request.dateOfSentence.format(dateFormatter)))
-    pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
+    with(pageHelper) {
+      enterDate(dateOfSentenceInput, request.dateOfSentence)
+      enterInteger(espCustodialPeriodYearsInput, request.espCustodialPeriod?.years)
+      enterInteger(espCustodialPeriodMonthsInput, request.espCustodialPeriod?.months)
+      enterInteger(espExtendedPeriodYearsInput, request.espExtendedPeriod?.years)
+      enterInteger(espExtendedPeriodMonthsInput, request.espExtendedPeriod?.months)
+      enterDate(licenceExpiryDateInput, request.licenceExpiryDate)
+      selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
+      enterDate(releaseDateInput, request.releaseDate)
+      selectDropdownOptionIfNotBlank(sentencedUnderDropdown, sentencedUnder, "sentenced under")
+      enterDate(sentenceExpiryDateInput, request.sentenceExpiryDate)
+      enterText(sentencingCourtInput, request.sentencingCourt)
+      enterInteger(sentenceLengthPartYearsInput, request.sentenceLength?.partYears)
+      enterInteger(sentenceLengthPartMonthsInput, request.sentenceLength?.partMonths)
+      enterInteger(sentenceLengthPartDaysInput, request.sentenceLength?.partDays)
+    }
 
     saveButton.click()
   }
@@ -106,31 +124,35 @@ internal class SentenceDeterminatePage(
   ): Sentence {
     val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     val offenceLink = determineOffenceLink()
-    return Sentence(
-      id = pageHelper.extractId(driver, pageDescription),
-      custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
-      dateOfSentence = pageHelper.readDate(dateOfSentenceInput),
-      espCustodialPeriod = EspPeriod(
-        years = pageHelper.readIntegerOrDefault(espCustodialPeriodYearsInput, 0),
-        months = pageHelper.readIntegerOrDefault(espCustodialPeriodMonthsInput, 0),
-      ),
-      espExtendedPeriod = EspPeriod(
-        years = pageHelper.readIntegerOrDefault(espExtendedPeriodYearsInput, 0),
-        months = pageHelper.readIntegerOrDefault(espExtendedPeriodMonthsInput, 0),
-      ),
-      licenceExpiryDate = pageHelper.readDateOrNull(licenceExpiryDateInput),
-      mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
-      sentenceExpiryDate = pageHelper.readDateOrNull(sentenceExpiryDateInput),
-      sentenceLength = SentenceLength(
-        partYears = pageHelper.readIntegerOrDefault(sentenceLengthPartYearsInput, 0),
-        partMonths = pageHelper.readIntegerOrDefault(sentenceLengthPartMonthsInput, 0),
-        partDays = pageHelper.readIntegerOrDefault(sentenceLengthPartDaysInput, 0),
-      ),
-      sentencingCourt = sentencingCourtInput.getValue(),
-      // Do offence and releases last because it navigates away
-      offence = offenceExtractor(offenceLink),
-      releases = releaseExtractor(releaseLinks),
-    )
+    return with(pageHelper) {
+      Sentence(
+        id = extractId(driver, pageDescription),
+        custodyType = readSelectedOption(custodyTypeDropdown),
+        dateOfSentence = readDate(dateOfSentenceInput),
+        espCustodialPeriod = EspPeriod(
+          years = readIntegerOrDefault(espCustodialPeriodYearsInput, 0),
+          months = readIntegerOrDefault(espCustodialPeriodMonthsInput, 0),
+        ),
+        espExtendedPeriod = EspPeriod(
+          years = readIntegerOrDefault(espExtendedPeriodYearsInput, 0),
+          months = readIntegerOrDefault(espExtendedPeriodMonthsInput, 0),
+        ),
+        licenceExpiryDate = readDateOrNull(licenceExpiryDateInput),
+        mappaLevel = readSelectedOption(mappaLevelDropdown),
+        releaseDate = readDateOrNull(releaseDateInput),
+        sentencedUnder = readSelectedOption(sentencedUnderDropdown),
+        sentenceExpiryDate = readDateOrNull(sentenceExpiryDateInput),
+        sentenceLength = SentenceLength(
+          partYears = readIntegerOrDefault(sentenceLengthPartYearsInput, 0),
+          partMonths = readIntegerOrDefault(sentenceLengthPartMonthsInput, 0),
+          partDays = readIntegerOrDefault(sentenceLengthPartDaysInput, 0),
+        ),
+        sentencingCourt = sentencingCourtInput.getValue(),
+        // Do offence and releases last because it navigates away
+        offence = offenceExtractor(offenceLink),
+        releases = releaseExtractor(releaseLinks),
+      )
+    }
   }
 
   override fun throwIfInvalid() {
