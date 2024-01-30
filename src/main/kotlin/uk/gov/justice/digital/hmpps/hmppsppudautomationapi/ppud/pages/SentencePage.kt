@@ -22,6 +22,8 @@ internal abstract class SentencePage(
 
   abstract fun createSentence(request: CreateOrUpdateSentenceRequest)
 
+  abstract fun updateSentence(request: CreateOrUpdateSentenceRequest)
+
   abstract fun extractCreatedSentenceDetails(): CreatedSentence
 
   abstract fun extractSentenceDetails(

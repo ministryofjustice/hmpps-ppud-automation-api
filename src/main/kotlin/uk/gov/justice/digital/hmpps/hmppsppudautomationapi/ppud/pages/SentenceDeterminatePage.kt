@@ -91,6 +91,10 @@ internal class SentenceDeterminatePage(
   }
 
   override fun createSentence(request: CreateOrUpdateSentenceRequest) {
+    updateSentence(request)
+  }
+
+  override fun updateSentence(request: CreateOrUpdateSentenceRequest) {
     with(pageHelper) {
       enterDate(dateOfSentenceInput, request.dateOfSentence)
       enterInteger(espCustodialPeriodYearsInput, request.espCustodialPeriod?.years)

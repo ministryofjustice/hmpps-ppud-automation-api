@@ -114,6 +114,11 @@ class NavigationTreeViewComponent(
       .click()
   }
 
+  fun navigateToSentenceFor(sentenceId: String) {
+    findSentenceNodeFor(sentenceId)
+      .click()
+  }
+
   fun navigateToNewOrEmptyReleaseFor(sentenceId: String) {
     val releasesNode = findSentenceNodeFor(sentenceId)
       .expandNodeWithText(RELEASES_NODE_TEXT)
