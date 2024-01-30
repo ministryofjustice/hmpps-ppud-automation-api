@@ -107,6 +107,18 @@ abstract class IntegrationTestBase {
         "}"
     }
 
+    fun createOrUpdateSentenceRequestBody(
+      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
+      dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
+    ): String {
+      return "{" +
+        "\"custodyType\":\"$custodyType\", " +
+        "\"dateOfSentence\":\"$dateOfSentence\", " +
+        "\"mappaLevel\":\"$mappaLevel\" " +
+        "}"
+    }
+
     fun addressRequestBody(
       premises: String = randomString("premises"),
       line1: String = randomString("line1"),

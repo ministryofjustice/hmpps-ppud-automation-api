@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Update
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOrUpdateReleaseResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateRecallResponse
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateSentenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
@@ -120,8 +121,10 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     @Valid
     @RequestBody(required = true)
     createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
-  ) {
+  ): ResponseEntity<CreateSentenceResponse> {
     log.info("Sentence create endpoint hit")
+    val sentence = ppudClient.createSentence(offenderId, createOrUpdateSentenceRequest)
+    return ResponseEntity(CreateSentenceResponse(sentence), HttpStatus.CREATED)
   }
 
   @Operation(

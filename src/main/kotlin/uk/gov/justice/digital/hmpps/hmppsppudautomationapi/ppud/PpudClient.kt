@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
@@ -81,7 +83,7 @@ internal class PpudClient(
     log.info("Creating new offender in PPUD Client")
 
     return performLoggedInOperation {
-      createNewOffender(createOffenderRequest)
+      createOffenderInternal(createOffenderRequest)
     }
   }
 
@@ -100,6 +102,13 @@ internal class PpudClient(
     return performLoggedInOperation {
       offenderPage.viewOffenderWithId(id)
       offenderPage.extractOffenderDetails(extractSentences(includeEmptyReleases))
+    }
+  }
+
+  suspend fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
+    log.info("Creating sentence in PPUD Client")
+    return performLoggedInOperation {
+      createSentenceInternal(offenderId, request)
     }
   }
 
@@ -224,7 +233,7 @@ internal class PpudClient(
     return searchPage.searchResultsLinks()
   }
 
-  private suspend fun createNewOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
+  private suspend fun createOffenderInternal(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
     searchPage.navigateToNewOffender()
     newOffenderPage.verifyOn()
     newOffenderPage.createOffender(createOffenderRequest)
@@ -232,6 +241,20 @@ internal class PpudClient(
     offenderPage.updateAdditionalAddresses(createOffenderRequest.additionalAddresses)
     offenderPage.throwIfInvalid()
     return offenderPage.extractCreatedOffenderDetails()
+  }
+
+  private fun createSentenceInternal(
+    offenderId: String,
+    request: CreateOrUpdateSentenceRequest,
+  ): CreatedSentence {
+    offenderPage.viewOffenderWithId(offenderId)
+    navigationTreeViewComponent.navigateToNewSentence()
+    val newSentencePage = sentencePageFactory.sentencePage()
+    newSentencePage.selectCustodyType(request.custodyType)
+    val sentencePage = sentencePageFactory.sentencePage()
+    sentencePage.createSentence(request)
+    sentencePage.throwIfInvalid()
+    return sentencePage.extractCreatedSentenceDetails()
   }
 
   private fun createOrUpdateReleaseInternal(

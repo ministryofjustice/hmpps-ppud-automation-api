@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component
 
 @Component
 internal class SentencePageFactory(
-  val driver: WebDriver,
-  val sentenceDeterminatePage: SentenceDeterminatePage,
-  val sentenceIndeterminatePage: SentenceIndeterminatePage,
+  private val driver: WebDriver,
+  private val sentenceDeterminatePage: SentenceDeterminatePage,
+  private val sentenceIndeterminatePage: SentenceIndeterminatePage,
 ) {
 
   fun sentencePage(): SentencePage {

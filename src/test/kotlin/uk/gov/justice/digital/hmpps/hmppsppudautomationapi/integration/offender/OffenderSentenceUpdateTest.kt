@@ -12,7 +12,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.util.function.Consumer
@@ -26,16 +25,8 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("custodyType", updateSentenceRequestBody(custodyType = "")),
+        MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
       )
-    }
-
-    fun updateSentenceRequestBody(
-      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
-    ): String {
-      return "{" +
-        "\"custodyType\":\"$custodyType\" " +
-        "}"
     }
   }
 
@@ -75,7 +66,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
   @Test
   fun `given custody type is not determinate in request body when update sentence called then bad request is returned`() {
     // This is a temporary restriction until we handle indeterminate recalls
-    val requestBody = updateSentenceRequestBody(custodyType = randomString("custodyType"))
+    val requestBody = createOrUpdateSentenceRequestBody(custodyType = randomString("custodyType"))
     putSentence(randomPpudId(), randomPpudId(), requestBody)
       .expectStatus()
       .isBadRequest
@@ -92,7 +83,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given token without recall role when update sentence called then forbidden is returned`() {
-    val requestBody = updateSentenceRequestBody()
+    val requestBody = createOrUpdateSentenceRequestBody()
     val uri = constructUpdateSentenceUri(randomPpudId(), randomPpudId())
     givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(uri, requestBody, HttpMethod.PUT)
   }
