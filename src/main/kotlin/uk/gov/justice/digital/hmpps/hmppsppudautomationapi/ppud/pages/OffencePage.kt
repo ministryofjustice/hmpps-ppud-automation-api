@@ -7,7 +7,7 @@ import org.openqa.selenium.support.PageFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

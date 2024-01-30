@@ -98,9 +98,12 @@ fun randomNomsId(): String {
   return "A${serial}BC"
 }
 
+private val prisonNumbers = 1000.rangeTo(9999).map { "LW$it" }.toMutableSet()
+
 fun randomPrisonNumber(): String {
-  val serial = Random.nextInt(1000, 9999)
-  return "AB$serial"
+  val number = prisonNumbers.random()
+  prisonNumbers.remove(number)
+  return number
 }
 
 fun randomDate(): LocalDate {

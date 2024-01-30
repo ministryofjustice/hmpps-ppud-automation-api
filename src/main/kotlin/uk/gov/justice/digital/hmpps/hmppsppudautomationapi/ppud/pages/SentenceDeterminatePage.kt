@@ -15,10 +15,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.format.DateTimeFormatter
 
 @Component
@@ -83,13 +82,13 @@ internal class SentenceDeterminatePage(
     get() = "determinate sentence page"
 
   override fun selectCustodyType(custodyType: String) {
-    selectDropdownOptionIfNotBlank(custodyTypeDropdown, custodyType, "custody type")
+    pageHelper.selectDropdownOptionIfNotBlank(custodyTypeDropdown, custodyType, "custody type")
   }
 
   override fun createSentence(request: CreateOrUpdateSentenceRequest) {
     dateOfSentenceInput.click()
     dateOfSentenceInput.sendKeys((request.dateOfSentence.format(dateFormatter)))
-    selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
+    pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
 
     saveButton.click()
   }

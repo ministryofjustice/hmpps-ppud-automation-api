@@ -1,6 +1,7 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,13 +17,26 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.never
 import org.openqa.selenium.WebElement
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.enterTextIfNotBlank
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.time.format.DateTimeFormatter
 
 @ExtendWith(MockitoExtension::class)
-class WebDriverHelperTest {
+class PageHelperTest {
 
   @Mock
   private lateinit var element: WebElement
+
+  @Mock
+  private lateinit var dateFormatter: DateTimeFormatter
+
+  private lateinit var pageHelper: PageHelper
+
+  @BeforeEach
+  fun beforeEach() {
+    pageHelper = PageHelper(dateFormatter)
+  }
 
   @ParameterizedTest
   @CsvSource(
@@ -67,7 +81,7 @@ class WebDriverHelperTest {
   fun `given a null or blank dropdown option value when selectDropdownOptionIfNotBlank is called then option is not selected`(
     option: String?,
   ) {
-    selectDropdownOptionIfNotBlank(element, option, "")
+    pageHelper.selectDropdownOptionIfNotBlank(element, option, "")
     then(element).shouldHaveNoInteractions()
   }
 
@@ -78,7 +92,7 @@ class WebDriverHelperTest {
     val option = randomString()
     val description = randomString()
     val exception = assertThrows<AutomationException> {
-      selectDropdownOptionIfNotBlank(element, option, description)
+      pageHelper.selectDropdownOptionIfNotBlank(element, option, description)
     }
     assertEquals("Cannot locate $description option with text '$option'", exception.message)
   }
@@ -89,7 +103,7 @@ class WebDriverHelperTest {
     toBeChecked: Boolean,
   ) {
     given(element.isSelected).willReturn(!toBeChecked)
-    selectCheckboxValue(element, toBeChecked)
+    pageHelper.selectCheckboxValue(element, toBeChecked)
     then(element).should().click()
   }
 
@@ -99,7 +113,7 @@ class WebDriverHelperTest {
     toBeChecked: Boolean,
   ) {
     given(element.isSelected).willReturn(toBeChecked)
-    selectCheckboxValue(element, toBeChecked)
+    pageHelper.selectCheckboxValue(element, toBeChecked)
     then(element).should(never()).click()
   }
 }

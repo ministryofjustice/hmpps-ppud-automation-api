@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers
 
 import org.openqa.selenium.NoAlertPresentException
 import org.openqa.selenium.WebDriver
@@ -7,13 +7,25 @@ import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
 class PageHelper(val dateFormatter: DateTimeFormatter) {
+
+  companion object {
+    fun WebElement.getValue(): String {
+      return this.getAttribute("value")?.trim() ?: ""
+    }
+
+    fun WebElement.enterTextIfNotBlank(text: String?) {
+      if (!text.isNullOrBlank()) {
+        this.sendKeys(text)
+      }
+    }
+  }
+
   fun dismissConfirmDeleteAlert(driver: WebDriver) {
     val alert = driver.switchTo().alert()
     if (alert.text.contains("This will delete the whole record", ignoreCase = true)) {
@@ -62,6 +74,23 @@ class PageHelper(val dateFormatter: DateTimeFormatter) {
   fun readDateOrNull(input: WebElement): LocalDate? {
     val inputValue = input.getValue()
     return if (inputValue.isNotBlank()) LocalDate.parse(inputValue, dateFormatter) else null
+  }
+
+  fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {
+    if (option?.isNotBlank() == true) {
+      val select = Select(dropdown)
+      try {
+        select.selectByVisibleText(option)
+      } catch (ex: org.openqa.selenium.NoSuchElementException) {
+        throw AutomationException("Cannot locate $description option with text '$option'")
+      }
+    }
+  }
+
+  fun selectCheckboxValue(checkbox: WebElement, value: Boolean) {
+    if (checkbox.isSelected != value) {
+      checkbox.click()
+    }
   }
 
   fun waitForDropdownPopulation(driver: WebDriver, dropdown: WebElement) {

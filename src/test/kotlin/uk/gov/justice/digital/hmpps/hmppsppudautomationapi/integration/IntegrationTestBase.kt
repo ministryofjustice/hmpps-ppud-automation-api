@@ -18,9 +18,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_E
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
@@ -46,7 +44,7 @@ abstract class IntegrationTestBase {
     fun createOffenderRequestBody(
       address: String? = addressRequestBody(),
       additionalAddresses: String = addressRequestBody(),
-      croNumber: String = randomCroNumber(),
+      croNumber: String = "",
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -57,7 +55,7 @@ abstract class IntegrationTestBase {
       indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
       isInCustody: String = Random.nextBoolean().toString(),
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
-      nomsId: String = randomNomsId(),
+      nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
@@ -82,14 +80,14 @@ abstract class IntegrationTestBase {
     fun updateOffenderRequestBody(
       address: String = addressRequestBody(),
       additionalAddresses: String = addressRequestBody(),
-      croNumber: String = randomCroNumber(),
+      croNumber: String = "",
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
       familyName: String = "${FAMILY_NAME_PREFIX}-$testRunId",
       firstNames: String = randomString("firstNames"),
       gender: String = PPUD_VALID_GENDER,
       isInCustody: String = "false",
-      nomsId: String = randomNomsId(),
+      nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
     ): String {
       return "{" +
