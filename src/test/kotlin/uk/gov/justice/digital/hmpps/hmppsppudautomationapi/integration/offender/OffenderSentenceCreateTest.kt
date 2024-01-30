@@ -9,12 +9,17 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -26,16 +31,10 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("custodyType", createSentenceRequestBody(custodyType = "")),
+        MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+        MandatoryFieldTestData("dateOfSentence", createOrUpdateSentenceRequestBody(dateOfSentence = "")),
+        MandatoryFieldTestData("mappaLevel", createOrUpdateSentenceRequestBody(mappaLevel = "")),
       )
-    }
-
-    fun createSentenceRequestBody(
-      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
-    ): String {
-      return "{" +
-        "\"custodyType\":\"$custodyType\" " +
-        "}"
     }
   }
 
@@ -72,9 +71,23 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
+    val offenderId = createTestOffenderInPpud()
+    val requestBodyWithOnlyMandatoryFields = "{" +
+      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
+      "\"dateOfSentence\":\"${randomDate()}\", " +
+      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\" " +
+      "}"
+
+    postSentence(offenderId, requestBodyWithOnlyMandatoryFields)
+      .expectStatus()
+      .isCreated
+  }
+
+  @Test
   fun `given custody type is not determinate in request body when create sentence called then bad request is returned`() {
     // This is a temporary restriction until we handle indeterminate recalls
-    val requestBody = createSentenceRequestBody(custodyType = randomString("custodyType"))
+    val requestBody = createOrUpdateSentenceRequestBody(custodyType = randomString("custodyType"))
     postSentence(randomPpudId(), requestBody)
       .expectStatus()
       .isBadRequest
@@ -90,8 +103,42 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
 
   @Test
   fun `given token without recall role when create sentence called then forbidden is returned`() {
-    val requestBody = createSentenceRequestBody()
+    val requestBody = createOrUpdateSentenceRequestBody()
     givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(constructCreateSentenceUri(randomPpudId()), requestBody)
+  }
+
+  @Test
+  fun `given valid values in request body when create sentence called then sentence is created using supplied values`() {
+    val offenderId = createTestOffenderInPpud()
+    val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val requestBody = createOrUpdateSentenceRequestBody(
+      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      dateOfSentence = dateOfSentence,
+      mappaLevel = PPUD_VALID_MAPPA_LEVEL_2,
+    )
+
+    val sentenceId = testPostSentence(offenderId, requestBody)
+
+    val retrieved = retrieveOffender(offenderId)
+    retrieved
+      .jsonPath("offender.sentences.size()").isEqualTo(2)
+      .jsonPath("offender.sentences[1].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
+      .jsonPath("offender.sentences[1].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
+  }
+
+  private fun testPostSentence(offenderId: String, requestBody: String): String {
+    val idExtractor = ValueConsumer<String>()
+    postSentence(offenderId, requestBody)
+      .expectStatus()
+      .isCreated
+      .expectBody()
+      .jsonPath("sentence.id").value(idExtractor)
+    val id = idExtractor.value
+    org.junit.jupiter.api.Assertions.assertNotNull(id, "ID returned from create sentence request is null")
+    org.junit.jupiter.api.Assertions.assertTrue(id!!.isNotEmpty(), "ID returned from create sentence request is empty")
+    return id
   }
 
   private fun postSentence(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =

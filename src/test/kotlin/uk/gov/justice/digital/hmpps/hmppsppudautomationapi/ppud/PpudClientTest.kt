@@ -19,6 +19,7 @@ import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
@@ -33,10 +34,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleas
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
@@ -84,16 +87,19 @@ class PpudClientTest {
   private lateinit var offencePage: OffencePage
 
   @Mock
-  private lateinit var sentencePageFactory: SentencePageFactory
+  private lateinit var postReleasePage: PostReleasePage
 
   @Mock
   private lateinit var releasePage: ReleasePage
 
   @Mock
-  private lateinit var postReleasePage: PostReleasePage
+  private lateinit var recallPage: RecallPage
 
   @Mock
-  private lateinit var recallPage: RecallPage
+  private lateinit var sentencePage: SentencePage
+
+  @Mock
+  private lateinit var sentencePageFactory: SentencePageFactory
 
   private val ppudUrl = "https://ppud.example.com"
 
@@ -400,6 +406,63 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).updateAdditionalAddresses(any())
       then(offenderPage).should(inOrder).throwIfInvalid()
       assertEquals(offenderId, newOffender.id)
+    }
+  }
+
+  @Test
+  fun `given sentence data when create sentence is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+
+      client.createSentence(offenderId, request)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given sentence data when create sentence is called then log out once done`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+
+      client.createSentence(offenderId, request)
+
+      val inOrder = inOrder(sentencePage, webDriverNavigation)
+      then(sentencePage).should(inOrder).createSentence(request)
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given sentence data when create sentence is called then create sentence and return ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val custodyType = randomString("custodyType")
+      val request = generateCreateOrUpdateSentenceRequest(
+        custodyType = custodyType,
+      )
+      val sentenceId = randomPpudId()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+      given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
+
+      val newSentence = client.createSentence(offenderId, request)
+
+      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(navigationTreeViewComponent).should(inOrder).navigateToNewSentence()
+      then(sentencePageFactory).should(inOrder).sentencePage()
+      then(sentencePage).should(inOrder).selectCustodyType(custodyType)
+      then(sentencePageFactory).should(inOrder).sentencePage()
+      then(sentencePage).should(inOrder).createSentence(request)
+      then(sentencePage).should(inOrder).throwIfInvalid()
+      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
+      assertEquals(sentenceId, newSentence.id)
     }
   }
 

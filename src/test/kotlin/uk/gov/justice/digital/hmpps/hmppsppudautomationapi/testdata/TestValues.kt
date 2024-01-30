@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
@@ -29,7 +30,10 @@ const val PPUD_VALID_GENDER_2 = "F ( Was M )"
 const val PPUD_VALID_INDEX_OFFENCE = "ADMINISTER DRUGS"
 
 // Watch out for the different hyphens in the dropdown options
-const val PPUD_VALID_MAPPA_LEVEL = "Level 2 – Local Inter-Agency Management"
+const val PPUD_VALID_MAPPA_LEVEL = "Level 1 – Single Agency Management"
+
+// Watch out for the different hyphens in the dropdown options
+const val PPUD_VALID_MAPPA_LEVEL_2 = "Level 2 – Local Inter-Agency Management"
 
 const val PPUD_VALID_POLICE_FORCE = "Kent Police"
 
@@ -230,6 +234,22 @@ fun generateOffenderAddress(): OffenderAddress {
     line2 = randomString("line2"),
     postcode = randomString("postcode"),
     phoneNumber = randomString("phoneNumber"),
+  )
+}
+
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
+fun generateCreateOrUpdateSentenceRequest(
+  custodyType: String = randomString("custodyType"),
+  dateOfSentence: LocalDate = randomDate(),
+  mappaLevel: String = randomString("mappaLevel"),
+): CreateOrUpdateSentenceRequest {
+  return CreateOrUpdateSentenceRequest(
+    custodyType = custodyType,
+    dateOfSentence = dateOfSentence,
+    mappaLevel = mappaLevel,
   )
 }
 

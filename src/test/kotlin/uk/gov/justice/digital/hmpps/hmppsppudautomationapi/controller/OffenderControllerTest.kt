@@ -12,11 +12,13 @@ import org.mockito.kotlin.then
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
@@ -122,6 +124,34 @@ internal class OffenderControllerTest {
       controller.updateOffender(offenderId, offenderRequest)
 
       then(ppudClient).should().updateOffender(offenderId, offenderRequest)
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence data when createSentence is called then data is passed to PPUD client`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(ppudClient.createSentence(offenderId, request)).willReturn(CreatedSentence(""))
+
+      controller.createSentence(offenderId, request)
+
+      then(ppudClient).should().createSentence(offenderId, request)
+    }
+  }
+
+  @Test
+  fun `given sentence creation succeeds when createSentence is called then sentence Id is returned`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      val sentenceId = randomPpudId()
+      given(ppudClient.createSentence(offenderId, request)).willReturn(CreatedSentence(sentenceId))
+
+      val result = controller.createSentence(offenderId, request)
+
+      assertEquals(HttpStatus.CREATED, result.statusCode)
+      assertEquals(sentenceId, result.body?.sentence?.id)
     }
   }
 

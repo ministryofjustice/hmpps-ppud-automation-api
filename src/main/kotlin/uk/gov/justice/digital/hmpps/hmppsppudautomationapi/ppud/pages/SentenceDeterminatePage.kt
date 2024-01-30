@@ -1,27 +1,37 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
+import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.selectDropdownOptionIfNotBlank
+import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceDeterminatePage(
   driver: WebDriver,
   pageHelper: PageHelper,
+  private val dateFormatter: DateTimeFormatter,
   navigationTreeViewComponent: NavigationTreeViewComponent,
 ) :
   SentencePage(driver, pageHelper, navigationTreeViewComponent) {
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
+  private lateinit var saveButton: WebElement
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
@@ -62,12 +72,33 @@ internal class SentenceDeterminatePage(
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
 
+  private val validationSummary: WebElement?
+    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
+
   init {
     PageFactory.initElements(driver, this)
   }
 
   override val pageDescription: String
     get() = "determinate sentence page"
+
+  override fun selectCustodyType(custodyType: String) {
+    selectDropdownOptionIfNotBlank(custodyTypeDropdown, custodyType, "custody type")
+  }
+
+  override fun createSentence(request: CreateOrUpdateSentenceRequest) {
+    dateOfSentenceInput.click()
+    dateOfSentenceInput.sendKeys((request.dateOfSentence.format(dateFormatter)))
+    selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
+
+    saveButton.click()
+  }
+
+  override fun extractCreatedSentenceDetails(): CreatedSentence {
+    return CreatedSentence(
+      id = pageHelper.extractId(driver, pageDescription),
+    )
+  }
 
   override fun extractSentenceDetails(
     includeEmptyReleases: Boolean,
@@ -101,5 +132,11 @@ internal class SentenceDeterminatePage(
       offence = offenceExtractor(offenceLink),
       releases = releaseExtractor(releaseLinks),
     )
+  }
+
+  override fun throwIfInvalid() {
+    if (validationSummary?.text?.isNotBlank() == true) {
+      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+    }
   }
 }

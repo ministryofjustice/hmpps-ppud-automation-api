@@ -107,6 +107,13 @@ class NavigationTreeViewComponent(
       .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
   }
 
+  fun navigateToNewSentence() {
+    TreeView(navigationTreeViewRoot)
+      .expandNodeWithText(SENTENCES_NODE_TEXT)
+      .findNodeWithText(NEW_NODE_TEXT)
+      .click()
+  }
+
   fun navigateToNewOrEmptyReleaseFor(sentenceId: String) {
     val releasesNode = findSentenceNodeFor(sentenceId)
       .expandNodeWithText(RELEASES_NODE_TEXT)
