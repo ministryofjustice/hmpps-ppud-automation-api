@@ -108,12 +108,40 @@ abstract class IntegrationTestBase {
     fun createOrUpdateSentenceRequestBody(
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      espCustodialPeriodYears: Int = Random.nextInt(0, 20),
+      espCustodialPeriodMonths: Int = Random.nextInt(0, 20),
+      espExtendedPeriodYears: Int = Random.nextInt(0, 20),
+      espExtendedPeriodMonths: Int = Random.nextInt(0, 20),
+      licenceExpiryDate: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
+      releaseDate: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      sentenceExpiryDate: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      sentenceLengthPartYears: Int = Random.nextInt(0, 20),
+      sentenceLengthPartMonths: Int = Random.nextInt(0, 20),
+      sentenceLengthPartDays: Int = Random.nextInt(0, 20),
+      sentencingCourt: String = randomString("sentCourt"),
     ): String {
       return "{" +
         "\"custodyType\":\"$custodyType\", " +
         "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"mappaLevel\":\"$mappaLevel\" " +
+        "\"espCustodialPeriod\":{" +
+        "  \"years\":\"$espCustodialPeriodYears\", " +
+        "  \"months\":\"$espCustodialPeriodMonths\" " +
+        "}," +
+        "\"espExtendedPeriod\":{" +
+        "  \"years\":\"$espExtendedPeriodYears\", " +
+        "  \"months\":\"$espExtendedPeriodMonths\" " +
+        "}," +
+        "\"licenceExpiryDate\":\"$licenceExpiryDate\", " +
+        "\"mappaLevel\":\"$mappaLevel\", " +
+        "\"releaseDate\":\"$releaseDate\", " +
+        "\"sentenceExpiryDate\":\"$sentenceExpiryDate\", " +
+        "\"sentenceLength\":{" +
+        "  \"partYears\":\"$sentenceLengthPartYears\", " +
+        "  \"partMonths\":\"$sentenceLengthPartMonths\", " +
+        "  \"partDays\":\"$sentenceLengthPartDays\" " +
+        "}," +
+        "\"sentencingCourt\":\"$sentencingCourt\" " +
         "}"
     }
 

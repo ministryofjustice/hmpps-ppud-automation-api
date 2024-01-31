@@ -156,6 +156,19 @@ internal class OffenderControllerTest {
   }
 
   @Test
+  fun `given offender ID and sentence ID and sentence data when updateSentence is called then data is passed to PPUD client`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+
+      controller.updateSentence(offenderId, sentenceId, request)
+
+      then(ppudClient).should().updateSentence(offenderId, sentenceId, request)
+    }
+  }
+
+  @Test
   fun `given release data when createOrUpdateRelease is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderId = randomPpudId()

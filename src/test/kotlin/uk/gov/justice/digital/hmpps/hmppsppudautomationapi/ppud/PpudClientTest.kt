@@ -410,6 +410,49 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given offender id and data when update offender is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(loginPage, searchPage)
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+      then(searchPage).should(inOrder).verifyOn()
+    }
+  }
+
+  @Test
+  fun `given offender id and data when update offender is called then log out once done`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(offenderPage, webDriverNavigation)
+      then(offenderPage).should(inOrder).updateOffender(any())
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given offender id and data when update offender is called then update offender`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val updateOffenderRequest = generateUpdateOffenderRequest()
+
+      client.updateOffender(offenderId, updateOffenderRequest)
+
+      val inOrder = inOrder(offenderPage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(offenderPage).should(inOrder).updateOffender(updateOffenderRequest)
+      then(offenderPage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Test
   fun `given sentence data when create sentence is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
       val offenderId = randomPpudId()
@@ -467,12 +510,14 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender id and data when update offender is called then log in to PPUD and verify we are on search page`() {
+  fun `given offender ID and sentence ID and sentence data when update sentence is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
       val offenderId = randomPpudId()
-      val updateOffenderRequest = generateUpdateOffenderRequest()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
-      client.updateOffender(offenderId, updateOffenderRequest)
+      client.updateSentence(offenderId, sentenceId, request)
 
       val inOrder = inOrder(loginPage, searchPage)
       then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
@@ -481,31 +526,37 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender id and data when update offender is called then log out once done`() {
+  fun `given offender ID and sentence ID and sentence data when update sentence is called then log out once done`() {
     runBlocking {
       val offenderId = randomPpudId()
-      val updateOffenderRequest = generateUpdateOffenderRequest()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
-      client.updateOffender(offenderId, updateOffenderRequest)
+      client.updateSentence(offenderId, sentenceId, request)
 
-      val inOrder = inOrder(offenderPage, webDriverNavigation)
-      then(offenderPage).should(inOrder).updateOffender(any())
+      val inOrder = inOrder(sentencePage, webDriverNavigation)
+      then(sentencePage).should(inOrder).updateSentence(any())
       then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
     }
   }
 
   @Test
-  fun `given offender id and data when update offender is called then update offender`() {
+  fun `given offender ID and sentence ID and sentence data when update sentence is called then update sentence`() {
     runBlocking {
       val offenderId = randomPpudId()
-      val updateOffenderRequest = generateUpdateOffenderRequest()
+      val sentenceId = randomPpudId()
+      val request = generateCreateOrUpdateSentenceRequest()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
-      client.updateOffender(offenderId, updateOffenderRequest)
+      client.updateSentence(offenderId, sentenceId, request)
 
-      val inOrder = inOrder(offenderPage)
+      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(offenderPage).should(inOrder).updateOffender(updateOffenderRequest)
-      then(offenderPage).should(inOrder).throwIfInvalid()
+      then(navigationTreeViewComponent).should(inOrder).navigateToSentenceFor(sentenceId)
+      then(sentencePageFactory).should(inOrder).sentencePage()
+      then(sentencePage).should(inOrder).updateSentence(request)
+      then(sentencePage).should(inOrder).throwIfInvalid()
     }
   }
 

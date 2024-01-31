@@ -112,6 +112,13 @@ internal class PpudClient(
     }
   }
 
+  suspend fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
+    log.info("Updating sentence in PPUD Client")
+    performLoggedInOperation {
+      updateSentenceInternal(offenderId, sentenceId, request)
+    }
+  }
+
   suspend fun createOrUpdateRelease(
     offenderId: String,
     sentenceId: String,
@@ -255,6 +262,18 @@ internal class PpudClient(
     sentencePage.createSentence(request)
     sentencePage.throwIfInvalid()
     return sentencePage.extractCreatedSentenceDetails()
+  }
+
+  private fun updateSentenceInternal(
+    offenderId: String,
+    sentenceId: String,
+    request: CreateOrUpdateSentenceRequest,
+  ) {
+    offenderPage.viewOffenderWithId(offenderId)
+    navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
+    val sentencePage = sentencePageFactory.sentencePage()
+    sentencePage.updateSentence(request)
+    sentencePage.throwIfInvalid()
   }
 
   private fun createOrUpdateReleaseInternal(

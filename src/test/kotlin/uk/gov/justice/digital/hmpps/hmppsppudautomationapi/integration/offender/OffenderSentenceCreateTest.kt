@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
+import kotlin.random.Random
 
 @ExtendWith(OffenderSentenceCreateTest.DataTidyExtension::class)
 class OffenderSentenceCreateTest : IntegrationTestBase() {
@@ -97,6 +98,19 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given sentencingCourt is longer than 50 characters in request body when create sentence called then bad request is returned`() {
+    val requestBody = createOrUpdateSentenceRequestBody(
+      sentencingCourt = "A".repeat(51),
+    )
+    postSentence(randomPpudId(), requestBody)
+      .expectStatus()
+      .isBadRequest
+      .expectBody()
+      .jsonPath("userMessage")
+      .value(Consumer<String> { Assertions.assertThat(it).contains("sentencingCourt") })
+  }
+
+  @Test
   fun `given missing token when create sentence called then unauthorized is returned`() {
     givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, constructCreateSentenceUri(randomPpudId()))
   }
@@ -111,10 +125,32 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   fun `given valid values in request body when create sentence called then sentence is created using supplied values`() {
     val offenderId = createTestOffenderInPpud()
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val espCustodialPeriodYears = Random.nextInt(0, 1000)
+    val espCustodialPeriodMonths = Random.nextInt(0, 1000)
+    val espExtendedPeriodYears = Random.nextInt(0, 1000)
+    val espExtendedPeriodMonths = Random.nextInt(0, 1000)
+    val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentencingCourt = randomString("sentCourt")
+    val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentenceLengthPartYears = Random.nextInt(0, 1000)
+    val sentenceLengthPartMonths = Random.nextInt(0, 1000)
+    val sentenceLengthPartDays = Random.nextInt(0, 1000)
     val requestBody = createOrUpdateSentenceRequestBody(
       custodyType = PPUD_VALID_CUSTODY_TYPE,
       dateOfSentence = dateOfSentence,
+      espCustodialPeriodYears = espCustodialPeriodYears,
+      espCustodialPeriodMonths = espCustodialPeriodMonths,
+      espExtendedPeriodYears = espExtendedPeriodYears,
+      espExtendedPeriodMonths = espExtendedPeriodMonths,
+      licenceExpiryDate = licenceExpiryDate,
       mappaLevel = PPUD_VALID_MAPPA_LEVEL_2,
+      releaseDate = releaseDate,
+      sentenceExpiryDate = sentenceExpiryDate,
+      sentencingCourt = sentencingCourt,
+      sentenceLengthPartYears = sentenceLengthPartYears,
+      sentenceLengthPartMonths = sentenceLengthPartMonths,
+      sentenceLengthPartDays = sentenceLengthPartDays,
     )
 
     val sentenceId = testPostSentence(offenderId, requestBody)
@@ -125,7 +161,19 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[1].id").isEqualTo(sentenceId)
       .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
+      .jsonPath("offender.sentences[1].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)
+      .jsonPath("offender.sentences[1].espCustodialPeriod.months").isEqualTo(espCustodialPeriodMonths)
+      .jsonPath("offender.sentences[1].espExtendedPeriod.years").isEqualTo(espExtendedPeriodYears)
+      .jsonPath("offender.sentences[1].espExtendedPeriod.months").isEqualTo(espExtendedPeriodMonths)
+      .jsonPath("offender.sentences[1].licenceExpiryDate").isEqualTo(licenceExpiryDate)
       .jsonPath("offender.sentences[1].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
+      .jsonPath("offender.sentences[1].releaseDate").isEqualTo(releaseDate)
+      .jsonPath("offender.sentences[1].sentencedUnder").isEqualTo("Not Specified")
+      .jsonPath("offender.sentences[1].sentenceExpiryDate").isEqualTo(sentenceExpiryDate)
+      .jsonPath("offender.sentences[1].sentenceLength.partYears").isEqualTo(sentenceLengthPartYears)
+      .jsonPath("offender.sentences[1].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)
+      .jsonPath("offender.sentences[1].sentenceLength.partDays").isEqualTo(sentenceLengthPartDays)
+      .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo(sentencingCourt)
   }
 
   private fun testPostSentence(offenderId: String, requestBody: String): String {

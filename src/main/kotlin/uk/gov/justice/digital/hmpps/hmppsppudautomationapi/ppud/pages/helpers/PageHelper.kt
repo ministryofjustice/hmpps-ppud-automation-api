@@ -18,12 +18,6 @@ class PageHelper(val dateFormatter: DateTimeFormatter) {
     fun WebElement.getValue(): String {
       return this.getAttribute("value")?.trim() ?: ""
     }
-
-    fun WebElement.enterTextIfNotBlank(text: String?) {
-      if (!text.isNullOrBlank()) {
-        this.sendKeys(text)
-      }
-    }
   }
 
   fun dismissConfirmDeleteAlert(driver: WebDriver) {
@@ -49,6 +43,32 @@ class PageHelper(val dateFormatter: DateTimeFormatter) {
     }
   }
 
+  fun enterDate(dateInput: WebElement, date: LocalDate?) {
+    dateInput.click()
+    dateInput.clear()
+    if (date != null) {
+      dateInput.sendKeys(date.format(dateFormatter))
+    }
+  }
+
+  fun enterInteger(input: WebElement, number: Int?) {
+    input.clear()
+    if (number != null) {
+      input.sendKeys(number.toString())
+    }
+  }
+
+  fun enterText(input: WebElement, text: String) {
+    input.clear()
+    input.sendKeys(text)
+  }
+
+  fun enterTextIfNotBlank(input: WebElement, text: String?) {
+    if (!text.isNullOrBlank()) {
+      enterText(input, text)
+    }
+  }
+
   fun extractId(driver: WebDriver, pageDescription: String): String {
     val url = driver.currentUrl
     val idMatch = Regex(".+?data=(.+)").find(url)
@@ -58,11 +78,16 @@ class PageHelper(val dateFormatter: DateTimeFormatter) {
   }
 
   fun readDate(input: WebElement): LocalDate {
+    return readDateOrNull(input)
+      ?: throw AutomationException("Expected valid date in element but value was '${input.getValue()}'")
+  }
+
+  fun readDateOrNull(input: WebElement): LocalDate? {
     val inputValue = input.getValue()
     return if (inputValue.isNotBlank()) {
       LocalDate.parse(inputValue, dateFormatter)
     } else {
-      throw AutomationException("Expected valid date in element but value was '$inputValue'")
+      null
     }
   }
 
@@ -71,9 +96,8 @@ class PageHelper(val dateFormatter: DateTimeFormatter) {
     return inputValue.toIntOrNull() ?: default
   }
 
-  fun readDateOrNull(input: WebElement): LocalDate? {
-    val inputValue = input.getValue()
-    return if (inputValue.isNotBlank()) LocalDate.parse(inputValue, dateFormatter) else null
+  fun readSelectedOption(dropdown: WebElement): String {
+    return Select(dropdown).firstSelectedOption.text
   }
 
   fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {

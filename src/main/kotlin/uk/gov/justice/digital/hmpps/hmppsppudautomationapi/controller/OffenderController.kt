@@ -140,6 +140,7 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
   ) {
     log.info("Sentence update endpoint hit")
+    ppudClient.updateSentence(offenderId, sentenceId, createOrUpdateSentenceRequest)
   }
 
   @Operation(

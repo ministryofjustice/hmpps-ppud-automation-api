@@ -47,6 +47,10 @@ internal class SentenceIndeterminatePage(
     TODO("Indeterminate sentences not yet supported")
   }
 
+  override fun updateSentence(request: CreateOrUpdateSentenceRequest) {
+    TODO("Indeterminate sentences not yet supported")
+  }
+
   override fun extractCreatedSentenceDetails(): CreatedSentence {
     TODO("Indeterminate sentences not yet supported")
   }
