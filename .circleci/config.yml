@@ -60,7 +60,7 @@ executors:
 jobs:
   validate:
     executor: java
-    resource_class: xlarge
+    resource_class: 2xlarge
     steps:
       - checkout
       - browser-tools/install-firefox:
