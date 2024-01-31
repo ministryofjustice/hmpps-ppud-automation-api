@@ -255,13 +255,18 @@ internal class PpudClient(
     request: CreateOrUpdateSentenceRequest,
   ): CreatedSentence {
     offenderPage.viewOffenderWithId(offenderId)
-    navigationTreeViewComponent.navigateToNewSentence()
-    val newSentencePage = sentencePageFactory.sentencePage()
-    newSentencePage.selectCustodyType(request.custodyType)
-    val sentencePage = sentencePageFactory.sentencePage()
-    sentencePage.createSentence(request)
-    sentencePage.throwIfInvalid()
-    return sentencePage.extractCreatedSentenceDetails()
+    val matched = navigateToMatchingSentence(request)
+
+    if (!matched) {
+      navigationTreeViewComponent.navigateToNewSentence()
+      val newSentencePage = sentencePageFactory.sentencePage()
+      newSentencePage.selectCustodyType(request.custodyType)
+      val sentencePage = sentencePageFactory.sentencePage()
+      sentencePage.createSentence(request)
+      sentencePage.throwIfInvalid()
+    }
+
+    return sentencePageFactory.sentencePage().extractCreatedSentenceDetails()
   }
 
   private fun updateSentenceInternal(
@@ -406,6 +411,14 @@ internal class PpudClient(
     adminPage.verifyOn()
     adminPage.goToEditLookups()
     return editLookupsPage.extractLookupValues(lookupName)
+  }
+
+  private fun navigateToMatchingSentence(request: CreateOrUpdateSentenceRequest): Boolean {
+    val sentenceLinks = navigationTreeViewComponent.extractSentenceLinks(request.dateOfSentence, request.custodyType)
+    return sentenceLinks.any {
+      driver.navigate().to("$ppudUrl$it")
+      sentencePageFactory.sentencePage().isMatching(request)
+    }
   }
 
   private fun navigateToMatchingRelease(

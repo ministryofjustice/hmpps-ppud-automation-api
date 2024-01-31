@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.WebDriver
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
@@ -14,11 +15,17 @@ internal abstract class SentencePage(
   protected val driver: WebDriver,
   protected val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
+  private val sentenceComparator: SentenceComparator,
 ) {
 
   protected abstract val pageDescription: String
 
   abstract fun selectCustodyType(custodyType: String)
+
+  fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
+    val existing = extractSentenceDetails(false, ::Offence) { emptyList() }
+    return sentenceComparator.areMatching(existing, request)
+  }
 
   abstract fun createSentence(request: CreateOrUpdateSentenceRequest)
 

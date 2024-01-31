@@ -6,6 +6,7 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
@@ -20,8 +21,8 @@ internal class SentenceIndeterminatePage(
   driver: WebDriver,
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
-) :
-  SentencePage(driver, pageHelper, navigationTreeViewComponent) {
+  sentenceComparator: SentenceComparator,
+) : SentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
 
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement

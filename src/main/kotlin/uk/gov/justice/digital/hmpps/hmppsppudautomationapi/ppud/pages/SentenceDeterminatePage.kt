@@ -7,6 +7,7 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
@@ -24,9 +25,9 @@ internal class SentenceDeterminatePage(
   driver: WebDriver,
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
+  sentenceComparator: SentenceComparator,
   @Value("\${ppud.sentence.sentencedUnder}") private val sentencedUnder: String,
-) :
-  SentencePage(driver, pageHelper, navigationTreeViewComponent) {
+) : SentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement

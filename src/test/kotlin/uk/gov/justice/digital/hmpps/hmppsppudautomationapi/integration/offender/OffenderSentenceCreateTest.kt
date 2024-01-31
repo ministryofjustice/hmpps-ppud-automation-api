@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -159,6 +160,63 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.sentences.size()").isEqualTo(2)
       .jsonPath("offender.sentences[1].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
+      .jsonPath("offender.sentences[1].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)
+      .jsonPath("offender.sentences[1].espCustodialPeriod.months").isEqualTo(espCustodialPeriodMonths)
+      .jsonPath("offender.sentences[1].espExtendedPeriod.years").isEqualTo(espExtendedPeriodYears)
+      .jsonPath("offender.sentences[1].espExtendedPeriod.months").isEqualTo(espExtendedPeriodMonths)
+      .jsonPath("offender.sentences[1].licenceExpiryDate").isEqualTo(licenceExpiryDate)
+      .jsonPath("offender.sentences[1].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
+      .jsonPath("offender.sentences[1].releaseDate").isEqualTo(releaseDate)
+      .jsonPath("offender.sentences[1].sentencedUnder").isEqualTo("Not Specified")
+      .jsonPath("offender.sentences[1].sentenceExpiryDate").isEqualTo(sentenceExpiryDate)
+      .jsonPath("offender.sentences[1].sentenceLength.partYears").isEqualTo(sentenceLengthPartYears)
+      .jsonPath("offender.sentences[1].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)
+      .jsonPath("offender.sentences[1].sentenceLength.partDays").isEqualTo(sentenceLengthPartDays)
+      .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo(sentencingCourt)
+  }
+
+  @Test
+  fun `given subsequent call with same values in request body when create sentence called then additional sentence is not created`() {
+    val offenderId = createTestOffenderInPpud()
+    val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val espCustodialPeriodYears = Random.nextInt(0, 1000)
+    val espCustodialPeriodMonths = Random.nextInt(0, 1000)
+    val espExtendedPeriodYears = Random.nextInt(0, 1000)
+    val espExtendedPeriodMonths = Random.nextInt(0, 1000)
+    val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentencingCourt = randomString("sentCourt")
+    val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val sentenceLengthPartYears = Random.nextInt(0, 1000)
+    val sentenceLengthPartMonths = Random.nextInt(0, 1000)
+    val sentenceLengthPartDays = Random.nextInt(0, 1000)
+    val requestBody = createOrUpdateSentenceRequestBody(
+      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      dateOfSentence = dateOfSentence,
+      espCustodialPeriodYears = espCustodialPeriodYears,
+      espCustodialPeriodMonths = espCustodialPeriodMonths,
+      espExtendedPeriodYears = espExtendedPeriodYears,
+      espExtendedPeriodMonths = espExtendedPeriodMonths,
+      licenceExpiryDate = licenceExpiryDate,
+      mappaLevel = PPUD_VALID_MAPPA_LEVEL_2,
+      releaseDate = releaseDate,
+      sentenceExpiryDate = sentenceExpiryDate,
+      sentencingCourt = sentencingCourt,
+      sentenceLengthPartYears = sentenceLengthPartYears,
+      sentenceLengthPartMonths = sentenceLengthPartMonths,
+      sentenceLengthPartDays = sentenceLengthPartDays,
+    )
+
+    val firstCallSentenceId = testPostSentence(offenderId, requestBody)
+    val secondCallSentenceId = testPostSentence(offenderId, requestBody)
+
+    assertEquals(firstCallSentenceId, secondCallSentenceId)
+    val retrieved = retrieveOffender(offenderId)
+    retrieved
+      .jsonPath("offender.sentences.size()").isEqualTo(2)
+      .jsonPath("offender.sentences[1].id").isEqualTo(firstCallSentenceId)
       .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[1].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)

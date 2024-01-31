@@ -135,6 +135,13 @@ class NavigationTreeViewComponent(
       .click()
   }
 
+  fun extractSentenceLinks(dateOfSentence: LocalDate, custodyType: String): List<String> {
+    val formattedDate = dateOfSentence.format(dateFormatter)
+    return sentenceNodes
+      .filter { it.text.trim() == "$formattedDate - $custodyType" }
+      .map { it.url }
+  }
+
   fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> {
     return findReleaseNodesFor(sentenceId)
       .filter {
