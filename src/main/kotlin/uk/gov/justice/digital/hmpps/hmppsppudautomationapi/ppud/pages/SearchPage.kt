@@ -56,7 +56,7 @@ internal class SearchPage(private val driver: WebDriver) {
   }
 
   fun verifyOn() {
-    WebDriverWait(driver, Duration.ofSeconds(5))
+    WebDriverWait(driver, Duration.ofSeconds(20))
       .until(ExpectedConditions.titleIs(title))
   }
 
