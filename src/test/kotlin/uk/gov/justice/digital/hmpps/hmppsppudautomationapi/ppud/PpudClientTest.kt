@@ -147,12 +147,11 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given search criteria when search offender is called then log in to PPUD and verify we are on search page`() {
+  fun `given search criteria when search offender is called then log in to PPUD and verify success`() {
     runBlocking {
       client.searchForOffender("cro", "noms", "familyName", LocalDate.parse("2000-01-01"))
 
-      then(loginPage).should().login(ppudUsername, ppudPassword)
-      then(searchPage).should().verifyOn()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -327,11 +326,11 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given ID when retrieveOffender is called then log in to PPUD and verify we are on search page`() {
+  fun `given ID when retrieveOffender is called then log in to PPUD and verify success`() {
     runBlocking {
       client.retrieveOffender(randomPpudId())
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -365,12 +364,12 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender data when create offender is called then log in to PPUD and verify we are on search page`() {
+  fun `given offender data when create offender is called then log in to PPUD and verify success`() {
     runBlocking {
       val createOffenderRequest = generateCreateOffenderRequest()
       client.createOffender(createOffenderRequest)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -407,14 +406,14 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender id and data when update offender is called then log in to PPUD and verify we are on search page`() {
+  fun `given offender id and data when update offender is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
       val updateOffenderRequest = generateUpdateOffenderRequest()
 
       client.updateOffender(offenderId, updateOffenderRequest)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -448,7 +447,7 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given sentence data when create sentence is called then log in to PPUD and verify we are on search page`() {
+  fun `given sentence data when create sentence is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
       val request = generateCreateOrUpdateSentenceRequest()
@@ -456,7 +455,7 @@ class PpudClientTest {
 
       client.createSentence(offenderId, request)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -536,7 +535,7 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender ID and sentence ID and sentence data when update sentence is called then log in to PPUD and verify we are on search page`() {
+  fun `given offender ID and sentence ID and sentence data when update sentence is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
@@ -545,7 +544,7 @@ class PpudClientTest {
 
       client.updateSentence(offenderId, sentenceId, request)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -585,7 +584,7 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender ID and sentence ID and offence data when update offence is called then log in to PPUD and verify we are on search page`() {
+  fun `given offender ID and sentence ID and offence data when update offence is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
@@ -593,7 +592,7 @@ class PpudClientTest {
 
       client.updateOffence(offenderId, sentenceId, request)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -629,7 +628,7 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify we are on search page`() {
+  fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
@@ -638,7 +637,7 @@ class PpudClientTest {
 
       client.createOrUpdateRelease(offenderId, sentenceId, request)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -715,12 +714,12 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given recall data when create recall is called then log in to PPUD and verify we are on search page`() {
+  fun `given recall data when create recall is called then log in to PPUD and verify success`() {
     runBlocking {
       val createRecallRequest = generateCreateRecallRequest()
       client.createRecall(randomPpudId(), createRecallRequest)
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -796,11 +795,11 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given ID when retrieveRecall is called then log in to PPUD and verify we are on search page`() {
+  fun `given ID when retrieveRecall is called then log in to PPUD and verify success`() {
     runBlocking {
       client.retrieveRecall(randomPpudId())
 
-      assertThatLogsOnAndVerifiesOnSearchPage()
+      assertThatLogsOnAndVerifiesSuccess()
     }
   }
 
@@ -912,9 +911,10 @@ class PpudClientTest {
     }
   }
 
-  private fun assertThatLogsOnAndVerifiesOnSearchPage() {
+  private fun assertThatLogsOnAndVerifiesSuccess() {
     val inOrder = inOrder(loginPage, searchPage)
     then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+    then(loginPage).should(inOrder).throwIfInvalid()
     then(searchPage).should(inOrder).verifyOn()
   }
 

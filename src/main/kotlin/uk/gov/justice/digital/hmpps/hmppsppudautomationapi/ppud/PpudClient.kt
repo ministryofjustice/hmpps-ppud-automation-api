@@ -216,6 +216,7 @@ internal class PpudClient(
     driver.navigate().to("${ppudUrl}${loginPage.urlPath}")
     loginPage.verifyOn()
     loginPage.login(username, password)
+    loginPage.throwIfInvalid()
     searchPage.verifyOn()
   }
 
