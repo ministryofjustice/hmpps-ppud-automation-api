@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
@@ -28,6 +29,8 @@ const val PPUD_VALID_GENDER = "M"
 const val PPUD_VALID_GENDER_2 = "F ( Was M )"
 
 const val PPUD_VALID_INDEX_OFFENCE = "ADMINISTER DRUGS"
+
+const val PPUD_VALID_INDEX_OFFENCE_2 = "CRIMINAL DAMAGE"
 
 // Watch out for the different hyphens in the dropdown options
 const val PPUD_VALID_MAPPA_LEVEL = "Level 1 – Single Agency Management"
@@ -261,6 +264,17 @@ fun generateCreateOrUpdateSentenceRequest(
     sentenceExpiryDate = null,
     sentenceLength = null,
     sentencingCourt = sentencingCourt,
+  )
+}
+
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
+fun generateUpdateOffenceRequest(): UpdateOffenceRequest {
+  return UpdateOffenceRequest(
+    indexOffence = randomString("indexOffence"),
+    dateOfIndexOffence = randomDate(),
   )
 }
 

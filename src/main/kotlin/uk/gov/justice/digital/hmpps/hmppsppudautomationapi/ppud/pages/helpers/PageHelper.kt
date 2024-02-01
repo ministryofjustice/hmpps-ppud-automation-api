@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-class PageHelper(val dateFormatter: DateTimeFormatter) {
+class PageHelper(private val dateFormatter: DateTimeFormatter) {
 
   companion object {
     fun WebElement.getValue(): String {
