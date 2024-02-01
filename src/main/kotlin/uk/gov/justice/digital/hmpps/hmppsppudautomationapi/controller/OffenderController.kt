@@ -146,7 +146,8 @@ internal class OffenderController(private val ppudClient: PpudClient) {
 
   @Operation(
     summary = "Update Offence",
-    description = "Update an existing offence associated with a sentence on an offender.",
+    description = "Update an offence that is associated with a sentence on an offender." +
+      " An offence will always exist if the sentence exists, so 'Create Offence' is not required.",
   )
   @PutMapping("/offender/{offenderId}/sentence/{sentenceId}/offence")
   suspend fun updateOffence(
