@@ -189,6 +189,15 @@ abstract class IntegrationTestBase {
     return id!!
   }
 
+  protected fun findSentenceIdOnOffender(offenderId: String): String {
+    val idExtractor = ValueConsumer<String>()
+    retrieveOffender(offenderId)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
+    val sentenceId = idExtractor.value!!
+    return sentenceId
+  }
+
   protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
     webTestClient.put()
       .uri("/offender/$offenderId")

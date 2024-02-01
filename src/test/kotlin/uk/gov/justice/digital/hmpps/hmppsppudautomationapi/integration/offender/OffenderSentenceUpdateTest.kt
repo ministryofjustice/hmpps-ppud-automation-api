@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
@@ -71,7 +70,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given missing optional fields in request body when update offender called then 200 OK is returned`() {
+  fun `given missing optional fields in request body when update sentence called then 200 OK is returned`() {
     val offenderId = createTestOffenderInPpud()
     val sentenceId = findSentenceIdOnOffender(offenderId)
     val requestBodyWithOnlyMandatoryFields = "{" +
@@ -164,15 +163,6 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)
       .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo(sentenceLengthPartDays)
       .jsonPath("offender.sentences[0].sentencingCourt").isEqualTo(sentencingCourt)
-  }
-
-  private fun findSentenceIdOnOffender(offenderId: String): String {
-    val idExtractor = ValueConsumer<String>()
-    retrieveOffender(offenderId)
-      .jsonPath("offender.sentences[0].id").isNotEmpty
-      .jsonPath("offender.sentences[0].id").value(idExtractor)
-    val sentenceId = idExtractor.value!!
-    return sentenceId
   }
 
   private fun testPutSentence(offenderId: String, sentenceId: String, requestBody: String) {

@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateOrUpdateReleaseResponse
@@ -141,6 +142,22 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   ) {
     log.info("Sentence update endpoint hit")
     ppudClient.updateSentence(offenderId, sentenceId, createOrUpdateSentenceRequest)
+  }
+
+  @Operation(
+    summary = "Update Offence",
+    description = "Update an existing offence associated with a sentence on an offender.",
+  )
+  @PutMapping("/offender/{offenderId}/sentence/{sentenceId}/offence")
+  suspend fun updateOffence(
+    @PathVariable(required = true) offenderId: String,
+    @PathVariable(required = true) sentenceId: String,
+    @Valid
+    @RequestBody(required = true)
+    request: UpdateOffenceRequest,
+  ) {
+    log.info("Offence update endpoint hit")
+    ppudClient.updateOffence(offenderId, sentenceId, request)
   }
 
   @Operation(

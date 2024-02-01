@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -165,6 +166,19 @@ internal class OffenderControllerTest {
       controller.updateSentence(offenderId, sentenceId, request)
 
       then(ppudClient).should().updateSentence(offenderId, sentenceId, request)
+    }
+  }
+
+  @Test
+  fun `given offence data when updateOffence is called then data is passed to PPUD client`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateUpdateOffenceRequest()
+
+      controller.updateOffence(offenderId, sentenceId, request)
+
+      then(ppudClient).should().updateOffence(offenderId, sentenceId, request)
     }
   }
 

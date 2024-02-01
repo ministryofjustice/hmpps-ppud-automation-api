@@ -150,7 +150,9 @@ internal class NewOffenderPage(
     }
 
     // Complete fields that have been updated/refreshed.
+    pageHelper.waitForDropdownPopulation(driver, indexOffenceDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
+    pageHelper.waitForDropdownPopulation(driver, mappaLevelDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
 
     saveButton.click()

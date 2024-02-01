@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
@@ -119,6 +120,13 @@ internal class PpudClient(
     }
   }
 
+  suspend fun updateOffence(offenderId: String, sentenceId: String, request: UpdateOffenceRequest) {
+    log.info("Updating offence in PPUD Client")
+    performLoggedInOperation {
+      updateOffenceInternal(offenderId, sentenceId, request)
+    }
+  }
+
   suspend fun createOrUpdateRelease(
     offenderId: String,
     sentenceId: String,
@@ -147,7 +155,7 @@ internal class PpudClient(
     log.info("Creating new recall in PPUD Client")
 
     return performLoggedInOperation {
-      createNewRecall(offenderId, recallRequest)
+      createRecallInternal(offenderId, recallRequest)
     }
   }
 
@@ -281,6 +289,16 @@ internal class PpudClient(
     sentencePage.throwIfInvalid()
   }
 
+  private fun updateOffenceInternal(
+    offenderId: String,
+    sentenceId: String,
+    request: UpdateOffenceRequest,
+  ) {
+    offenderPage.viewOffenderWithId(offenderId)
+    navigationTreeViewComponent.navigateToOffenceFor(sentenceId)
+    offencePage.updateOffence(request)
+  }
+
   private fun createOrUpdateReleaseInternal(
     offenderId: String,
     sentenceId: String,
@@ -311,7 +329,7 @@ internal class PpudClient(
     postReleasePage.throwIfInvalid()
   }
 
-  private suspend fun createNewRecall(
+  private suspend fun createRecallInternal(
     offenderId: String,
     recallRequest: CreateRecallRequest,
   ): CreatedRecall {

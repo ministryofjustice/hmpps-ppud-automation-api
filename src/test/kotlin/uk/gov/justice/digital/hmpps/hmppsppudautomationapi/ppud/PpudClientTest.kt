@@ -44,6 +44,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateSearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
@@ -330,9 +331,7 @@ class PpudClientTest {
     runBlocking {
       client.retrieveOffender(randomPpudId())
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -371,9 +370,7 @@ class PpudClientTest {
       val createOffenderRequest = generateCreateOffenderRequest()
       client.createOffender(createOffenderRequest)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -417,9 +414,7 @@ class PpudClientTest {
 
       client.updateOffender(offenderId, updateOffenderRequest)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -461,9 +456,7 @@ class PpudClientTest {
 
       client.createSentence(offenderId, request)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -527,7 +520,8 @@ class PpudClientTest {
 
       val returnedSentence = client.createSentence(offenderId, request)
 
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, sentencePageFactory, sentencePage)
+      val inOrder =
+        inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, sentencePageFactory, sentencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).extractSentenceLinks(dateOfSentence, custodyType)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl/link")
@@ -551,9 +545,7 @@ class PpudClientTest {
 
       client.updateSentence(offenderId, sentenceId, request)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -593,6 +585,50 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given offender ID and sentence ID and offence data when update offence is called then log in to PPUD and verify we are on search page`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateUpdateOffenceRequest()
+
+      client.updateOffence(offenderId, sentenceId, request)
+
+      assertThatLogsOnAndVerifiesOnSearchPage()
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID and offence data when update offence is called then log out once done`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateUpdateOffenceRequest()
+
+      client.updateOffence(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(offencePage, webDriverNavigation)
+      then(offencePage).should(inOrder).updateOffence(any())
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID and offence data when update offence is called then update offence`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val request = generateUpdateOffenceRequest()
+
+      client.updateOffence(offenderId, sentenceId, request)
+
+      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, offencePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(navigationTreeViewComponent).should(inOrder).navigateToOffenceFor(sentenceId)
+      then(offencePage).should(inOrder).updateOffence(request)
+    }
+  }
+
+  @Test
   fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
       val offenderId = randomPpudId()
@@ -602,9 +638,7 @@ class PpudClientTest {
 
       client.createOrUpdateRelease(offenderId, sentenceId, request)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -686,9 +720,7 @@ class PpudClientTest {
       val createRecallRequest = generateCreateRecallRequest()
       client.createRecall(randomPpudId(), createRecallRequest)
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -768,9 +800,7 @@ class PpudClientTest {
     runBlocking {
       client.retrieveRecall(randomPpudId())
 
-      val inOrder = inOrder(loginPage, searchPage)
-      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
-      then(searchPage).should(inOrder).verifyOn()
+      assertThatLogsOnAndVerifiesOnSearchPage()
     }
   }
 
@@ -880,6 +910,12 @@ class PpudClientTest {
       then(searchPage).should(inOrder).genderValues()
       assertEquals(values, result)
     }
+  }
+
+  private fun assertThatLogsOnAndVerifiesOnSearchPage() {
+    val inOrder = inOrder(loginPage, searchPage)
+    then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+    then(searchPage).should(inOrder).verifyOn()
   }
 
   private fun setUpMocksToReturnSingleSearchResult(
