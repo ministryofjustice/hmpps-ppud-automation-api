@@ -184,5 +184,19 @@ workflows:
           context:
             - veracode-credentials
             - hmpps-common-vars
-
-
+  test-daily:
+    triggers:
+      - schedule:
+          cron: "10 8 * * 1-5"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - validate:
+          filters:
+            tags:
+              ignore: /.*/
+          context:
+            - SonarCloud
+          <<: *slack-fail-post-step
