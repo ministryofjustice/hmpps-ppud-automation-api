@@ -510,6 +510,38 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given duplicate sentence data when create sentence is called then do not create sentence and return existing ID`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val dateOfSentence = randomDate()
+      val custodyType = randomString("custodyType")
+      val request = generateCreateOrUpdateSentenceRequest(
+        dateOfSentence = dateOfSentence,
+        custodyType = custodyType,
+      )
+      val sentenceId = randomPpudId()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+      given(navigationTreeViewComponent.extractSentenceLinks(dateOfSentence, custodyType)).willReturn(listOf("/link"))
+      given(sentencePage.isMatching(request)).willReturn(true)
+      given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
+
+      val returnedSentence = client.createSentence(offenderId, request)
+
+      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, sentencePageFactory, sentencePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(navigationTreeViewComponent).should(inOrder).extractSentenceLinks(dateOfSentence, custodyType)
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/link")
+      then(sentencePageFactory).should(inOrder).sentencePage()
+      then(sentencePage).should(inOrder).isMatching(request)
+      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
+      then(navigationTreeViewComponent).should(never()).navigateToNewSentence()
+      then(sentencePage).should(never()).createSentence(request)
+      then(sentencePage).should(never()).throwIfInvalid()
+      assertEquals(sentenceId, returnedSentence.id)
+    }
+  }
+
+  @Test
   fun `given offender ID and sentence ID and sentence data when update sentence is called then log in to PPUD and verify we are on search page`() {
     runBlocking {
       val offenderId = randomPpudId()
