@@ -67,9 +67,10 @@ const val PPUD_YOUNG_OFFENDER_YES = "Yes - Named"
 const val PPUD_YOUNG_OFFENDER_NO = "No"
 
 /**
- * This is an offender that exists in PPUD InternalTest
+ * This is an offender that exists in PPUD InternalTest with values that are known and
+ * used in the tests.
  */
-internal val ppudOffenderWithRelease: TestOffender
+internal val ppudKnownExistingOffender: TestOffender
   get() = TestOffender(
     id = "4F6666656E64657269643D313632393134G721H665",
     dateOfBirth = "1969-03-02",

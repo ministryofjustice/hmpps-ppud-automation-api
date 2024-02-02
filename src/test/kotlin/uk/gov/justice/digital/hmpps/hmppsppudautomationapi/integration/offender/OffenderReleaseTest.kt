@@ -19,7 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_R
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER_2
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -40,48 +40,6 @@ class OffenderReleaseTest : IntegrationTestBase() {
         MandatoryFieldTestData("releasedFrom", releaseRequestBody(releasedFrom = "")),
         MandatoryFieldTestData("releasedUnder", releaseRequestBody(releasedUnder = "")),
       )
-    }
-
-    private fun releaseRequestBody(
-      dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-      postRelease: String = postReleaseRequestBody(),
-      releasedFrom: String = PPUD_VALID_RELEASED_FROM,
-      releasedUnder: String = PPUD_VALID_RELEASED_UNDER,
-    ): String {
-      return "{" +
-        "\"dateOfRelease\":\"$dateOfRelease\", " +
-        "\"postRelease\":$postRelease, " +
-        "\"releasedFrom\":\"$releasedFrom\", " +
-        "\"releasedUnder\":\"$releasedUnder\" " +
-        "}"
-    }
-
-    private fun postReleaseRequestBody(
-      assistantChiefOfficerName: String = randomString("acoName"),
-      assistantChiefOfficerFaxEmail: String = randomString("acoFaxEmail"),
-      offenderManagerName: String = randomString("omName"),
-      offenderManagerFaxEmail: String = randomString("omFaxEmail"),
-      offenderManagerTelephone: String = randomPhoneNumber(),
-      probationService: String = PPUD_VALID_PROBATION_SERVICE,
-      spocName: String = randomString("spocName"),
-      spocFaxEmail: String = randomString("spocFaxEmail"),
-    ): String {
-      return "{" +
-        "\"assistantChiefOfficer\":{" +
-        "  \"name\":\"$assistantChiefOfficerName\", " +
-        "  \"faxEmail\":\"$assistantChiefOfficerFaxEmail\" " +
-        "}," +
-        "\"offenderManager\":{" +
-        "  \"name\":\"$offenderManagerName\", " +
-        "  \"faxEmail\":\"$offenderManagerFaxEmail\", " +
-        "  \"telephone\":\"$offenderManagerTelephone\" " +
-        "}," +
-        "\"probationService\":\"$probationService\", " +
-        "\"spoc\":{" +
-        "  \"name\":\"$spocName\", " +
-        "  \"faxEmail\":\"$spocFaxEmail\" " +
-        "}" +
-        "}"
     }
   }
 
@@ -116,7 +74,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
   @Test
   fun `given sentence ID that does not exist on the offender when post release called then not found is returned`() {
     val requestBody = releaseRequestBody()
-    postRelease(offenderId = ppudOffenderWithRelease.id, sentenceId = randomPpudId(), requestBody = requestBody)
+    postRelease(offenderId = ppudKnownExistingOffender.id, sentenceId = randomPpudId(), requestBody = requestBody)
       .expectStatus()
       .isNotFound
       .expectBody()

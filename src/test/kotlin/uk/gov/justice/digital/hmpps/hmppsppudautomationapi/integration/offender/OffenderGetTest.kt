@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -48,7 +48,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with determinate sentence when get offender called then sentence is returned`() {
-    retrieveOffender(ppudOffenderWithRelease.id)
+    retrieveOffender(ppudKnownExistingOffender.id)
       .jsonPath("offender.sentences[0].custodyType").isEqualTo("Determinate")
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo("2003-06-12")
       .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo(1)
@@ -68,7 +68,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with indeterminate sentence when get offender called then sentence is returned`() {
-    retrieveOffender(ppudOffenderWithRelease.id)
+    retrieveOffender(ppudKnownExistingOffender.id)
       .jsonPath("offender.sentences[1].custodyType").isEqualTo("Indeterminate (life)")
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo("2010-09-01")
       .jsonPath("offender.sentences[1].espCustodialPeriod").isEmpty
@@ -84,7 +84,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with sentence when get offender called then offence is returned`() {
-    retrieveOffender(ppudOffenderWithRelease.id)
+    retrieveOffender(ppudKnownExistingOffender.id)
       .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo("ATTEMPTED MURDER")
       .jsonPath("offender.sentences[0].offence.dateOfIndexOffence").isEqualTo("2001-02-12")
       .jsonPath("offender.sentences[1].offence.indexOffence").isEqualTo("Not Specified")
@@ -93,7 +93,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with release when get offender called then release is returned`() {
-    retrieveOffender(ppudOffenderWithRelease.id)
+    retrieveOffender(ppudKnownExistingOffender.id)
       .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo("2013-02-02")
       .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
       .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo("CJA 2008")
@@ -104,7 +104,7 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with release when get offender called then Post Release is returned`() {
-    retrieveOffender(ppudOffenderWithRelease.id)
+    retrieveOffender(ppudKnownExistingOffender.id)
       .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.name").isEqualTo("Joe Bloggs")
       .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.faxEmail")
       .isEqualTo("Joe.Bloggs@example.com")

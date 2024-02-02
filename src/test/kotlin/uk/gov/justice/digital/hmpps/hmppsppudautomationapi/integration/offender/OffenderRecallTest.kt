@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_P
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME_AND_TEAM
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
@@ -75,10 +75,12 @@ class OffenderRecallTest : IntegrationTestBase() {
       probationArea: String = PPUD_VALID_PROBATION_SERVICE,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       recommendedToOwner: String = PPUD_VALID_USER_FULL_NAME_AND_TEAM,
-      releaseDate: String = ppudOffenderWithRelease.releaseDate,
+      // TODO: Replace with Sentence ID
+      releaseDate: String = ppudKnownExistingOffender.releaseDate,
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
-      sentenceDate: String = ppudOffenderWithRelease.sentenceDate,
+      // TODO: Replace with Sentence ID
+      sentenceDate: String = ppudKnownExistingOffender.sentenceDate,
     ): String {
       return "{" +
         "\"decisionDateTime\":\"${decisionDateTime}\", " +
@@ -99,21 +101,7 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   internal class OffenderRecallDataTidyExtension : DataTidyExtensionBase() {
     override fun afterAllTidy() {
-      deleteRecallsOnTestOffender()
-    }
-
-    private fun deleteRecallsOnTestOffender() {
-      webTestClient
-        .delete()
-        .uri(
-          "/offender/${ppudOffenderWithRelease.id}/recalls?" +
-            "sentenceDate=${ppudOffenderWithRelease.sentenceDate}" +
-            "&releaseDate=${ppudOffenderWithRelease.releaseDate}",
-        )
-        .headers { it.dataTidyAuthToken() }
-        .exchange()
-        .expectStatus()
-        .isOk
+      deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
     }
   }
 
@@ -131,7 +119,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   @Test
   fun `given missing request body when recall called then bad request is returned`() {
     webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .uri("/offender/${randomPpudId()}/recall")
       .headers { it.authToken() }
       .exchange()
       .expectStatus()
@@ -145,7 +133,7 @@ class OffenderRecallTest : IntegrationTestBase() {
   ) {
     val errorFragment = data.errorFragment ?: data.propertyName
     webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .uri("/offender/${randomPpudId()}/recall")
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(data.requestBody))
@@ -158,22 +146,18 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when recall called then 201 created and recall Id are returned`() {
-    val requestBody = createRecallRequestBody()
-    webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
-      .expectStatus()
-      .isCreated
-      .expectBody()
-      .jsonPath("recall.id").isNotEmpty()
-  }
-
-  @Test
-  fun `given valid values in request body when recall called then recall is created using supplied values`() {
+  fun `given valid values in request body when recall called then recall is created using supplied values and 201 created and recall Id are returned`() {
+    val offenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(
+        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
+      ),
+    )
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    createTestReleaseInPpud(
+      offenderId,
+      sentenceId,
+      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
+    )
     val decisionDateTime = randomTimeToday()
     val receivedDateTime = randomTimeToday().truncatedTo(ChronoUnit.MINUTES)
     val requestBody = createRecallRequestBody(
@@ -181,7 +165,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
     )
 
-    val id = postRecall(requestBody)
+    val id = postRecall(offenderId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved.jsonPath("recall.id").isEqualTo(id)
@@ -202,9 +186,20 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given offender is already in custody when recall called then UAL is unchecked UAL check is not set and return to custody is set`() {
+    val offenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(
+        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
+      ),
+    )
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    createTestReleaseInPpud(
+      offenderId,
+      sentenceId,
+      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
+    )
     val requestBody = createRecallRequestBody(isInCustody = "true")
 
-    val id = postRecall(requestBody)
+    val id = postRecall(offenderId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved
@@ -216,8 +211,20 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given offender is not in custody when recall called then UAL is checked UAL check is set and return to custody is not set`() {
+    val offenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(
+        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
+      ),
+    )
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    createTestReleaseInPpud(
+      offenderId,
+      sentenceId,
+      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
+    )
     val requestBody = createRecallRequestBody(isInCustody = "false")
-    val id = postRecall(requestBody)
+
+    val id = postRecall(offenderId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved
@@ -227,11 +234,24 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.returnToCustodyNotificationMethod").isEqualTo("Not Specified")
   }
 
+  // TODO: This is a bit of a rubbish test. Can we assert that riskOfContrabandDetails was used?
   @Test
   fun `given risk of contraband details when recall called then 201 created and recall Id are returned`() {
+    val offenderId = createTestOffenderInPpud(
+      createOffenderRequestBody(
+        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
+      ),
+    )
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    createTestReleaseInPpud(
+      offenderId,
+      sentenceId,
+      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
+    )
     val requestBody = createRecallRequestBody(riskOfContrabandDetails = randomString("riskOfContrabandDetails"))
+
     webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .uri("/offender/$offenderId/recall")
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
@@ -240,10 +260,10 @@ class OffenderRecallTest : IntegrationTestBase() {
       .isCreated
   }
 
-  private fun postRecall(requestBody: String): String {
+  private fun postRecall(offenderId: String, requestBody: String): String {
     val idExtractor = ValueConsumer<String>()
     webTestClient.post()
-      .uri("/offender/${ppudOffenderWithRelease.id}/recall")
+      .uri("/offender/$offenderId/recall")
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
