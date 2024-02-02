@@ -73,7 +73,7 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     @PathVariable(required = true) id: String,
     @Parameter(
       description = "Only required for testing/diagnostic purposes. If true, this will mean that releases " +
-        "that are titles as 'Not Specified - Not Specified' will be included.",
+        "that are titled as 'Not Specified - Not Specified' will be included.",
     )
     @RequestParam(required = false) includeEmptyReleases: Boolean = false,
   ): ResponseEntity<GetOffenderResponse> {
