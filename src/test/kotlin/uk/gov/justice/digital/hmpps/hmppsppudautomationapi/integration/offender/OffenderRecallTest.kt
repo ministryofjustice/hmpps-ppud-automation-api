@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -30,7 +31,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -56,13 +56,11 @@ class OffenderRecallTest : IntegrationTestBase() {
         MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
         MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
         MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
-        MandatoryFieldTestData("releaseDate", createRecallRequestBody(releaseDate = "")),
         MandatoryFieldTestData(
           "riskOfSeriousHarmLevel",
           createRecallRequestBody(riskOfSeriousHarmLevel = ""),
           errorFragment = "RiskOfSeriousHarmLevel",
         ),
-        MandatoryFieldTestData("sentenceDate", createRecallRequestBody(sentenceDate = "")),
       )
     }
 
@@ -75,27 +73,23 @@ class OffenderRecallTest : IntegrationTestBase() {
       probationArea: String = PPUD_VALID_PROBATION_SERVICE,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       recommendedToOwner: String = PPUD_VALID_USER_FULL_NAME_AND_TEAM,
-      // TODO: Replace with Sentence ID
-      releaseDate: String = ppudKnownExistingOffender.releaseDate,
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
-      // TODO: Replace with Sentence ID
-      sentenceDate: String = ppudKnownExistingOffender.sentenceDate,
     ): String {
-      return "{" +
-        "\"decisionDateTime\":\"${decisionDateTime}\", " +
-        "\"isInCustody\":\"$isInCustody\", " +
-        "\"isExtendedSentence\":\"$isExtendedSentence\", " +
-        "\"mappaLevel\":\"${mappaLevel}\", " +
-        "\"policeForce\":\"${policeForce}\", " +
-        "\"probationArea\":\"$probationArea\", " +
-        "\"receivedDateTime\":\"${receivedDateTime}\", " +
-        "\"recommendedToOwner\":\"$recommendedToOwner\", " +
-        "\"releaseDate\":\"$releaseDate\", " +
-        "\"riskOfContrabandDetails\":\"$riskOfContrabandDetails\", " +
-        "\"riskOfSeriousHarmLevel\":\"$riskOfSeriousHarmLevel\", " +
-        "\"sentenceDate\":\"$sentenceDate\" " +
-        "}"
+      return """
+        {
+          "decisionDateTime":"$decisionDateTime",
+          "isInCustody":"$isInCustody",
+          "isExtendedSentence":"$isExtendedSentence",
+          "mappaLevel":"$mappaLevel",
+          "policeForce":"$policeForce",
+          "probationArea":"$probationArea",
+          "receivedDateTime":"$receivedDateTime",
+          "recommendedToOwner":"$recommendedToOwner",
+          "riskOfContrabandDetails":"$riskOfContrabandDetails",
+          "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
+        }
+      """.trimIndent()
     }
   }
 
@@ -107,19 +101,22 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given missing token when create recall called then unauthorized is returned`() {
-    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/offender/${randomPpudId()}/recall")
+    val uri = constructUri(randomPpudId(), randomPpudId())
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, uri)
   }
 
   @Test
   fun `given token without recall role when create recall called then forbidden is returned`() {
     val requestBody = createRecallRequestBody()
-    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned("/offender/${randomPpudId()}/recall", requestBody)
+    val uri = constructUri(randomPpudId(), randomPpudId())
+    givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(uri, requestBody)
   }
 
   @Test
   fun `given missing request body when recall called then bad request is returned`() {
+    val uri = constructUri(randomPpudId(), randomPpudId())
     webTestClient.post()
-      .uri("/offender/${randomPpudId()}/recall")
+      .uri(uri)
       .headers { it.authToken() }
       .exchange()
       .expectStatus()
@@ -132,8 +129,9 @@ class OffenderRecallTest : IntegrationTestBase() {
     data: MandatoryFieldTestData,
   ) {
     val errorFragment = data.errorFragment ?: data.propertyName
+    val uri = constructUri(randomPpudId(), randomPpudId())
     webTestClient.post()
-      .uri("/offender/${randomPpudId()}/recall")
+      .uri(uri)
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(data.requestBody))
@@ -147,25 +145,17 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when recall called then recall is created using supplied values and 201 created and recall Id are returned`() {
-    val offenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(
-        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
-      ),
-    )
+    val offenderId = createTestOffenderInPpud()
     val sentenceId = findSentenceIdOnOffender(offenderId)
-    createTestReleaseInPpud(
-      offenderId,
-      sentenceId,
-      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
-    )
+    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
     val decisionDateTime = randomTimeToday()
-    val receivedDateTime = randomTimeToday().truncatedTo(ChronoUnit.MINUTES)
+    val receivedDateTime = randomTimeToday()
     val requestBody = createRecallRequestBody(
       decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
     )
 
-    val id = postRecall(offenderId, requestBody)
+    val id = postRecall(offenderId, releaseId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved.jsonPath("recall.id").isEqualTo(id)
@@ -185,6 +175,19 @@ class OffenderRecallTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given subsequent call with same values in request body when recall called then recall is not created and existing recall Id is returned`() {
+    val offenderId = createTestOffenderInPpud()
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
+    val requestBody = createRecallRequestBody()
+
+    val firstId = postRecall(offenderId, releaseId, requestBody)
+    val secondId = postRecall(offenderId, releaseId, requestBody)
+
+    assertEquals(firstId, secondId)
+  }
+
+  @Test
   fun `given offender is already in custody when recall called then UAL is unchecked UAL check is not set and return to custody is set`() {
     val offenderId = createTestOffenderInPpud(
       createOffenderRequestBody(
@@ -192,14 +195,14 @@ class OffenderRecallTest : IntegrationTestBase() {
       ),
     )
     val sentenceId = findSentenceIdOnOffender(offenderId)
-    createTestReleaseInPpud(
+    val releaseId = createTestReleaseInPpud(
       offenderId,
       sentenceId,
       releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
     )
     val requestBody = createRecallRequestBody(isInCustody = "true")
 
-    val id = postRecall(offenderId, requestBody)
+    val id = postRecall(offenderId, releaseId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved
@@ -217,14 +220,14 @@ class OffenderRecallTest : IntegrationTestBase() {
       ),
     )
     val sentenceId = findSentenceIdOnOffender(offenderId)
-    createTestReleaseInPpud(
+    val releaseId = createTestReleaseInPpud(
       offenderId,
       sentenceId,
       releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
     )
     val requestBody = createRecallRequestBody(isInCustody = "false")
 
-    val id = postRecall(offenderId, requestBody)
+    val id = postRecall(offenderId, releaseId, requestBody)
 
     val retrieved = retrieveRecall(id)
     retrieved
@@ -243,7 +246,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       ),
     )
     val sentenceId = findSentenceIdOnOffender(offenderId)
-    createTestReleaseInPpud(
+    val releaseId = createTestReleaseInPpud(
       offenderId,
       sentenceId,
       releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
@@ -251,7 +254,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val requestBody = createRecallRequestBody(riskOfContrabandDetails = randomString("riskOfContrabandDetails"))
 
     webTestClient.post()
-      .uri("/offender/$offenderId/recall")
+      .uri(constructUri(offenderId, releaseId))
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
@@ -260,10 +263,10 @@ class OffenderRecallTest : IntegrationTestBase() {
       .isCreated
   }
 
-  private fun postRecall(offenderId: String, requestBody: String): String {
+  private fun postRecall(offenderId: String, releaseId: String, requestBody: String): String {
     val idExtractor = ValueConsumer<String>()
     webTestClient.post()
-      .uri("/offender/$offenderId/recall")
+      .uri(constructUri(offenderId, releaseId))
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
@@ -287,4 +290,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .expectStatus().isOk
       .expectBody()
   }
+
+  private fun constructUri(offenderId: String, releaseId: String) =
+    "/offender/$offenderId/release/$releaseId/recall"
 }

@@ -34,7 +34,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
-import java.time.LocalDate
 import java.util.UUID
 
 @RestController
@@ -178,19 +177,20 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     return ResponseEntity(CreateOrUpdateReleaseResponse(createdOrUpdatedRelease), HttpStatus.OK)
   }
 
-  @PostMapping("/offender/{offenderId}/recall")
+  @PostMapping("/offender/{offenderId}/release/{releaseId}/recall")
   @Operation(
     summary = "Create Recall",
     description = "Create a recall against an existing offender.",
   )
   suspend fun createRecall(
     @PathVariable(required = true) offenderId: String,
+    @PathVariable(required = true) releaseId: String,
     @Valid
     @RequestBody(required = true)
     createRecallRequest: CreateRecallRequest,
   ): ResponseEntity<CreateRecallResponse> {
     log.info("Offender recall endpoint hit")
-    val recall = ppudClient.createRecall(offenderId, createRecallRequest)
+    val recall = ppudClient.createRecall(offenderId, releaseId, createRecallRequest)
     return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
   }
 
@@ -203,18 +203,6 @@ internal class OffenderController(private val ppudClient: PpudClient) {
   ) {
     log.info("Offender deletion endpoint hit")
     ppudClient.deleteOffenders(familyName = "$familyNamePrefix-$testRunId")
-  }
-
-  @Hidden
-  @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__TESTS__READWRITE')")
-  @DeleteMapping("/offender/{offenderId}/recalls")
-  suspend fun deleteRecalls(
-    @PathVariable(required = true) offenderId: String,
-    @RequestParam(required = true) sentenceDate: LocalDate,
-    @RequestParam(required = true) releaseDate: LocalDate,
-  ) {
-    log.info("Offender recall deletion endpoint hit")
-    ppudClient.deleteRecalls(offenderId, sentenceDate, releaseDate)
   }
 
   private fun ensureSearchCriteriaProvided(criteria: OffenderSearchRequest) {

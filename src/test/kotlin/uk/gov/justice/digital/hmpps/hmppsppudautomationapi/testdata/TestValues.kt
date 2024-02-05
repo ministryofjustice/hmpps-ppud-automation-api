@@ -300,10 +300,10 @@ fun generateCreateOrUpdateReleaseRequest(
  * so some of the values won't be acceptable to PPUD.
  */
 fun generateCreateRecallRequest(
-  sentenceDate: LocalDate? = null,
-  releaseDate: LocalDate? = null,
   isExtendedSentence: Boolean? = null,
   isInCustody: Boolean? = null,
+  receivedDateTime: LocalDateTime = randomTimeToday(),
+  recommendedToOwner: String = randomString("recommendedToOwner"),
   riskOfContrabandDetails: String? = null,
   riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
@@ -314,12 +314,10 @@ fun generateCreateRecallRequest(
     mappaLevel = randomString("mappaLevel"),
     policeForce = randomString("policeForce"),
     probationArea = randomString("probationArea"),
-    receivedDateTime = randomTimeToday(),
-    recommendedToOwner = randomString("recommendedToOwner"),
-    releaseDate = releaseDate ?: randomDate(),
+    receivedDateTime = receivedDateTime,
+    recommendedToOwner = recommendedToOwner,
     riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
     riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
-    sentenceDate = sentenceDate ?: randomDate(),
   )
 }
 

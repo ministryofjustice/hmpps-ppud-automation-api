@@ -39,11 +39,10 @@ internal class RecallPage(
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
 
+  private val pageDescription = "recall page"
+
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
-
-  @FindBy(id = "cntDetails_PageFooter1_cmdDelete")
-  private lateinit var deleteButton: WebElement
 
   @FindBy(id = "cntDetails_ddliRECALL_TYPE")
   private lateinit var recallTypeDropdown: WebElement
@@ -130,10 +129,15 @@ internal class RecallPage(
     PageFactory.initElements(driver, this)
   }
 
+  fun isMatching(receivedDateTime: LocalDateTime, recommendedToOwner: String): Boolean {
+    return reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
+      recommendedToOwnerInput.getValue() == removeTeamName(recommendedToOwner)
+  }
+
   suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
     // Complete these first as they trigger additional processing
     // Autocomplete box doesn't work with brackets
-    val recommendedToOwnerSearchable = createRecallRequest.recommendedToOwner.takeWhile { (it == '(').not() }
+    val recommendedToOwnerSearchable = removeTeamName(createRecallRequest.recommendedToOwner)
     pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, recommendedToOwnerSearchable)
     val revocationIssuedByOwnerSearchable = revocationIssuedByOwner.takeWhile { (it == '(').not() }
     pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerSearchable)
@@ -238,12 +242,6 @@ internal class RecallPage(
     )
   }
 
-  // TODO: Remove this when creating new offenders for testing recall
-  fun deleteRecall() {
-    deleteButton.click()
-    pageHelper.dismissConfirmDeleteAlert(driver)
-  }
-
   fun urlFor(id: String): String {
     return urlPathTemplate.replace("{id}", id)
   }
@@ -266,5 +264,7 @@ internal class RecallPage(
     saveMinuteButton.click()
   }
 
-  private fun extractRecallId() = pageHelper.extractId(driver, "recall page")
+  private fun extractRecallId() = pageHelper.extractId(driver, pageDescription)
+
+  private fun removeTeamName(nameWithTeam: String) = nameWithTeam.takeWhile { (it == '(').not() }
 }

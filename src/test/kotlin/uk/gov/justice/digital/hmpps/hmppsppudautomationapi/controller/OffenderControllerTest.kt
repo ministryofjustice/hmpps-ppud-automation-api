@@ -23,7 +23,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.time.LocalDate
 import java.util.UUID
@@ -203,7 +202,11 @@ internal class OffenderControllerTest {
       val sentenceId = randomPpudId()
       val releaseId = randomPpudId()
       val request = generateCreateOrUpdateReleaseRequest()
-      given(ppudClient.createOrUpdateRelease(offenderId, sentenceId, request)).willReturn(CreatedOrUpdatedRelease(releaseId))
+      given(ppudClient.createOrUpdateRelease(offenderId, sentenceId, request)).willReturn(
+        CreatedOrUpdatedRelease(
+          releaseId,
+        ),
+      )
 
       val result = controller.createOrUpdateRelease(offenderId, sentenceId, request)
 
@@ -216,12 +219,13 @@ internal class OffenderControllerTest {
   fun `given recall data when createRecall is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderId = randomPpudId()
+      val releaseId = randomPpudId()
       val recallRequest = generateCreateRecallRequest()
-      given(ppudClient.createRecall(offenderId, recallRequest)).willReturn(CreatedRecall(""))
+      given(ppudClient.createRecall(offenderId, releaseId, recallRequest)).willReturn(CreatedRecall(""))
 
-      controller.createRecall(offenderId, recallRequest)
+      controller.createRecall(offenderId, releaseId, recallRequest)
 
-      then(ppudClient).should().createRecall(offenderId, recallRequest)
+      then(ppudClient).should().createRecall(offenderId, releaseId, recallRequest)
     }
   }
 
@@ -229,11 +233,14 @@ internal class OffenderControllerTest {
   fun `given recall creation succeeds when createRecall is called then recall Id is returned`() {
     runBlocking {
       val offenderId = randomPpudId()
+      val releaseId = randomPpudId()
       val recallId = randomPpudId()
       val recallRequest = generateCreateRecallRequest()
-      given(ppudClient.createRecall(offenderId, recallRequest)).willReturn(CreatedRecall(recallId))
+      given(
+        ppudClient.createRecall(offenderId, releaseId, recallRequest),
+      ).willReturn(CreatedRecall(recallId))
 
-      val result = controller.createRecall(offenderId, recallRequest)
+      val result = controller.createRecall(offenderId, releaseId, recallRequest)
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
       assertEquals(recallId, result.body?.recall?.id)
@@ -250,19 +257,6 @@ internal class OffenderControllerTest {
       val expected = "$familyNamePrefix-$testRunDate"
 
       then(ppudClient).should().deleteOffenders(expected)
-    }
-  }
-
-  @Test
-  fun `given deletion criteria when deleteRecalls is called then data is passed to PPUD client`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceDate = randomDate()
-      val releaseDate = randomDate()
-
-      controller.deleteRecalls(offenderId, sentenceDate, releaseDate)
-
-      then(ppudClient).should().deleteRecalls(offenderId, sentenceDate, releaseDate)
     }
   }
 }

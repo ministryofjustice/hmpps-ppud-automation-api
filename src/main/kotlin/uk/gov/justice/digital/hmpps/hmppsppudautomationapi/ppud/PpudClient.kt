@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WindowType
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -36,6 +35,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Component
 @RequestScope
@@ -151,11 +151,15 @@ internal class PpudClient(
     }
   }
 
-  suspend fun createRecall(offenderId: String, recallRequest: CreateRecallRequest): CreatedRecall {
+  suspend fun createRecall(
+    offenderId: String,
+    releaseId: String,
+    recallRequest: CreateRecallRequest,
+  ): CreatedRecall {
     log.info("Creating new recall in PPUD Client")
 
     return performLoggedInOperation {
-      createRecallInternal(offenderId, recallRequest)
+      createRecallInternal(offenderId, releaseId, recallRequest)
     }
   }
 
@@ -174,15 +178,6 @@ internal class PpudClient(
       searchPage.searchByFamilyName(familyName)
       val links = searchPage.searchResultsLinks()
       deleteOffenders(links)
-    }
-  }
-
-  suspend fun deleteRecalls(offenderId: String, sentenceDate: LocalDate, releaseDate: LocalDate) {
-    log.info("Deleting recalls in PPUD Client for offender ID '$offenderId'")
-
-    performLoggedInOperation {
-      val links = extractRecallLinks(offenderId, sentenceDate, releaseDate)
-      deleteRecalls(links)
     }
   }
 
@@ -332,14 +327,28 @@ internal class PpudClient(
 
   private suspend fun createRecallInternal(
     offenderId: String,
+    releaseId: String,
     recallRequest: CreateRecallRequest,
   ): CreatedRecall {
     offenderPage.viewOffenderWithId(offenderId)
-    navigationTreeViewComponent.navigateToNewRecallFor(recallRequest.sentenceDate, recallRequest.releaseDate)
-    recallPage.createRecall(recallRequest)
-    recallPage.throwIfInvalid()
-    recallPage.addDetailsMinute(recallRequest)
-    recallPage.addContrabandMinuteIfNeeded(recallRequest)
+    val recallLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
+    val foundMatch = recallLinks.any {
+      driver.navigate().to("$ppudUrl$it")
+      recallPage.isMatching(recallRequest.receivedDateTime, recallRequest.recommendedToOwner)
+    }
+
+    if (foundMatch.not()) {
+      navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
+      recallPage.createRecall(recallRequest)
+      recallPage.throwIfInvalid()
+      recallPage.addDetailsMinute(recallRequest)
+      recallPage.addContrabandMinuteIfNeeded(recallRequest)
+
+      // ID in URL after creating a new one is not the correct ID for the persisted recall.
+      // Find the matching recall to extract the release ID from that
+      navigateToMatchingRecall(releaseId, recallRequest.receivedDateTime, recallRequest.recommendedToOwner)
+    }
+
     return recallPage.extractCreatedRecallDetails()
   }
 
@@ -350,17 +359,6 @@ internal class PpudClient(
       driver.navigate().to(link)
       offenderPage.deleteOffender()
       searchPage.verifyOn()
-      index++
-    }
-  }
-
-  private suspend fun deleteRecalls(relativeLinks: List<String>) {
-    var index = 1
-    for (link in relativeLinks) {
-      log.info("Deleting recall $index $link")
-      driver.switchTo().newWindow(WindowType.TAB)
-      driver.navigate().to("${ppudUrl}$link")
-      recallPage.deleteRecall()
       index++
     }
   }
@@ -402,17 +400,6 @@ internal class PpudClient(
     return recallPage.extractRecallDetails()
   }
 
-  private fun extractRecallLinks(
-    offenderId: String,
-    sentenceDate: LocalDate,
-    releaseDate: LocalDate,
-  ): List<String> {
-    offenderPage.viewOffenderWithId(offenderId)
-    val links = navigationTreeViewComponent.extractRecallLinks(sentenceDate, releaseDate)
-    log.info("There are ${links.size} recalls")
-    return links
-  }
-
   private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
     return if (lookupName == LookupName.Genders) {
       extractGenderLookupValues()
@@ -450,6 +437,18 @@ internal class PpudClient(
     return releaseLinks.any {
       driver.navigate().to("$ppudUrl$it")
       releasePage.isMatching(releasedFrom, releasedUnder)
+    }
+  }
+
+  private fun navigateToMatchingRecall(
+    releaseId: String,
+    receivedDateTime: LocalDateTime,
+    recommendedToOwner: String,
+  ): Boolean {
+    val releaseLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
+    return releaseLinks.any {
+      driver.navigate().to("$ppudUrl$it")
+      recallPage.isMatching(receivedDateTime, recommendedToOwner)
     }
   }
 }
