@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class CreateRecallRequest(
@@ -19,9 +18,7 @@ data class CreateRecallRequest(
   val receivedDateTime: LocalDateTime,
   @field:NotBlank
   val recommendedToOwner: String,
-  val releaseDate: LocalDate,
   val riskOfContrabandDetails: String = "",
   @field:NotNull
   val riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel,
-  val sentenceDate: LocalDate,
 )

@@ -26,7 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_I
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudOffenderWithRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
@@ -246,10 +246,10 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given duplicate offender in request body when create offender called then error returned`() {
     val requestBody = createOffenderRequestBody(
-      dateOfBirth = ppudOffenderWithRelease.dateOfBirth,
-      familyName = ppudOffenderWithRelease.familyName,
-      firstNames = ppudOffenderWithRelease.firstNames,
-      prisonNumber = ppudOffenderWithRelease.prisonNumber,
+      dateOfBirth = ppudKnownExistingOffender.dateOfBirth,
+      familyName = ppudKnownExistingOffender.familyName,
+      firstNames = ppudKnownExistingOffender.firstNames,
+      prisonNumber = ppudKnownExistingOffender.prisonNumber,
     )
     postOffender(requestBody)
       .expectStatus()
@@ -262,7 +262,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   @Test
   fun `given duplicate identifier in request body when create offender called then error returned`() {
     val requestBody = createOffenderRequestBody(
-      prisonNumber = ppudOffenderWithRelease.prisonNumber,
+      prisonNumber = ppudKnownExistingOffender.prisonNumber,
     )
     postOffender(requestBody)
       .expectStatus()

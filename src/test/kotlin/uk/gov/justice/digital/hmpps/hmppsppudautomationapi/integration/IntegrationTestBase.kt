@@ -18,7 +18,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_E
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.format.DateTimeFormatter
@@ -145,6 +149,48 @@ abstract class IntegrationTestBase {
         "}"
     }
 
+    fun releaseRequestBody(
+      dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+      postRelease: String = postReleaseRequestBody(),
+      releasedFrom: String = PPUD_VALID_RELEASED_FROM,
+      releasedUnder: String = PPUD_VALID_RELEASED_UNDER,
+    ): String {
+      return "{" +
+        "\"dateOfRelease\":\"$dateOfRelease\", " +
+        "\"postRelease\":$postRelease, " +
+        "\"releasedFrom\":\"$releasedFrom\", " +
+        "\"releasedUnder\":\"$releasedUnder\" " +
+        "}"
+    }
+
+    fun postReleaseRequestBody(
+      assistantChiefOfficerName: String = randomString("acoName"),
+      assistantChiefOfficerFaxEmail: String = randomString("acoFaxEmail"),
+      offenderManagerName: String = randomString("omName"),
+      offenderManagerFaxEmail: String = randomString("omFaxEmail"),
+      offenderManagerTelephone: String = randomPhoneNumber(),
+      probationService: String = PPUD_VALID_PROBATION_SERVICE,
+      spocName: String = randomString("spocName"),
+      spocFaxEmail: String = randomString("spocFaxEmail"),
+    ): String {
+      return "{" +
+        "\"assistantChiefOfficer\":{" +
+        "  \"name\":\"$assistantChiefOfficerName\", " +
+        "  \"faxEmail\":\"$assistantChiefOfficerFaxEmail\" " +
+        "}," +
+        "\"offenderManager\":{" +
+        "  \"name\":\"$offenderManagerName\", " +
+        "  \"faxEmail\":\"$offenderManagerFaxEmail\", " +
+        "  \"telephone\":\"$offenderManagerTelephone\" " +
+        "}," +
+        "\"probationService\":\"$probationService\", " +
+        "\"spoc\":{" +
+        "  \"name\":\"$spocName\", " +
+        "  \"faxEmail\":\"$spocFaxEmail\" " +
+        "}" +
+        "}"
+    }
+
     fun addressRequestBody(
       premises: String = randomString("premises"),
       line1: String = randomString("line1"),
@@ -196,6 +242,21 @@ abstract class IntegrationTestBase {
       .jsonPath("offender.sentences[0].id").value(idExtractor)
     val sentenceId = idExtractor.value!!
     return sentenceId
+  }
+
+  protected fun createTestReleaseInPpud(offenderId: String, sentenceId: String, requestBody: String = releaseRequestBody()): String {
+    val idExtractor = ValueConsumer<String>()
+    webTestClient.post()
+      .uri("/offender/$offenderId/sentence/$sentenceId/release")
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectBody()
+      .jsonPath("release.id").value(idExtractor)
+    val id = idExtractor.value
+    Assertions.assertNotNull(id, "ID returned from create release request is null")
+    return id!!
   }
 
   protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =

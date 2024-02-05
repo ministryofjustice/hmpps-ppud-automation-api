@@ -67,9 +67,10 @@ const val PPUD_YOUNG_OFFENDER_YES = "Yes - Named"
 const val PPUD_YOUNG_OFFENDER_NO = "No"
 
 /**
- * This is an offender that exists in PPUD InternalTest
+ * This is an offender that exists in PPUD InternalTest with values that are known and
+ * used in the tests.
  */
-internal val ppudOffenderWithRelease: TestOffender
+internal val ppudKnownExistingOffender: TestOffender
   get() = TestOffender(
     id = "4F6666656E64657269643D313632393134G721H665",
     dateOfBirth = "1969-03-02",
@@ -299,10 +300,10 @@ fun generateCreateOrUpdateReleaseRequest(
  * so some of the values won't be acceptable to PPUD.
  */
 fun generateCreateRecallRequest(
-  sentenceDate: LocalDate? = null,
-  releaseDate: LocalDate? = null,
   isExtendedSentence: Boolean? = null,
   isInCustody: Boolean? = null,
+  receivedDateTime: LocalDateTime = randomTimeToday(),
+  recommendedToOwner: String = randomString("recommendedToOwner"),
   riskOfContrabandDetails: String? = null,
   riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
@@ -313,12 +314,10 @@ fun generateCreateRecallRequest(
     mappaLevel = randomString("mappaLevel"),
     policeForce = randomString("policeForce"),
     probationArea = randomString("probationArea"),
-    receivedDateTime = randomTimeToday(),
-    recommendedToOwner = randomString("recommendedToOwner"),
-    releaseDate = releaseDate ?: randomDate(),
+    receivedDateTime = receivedDateTime,
+    recommendedToOwner = recommendedToOwner,
     riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
     riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
-    sentenceDate = sentenceDate ?: randomDate(),
   )
 }
 
