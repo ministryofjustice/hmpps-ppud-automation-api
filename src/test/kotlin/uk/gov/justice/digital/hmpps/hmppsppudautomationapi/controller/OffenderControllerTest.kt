@@ -33,6 +33,9 @@ internal class OffenderControllerTest {
   @Mock
   lateinit var ppudClient: PpudClient
 
+  @Mock
+  lateinit var createdOffender: CreatedOffender
+
   private lateinit var controller: OffenderController
 
   @BeforeEach
@@ -93,7 +96,7 @@ internal class OffenderControllerTest {
   fun `given offender data when createOffender is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderRequest = generateCreateOffenderRequest()
-      given(ppudClient.createOffender(offenderRequest)).willReturn(CreatedOffender(""))
+      given(ppudClient.createOffender(offenderRequest)).willReturn(createdOffender)
 
       controller.createOffender(offenderRequest)
 
@@ -102,16 +105,15 @@ internal class OffenderControllerTest {
   }
 
   @Test
-  fun `given offender creation succeeds when createOffender is called then offender Id is returned`() {
+  fun `given offender creation succeeds when createOffender is called then offender details are returned`() {
     runBlocking {
-      val offenderId = randomPpudId()
       val offenderRequest = generateCreateOffenderRequest()
-      given(ppudClient.createOffender(offenderRequest)).willReturn(CreatedOffender(offenderId))
+      given(ppudClient.createOffender(offenderRequest)).willReturn(createdOffender)
 
       val result = controller.createOffender(offenderRequest)
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
-      assertEquals(offenderId, result.body?.offender?.id)
+      assertEquals(createdOffender, result.body?.offender)
     }
   }
 

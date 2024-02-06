@@ -86,7 +86,7 @@ internal class ReleasePage(
     }
   }
 
-  fun updateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
+  fun updateRelease() {
     completeNonKeyFields()
     saveButton.click()
   }

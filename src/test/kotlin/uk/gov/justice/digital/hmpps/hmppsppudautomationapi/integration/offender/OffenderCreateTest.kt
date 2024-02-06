@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,6 +10,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
@@ -147,7 +147,7 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given valid values in request body when create offender called then offender is created using supplied values`() {
+  fun `given valid values in request body when create offender called then offender is created using supplied values and IDs are returned`() {
     val addressPremises = randomString("premises")
     val addressLine1 = randomString("line1")
     val addressLine2 = randomString("line2")
@@ -190,13 +190,13 @@ class OffenderCreateTest : IntegrationTestBase() {
       prisonNumber = prisonNumber,
     )
 
-    val id = testPostOffender(requestBody)
+    val createdOffender = testPostOffender(requestBody)
 
     val expectedComments =
       "Additional address:${System.lineSeparator()}" +
         "$additionalAddressPremises, $additionalAddressLine1, $additionalAddressLine2, $additionalAddressPostcode, $additionalAddressPhoneNumber"
-    val retrieved = retrieveOffender(id)
-    retrieved.jsonPath("offender.id").isEqualTo(id)
+    val retrieved = retrieveOffender(createdOffender.id)
+    retrieved.jsonPath("offender.id").isEqualTo(createdOffender.id)
       .jsonPath("offender.address.premises").isEqualTo(addressPremises)
       .jsonPath("offender.address.line1").isEqualTo(addressLine1)
       .jsonPath("offender.address.line2").isEqualTo(addressLine2)
@@ -216,6 +216,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
       .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
       .jsonPath("offender.sentences.size()").isEqualTo(1)
+      .jsonPath("offender.sentences[0].id").isEqualTo(createdOffender.sentence.id)
       .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
@@ -236,10 +237,10 @@ class OffenderCreateTest : IntegrationTestBase() {
       dateOfBirth = dateOfBirth,
     )
 
-    val id = testPostOffender(requestBody)
+    val createdOffender = testPostOffender(requestBody)
 
-    val retrieved = retrieveOffender(id)
-    retrieved.jsonPath("offender.id").isEqualTo(id)
+    val retrieved = retrieveOffender(createdOffender.id)
+    retrieved.jsonPath("offender.id").isEqualTo(createdOffender.id)
       .jsonPath("offender.youngOffender").isEqualTo(expected)
   }
 
@@ -275,17 +276,20 @@ class OffenderCreateTest : IntegrationTestBase() {
       )
   }
 
-  private fun testPostOffender(requestBody: String): String {
-    val idExtractor = ValueConsumer<String>()
+  private fun testPostOffender(requestBody: String): CreatedOffender {
+    val offenderIdExtractor = ValueConsumer<String>()
+    val sentenceIdExtractor = ValueConsumer<String>()
     postOffender(requestBody)
       .expectStatus()
       .isCreated
       .expectBody()
-      .jsonPath("offender.id").value(idExtractor)
-    val id = idExtractor.value
-    assertNotNull(id, "ID returned from create offender request is null")
-    assertTrue(id!!.isNotEmpty(), "ID returned from create offender request is empty")
-    return id
+      .jsonPath("offender.id").isNotEmpty
+      .jsonPath("offender.id").value(offenderIdExtractor)
+      .jsonPath("offender.sentence.id").isNotEmpty
+      .jsonPath("offender.sentence.id").value(sentenceIdExtractor)
+    val offenderId = offenderIdExtractor.value!!
+    val sentenceId = sentenceIdExtractor.value!!
+    return CreatedOffender(offenderId, CreatedSentence(sentenceId))
   }
 
   private fun postOffender(requestBody: String): WebTestClient.ResponseSpec =

@@ -56,15 +56,15 @@ each tier.
 ### Security and access control
 
 In order to gain access to the `hmpps-ppud-automation-<tier>` namespaces in kubernetes you will need to be a member of 
-the [ministryofjustice](https://github.com/orgs/ministryofjustice) github organisation and a member of 
-the [making-recall-decision](https://github.com/orgs/ministryofjustice/teams/making-recall-decision) (github) team. 
+the [ministryofjustice](https://github.com/orgs/ministryofjustice) GitHub organisation and a member of 
+the [making-recall-decision](https://github.com/orgs/ministryofjustice/teams/making-recall-decision) (GitHub) team. 
 Once joined, you should have access to the cluster within 24 hours.
 
-You will need to follow the [Cloud Platform User Guide](https://user-guide.cloud-platform.service.justice.gov.uk/documentation/getting-started/kubectl-config.html#how-to-use-kubectl-to-connect-to-the-cluster) to setup your access from there - use instructions for connecting to the `live` cluster.
+You will need to follow the [Cloud Platform User Guide](https://user-guide.cloud-platform.service.justice.gov.uk/documentation/getting-started/kubectl-config.html#how-to-use-kubectl-to-connect-to-the-cluster) to set up your access from there - use instructions for connecting to the `live` cluster.
 
 ### Throttling and partial shutdown
 
-If there is an issue with the service where it is causing load on downstream services and it needs to be shutdown quickly the following command will reduce the number of pod replicas to zero:
+If there is an issue with the service where it is causing load on downstream services, and it needs to be shutdown quickly, the following command will reduce the number of pod replicas to zero:
 
 ```
 kubectl -n hmpps-ppud-automation-<tier> scale deployment hmpps-ppud-automation-api --replicas=0

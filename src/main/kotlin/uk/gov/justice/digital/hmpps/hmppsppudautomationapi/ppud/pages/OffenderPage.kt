@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
@@ -211,9 +212,11 @@ internal class OffenderPage(
     pageHelper.dismissConfirmDeleteAlert(driver)
   }
 
-  fun extractCreatedOffenderDetails(): CreatedOffender {
+  fun extractCreatedOffenderDetails(sentenceExtractor: (String) -> CreatedSentence): CreatedOffender {
     return CreatedOffender(
       id = extractOffenderId(),
+      // Do sentence last because it navigates away
+      sentence = sentenceExtractor(determineSentenceLinks().first()),
     )
   }
 
