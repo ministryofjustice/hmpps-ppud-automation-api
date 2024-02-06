@@ -174,7 +174,7 @@ internal class PpudClient(
   suspend fun deleteOffenders(familyName: String) {
     log.info("Deleting offenders in PPUD Client with family name '$familyName'")
 
-    performLoggedInOperation {
+    performLoggedInOperation(asAdmin = true) {
       searchPage.searchByFamilyName(familyName)
       val links = searchPage.searchResultsLinks()
       deleteOffenders(links)
