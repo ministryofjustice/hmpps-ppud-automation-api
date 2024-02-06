@@ -14,7 +14,7 @@ internal abstract class DataTidyExtensionBase : AfterAllCallback {
 
   private lateinit var jwtAuthHelper: JwtAuthHelper
 
-  protected fun HttpHeaders.dataTidyAuthToken(
+  private fun HttpHeaders.dataTidyAuthToken(
     roles: List<String> = listOf("ROLE_PPUD_AUTOMATION__TESTS__READWRITE"),
     subject: String? = "SOME_USER",
   ) {

@@ -103,6 +103,9 @@ class PpudClientTest {
   @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
 
+  @Mock
+  lateinit var createdOffender: CreatedOffender
+
   private val ppudUrl = "https://ppud.example.com"
 
   private val absoluteLogoutUrl = "$ppudUrl/logout.aspx"
@@ -387,13 +390,12 @@ class PpudClientTest {
   }
 
   @Test
-  fun `given offender data when create offender is called then create offender and return ID`() {
+  fun `given offender data when create offender is called then create offender`() {
     runBlocking {
-      val offenderId = randomPpudId()
+      given(offenderPage.extractCreatedOffenderDetails(any())).willReturn(createdOffender)
       val createOffenderRequest = generateCreateOffenderRequest()
-      given(offenderPage.extractCreatedOffenderDetails()).willReturn(CreatedOffender(offenderId))
 
-      val newOffender = client.createOffender(createOffenderRequest)
+      client.createOffender(createOffenderRequest)
 
       val inOrder = inOrder(newOffenderPage, searchPage, offenderPage)
       then(searchPage).should(inOrder).navigateToNewOffender()
@@ -402,7 +404,33 @@ class PpudClientTest {
       then(newOffenderPage).should(inOrder).throwIfInvalid()
       then(offenderPage).should(inOrder).updateAdditionalAddresses(any())
       then(offenderPage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  @Test
+  fun `given offender data when create offender is called then return created offender details`() {
+    runBlocking {
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val linkToSentence = "/link/to/sentence"
+      val createdOffender = CreatedOffender(id = offenderId, sentence = CreatedSentence(id = sentenceId))
+      given(offenderPage.extractCreatedOffenderDetails(any()))
+        .will {
+          ((it.arguments.first()) as (String) -> CreatedSentence).invoke(linkToSentence)
+          createdOffender
+        }
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+      val createOffenderRequest = generateCreateOffenderRequest()
+
+      val newOffender = client.createOffender(createOffenderRequest)
+
+      val inOrder = inOrder(searchPage, offenderPage, webDriverNavigation, sentencePage)
+      then(offenderPage).should(inOrder).throwIfInvalid()
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl$linkToSentence")
+      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
       assertEquals(offenderId, newOffender.id)
+      assertEquals(sentenceId, newOffender.sentence.id)
     }
   }
 
@@ -683,7 +711,7 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingReleaseLink")
-      then(releasePage).should(inOrder).updateRelease(request)
+      then(releasePage).should(inOrder).updateRelease()
       then(releasePage).should(inOrder).throwIfInvalid()
     }
   }

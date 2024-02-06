@@ -251,7 +251,7 @@ internal class PpudClient(
     newOffenderPage.throwIfInvalid()
     offenderPage.updateAdditionalAddresses(createOffenderRequest.additionalAddresses)
     offenderPage.throwIfInvalid()
-    return offenderPage.extractCreatedOffenderDetails()
+    return offenderPage.extractCreatedOffenderDetails(::extractCreatedSentence)
   }
 
   private fun createSentenceInternal(
@@ -308,7 +308,7 @@ internal class PpudClient(
       createOrUpdateReleaseRequest.releasedUnder,
     )
     if (foundMatch) {
-      releasePage.updateRelease(createOrUpdateReleaseRequest)
+      releasePage.updateRelease()
     } else {
       navigationTreeViewComponent.navigateToNewOrEmptyReleaseFor(sentenceId)
       releasePage.createRelease(createOrUpdateReleaseRequest)
@@ -366,6 +366,12 @@ internal class PpudClient(
   private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
     driver.navigate().to(url)
     return offenderPage.extractSearchResultOffenderDetails()
+  }
+
+  private fun extractCreatedSentence(sentenceLink: String): CreatedSentence {
+    driver.navigate().to("$ppudUrl$sentenceLink")
+    val sentencePage = sentencePageFactory.sentencePage()
+    return sentencePage.extractCreatedSentenceDetails()
   }
 
   private fun extractSentences(includeEmptyReleases: Boolean = false): (List<String>) -> List<Sentence> {
