@@ -132,15 +132,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when update offender called then 200 ok is returned`() {
-    val testOffenderId = createTestOffenderInPpud()
-    val requestBody = updateOffenderRequestBody()
-    putOffender(testOffenderId, requestBody)
-      .expectStatus()
-      .isOk
-  }
-
-  @Test
   fun `given valid values in request body when update offender called then offender is amended using supplied values`() {
     val originalIsInCustody = Random.nextBoolean()
     val newIsInCustody = originalIsInCustody.not()
