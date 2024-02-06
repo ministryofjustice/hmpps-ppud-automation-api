@@ -137,16 +137,6 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given complete set of valid values in request body when create offender called then 201 created and offender details are returned`() {
-    val requestBody = createOffenderRequestBody()
-    postOffender(requestBody)
-      .expectStatus()
-      .isCreated
-      .expectBody()
-      .jsonPath("offender.id").isNotEmpty()
-  }
-
-  @Test
   fun `given valid values in request body when create offender called then offender is created using supplied values and IDs are returned`() {
     val addressPremises = randomString("premises")
     val addressLine1 = randomString("line1")
