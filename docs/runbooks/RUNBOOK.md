@@ -122,7 +122,7 @@ The contents of the `hmpps-ppud-automation-api` secret are handled in the follow
 
 - `API_CLIENT_ID` - managed externally via tooling in the `hmpps-auth` project.
 - `API_CLIENT_SECRET` - managed externally via tooling in the `hmpps-auth` project.
-- `APPINSIGHTS_INSTRUMENTATIONKEY` - managed externally via the [dps-project-bootstrap](https://github.com/ministryofjustice/dps-project-bootstrap) tooling.
+- `APPINSIGHTS_INSTRUMENTATIONKEY` - managed externally via the [hmpps-project-bootstrap](https://github.com/ministryofjustice/hmpps-project-bootstrap) tooling.
 - `PPUD_USERNAME` - managed manually through Kubernetes secrets
 - `PPUD_PASSWORD` - managed manually through Kubernetes secrets
 - `PPUD_ADMIN_USERNAME` - managed manually through Kubernetes secrets
