@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
@@ -50,9 +51,11 @@ const val PPUD_VALID_RELEASED_UNDER = "CJA 1991"
 
 const val PPUD_VALID_RELEASED_UNDER_2 = "CJA 2008"
 
-const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "Consider a Recall Test(Recall 1)"
-
 const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test"
+
+const val PPUD_VALID_USER_TEAM = "Recall 1"
+
+const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "$PPUD_VALID_USER_FULL_NAME($PPUD_VALID_USER_TEAM)"
 
 const val PPUD_IMMIGRATION_STATUS = "Not Applicable"
 
@@ -303,7 +306,7 @@ fun generateCreateRecallRequest(
   isExtendedSentence: Boolean? = null,
   isInCustody: Boolean? = null,
   receivedDateTime: LocalDateTime = randomTimeToday(),
-  recommendedToOwner: String = randomString("recommendedToOwner"),
+  recommendedTo: PpudUser = generatePpudUser(),
   riskOfContrabandDetails: String? = null,
   riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest {
@@ -315,7 +318,7 @@ fun generateCreateRecallRequest(
     policeForce = randomString("policeForce"),
     probationArea = randomString("probationArea"),
     receivedDateTime = receivedDateTime,
-    recommendedToOwner = recommendedToOwner,
+    recommendedTo = recommendedTo,
     riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
     riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
   )
@@ -337,5 +340,12 @@ fun generateRecall(id: String = randomPpudId()): Recall {
     recommendedToOwner = randomString("recommendedToOwner"),
     returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
     revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
+  )
+}
+
+fun generatePpudUser(): PpudUser {
+  return PpudUser(
+    fullName = randomString("fullName"),
+    teamName = randomString("teamName"),
   )
 }
