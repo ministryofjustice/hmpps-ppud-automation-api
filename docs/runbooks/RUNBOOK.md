@@ -62,6 +62,32 @@ Once joined, you should have access to the cluster within 24 hours.
 
 You will need to follow the [Cloud Platform User Guide](https://user-guide.cloud-platform.service.justice.gov.uk/documentation/getting-started/kubectl-config.html#how-to-use-kubectl-to-connect-to-the-cluster) to set up your access from there - use instructions for connecting to the `live` cluster.
 
+#### PPUD Credentials
+
+The system makes use of 2 users in PPUD.  One for the "normal" operations of booking a 
+recall and another for admin operations such as retrieving the reference data.
+
+These users are set up in PPUD as follows:
+Normal user - Level 1, belongs to "Recall Team" team ("Recall 1" in Internal Test)
+Admin user - Level 5, belongs to "Performance Management" team.
+
+Further details can be found in [Setting Up Users in PPUD in Confluence](https://dsdmoj.atlassian.net/wiki/x/DQBREwE).
+
+As noted elsewhere in this document, user credentials are stored in the following
+environment variables:
+
+- `PPUD_USERNAME`
+- `PPUD_PASSWORD`
+- `PPUD_ADMIN_USERNAME`
+- `PPUD_ADMIN_PASSWORD`
+
+That means that if passwords/usernames are changed they will need updating in the 
+following locations:
+
+- Local development machined if not using developer username/password
+- [CircleCI pipeline environment variables](https://app.circleci.com/settings/project/github/ministryofjustice/hmpps-ppud-automation-api/environment-variables?return-to=https%3A%2F%2Fapp.circleci.com%2Fpipelines%2Fgithub%2Fministryofjustice%2Fhmpps-ppud-automation-api)
+- Kubernetes secrets for the appropriate environment (see Secrets management below)
+
 ### Throttling and partial shutdown
 
 If there is an issue with the service where it is causing load on downstream services, and it needs to be shutdown quickly, the following command will reduce the number of pod replicas to zero:
