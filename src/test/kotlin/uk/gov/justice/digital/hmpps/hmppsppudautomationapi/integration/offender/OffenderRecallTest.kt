@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_P
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME_AND_TEAM
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -55,7 +56,8 @@ class OffenderRecallTest : IntegrationTestBase() {
         MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
         MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
         MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
-        MandatoryFieldTestData("recommendedToOwner", createRecallRequestBody(recommendedToOwner = "")),
+        // TODO: recommendedTo replaces recommendedToOwner. Make properly mandatory when recommendedToOwner removed
+        MandatoryFieldTestData("recommendedTo", createRecallRequestBody(recommendedTo = null)),
         MandatoryFieldTestData(
           "riskOfSeriousHarmLevel",
           createRecallRequestBody(riskOfSeriousHarmLevel = ""),
@@ -72,7 +74,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       policeForce: String = PPUD_VALID_POLICE_FORCE,
       probationArea: String = PPUD_VALID_PROBATION_SERVICE,
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      recommendedToOwner: String = PPUD_VALID_USER_FULL_NAME_AND_TEAM,
+      recommendedTo: String? = createPpudUserRequestBody(),
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
     ): String {
@@ -85,9 +87,21 @@ class OffenderRecallTest : IntegrationTestBase() {
           "policeForce":"$policeForce",
           "probationArea":"$probationArea",
           "receivedDateTime":"$receivedDateTime",
-          "recommendedToOwner":"$recommendedToOwner",
+          "recommendedTo":${recommendedTo ?: "null"},
           "riskOfContrabandDetails":"$riskOfContrabandDetails",
           "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
+        }
+      """.trimIndent()
+    }
+
+    private fun createPpudUserRequestBody(
+      fullName: String = PPUD_VALID_USER_FULL_NAME,
+      team: String = PPUD_VALID_USER_TEAM,
+    ): String {
+      return """
+        {
+          "fullName":"$fullName",
+          "teamName":"$team"
         }
       """.trimIndent()
     }
@@ -153,6 +167,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val requestBody = createRecallRequestBody(
       decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      recommendedTo = createPpudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
     val id = postRecall(offenderId, releaseId, requestBody)
@@ -172,6 +187,34 @@ class OffenderRecallTest : IntegrationTestBase() {
     val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
     retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
     assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
+  }
+
+  // TODO: recommendedToOwner field is deprecated. Remove this test when removed.
+  @Test
+  fun `given recommendedToOwner in request body when recall called then recall is created using supplied values`() {
+    val offenderId = createTestOffenderInPpud()
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
+    val requestBody = """
+        {
+          "decisionDateTime":"${randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+          "isInCustody":"false",
+          "isExtendedSentence":"false",
+          "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
+          "policeForce":"$PPUD_VALID_POLICE_FORCE",
+          "probationArea":"$PPUD_VALID_PROBATION_SERVICE",
+          "receivedDateTime":"${randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
+          "recommendedToOwner":"$PPUD_VALID_USER_FULL_NAME_AND_TEAM",
+          "riskOfContrabandDetails":"",
+          "riskOfSeriousHarmLevel":"${RiskOfSeriousHarmLevel.VeryHigh.name}"
+        }
+    """.trimIndent()
+
+    val id = postRecall(offenderId, releaseId, requestBody)
+
+    val retrieved = retrieveRecall(id)
+    retrieved.jsonPath("recall.id").isEqualTo(id)
+      .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
   }
 
   @Test

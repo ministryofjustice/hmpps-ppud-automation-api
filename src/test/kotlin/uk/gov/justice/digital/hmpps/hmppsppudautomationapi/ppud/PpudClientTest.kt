@@ -18,6 +18,7 @@ import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
@@ -42,6 +43,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCrea
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateSearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenceRequest
@@ -804,10 +806,11 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
-      val recommendedToOwner = randomString("recommendedToOwner")
+      val recommendedTo = PpudUser(randomString("fullName"), randomString("teamName"))
+      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
-        recommendedToOwner = recommendedToOwner,
+        recommendedTo = recommendedTo,
       )
       val matchingRecallLink = "/link/to/matching/recall"
       val recallId = randomPpudId()
@@ -840,10 +843,11 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
-      val recommendedToOwner = randomString("recommendedToOwner")
+      val recommendedTo = generatePpudUser()
+      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
-        recommendedToOwner = recommendedToOwner,
+        recommendedTo = recommendedTo,
       )
       val nonMatchingRecallLink = "/link/to/non-matching/recall"
       val recallId = randomPpudId()
@@ -876,10 +880,11 @@ class PpudClientTest {
       val offenderId = randomPpudId()
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
-      val recommendedToOwner = randomString("recommendedToOwner")
+      val recommendedTo = generatePpudUser()
+      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
-        recommendedToOwner = recommendedToOwner,
+        recommendedTo = recommendedTo,
       )
       val nonMatchingRecallLink = "/link/to/non-matching/recall"
       val persistedRecallLink = "/link/to/persisted/recall"
