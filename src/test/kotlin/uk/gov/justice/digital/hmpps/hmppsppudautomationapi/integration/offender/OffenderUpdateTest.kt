@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
@@ -287,5 +288,20 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.id").isEqualTo(testOffenderId)
       .jsonPath("offender.familyName").isEqualTo(familyName)
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = ["F ( Was M )", "F( Was M )"])
+  fun `given gender F was M in request body when create offender called then offender is created`(gender: String) {
+    // PPUD has a bug where the gender value is inconsistent. We need to handle that as best we can.
+    // PPUD itself doesn't handle it, because if set with one value in create offender, it can't be displayed in view offender
+    val testOffenderId = createTestOffenderInPpud()
+    val requestBody = updateOffenderRequestBody(
+      gender = gender,
+    )
+
+    putOffender(testOffenderId, requestBody)
+      .expectStatus()
+      .isOk
   }
 }

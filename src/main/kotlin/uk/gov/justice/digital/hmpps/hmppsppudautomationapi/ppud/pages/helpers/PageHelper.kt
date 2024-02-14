@@ -116,8 +116,9 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
       val select = Select(dropdown)
       val searchableOption = option.removeSpaces()
       val match = select.options.firstOrNull { it.text.removeSpaces() == searchableOption }
-      if (match == null)
+      if (match == null) {
         throw AutomationException("Cannot locate $description option with text '$option' or '$searchableOption'")
+      }
       select.selectByVisibleText(match.text)
     }
   }
