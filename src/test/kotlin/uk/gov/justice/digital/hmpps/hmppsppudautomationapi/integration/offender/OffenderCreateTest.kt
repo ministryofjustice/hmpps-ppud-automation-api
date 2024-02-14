@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -232,6 +233,18 @@ class OffenderCreateTest : IntegrationTestBase() {
     val retrieved = retrieveOffender(createdOffender.id)
     retrieved.jsonPath("offender.id").isEqualTo(createdOffender.id)
       .jsonPath("offender.youngOffender").isEqualTo(expected)
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = ["F ( Was M )", "F( Was M )"])
+  fun `given gender F was M in request body when create offender called then offender is created`(gender: String) {
+    // PPUD has a bug where the gender value is inconsistent. We need to handle that as best we can.
+    // PPUD itself doesn't handle it, because if set with one value in create offender, it can't be displayed in view offender
+    val requestBody = createOffenderRequestBody(
+      gender = gender,
+    )
+
+    testPostOffender(requestBody)
   }
 
   @Test
