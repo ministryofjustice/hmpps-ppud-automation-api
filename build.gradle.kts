@@ -34,6 +34,8 @@ dependencies {
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.12.5")
+
+  implementation("com.nimbusds:nimbus-jose-jwt:9.37.3") // Address CVE-2023-52428
 }
 
 java {
