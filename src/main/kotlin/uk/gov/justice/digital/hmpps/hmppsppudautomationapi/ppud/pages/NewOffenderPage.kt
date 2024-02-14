@@ -138,7 +138,7 @@ internal class NewOffenderPage(
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
-    pageHelper.selectDropdownOptionIfNotBlank(genderDropdown, createOffenderRequest.gender, "gender")
+    pageHelper.selectDropdownOptionIfNotBlankIgnoringSpaces(genderDropdown, createOffenderRequest.gender, "gender")
     pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
     prisonNumberInput.sendKeys(createOffenderRequest.prisonNumber)

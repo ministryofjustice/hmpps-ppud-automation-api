@@ -182,7 +182,7 @@ internal class OffenderPage(
     firstNamesInput.clear()
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
     pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
-    pageHelper.selectDropdownOptionIfNotBlank(genderDropdown, updateOffenderRequest.gender, "gender")
+    pageHelper.selectDropdownOptionIfNotBlankIgnoringSpaces(genderDropdown, updateOffenderRequest.gender, "gender")
     pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.clear()
     nomsIdInput.sendKeys(updateOffenderRequest.nomsId)

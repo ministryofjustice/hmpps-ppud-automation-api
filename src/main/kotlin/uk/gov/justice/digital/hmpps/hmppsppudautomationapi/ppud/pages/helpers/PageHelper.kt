@@ -111,6 +111,18 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     }
   }
 
+  fun selectDropdownOptionIfNotBlankIgnoringSpaces(dropdown: WebElement, option: String?, description: String) {
+    if (option?.isNotBlank() == true) {
+      val select = Select(dropdown)
+      val searchableOption = option.removeSpaces()
+      val match = select.options.firstOrNull { it.text.removeSpaces() == searchableOption }
+      if (match == null) {
+        throw AutomationException("Cannot locate $description option with text '$option' or '$searchableOption'")
+      }
+      select.selectByVisibleText(match.text)
+    }
+  }
+
   fun selectCheckboxValue(checkbox: WebElement, value: Boolean) {
     if (checkbox.isSelected != value) {
       checkbox.click()
@@ -122,4 +134,6 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until { dropdownAsSelect.options.any() }
   }
+
+  private fun String.removeSpaces(): String = this.replace(" ", "")
 }
