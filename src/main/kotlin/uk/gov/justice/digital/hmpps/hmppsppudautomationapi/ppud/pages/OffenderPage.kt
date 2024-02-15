@@ -63,20 +63,16 @@ internal class OffenderPage(
   private val addressHistoryTable: WebElement?
     get() = driver.findElements(By.id(ADDRESS_HISTORY_TABLE_ID)).firstOrNull()
 
-  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[1]")
-  private lateinit var addressHistoryPremises: WebElement
+  private val addressHistoryLastPageLink: WebElement?
+    get() = driver.findElements(By.xpath("//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]//a")).lastOrNull()
 
-  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[2]")
-  private lateinit var addressHistoryLine1: WebElement
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]")
+  private lateinit var addressHistoryLastRow: WebElement
 
-  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[3]")
-  private lateinit var addressHistoryLine2: WebElement
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]")
+  private lateinit var addressHistoryPagedLastRow: WebElement
 
-  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[4]")
-  private lateinit var addressHistoryPostcode: WebElement
-
-  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[5]")
-  private lateinit var addressHistoryPhoneNumber: WebElement
+  private val addressHistoryTableCellsXpath = "./td"
 
   @FindBy(id = "cntDetails_btnEditAddress")
   private lateinit var editAddressButton: WebElement
@@ -313,19 +309,33 @@ internal class OffenderPage(
   private fun extractAddress(): OffenderAddress {
     viewAddressHistoryButton.click()
     val address = if (addressHistoryTable != null) {
-      OffenderAddress(
-        premises = addressHistoryPremises.text.trim(),
-        line1 = addressHistoryLine1.text.trim(),
-        line2 = addressHistoryLine2.text.trim(),
-        postcode = addressHistoryPostcode.text.trim(),
-        phoneNumber = addressHistoryPhoneNumber.text.trim(),
-      )
+      extractAddressFromRow(lastAddressRow())
     } else {
       OffenderAddress()
     }
     cancelAddressHistoryButton.click()
 
     return address
+  }
+
+  private fun lastAddressRow(): WebElement =
+    if (addressHistoryLastPageLink != null) {
+      addressHistoryLastPageLink?.click()
+      viewAddressHistoryButton.click()
+      addressHistoryPagedLastRow
+    } else {
+      addressHistoryLastRow
+    }
+
+  private fun extractAddressFromRow(tableRow: WebElement): OffenderAddress {
+    val cells = tableRow.findElements(By.xpath(addressHistoryTableCellsXpath))
+    return OffenderAddress(
+      premises = cells[0].text.trim(),
+      line1 = cells[1].text.trim(),
+      line2 = cells[2].text.trim(),
+      postcode = cells[3].text.trim(),
+      phoneNumber = cells[4].text.trim(),
+    )
   }
 
   private fun enterAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
