@@ -241,6 +241,10 @@ internal class PpudClient(
       searchPage.searchByPersonalDetails(familyName, dateOfBirth)
     }
 
+    if (searchPage.searchResultsCount() == 0 && !familyName.isNullOrBlank()) {
+      searchPage.searchByFamilyName(familyName)
+    }
+
     return searchPage.searchResultsLinks()
   }
 
