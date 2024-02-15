@@ -214,6 +214,7 @@ class PpudClientTest {
       then(searchPage).should().searchByCroNumber(croNumber)
       then(searchPage).should(never()).searchByNomsId(any())
       then(searchPage).should(never()).searchByPersonalDetails(any(), any())
+      then(searchPage).should(never()).searchByFamilyName(any())
     }
   }
 
@@ -227,11 +228,12 @@ class PpudClientTest {
       then(searchPage).should(never()).searchByCroNumber(any())
       then(searchPage).should().searchByNomsId(nomsId)
       then(searchPage).should(never()).searchByPersonalDetails(any(), any())
+      then(searchPage).should(never()).searchByFamilyName(any())
     }
   }
 
   @Test
-  fun `given only family name and date of birth when search offender is called then search is performed using only family name and date of birth`() {
+  fun `given only family name and date of birth when search offender is called then search is performed using family name and date of birth and familyName alone`() {
     runBlocking {
       val familyName = randomString("name")
       val dateOfBirth = randomDate()
@@ -241,11 +243,12 @@ class PpudClientTest {
       then(searchPage).should(never()).searchByCroNumber(any())
       then(searchPage).should(never()).searchByNomsId(any())
       then(searchPage).should().searchByPersonalDetails(familyName, dateOfBirth)
+      then(searchPage).should().searchByFamilyName(familyName)
     }
   }
 
   @Test
-  fun `given search criteria that returns no results when search offender is called then search on cro, noms and personal details`() {
+  fun `given search criteria that returns no results when search offender is called then search on cro, noms, personal details and family name`() {
     runBlocking {
       val croNumber = randomCroNumber()
       val nomsId = randomNomsId()
@@ -259,6 +262,7 @@ class PpudClientTest {
       then(searchPage).should(inOrder).searchByCroNumber(croNumber)
       then(searchPage).should(inOrder).searchByNomsId(nomsId)
       then(searchPage).should(inOrder).searchByPersonalDetails(familyName, dateOfBirth)
+      then(searchPage).should(inOrder).searchByFamilyName(familyName)
     }
   }
 

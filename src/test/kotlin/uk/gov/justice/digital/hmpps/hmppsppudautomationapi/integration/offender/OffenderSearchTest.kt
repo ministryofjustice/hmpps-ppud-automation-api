@@ -54,7 +54,7 @@ class OffenderSearchTest : IntegrationTestBase() {
     val requestBody = "{ " +
       "\"croNumber\": \"12/12A\"," +
       "\"nomsId\": \"B1234XX\"," +
-      "\"familyName\": \"Smith\"," +
+      "\"familyName\": \"Bloggs-Doe\"," +
       "\"dateOfBirth\": \"1980-12-31\"" +
       "}"
     webTestClient.post()
@@ -218,5 +218,28 @@ class OffenderSearchTest : IntegrationTestBase() {
       .jsonPath("results[1].firstNames").isEqualTo("Emily")
       .jsonPath("results[1].familyName").isEqualTo(familyName)
       .jsonPath("results[1].dateOfBirth").isEqualTo(dateOfBirth.toString())
+  }
+
+  @Test
+  fun `given family name and unmatched date of birth when search called then offender details are returned`() {
+    val dateOfBirth = LocalDate.parse("2100-12-31")
+    val familyName = "Mitchell"
+    val requestBody = "{ " +
+      "\"familyName\": \"$familyName\"," +
+      "\"dateOfBirth\": \"$dateOfBirth\"" +
+      "}"
+    webTestClient.post()
+      .uri("/offender/search")
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("results.size()").isEqualTo(3)
+      .jsonPath("results[0].firstNames").isEqualTo("Mandy Car Test")
+      .jsonPath("results[1].firstNames").isEqualTo("Phil Car Test")
+      .jsonPath("results[2].firstNames").isEqualTo("Grant Car Test")
   }
 }
