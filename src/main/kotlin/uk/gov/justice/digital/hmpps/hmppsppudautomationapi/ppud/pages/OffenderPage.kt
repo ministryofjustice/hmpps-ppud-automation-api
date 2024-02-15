@@ -78,6 +78,24 @@ internal class OffenderPage(
   @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]/td[5]")
   private lateinit var addressHistoryPhoneNumber: WebElement
 
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]/td[1]")
+  private lateinit var addressHistoryPagedPremises: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]/td[2]")
+  private lateinit var addressHistoryPagedLine1: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]/td[3]")
+  private lateinit var addressHistoryPagedLine2: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]/td[4]")
+  private lateinit var addressHistoryPagedPostcode: WebElement
+
+  @FindBy(xpath = "//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()-1]/td[5]")
+  private lateinit var addressHistoryPagedPhoneNumber: WebElement
+
+  private val addressHistoryLastPageLink: WebElement?
+    get() = driver.findElements(By.xpath("//*[@id=\"$ADDRESS_HISTORY_TABLE_ID\"]//tr[last()]//a")).lastOrNull()
+
   @FindBy(id = "cntDetails_btnEditAddress")
   private lateinit var editAddressButton: WebElement
 
@@ -313,13 +331,25 @@ internal class OffenderPage(
   private fun extractAddress(): OffenderAddress {
     viewAddressHistoryButton.click()
     val address = if (addressHistoryTable != null) {
-      OffenderAddress(
-        premises = addressHistoryPremises.text.trim(),
-        line1 = addressHistoryLine1.text.trim(),
-        line2 = addressHistoryLine2.text.trim(),
-        postcode = addressHistoryPostcode.text.trim(),
-        phoneNumber = addressHistoryPhoneNumber.text.trim(),
-      )
+      if (addressHistoryLastPageLink != null) {
+        addressHistoryLastPageLink?.click()
+        viewAddressHistoryButton.click()
+        OffenderAddress(
+          premises = addressHistoryPagedPremises.text.trim(),
+          line1 = addressHistoryPagedLine1.text.trim(),
+          line2 = addressHistoryPagedLine2.text.trim(),
+          postcode = addressHistoryPagedPostcode.text.trim(),
+          phoneNumber = addressHistoryPagedPhoneNumber.text.trim(),
+        )
+      } else {
+        OffenderAddress(
+          premises = addressHistoryPremises.text.trim(),
+          line1 = addressHistoryLine1.text.trim(),
+          line2 = addressHistoryLine2.text.trim(),
+          postcode = addressHistoryPostcode.text.trim(),
+          phoneNumber = addressHistoryPhoneNumber.text.trim(),
+        )
+      }
     } else {
       OffenderAddress()
     }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_PAGED_ADDRESSES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPostcode
@@ -197,5 +198,17 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.address.line2").isEqualTo(line2)
       .jsonPath("offender.address.postcode").isEqualTo(postcode)
       .jsonPath("offender.address.phoneNumber").isEqualTo(phoneNumber)
+  }
+
+  @Test
+  fun `given Offender with paged addresses when get offender called then latest address is returned`() {
+    val offenderId = PPUD_OFFENDER_ID_WITH_PAGED_ADDRESSES
+    retrieveOffender(offenderId)
+      .jsonPath("offender.id").isEqualTo(offenderId)
+      .jsonPath("offender.address.premises").isEqualTo("Queen Vic - Latest")
+      .jsonPath("offender.address.line1").isEqualTo("46 Albert Sq - Latest")
+      .jsonPath("offender.address.line2").isEqualTo("Walford - Latest")
+      .jsonPath("offender.address.postcode").isEqualTo("E20 6PQ L")
+      .jsonPath("offender.address.phoneNumber").isEqualTo("Latest Entry")
   }
 }
