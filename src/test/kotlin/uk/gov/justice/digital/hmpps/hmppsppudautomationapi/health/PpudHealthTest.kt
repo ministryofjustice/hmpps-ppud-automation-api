@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.health
 
-import io.github.bonigarcia.wdm.WebDriverManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -14,9 +13,11 @@ import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpStatusCode
 import org.mockserver.model.MediaType
-import org.openqa.selenium.WebDriver
-import org.openqa.selenium.firefox.FirefoxOptions
 import org.springframework.boot.actuate.health.Status
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.netty.http.client.HttpClient
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class PpudHealthTest {
@@ -37,8 +38,8 @@ class PpudHealthTest {
 
   @BeforeEach
   fun beforeEach() {
-    val webDriver = setupWebDriver()
-    ppudHealth = PpudHealth(webDriver, ppudUrl, healthPath, pageTitle, timeoutSeconds)
+    val webClient = setupWebClient()
+    ppudHealth = PpudHealth(webClient, healthPath)
   }
 
   @AfterEach
@@ -88,10 +89,13 @@ class PpudHealthTest {
     assertTrue(errorDetails.contains("Timeout"), "Detail was '$errorDetails'")
   }
 
-  private fun setupWebDriver(): WebDriver {
-    val options = FirefoxOptions()
-    options.addArguments("-headless")
-    return WebDriverManager.firefoxdriver().capabilities(options).create()
+  private fun setupWebClient(): WebClient {
+    val client: HttpClient = HttpClient.create()
+      .responseTimeout(Duration.ofSeconds(timeoutSeconds))
+    return WebClient.builder()
+      .clientConnector(ReactorClientHttpConnector(client))
+      .baseUrl(ppudUrl)
+      .build()
   }
 
   private fun createResponseBody(responsePageTitle: String, text: String): String {
