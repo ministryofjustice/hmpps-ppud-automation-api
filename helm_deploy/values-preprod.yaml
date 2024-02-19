@@ -17,6 +17,9 @@ generic-service:
     PPUD_OFFENDER_CASEWORKER_INCUSTODY: "Recall Reps Packs(Recall Team)"
     PPUD_OFFENDER_CASEWORKER_UAL: "Recall UAL checks(Recall Team)"
 
+  scheduledDowntime:
+    enabled: true
+
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
 generic-prometheus-alerts:
