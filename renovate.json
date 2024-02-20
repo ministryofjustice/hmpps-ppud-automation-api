@@ -11,6 +11,6 @@
     }
   ],
   "schedule": [
-    "between 7am and 7pm every weekday"
+    "* 7-19 * * 1-5"
   ]
 }
