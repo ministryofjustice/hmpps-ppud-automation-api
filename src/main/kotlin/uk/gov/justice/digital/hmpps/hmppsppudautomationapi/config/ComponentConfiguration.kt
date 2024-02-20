@@ -23,7 +23,13 @@ class ComponentConfiguration {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Bean
+  init {
+    // Limit Selenium logging so that we do not get the log entries mentioned in
+    // https://github.com/SeleniumHQ/selenium/issues/13096
+    java.util.logging.Logger.getLogger("").level = java.util.logging.Level.SEVERE
+  }
+
+  @Bean(destroyMethod = "quit")
   @RequestScope
   fun webDriver(
     @Value("\${automation.headless}") headless: Boolean,
