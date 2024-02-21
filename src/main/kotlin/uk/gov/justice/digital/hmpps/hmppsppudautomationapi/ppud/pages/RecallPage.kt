@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
@@ -129,18 +130,17 @@ internal class RecallPage(
     PageFactory.initElements(driver, this)
   }
 
-  fun isMatching(receivedDateTime: LocalDateTime, recommendedToOwner: String): Boolean {
+  fun isMatching(receivedDateTime: LocalDateTime, recommendedTo: PpudUser): Boolean {
     return reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
-      recommendedToOwnerInput.getValue() == removeTeamName(recommendedToOwner)
+      recommendedToOwnerInput.getValue() == recommendedTo.fullName
   }
 
   suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
     // Complete these first as they trigger additional processing
     // Autocomplete box doesn't work with brackets
-    val recommendedToOwnerSearchable = removeTeamName(createRecallRequest.recommendedToOwner)
-    pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, recommendedToOwnerSearchable)
-    val revocationIssuedByOwnerSearchable = revocationIssuedByOwner.takeWhile { (it == '(').not() }
-    pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerSearchable)
+    pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, createRecallRequest.recommendedTo.fullName)
+    val revocationIssuedByOwnerFullName = removeTeamName(revocationIssuedByOwner)
+    pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerFullName)
 
     // Complete standalone fields
     pageHelper.selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
@@ -182,7 +182,7 @@ internal class RecallPage(
     pageHelper.waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
-      createRecallRequest.recommendedToOwner,
+      createRecallRequest.recommendedTo.formattedFullNameAndTeam,
       "recommended to owner",
     )
     pageHelper.waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)

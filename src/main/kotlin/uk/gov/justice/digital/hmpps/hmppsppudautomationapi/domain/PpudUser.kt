@@ -7,4 +7,7 @@ data class PpudUser(
   val fullName: String,
   @field:NotBlank
   val teamName: String,
-)
+) {
+  internal val formattedFullNameAndTeam: String
+    get() = "${this.fullName}(${this.teamName})"
+}
