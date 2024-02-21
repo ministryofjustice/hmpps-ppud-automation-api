@@ -24,7 +24,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_M
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_POLICE_FORCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME_AND_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -56,8 +55,22 @@ class OffenderRecallTest : IntegrationTestBase() {
         MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
         MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
         MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
-        // TODO: recommendedTo replaces recommendedToOwner. Make properly mandatory when recommendedToOwner removed
         MandatoryFieldTestData("recommendedTo", createRecallRequestBody(recommendedTo = null)),
+        MandatoryFieldTestData(
+          "recommendedTo",
+          createRecallRequestBody(recommendedTo = "{}"),
+          errorFragment = "fullName",
+        ),
+        MandatoryFieldTestData(
+          "recommendedTo",
+          createRecallRequestBody(recommendedTo = createPpudUserRequestBody(fullName = "")),
+          errorFragment = "fullName",
+        ),
+        MandatoryFieldTestData(
+          "recommendedTo",
+          createRecallRequestBody(recommendedTo = createPpudUserRequestBody(teamName = "")),
+          errorFragment = "team",
+        ),
         MandatoryFieldTestData(
           "riskOfSeriousHarmLevel",
           createRecallRequestBody(riskOfSeriousHarmLevel = ""),
@@ -96,12 +109,12 @@ class OffenderRecallTest : IntegrationTestBase() {
 
     private fun createPpudUserRequestBody(
       fullName: String = PPUD_VALID_USER_FULL_NAME,
-      team: String = PPUD_VALID_USER_TEAM,
+      teamName: String = PPUD_VALID_USER_TEAM,
     ): String {
       return """
         {
           "fullName":"$fullName",
-          "teamName":"$team"
+          "teamName":"$teamName"
         }
       """.trimIndent()
     }
@@ -187,34 +200,6 @@ class OffenderRecallTest : IntegrationTestBase() {
     val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
     retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
     assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
-  }
-
-  // TODO: recommendedToOwner field is deprecated. Remove this test when removed.
-  @Test
-  fun `given recommendedToOwner in request body when recall called then recall is created using supplied values`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
-    val requestBody = """
-        {
-          "decisionDateTime":"${randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-          "isInCustody":"false",
-          "isExtendedSentence":"false",
-          "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
-          "policeForce":"$PPUD_VALID_POLICE_FORCE",
-          "probationArea":"$PPUD_VALID_PROBATION_SERVICE",
-          "receivedDateTime":"${randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-          "recommendedToOwner":"$PPUD_VALID_USER_FULL_NAME_AND_TEAM",
-          "riskOfContrabandDetails":"",
-          "riskOfSeriousHarmLevel":"${RiskOfSeriousHarmLevel.VeryHigh.name}"
-        }
-    """.trimIndent()
-
-    val id = postRecall(offenderId, releaseId, requestBody)
-
-    val retrieved = retrieveRecall(id)
-    retrieved.jsonPath("recall.id").isEqualTo(id)
-      .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
   }
 
   @Test

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
@@ -338,7 +339,7 @@ internal class PpudClient(
     val recallLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
     val foundMatch = recallLinks.any {
       driver.navigate().to("$ppudUrl$it")
-      recallPage.isMatching(recallRequest.receivedDateTime, recallRequest.recommendedToOwner)
+      recallPage.isMatching(recallRequest.receivedDateTime, recallRequest.recommendedTo)
     }
 
     if (foundMatch.not()) {
@@ -350,7 +351,7 @@ internal class PpudClient(
 
       // ID in URL after creating a new one is not the correct ID for the persisted recall.
       // Find the matching recall to extract the release ID from that
-      navigateToMatchingRecall(releaseId, recallRequest.receivedDateTime, recallRequest.recommendedToOwner)
+      navigateToMatchingRecall(releaseId, recallRequest.receivedDateTime, recallRequest.recommendedTo)
     }
 
     return recallPage.extractCreatedRecallDetails()
@@ -453,12 +454,12 @@ internal class PpudClient(
   private fun navigateToMatchingRecall(
     releaseId: String,
     receivedDateTime: LocalDateTime,
-    recommendedToOwner: String,
+    recommendedTo: PpudUser,
   ): Boolean {
     val releaseLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
     return releaseLinks.any {
       driver.navigate().to("$ppudUrl$it")
-      recallPage.isMatching(receivedDateTime, recommendedToOwner)
+      recallPage.isMatching(receivedDateTime, recommendedTo)
     }
   }
 }

@@ -811,7 +811,6 @@ class PpudClientTest {
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
       val recommendedTo = PpudUser(randomString("fullName"), randomString("teamName"))
-      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
         recommendedTo = recommendedTo,
@@ -824,7 +823,7 @@ class PpudClientTest {
         ),
       )
       given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedToOwner)).willReturn(true)
+      given(recallPage.isMatching(receivedDateTime, recommendedTo)).willReturn(true)
 
       val returnedRecall = client.createRecall(offenderId, releaseId, createRecallRequest)
 
@@ -832,7 +831,7 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedToOwner)
+      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
       then(navigationTreeViewComponent).should(never()).navigateToNewRecallFor(any())
       then(recallPage).should(never()).createRecall(any())
       then(recallPage).should(never()).addDetailsMinute(any())
@@ -848,7 +847,6 @@ class PpudClientTest {
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
       val recommendedTo = generatePpudUser()
-      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
         recommendedTo = recommendedTo,
@@ -861,7 +859,7 @@ class PpudClientTest {
         ),
       )
       given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedToOwner)).willReturn(false)
+      given(recallPage.isMatching(receivedDateTime, recommendedTo)).willReturn(false)
 
       client.createRecall(offenderId, releaseId, createRecallRequest)
 
@@ -869,7 +867,7 @@ class PpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$nonMatchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedToOwner)
+      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
       then(navigationTreeViewComponent).should(inOrder).navigateToNewRecallFor(releaseId)
       then(recallPage).should(inOrder).createRecall(any())
       then(recallPage).should(inOrder).throwIfInvalid()
@@ -885,7 +883,6 @@ class PpudClientTest {
       val releaseId = randomPpudId()
       val receivedDateTime = LocalDateTime.now()
       val recommendedTo = generatePpudUser()
-      val recommendedToOwner = "${recommendedTo.fullName}(${recommendedTo.teamName})"
       val createRecallRequest = generateCreateRecallRequest(
         receivedDateTime = receivedDateTime,
         recommendedTo = recommendedTo,
@@ -897,7 +894,7 @@ class PpudClientTest {
         .willReturn(listOf(nonMatchingRecallLink)) // Before creation
         .willReturn(listOf(nonMatchingRecallLink, persistedRecallLink)) // After creation
       given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedToOwner))
+      given(recallPage.isMatching(receivedDateTime, recommendedTo))
         .willReturn(false) // Before creation
         .willReturn(false) // After creation non-matching
         .willReturn(true) // After creation matching
@@ -908,9 +905,9 @@ class PpudClientTest {
       then(recallPage).should(inOrder).throwIfInvalid()
       then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$nonMatchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedToOwner)
+      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$persistedRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedToOwner)
+      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
       then(recallPage).should(inOrder).extractCreatedRecallDetails()
       assertEquals(recallId, createdRecall.id)
     }
