@@ -190,7 +190,6 @@ internal class OffenderController(private val ppudClient: PpudClient) {
     createRecallRequest: CreateRecallRequest,
   ): ResponseEntity<CreateRecallResponse> {
     log.info("Offender recall endpoint hit")
-    log.info("Offender recall. OffenderId: '$offenderId' isInCustody value: '${createRecallRequest.isInCustody}'")
     val recall = ppudClient.createRecall(offenderId, releaseId, createRecallRequest)
     return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
   }
