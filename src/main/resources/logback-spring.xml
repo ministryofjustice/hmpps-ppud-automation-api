@@ -37,8 +37,6 @@
     <appender-ref ref="consoleAppender"/>
   </logger>
 
-  <logger name="io.github.bonigarcia" level="TRACE" />
-
   <root level="INFO">
     <appender-ref ref="consoleAppender"/>
   </root>
