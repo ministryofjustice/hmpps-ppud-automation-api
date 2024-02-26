@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebDriverException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -23,8 +24,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
@@ -50,6 +53,7 @@ internal class PpudClient(
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
+  private val errorPage: ErrorPage,
   private val loginPage: LoginPage,
   private val newOffenderPage: NewOffenderPage,
   private val offenderPage: OffenderPage,
@@ -198,6 +202,12 @@ internal class PpudClient(
     }
     val result = try {
       operation()
+    } catch (ex: Exception) {
+      if (ex is WebDriverException && errorPage.isShown()) {
+        throw PpudErrorException("PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'", ex)
+      } else {
+        throw ex
+      }
     } finally {
       logout()
     }

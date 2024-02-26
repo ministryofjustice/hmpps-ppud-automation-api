@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -25,8 +26,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
@@ -74,6 +77,9 @@ class PpudClientTest {
 
   @Mock
   private lateinit var adminPage: AdminPage
+
+  @Mock
+  private lateinit var errorPage: ErrorPage
 
   @Mock
   private lateinit var editLookupsPage: EditLookupsPage
@@ -138,6 +144,7 @@ class PpudClientTest {
       navigationTreeViewComponent,
       adminPage,
       editLookupsPage,
+      errorPage,
       loginPage,
       newOffenderPage,
       offenderPage,
@@ -173,6 +180,25 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given Selenium fails and a PPUD error is shown when an operation fails then attempt to gather any PPUD error info`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any call
+      given(searchPage.searchByCroNumber(any())).willThrow(org.openqa.selenium.NoSuchElementException("Test exception"))
+      given(errorPage.isShown()).willReturn(true)
+      given(errorPage.extractErrorDetails()).willReturn("Some error details")
+
+      val actual = assertThrows<PpudErrorException> {
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+      }
+      assertEquals("PPUD has displayed an error. Details are: 'Some error details'", actual.message)
+      assertTrue(
+        actual.cause?.message?.startsWith("Test exception") == true,
+        "Exception.cause was '${actual.cause?.message}'",
+      )
+    }
+  }
+
+  @Test
   fun `given a PPUD failure when an operation fails then still attempt to logout`() {
     runBlocking {
       // Use search as an example, but this test applies to any call
@@ -195,12 +221,12 @@ class PpudClientTest {
       given(loginPage.urlPath).willReturn("/login")
       doNothing().`when`(webDriverNavigation).to("$ppudUrl/login")
       given(webDriverNavigation.to(absoluteLogoutUrl)).willThrow(RuntimeException("Should be hidden"))
-      given(searchPage.searchByCroNumber(any())).willThrow(AutomationException("Expected Test Exception"))
+      given(searchPage.searchByCroNumber(any())).willThrow(AutomationException("Expected test exception"))
 
       val actual = assertThrows<AutomationException> {
         client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
       }
-      assertEquals("Expected Test Exception", actual.message)
+      assertEquals("Expected test exception", actual.message)
     }
   }
 

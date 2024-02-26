@@ -265,7 +265,7 @@ internal class OffenderPage(
     if (driver.title.equals("invalid url", ignoreCase = true)) {
       throw InvalidOffenderIdException("Attempted to navigate to an invalid URL. This is probably due to an invalid offender ID.")
     }
-    if (driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)) {
+    if (pageHelper.isCustomErrorUrl(driver)) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
   }
