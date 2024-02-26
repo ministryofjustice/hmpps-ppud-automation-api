@@ -77,6 +77,10 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     return id
   }
 
+  fun isCustomErrorUrl(driver: WebDriver): Boolean {
+    return driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)
+  }
+
   fun readDate(input: WebElement): LocalDate {
     return readDateOrNull(input)
       ?: throw AutomationException("Expected valid date in element but value was '${input.getValue()}'")
