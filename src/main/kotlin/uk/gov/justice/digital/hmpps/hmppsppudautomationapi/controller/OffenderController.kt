@@ -33,7 +33,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateSentenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.PpudClient
 import java.util.UUID
 
 @RestController

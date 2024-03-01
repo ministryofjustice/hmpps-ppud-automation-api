@@ -6,11 +6,11 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
 
 @Component
 @RequestScope
-internal class ReferenceServiceImpl(private val ppudClient: PpudClient, private val cacheManager: CacheManager) :
+internal class ReferenceServiceImpl(private val ppudClient: ReferenceDataPpudClient, private val cacheManager: CacheManager) :
   ReferenceService {
 
   companion object {

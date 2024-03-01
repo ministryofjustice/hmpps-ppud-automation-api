@@ -1,7 +1,6 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client
 
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WebDriverException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -24,9 +23,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -44,32 +40,38 @@ import java.time.LocalDateTime
 @Component
 @RequestScope
 internal class PpudClient(
-  @Value("\${ppud.url}") private val ppudUrl: String,
-  @Value("\${ppud.username}") private val ppudUsername: String,
-  @Value("\${ppud.password}") private val ppudPassword: String,
-  @Value("\${ppud.admin.username}") private val ppudAdminUsername: String,
-  @Value("\${ppud.admin.password}") private val ppudAdminPassword: String,
-  private val driver: WebDriver,
+  @Value("\${ppud.url}") ppudUrl: String,
+  @Value("\${ppud.username}") ppudUsername: String,
+  @Value("\${ppud.password}") ppudPassword: String,
+  @Value("\${ppud.admin.username}") ppudAdminUsername: String,
+  @Value("\${ppud.admin.password}") ppudAdminPassword: String,
+  driver: WebDriver,
+  errorPage: ErrorPage,
+  loginPage: LoginPage,
+  searchPage: SearchPage,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
-  private val adminPage: AdminPage,
-  private val editLookupsPage: EditLookupsPage,
-  private val errorPage: ErrorPage,
-  private val loginPage: LoginPage,
   private val newOffenderPage: NewOffenderPage,
   private val offenderPage: OffenderPage,
   private val offencePage: OffencePage,
   private val postReleasePage: PostReleasePage,
   private val recallPage: RecallPage,
   private val releasePage: ReleasePage,
-  private val searchPage: SearchPage,
   private val sentencePageFactory: SentencePageFactory,
+) : PpudClientBase(
+  ppudUrl,
+  ppudUsername,
+  ppudPassword,
+  ppudAdminUsername,
+  ppudAdminPassword,
+  driver,
+  errorPage,
+  loginPage,
+  searchPage,
 ) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
-
-  private val relativeLogoutUrl = "/logout.aspx"
 
   suspend fun searchForOffender(
     croNumber: String?,
@@ -183,54 +185,6 @@ internal class PpudClient(
       searchPage.searchByFamilyName(familyName)
       val links = searchPage.searchResultsLinks()
       deleteOffenders(links)
-    }
-  }
-
-  suspend fun retrieveLookupValues(lookupName: LookupName): List<String> {
-    log.info("Retrieving lookup values for $lookupName")
-
-    return performLoggedInOperation(asAdmin = true) {
-      extractLookupValues(lookupName)
-    }
-  }
-
-  private suspend fun <T> performLoggedInOperation(asAdmin: Boolean = false, operation: suspend () -> T): T {
-    if (asAdmin) {
-      loginAsAdmin()
-    } else {
-      login()
-    }
-    val result = try {
-      operation()
-    } catch (ex: Exception) {
-      if (ex is WebDriverException && errorPage.isShown()) {
-        throw PpudErrorException("PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'", ex)
-      } else {
-        throw ex
-      }
-    } finally {
-      logout()
-    }
-    return result
-  }
-
-  private suspend fun loginAsAdmin() {
-    login(ppudAdminUsername, ppudAdminPassword)
-  }
-
-  private suspend fun login(username: String = ppudUsername, password: String = ppudPassword) {
-    driver.navigate().to("${ppudUrl}${loginPage.urlPath}")
-    loginPage.verifyOn()
-    loginPage.login(username, password)
-    loginPage.throwIfInvalid()
-    searchPage.verifyOn()
-  }
-
-  private suspend fun logout() {
-    try {
-      driver.navigate().to("$ppudUrl$relativeLogoutUrl")
-    } catch (ex: Exception) {
-      log.error("Error attempting to log out of PPUD", ex)
     }
   }
 
@@ -419,25 +373,6 @@ internal class PpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.navigate().to("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
-  }
-
-  private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
-    return if (lookupName == LookupName.Genders) {
-      extractGenderLookupValues()
-    } else {
-      extractAdminPageLookupValues(lookupName)
-    }
-  }
-
-  private fun extractGenderLookupValues(): List<String> {
-    return searchPage.genderValues()
-  }
-
-  private fun extractAdminPageLookupValues(lookupName: LookupName): List<String> {
-    driver.navigate().to("$ppudUrl${adminPage.urlPath}")
-    adminPage.verifyOn()
-    adminPage.goToEditLookups()
-    return editLookupsPage.extractLookupValues(lookupName)
   }
 
   private fun navigateToMatchingSentence(request: CreateOrUpdateSentenceRequest): Boolean {
