@@ -33,14 +33,14 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.CreateSentenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import java.util.UUID
 
 @RestController
 @RequestScope
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class OffenderController(private val ppudClient: PpudClient) {
+internal class OffenderController(private val ppudClient: OperationalPpudClient) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

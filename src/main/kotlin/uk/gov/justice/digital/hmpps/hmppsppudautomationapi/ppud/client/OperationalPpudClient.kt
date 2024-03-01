@@ -39,7 +39,7 @@ import java.time.LocalDateTime
 
 @Component
 @RequestScope
-internal class PpudClient(
+internal class OperationalPpudClient(
   @Value("\${ppud.url}") ppudUrl: String,
   @Value("\${ppud.username}") ppudUsername: String,
   @Value("\${ppud.password}") ppudPassword: String,

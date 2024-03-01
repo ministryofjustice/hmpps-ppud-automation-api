@@ -117,7 +117,7 @@ class PpudClientTest {
 
   private lateinit var ppudAdminPassword: String
 
-  private lateinit var client: PpudClient
+  private lateinit var client: OperationalPpudClient
 
   @BeforeEach
   fun beforeEach() {
@@ -125,7 +125,7 @@ class PpudClientTest {
     ppudPassword = randomString("password")
     ppudAdminUsername = randomString("adminUsername")
     ppudAdminPassword = randomString("adminPassword")
-    client = PpudClient(
+    client = OperationalPpudClient(
       ppudUrl,
       ppudUsername,
       ppudPassword,
