@@ -44,60 +44,51 @@ internal class ReferenceServiceImpl(
 
   @Cacheable(CUSTODY_TYPES_CACHE_NAME)
   override suspend fun retrieveCustodyTypes(): List<String> {
-    log.info("Retrieving '$CUSTODY_TYPES_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.CustodyTypes)
   }
 
   @Cacheable(ESTABLISHMENTS_CACHE_NAME)
   override suspend fun retrieveEstablishments(): List<String> {
-    log.info("Retrieving '$ESTABLISHMENTS_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.Establishments)
   }
 
   @Cacheable(ETHNICITIES_CACHE_NAME)
   override suspend fun retrieveEthnicities(): List<String> {
-    log.info("Retrieving '$ETHNICITIES_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.Ethnicities)
   }
 
   @Cacheable(GENDERS_CACHE_NAME)
   override suspend fun retrieveGenders(): List<String> {
-    log.info("Retrieving '$GENDERS_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.Genders)
   }
 
   @Cacheable(INDEX_OFFENCES_CACHE_NAME)
   override suspend fun retrieveIndexOffences(): List<String> {
-    log.info("Retrieving '$INDEX_OFFENCES_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.IndexOffences)
   }
 
   @Cacheable(MAPPA_LEVELS_CACHE_NAME)
   override suspend fun retrieveMappaLevels(): List<String> {
-    log.info("Retrieving '$MAPPA_LEVELS_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.MappaLevels)
   }
 
   @Cacheable(POLICE_FORCES_CACHE_NAME)
   override suspend fun retrievePoliceForces(): List<String> {
-    log.info("Retrieving '$POLICE_FORCES_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.PoliceForces)
   }
 
   @Cacheable(PROBATION_SERVICES_CACHE_NAME)
   override suspend fun retrieveProbationServices(): List<String> {
-    log.info("Retrieving '$PROBATION_SERVICES_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.ProbationServices)
   }
 
   @Cacheable(RELEASED_UNDERS_CACHE_NAME)
   override suspend fun retrieveReleasedUnders(): List<String> {
-    log.info("Retrieving '$RELEASED_UNDERS_CACHE_NAME'")
     return ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
   }
 
   private suspend fun refreshReferenceData(lookupName: LookupName) {
-    log.info("Refreshing '$lookupName'")
+    log.info("Refreshing cache '$lookupName'")
     val values = ppudClient.retrieveLookupValues(lookupName)
     cacheManager.getCache(lookupName.name)?.put(SimpleKey.EMPTY, values) ?: throw RuntimeException("Cache '${lookupName.name}' not found")
   }
