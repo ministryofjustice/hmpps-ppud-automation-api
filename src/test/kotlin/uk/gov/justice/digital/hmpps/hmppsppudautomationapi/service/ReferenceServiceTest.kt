@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(SpringExtension::class)
@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 class ReferenceServiceTest {
 
   @MockBean
-  private lateinit var ppudClient: PpudClient
+  private lateinit var ppudClient: ReferenceDataPpudClient
 
   @Autowired
   private lateinit var service: ReferenceService
@@ -56,7 +56,7 @@ class ReferenceServiceTest {
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager(*Companion.cacheNames)
 
     @Bean
-    fun referenceService(ppudClient: PpudClient, cacheManager: CacheManager): ReferenceService =
+    fun referenceService(ppudClient: ReferenceDataPpudClient, cacheManager: CacheManager): ReferenceService =
       ReferenceServiceImpl(ppudClient, cacheManager)
   }
 

@@ -8,7 +8,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.then
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 
@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 internal class RecallControllerTest {
 
   @Mock
-  lateinit var ppudClient: PpudClient
+  lateinit var ppudClient: OperationalPpudClient
 
   private lateinit var controller: RecallController
 

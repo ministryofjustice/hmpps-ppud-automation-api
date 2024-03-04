@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -27,8 +27,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -53,7 +51,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpda
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomLookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -76,13 +73,7 @@ class PpudClientTest {
   private lateinit var loginPage: LoginPage
 
   @Mock
-  private lateinit var adminPage: AdminPage
-
-  @Mock
   private lateinit var errorPage: ErrorPage
-
-  @Mock
-  private lateinit var editLookupsPage: EditLookupsPage
 
   @Mock
   private lateinit var searchPage: SearchPage
@@ -126,7 +117,7 @@ class PpudClientTest {
 
   private lateinit var ppudAdminPassword: String
 
-  private lateinit var client: PpudClient
+  private lateinit var client: OperationalPpudClient
 
   @BeforeEach
   fun beforeEach() {
@@ -134,25 +125,23 @@ class PpudClientTest {
     ppudPassword = randomString("password")
     ppudAdminUsername = randomString("adminUsername")
     ppudAdminPassword = randomString("adminPassword")
-    client = PpudClient(
+    client = OperationalPpudClient(
       ppudUrl,
       ppudUsername,
       ppudPassword,
       ppudAdminUsername,
       ppudAdminPassword,
       driver,
-      navigationTreeViewComponent,
-      adminPage,
-      editLookupsPage,
       errorPage,
       loginPage,
+      searchPage,
+      navigationTreeViewComponent,
       newOffenderPage,
       offenderPage,
       offencePage,
       postReleasePage,
       recallPage,
       releasePage,
-      searchPage,
       sentencePageFactory,
     )
 
@@ -1012,84 +1001,6 @@ class PpudClientTest {
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$urlForId")
       then(recallPage).should(inOrder).extractRecallDetails()
       assertEquals(recall, result)
-    }
-  }
-
-  @Test
-  fun `given any lookup when retrieveLookupValues is called then log in as admin`() {
-    runBlocking {
-      val lookupName = randomLookupName()
-      given(loginPage.urlPath).willReturn("/login")
-
-      client.retrieveLookupValues(lookupName)
-
-      val inOrder = inOrder(webDriverNavigation, loginPage)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
-      then(loginPage).should(inOrder).login(ppudAdminUsername, ppudAdminPassword)
-    }
-  }
-
-  @Test
-  fun `given lookup is not Genders when retrieveLookupValues is called then logout once done`() {
-    runBlocking {
-      val lookupName = randomLookupName(exclude = listOf(LookupName.Genders))
-
-      client.retrieveLookupValues(lookupName)
-
-      val inOrder = inOrder(editLookupsPage, webDriverNavigation)
-      then(editLookupsPage).should(inOrder).extractLookupValues(any())
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given lookup is Genders when retrieveLookupValues is called then logout once done`() {
-    runBlocking {
-      val lookupName = LookupName.Genders
-
-      client.retrieveLookupValues(lookupName)
-
-      val inOrder = inOrder(searchPage, webDriverNavigation)
-      then(searchPage).should(inOrder).genderValues()
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given lookup is not Genders when retrieveLookupValues is called then navigate to edit lookups and extract values`() {
-    runBlocking {
-      val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = randomLookupName(exclude = listOf(LookupName.Genders))
-      given(loginPage.urlPath).willReturn("/login")
-      given(adminPage.urlPath).willReturn("/adminPage")
-      given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
-
-      val result = client.retrieveLookupValues(lookupName)
-
-      val inOrder = inOrder(webDriverNavigation, adminPage, editLookupsPage)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/adminPage")
-      then(adminPage).should(inOrder).goToEditLookups()
-      then(editLookupsPage).should(inOrder).extractLookupValues(lookupName)
-      assertEquals(values, result)
-    }
-  }
-
-  @Test
-  fun `given lookup is Genders when retrieveLookupValues is called then navigate to search page and extract values`() {
-    runBlocking {
-      val values = listOf(randomString(), randomString(), randomString())
-      val lookupName = LookupName.Genders
-      given(loginPage.urlPath).willReturn("/login")
-      given(searchPage.genderValues()).willReturn(values)
-
-      val result = client.retrieveLookupValues(lookupName)
-
-      val inOrder = inOrder(webDriverNavigation, searchPage)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
-      then(searchPage).should(inOrder).verifyOn()
-      then(searchPage).should(inOrder).genderValues()
-      assertEquals(values, result)
     }
   }
 

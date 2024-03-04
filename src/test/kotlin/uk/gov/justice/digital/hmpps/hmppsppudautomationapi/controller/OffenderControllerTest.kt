@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.PpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
@@ -31,7 +31,7 @@ import java.util.UUID
 internal class OffenderControllerTest {
 
   @Mock
-  lateinit var ppudClient: PpudClient
+  lateinit var ppudClient: OperationalPpudClient
 
   @Mock
   lateinit var createdOffender: CreatedOffender
