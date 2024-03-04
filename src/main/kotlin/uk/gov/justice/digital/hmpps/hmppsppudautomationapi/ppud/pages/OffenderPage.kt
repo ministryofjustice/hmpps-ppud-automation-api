@@ -8,7 +8,6 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
@@ -27,7 +26,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-@RequestScope
 internal class OffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

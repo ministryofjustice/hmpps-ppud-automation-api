@@ -4,11 +4,9 @@ import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 
 @Component
-@RequestScope
 internal class ErrorPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

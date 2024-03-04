@@ -9,14 +9,12 @@ import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-@RequestScope
 internal class SearchPage(private val driver: WebDriver) {
 
   private val title = "Search"

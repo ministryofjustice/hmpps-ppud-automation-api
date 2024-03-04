@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
@@ -37,7 +36,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.Operation
 import java.util.UUID
 
 @RestController
-@RequestScope
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 internal class OffenderController(private val ppudClient: OperationalPpudClient) {

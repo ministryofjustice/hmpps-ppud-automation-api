@@ -7,11 +7,9 @@ import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 
 @Component
-@RequestScope
 internal class EditLookupsPage(driver: WebDriver) {
 
   @FindBy(id = "content_ddlLOVList")

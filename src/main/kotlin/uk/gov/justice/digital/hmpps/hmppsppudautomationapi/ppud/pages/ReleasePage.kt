@@ -8,7 +8,6 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
@@ -20,7 +19,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-@RequestScope
 internal class ReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

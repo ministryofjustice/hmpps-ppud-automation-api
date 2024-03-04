@@ -5,12 +5,10 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.interceptor.SimpleKey
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
 
 @Component
-@RequestScope
 internal class ReferenceServiceImpl(
   private val ppudClient: ReferenceDataPpudClient,
   private val cacheManager: CacheManager,
@@ -85,6 +83,10 @@ internal class ReferenceServiceImpl(
   @Cacheable(RELEASED_UNDERS_CACHE_NAME)
   override suspend fun retrieveReleasedUnders(): List<String> {
     return ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
+  }
+
+  override fun quit() {
+    ppudClient.quit()
   }
 
   private suspend fun refreshReferenceData(lookupName: LookupName) {

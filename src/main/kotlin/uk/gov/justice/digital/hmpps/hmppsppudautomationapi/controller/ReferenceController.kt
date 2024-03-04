@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.ReferenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 
 @RestController
-@RequestScope
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 internal class ReferenceController(private val referenceService: ReferenceService) {

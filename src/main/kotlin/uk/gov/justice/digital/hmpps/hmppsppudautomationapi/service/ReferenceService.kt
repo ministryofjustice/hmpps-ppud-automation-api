@@ -22,4 +22,6 @@ interface ReferenceService {
   suspend fun retrieveProbationServices(): List<String>
 
   suspend fun retrieveReleasedUnders(): List<String>
+
+  fun quit()
 }
