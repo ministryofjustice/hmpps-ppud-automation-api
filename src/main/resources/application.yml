@@ -98,7 +98,7 @@ automation:
     binary: ''
 
 cache:
-  timeToLiveSeconds: 20
+  timeToLiveSeconds: 120
 
 hmpps:
   auth:

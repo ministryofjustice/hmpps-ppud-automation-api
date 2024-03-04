@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
 interface ReferenceService {
   fun clearCaches()
 
+  suspend fun refreshCaches()
+
   suspend fun retrieveCustodyTypes(): List<String>
 
   suspend fun retrieveEstablishments(): List<String>
