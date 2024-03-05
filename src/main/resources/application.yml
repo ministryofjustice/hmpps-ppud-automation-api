@@ -102,4 +102,4 @@ cache:
 
 hmpps:
   auth:
-    url: http://localhost:9090/auth
+    url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth

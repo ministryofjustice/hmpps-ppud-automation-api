@@ -50,6 +50,9 @@ docker-compose up redis
 
 Start the service in IntelliJ
 
+The service will use the Auth service in the Dev environment, so tokens can be obtained
+by using the client ID and secret for a calling service (i.e. make-recall-decision-api).
+
 ## Testing
 
 The project uses a couple of testing levels - unit testing and integration testing.
