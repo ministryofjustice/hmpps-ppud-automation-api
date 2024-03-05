@@ -8,7 +8,6 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Contact
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.ContactWithTelephone
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
@@ -19,7 +18,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.Pa
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 
 @Component
-@RequestScope
 internal class PostReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

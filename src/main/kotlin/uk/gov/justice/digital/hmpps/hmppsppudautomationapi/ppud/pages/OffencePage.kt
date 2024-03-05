@@ -5,7 +5,6 @@ import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
@@ -14,7 +13,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-@RequestScope
 internal class OffencePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

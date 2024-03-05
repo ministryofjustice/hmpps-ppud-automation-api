@@ -8,12 +8,10 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import java.time.Duration
 
 @Component
-@RequestScope
 internal class LoginPage(private val driver: WebDriver) {
 
   val urlPath = "/Secure/MJSLogin.aspx"

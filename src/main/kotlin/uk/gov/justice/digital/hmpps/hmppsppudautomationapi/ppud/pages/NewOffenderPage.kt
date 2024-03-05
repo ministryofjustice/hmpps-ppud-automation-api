@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
@@ -18,7 +17,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCal
 import java.time.Duration
 
 @Component
-@RequestScope
 internal class NewOffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

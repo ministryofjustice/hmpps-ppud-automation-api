@@ -36,6 +36,15 @@ internal class ReferenceControllerTest {
   }
 
   @Test
+  fun `when refreshCaches is called then reference service is invoked to refresh caches`() {
+    runBlocking {
+      controller.refreshCaches()
+
+      then(referenceService).should().refreshCaches()
+    }
+  }
+
+  @Test
   fun `when custodyTypes is called then reference service is invoked and results returned`() {
     runBlocking {
       // Only returning Determinate for now until we can handle other types

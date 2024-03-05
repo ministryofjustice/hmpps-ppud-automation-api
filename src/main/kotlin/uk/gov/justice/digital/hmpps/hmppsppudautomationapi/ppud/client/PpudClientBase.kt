@@ -46,6 +46,10 @@ internal abstract class PpudClientBase(
     return result
   }
 
+  fun quit() {
+    driver.quit()
+  }
+
   private fun loginAsAdmin() {
     login(ppudAdminUsername, ppudAdminPassword)
   }

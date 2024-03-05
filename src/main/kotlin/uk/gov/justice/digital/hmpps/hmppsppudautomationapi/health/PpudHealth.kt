@@ -8,13 +8,11 @@ import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
 
 @Component("ppud")
-@RequestScope
 class PpudHealth(
   @Qualifier(value = "healthCheckWebClient") private val webClient: WebClient,
   @Value("\${ppud.health.path}") private val path: String,

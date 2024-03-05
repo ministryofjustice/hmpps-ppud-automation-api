@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 
 @RestController
-@RequestScope
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 internal class RecallController(private val ppudClient: OperationalPpudClient) {

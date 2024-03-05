@@ -10,7 +10,6 @@ import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
@@ -25,7 +24,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Component
-@RequestScope
 internal class RecallPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,

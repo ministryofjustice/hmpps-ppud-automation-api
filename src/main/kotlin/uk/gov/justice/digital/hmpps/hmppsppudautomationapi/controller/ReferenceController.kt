@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -9,12 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.ReferenceResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 
 @RestController
-@RequestScope
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 internal class ReferenceController(private val referenceService: ReferenceService) {
@@ -24,9 +23,24 @@ internal class ReferenceController(private val referenceService: ReferenceServic
   }
 
   @PostMapping("/reference/clear-caches")
+  @Operation(
+    summary = "Clear cached reference data",
+    description = "Clear any cached reference data, meaning that the service will be forced to retrieve" +
+      " values from PPUD when the next reference data request is made.",
+  )
   fun clearCaches() {
     log.info("Reference data clear-caches endpoint hit")
     referenceService.clearCaches()
+  }
+
+  @PostMapping("/reference/refresh-caches")
+  @Operation(
+    summary = "Refresh cached reference data",
+    description = "Retrieve the latest reference data values from PPUD and update the cache.",
+  )
+  suspend fun refreshCaches() {
+    log.info("Reference data refresh-caches endpoint hit")
+    referenceService.refreshCaches()
   }
 
   @GetMapping("/reference/custody-types")
