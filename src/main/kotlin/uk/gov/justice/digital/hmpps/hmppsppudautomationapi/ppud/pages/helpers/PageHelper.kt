@@ -135,7 +135,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
 
   fun waitForDropdownPopulation(driver: WebDriver, dropdown: WebElement) {
     val dropdownAsSelect = Select(dropdown)
-    WebDriverWait(driver, Duration.ofSeconds(2))
+    WebDriverWait(driver, Duration.ofSeconds(5))
       .until { dropdownAsSelect.options.any() }
   }
 
