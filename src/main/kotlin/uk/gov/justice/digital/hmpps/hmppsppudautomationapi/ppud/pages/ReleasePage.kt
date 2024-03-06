@@ -77,7 +77,7 @@ internal class ReleasePage(
       completeNonKeyFields()
 
       // Complete fields that have been updated/refreshed.
-      pageHelper.waitForDropdownPopulation(driver, releasedFromDropdown)
+      pageHelper.waitForDropdownPopulation(releasedFromDropdown)
       pageHelper.selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
 
       saveButton.click()
@@ -103,7 +103,7 @@ internal class ReleasePage(
   }
 
   fun extractReleaseId(): String {
-    return pageHelper.extractId(driver, pageDescription)
+    return pageHelper.extractId(pageDescription)
   }
 
   fun throwIfInvalid() {
@@ -118,7 +118,7 @@ internal class ReleasePage(
   }
 
   private fun determinePostReleaseLink(): String {
-    val releaseId = pageHelper.extractId(driver, pageDescription)
+    val releaseId = pageHelper.extractId(pageDescription)
     return navigationTreeViewComponent
       .findPostReleaseNodeFor(releaseId)
       .getAttribute("igurl")

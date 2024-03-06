@@ -118,7 +118,7 @@ internal class SentenceDeterminatePage(
 
   override fun extractCreatedSentenceDetails(): CreatedSentence {
     return CreatedSentence(
-      id = pageHelper.extractId(driver, pageDescription),
+      id = pageHelper.extractId(pageDescription),
     )
   }
 
@@ -131,7 +131,7 @@ internal class SentenceDeterminatePage(
     val offenceLink = determineOffenceLink()
     return with(pageHelper) {
       Sentence(
-        id = extractId(driver, pageDescription),
+        id = extractId(pageDescription),
         custodyType = readSelectedOption(custodyTypeDropdown),
         dateOfSentence = readDate(dateOfSentenceInput),
         espCustodialPeriod = EspPeriod(

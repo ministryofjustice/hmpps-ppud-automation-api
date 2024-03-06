@@ -172,10 +172,10 @@ internal class OffenderPage(
     pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, updateOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.clear()
     familyNameInput.sendKeys(updateOffenderRequest.familyName)
-    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(nomsIdInput)
     firstNamesInput.clear()
     firstNamesInput.sendKeys(updateOffenderRequest.firstNames)
-    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(nomsIdInput)
     pageHelper.selectDropdownOptionIfNotBlankIgnoringSpaces(genderDropdown, updateOffenderRequest.gender, "gender")
     pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.clear()
@@ -203,7 +203,7 @@ internal class OffenderPage(
 
   fun deleteOffender() {
     deleteButton.click()
-    pageHelper.dismissConfirmDeleteAlert(driver)
+    pageHelper.dismissConfirmDeleteAlert()
   }
 
   fun extractCreatedOffenderDetails(sentenceExtractor: (String) -> CreatedSentence): CreatedOffender {
@@ -263,7 +263,7 @@ internal class OffenderPage(
     if (driver.title.equals("invalid url", ignoreCase = true)) {
       throw InvalidOffenderIdException("Attempted to navigate to an invalid URL. This is probably due to an invalid offender ID.")
     }
-    if (pageHelper.isCustomErrorUrl(driver)) {
+    if (pageHelper.isCustomErrorUrl()) {
       throw AutomationException("Unable to view offender. An error occurred in PPUD.")
     }
   }
@@ -276,7 +276,7 @@ internal class OffenderPage(
       .map { it.getAttribute("igurl") }
   }
 
-  private fun extractOffenderId() = pageHelper.extractId(driver, "existing offender page")
+  private fun extractOffenderId() = pageHelper.extractId("existing offender page")
 
   private fun enterCaseworkerText(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
@@ -286,7 +286,7 @@ internal class OffenderPage(
 
   private fun selectCaseworkerMatch(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
-    pageHelper.waitForDropdownPopulation(driver, caseworkerDropdown)
+    pageHelper.waitForDropdownPopulation(caseworkerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       caseworkerDropdown,
       caseworker,

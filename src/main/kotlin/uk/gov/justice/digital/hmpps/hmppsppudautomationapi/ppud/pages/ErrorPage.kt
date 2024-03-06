@@ -16,12 +16,12 @@ internal class ErrorPage(
     get() = driver.findElements(By.xpath("//body")).firstOrNull()
 
   fun isShown(): Boolean {
-    return pageHelper.isCustomErrorUrl(driver) ||
+    return pageHelper.isCustomErrorUrl() ||
       body?.text?.startsWith("Server Error in") == true
   }
 
   fun extractErrorDetails(): String {
-    return if (pageHelper.isCustomErrorUrl(driver)) {
+    return if (pageHelper.isCustomErrorUrl()) {
       "An error has occurred"
     } else {
       driver.title

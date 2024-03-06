@@ -42,14 +42,14 @@ internal abstract class SentencePage(
   abstract fun throwIfInvalid()
 
   protected fun determineOffenceLink(): String {
-    val sentenceId = pageHelper.extractId(driver, pageDescription)
+    val sentenceId = pageHelper.extractId(pageDescription)
     return navigationTreeViewComponent
       .findOffenceNodeFor(sentenceId)
       .url
   }
 
   protected fun determineReleaseLinks(includeEmptyReleases: Boolean): List<String> {
-    val sentenceId = pageHelper.extractId(driver, pageDescription)
+    val sentenceId = pageHelper.extractId(pageDescription)
     return navigationTreeViewComponent.extractReleaseLinks(sentenceId, includeEmptyReleases)
   }
 }

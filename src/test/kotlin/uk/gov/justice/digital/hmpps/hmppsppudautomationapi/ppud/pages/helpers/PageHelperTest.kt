@@ -16,6 +16,7 @@ import org.mockito.BDDMockito.then
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.never
+import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
@@ -28,6 +29,9 @@ import kotlin.random.Random
 class PageHelperTest {
 
   @Mock
+  private lateinit var driver: WebDriver
+
+  @Mock
   private lateinit var element: WebElement
 
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -36,7 +40,7 @@ class PageHelperTest {
 
   @BeforeEach
   fun beforeEach() {
-    pageHelper = PageHelper(dateFormatter)
+    pageHelper = PageHelper(driver, dateFormatter)
   }
 
   @ParameterizedTest
