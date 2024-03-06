@@ -177,13 +177,11 @@ internal class RecallPage(
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
-    pageHelper.waitForDropdownPopulation(recommendedToOwnerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
       createRecallRequest.recommendedTo.formattedFullNameAndTeam,
       "recommended to owner",
     )
-    pageHelper.waitForDropdownPopulation(revocationIssuedByOwnerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       revocationIssuedByOwnerDropdown,
       revocationIssuedByOwner,
