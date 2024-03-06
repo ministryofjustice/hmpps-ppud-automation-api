@@ -64,7 +64,7 @@ internal class SentenceIndeterminatePage(
     val offenceLink = determineOffenceLink()
     val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     return Sentence(
-      id = pageHelper.extractId(driver, pageDescription),
+      id = pageHelper.extractId(pageDescription),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
       dateOfSentence = pageHelper.readDate(dateOfSentenceInput),
       espCustodialPeriod = null,

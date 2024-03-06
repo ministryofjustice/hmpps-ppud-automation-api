@@ -12,7 +12,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
-class PageHelper(private val dateFormatter: DateTimeFormatter) {
+class PageHelper(
+  private val driver: WebDriver,
+  private val dateFormatter: DateTimeFormatter,
+) {
 
   companion object {
     fun WebElement.getValue(): String {
@@ -20,7 +23,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     }
   }
 
-  fun dismissConfirmDeleteAlert(driver: WebDriver) {
+  fun dismissConfirmDeleteAlert() {
     val alert = driver.switchTo().alert()
     if (alert.text.contains("This will delete the whole record", ignoreCase = true)) {
       alert.accept()
@@ -29,7 +32,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     }
   }
 
-  fun dismissCheckCapitalisationAlert(driver: WebDriver, nextElement: WebElement) {
+  fun dismissCheckCapitalisationAlert(nextElement: WebElement) {
     try {
       nextElement.click()
       val alert = driver.switchTo().alert()
@@ -69,7 +72,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     }
   }
 
-  fun extractId(driver: WebDriver, pageDescription: String): String {
+  fun extractId(pageDescription: String): String {
     val url = driver.currentUrl
     val idMatch = Regex(".+?data=(.+)").find(url)
       ?: throw AutomationException("Expected the $pageDescription but URL was '$url'")
@@ -77,7 +80,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     return id
   }
 
-  fun isCustomErrorUrl(driver: WebDriver): Boolean {
+  fun isCustomErrorUrl(): Boolean {
     return driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)
   }
 
@@ -133,7 +136,7 @@ class PageHelper(private val dateFormatter: DateTimeFormatter) {
     }
   }
 
-  fun waitForDropdownPopulation(driver: WebDriver, dropdown: WebElement) {
+  fun waitForDropdownPopulation(dropdown: WebElement) {
     val dropdownAsSelect = Select(dropdown)
     WebDriverWait(driver, Duration.ofSeconds(5))
       .until { dropdownAsSelect.options.any() }

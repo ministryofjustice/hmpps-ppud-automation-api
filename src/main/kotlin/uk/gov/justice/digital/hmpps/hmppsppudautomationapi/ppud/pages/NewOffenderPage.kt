@@ -133,9 +133,9 @@ internal class NewOffenderPage(
     pageHelper.enterDate(dateOfSentenceInput, createOffenderRequest.dateOfSentence)
     pageHelper.selectDropdownOptionIfNotBlank(ethnicityDropdown, createOffenderRequest.ethnicity, "ethnicity")
     familyNameInput.sendKeys(createOffenderRequest.familyName)
-    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(nomsIdInput)
     firstNamesInput.sendKeys(createOffenderRequest.firstNames)
-    pageHelper.dismissCheckCapitalisationAlert(driver, nomsIdInput)
+    pageHelper.dismissCheckCapitalisationAlert(nomsIdInput)
     pageHelper.selectDropdownOptionIfNotBlankIgnoringSpaces(genderDropdown, createOffenderRequest.gender, "gender")
     pageHelper.selectDropdownOptionIfNotBlank(immigrationStatusDropdown, immigrationStatus, "immigration status")
     nomsIdInput.sendKeys(createOffenderRequest.nomsId)
@@ -148,9 +148,9 @@ internal class NewOffenderPage(
     }
 
     // Complete fields that have been updated/refreshed.
-    pageHelper.waitForDropdownPopulation(driver, indexOffenceDropdown)
+    pageHelper.waitForDropdownPopulation(indexOffenceDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
-    pageHelper.waitForDropdownPopulation(driver, mappaLevelDropdown)
+    pageHelper.waitForDropdownPopulation(mappaLevelDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
 
     saveButton.click()

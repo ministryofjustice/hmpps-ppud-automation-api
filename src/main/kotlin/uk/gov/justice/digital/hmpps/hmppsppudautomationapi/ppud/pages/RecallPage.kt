@@ -177,13 +177,13 @@ internal class RecallPage(
     checkAllMissingMandatoryDocuments()
 
     // Complete fields that have been updated/refreshed.
-    pageHelper.waitForDropdownPopulation(driver, recommendedToOwnerDropdown)
+    pageHelper.waitForDropdownPopulation(recommendedToOwnerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       recommendedToOwnerDropdown,
       createRecallRequest.recommendedTo.formattedFullNameAndTeam,
       "recommended to owner",
     )
-    pageHelper.waitForDropdownPopulation(driver, revocationIssuedByOwnerDropdown)
+    pageHelper.waitForDropdownPopulation(revocationIssuedByOwnerDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(
       revocationIssuedByOwnerDropdown,
       revocationIssuedByOwner,
@@ -262,7 +262,7 @@ internal class RecallPage(
     saveMinuteButton.click()
   }
 
-  private fun extractRecallId() = pageHelper.extractId(driver, pageDescription)
+  private fun extractRecallId() = pageHelper.extractId(pageDescription)
 
   private fun removeTeamName(nameWithTeam: String) = nameWithTeam.takeWhile { (it == '(').not() }
 }

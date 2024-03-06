@@ -100,7 +100,7 @@ internal class ComponentConfiguration {
     @Value("\${ppud.admin.username}") ppudAdminUsername: String,
     @Value("\${ppud.admin.password}") ppudAdminPassword: String,
     @Qualifier("scheduledWebDriver") driver: WebDriver,
-    pageHelper: PageHelper,
+    dateFormatter: DateTimeFormatter,
   ): ReferenceDataPpudClient {
     return ReferenceDataPpudClient(
       ppudUrl,
@@ -109,7 +109,7 @@ internal class ComponentConfiguration {
       ppudAdminUsername,
       ppudAdminPassword,
       driver,
-      ErrorPage(driver, pageHelper),
+      ErrorPage(driver, PageHelper(driver, dateFormatter)),
       LoginPage(driver),
       SearchPage(driver),
       AdminPage(driver),
