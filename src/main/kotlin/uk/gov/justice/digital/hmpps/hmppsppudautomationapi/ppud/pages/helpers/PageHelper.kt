@@ -110,6 +110,7 @@ class PageHelper(
   fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {
     if (option?.isNotBlank() == true) {
       val select = Select(dropdown)
+      waitForDropdownPopulation(select, description)
       try {
         select.selectByVisibleText(option)
       } catch (ex: org.openqa.selenium.NoSuchElementException) {
@@ -136,10 +137,13 @@ class PageHelper(
     }
   }
 
-  fun waitForDropdownPopulation(dropdown: WebElement) {
-    val dropdownAsSelect = Select(dropdown)
-    WebDriverWait(driver, Duration.ofSeconds(5))
-      .until { dropdownAsSelect.options.any() }
+  private fun waitForDropdownPopulation(dropdownAsSelect: Select, description: String) {
+    try {
+      WebDriverWait(driver, Duration.ofSeconds(5))
+        .until { dropdownAsSelect.options.any() }
+    } catch (ex: Exception) {
+      throw AutomationException("Dropdown '$description' was not populated with options.", ex)
+    }
   }
 
   private fun String.removeSpaces(): String = this.replace(" ", "")

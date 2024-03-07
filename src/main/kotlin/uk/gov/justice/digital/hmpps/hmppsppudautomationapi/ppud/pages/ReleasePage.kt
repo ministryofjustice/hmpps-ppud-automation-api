@@ -77,7 +77,6 @@ internal class ReleasePage(
       completeNonKeyFields()
 
       // Complete fields that have been updated/refreshed.
-      pageHelper.waitForDropdownPopulation(releasedFromDropdown)
       pageHelper.selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
 
       saveButton.click()

@@ -37,7 +37,6 @@ internal class OffencePage(
   fun updateOffence(request: UpdateOffenceRequest) {
     pageHelper.enterText(indexOffenceInput, request.indexOffence)
     pageHelper.enterDate(dateOfIndexOffenceInput, request.dateOfIndexOffence)
-    pageHelper.waitForDropdownPopulation(indexOffenceDropdown)
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, request.indexOffence, "index offence")
 
     saveButton.click()

@@ -286,12 +286,7 @@ internal class OffenderPage(
 
   private fun selectCaseworkerMatch(isInCustody: Boolean) {
     val caseworker = caseworkers.getValue(isInCustody)
-    pageHelper.waitForDropdownPopulation(caseworkerDropdown)
-    pageHelper.selectDropdownOptionIfNotBlank(
-      caseworkerDropdown,
-      caseworker,
-      "caseworker",
-    )
+    pageHelper.selectDropdownOptionIfNotBlank(caseworkerDropdown, caseworker, "caseworker")
   }
 
   private fun enterAddress(address: OffenderAddress) {

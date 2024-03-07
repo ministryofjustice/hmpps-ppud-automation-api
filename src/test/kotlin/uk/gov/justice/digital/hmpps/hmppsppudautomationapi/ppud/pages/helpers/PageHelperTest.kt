@@ -34,6 +34,9 @@ class PageHelperTest {
   @Mock
   private lateinit var element: WebElement
 
+  @Mock
+  private lateinit var optionElement: WebElement
+
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
   private lateinit var pageHelper: PageHelper
@@ -157,6 +160,9 @@ class PageHelperTest {
   @Test
   fun `given an unmatched dropdown option value when selectDropdownOptionIfNotBlank is called then friendly exception is thrown`() {
     given(element.tagName).willReturn("select")
+    given(element.findElements(any()))
+      .willReturn(listOf(optionElement))
+      .willReturn(listOf())
     given(element.isEnabled).willReturn(true)
     val option = randomString()
     val description = randomString()
@@ -164,6 +170,17 @@ class PageHelperTest {
       pageHelper.selectDropdownOptionIfNotBlank(element, option, description)
     }
     assertEquals("Cannot locate $description option with text '$option'", exception.message)
+  }
+
+  @Test
+  fun `given no options in dropdown when selectDropdownOptionIfNotBlank is called then friendly exception is thrown`() {
+    given(element.tagName).willReturn("select")
+    given(element.findElements(any())).willReturn(listOf())
+    val description = randomString()
+    val exception = assertThrows<AutomationException> {
+      pageHelper.selectDropdownOptionIfNotBlank(element, randomString(), description)
+    }
+    assertEquals("Dropdown '$description' was not populated with options.", exception.message)
   }
 
   @ParameterizedTest
