@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import io.swagger.v3.oas.annotations.Hidden
-import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 // TODO: Delete this when finished testing ingress timeouts
 @RestController
@@ -28,7 +28,7 @@ internal class TimeoutController {
   @Hidden
   suspend fun timeoutTestPost(@PathVariable(required = true) seconds: Long): ResponseEntity<String> {
     log.info("Post timeout endpoint hit")
-    delay(seconds * 1000)
+    waitFor(seconds)
     log.info("Post delay completed")
     return ResponseEntity("Done", HttpStatus.OK)
   }
@@ -37,7 +37,7 @@ internal class TimeoutController {
   @Hidden
   suspend fun timeoutTestPut(@PathVariable(required = true) seconds: Long): ResponseEntity<String> {
     log.info("Put timeout endpoint hit")
-    delay(seconds * 1000)
+    waitFor(seconds)
     log.info("Put delay completed")
     return ResponseEntity("Done", HttpStatus.OK)
   }
@@ -46,8 +46,16 @@ internal class TimeoutController {
   @Hidden
   suspend fun timeoutTestGet(@PathVariable(required = true) seconds: Long): ResponseEntity<String> {
     log.info("Get timeout endpoint hit")
-    delay(seconds * 1000)
+    waitFor(seconds)
     log.info("Get delay completed")
     return ResponseEntity("Done", HttpStatus.OK)
+  }
+
+  private fun waitFor(seconds: Long)
+  {
+    val end = LocalDateTime.now().plusSeconds(seconds)
+    while (LocalDateTime.now() < end) {
+      Thread.sleep(250)
+    }
   }
 }
