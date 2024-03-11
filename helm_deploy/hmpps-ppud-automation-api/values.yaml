@@ -13,6 +13,8 @@ generic-service:
     enabled: true
     host: app-hostname.local # override per environment
     tlsSecretName: hmpps-ppud-automation-api-cert
+    annotations:
+      nginx.org/proxy-read-timeout: "120s"
 
   # Environment variables to load into the deployment
   env:
