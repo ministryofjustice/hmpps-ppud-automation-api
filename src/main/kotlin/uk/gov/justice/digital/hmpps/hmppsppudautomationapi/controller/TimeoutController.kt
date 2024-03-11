@@ -51,8 +51,7 @@ internal class TimeoutController {
     return ResponseEntity("Done", HttpStatus.OK)
   }
 
-  private fun waitFor(seconds: Long)
-  {
+  private fun waitFor(seconds: Long) {
     val end = LocalDateTime.now().plusSeconds(seconds)
     while (LocalDateTime.now() < end) {
       Thread.sleep(250)
