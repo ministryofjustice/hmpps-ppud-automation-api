@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriverException
 import org.slf4j.LoggerFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
@@ -34,11 +35,17 @@ internal abstract class PpudClientBase(
     }
     val result = try {
       operation()
-    } catch (ex: Exception) {
-      if (ex is WebDriverException && errorPage.isShown()) {
-        throw PpudErrorException("PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'", ex)
+    } catch (ex: WebDriverException) {
+      if (errorPage.isShown()) {
+        throw PpudErrorException(
+          "PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'",
+          ex,
+        )
       } else {
-        throw ex
+        throw AutomationException(
+          "Exception occurred when performing PPUD operation. Current URL is '${driver.currentUrl}'",
+          ex,
+        )
       }
     } finally {
       logout()

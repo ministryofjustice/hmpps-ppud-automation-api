@@ -188,6 +188,25 @@ class PpudClientTest {
   }
 
   @Test
+  fun `given Selenium fails and a PPUD error is not shown when an operation fails then wrap exception and include URL`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any call
+      given(searchPage.searchByCroNumber(any())).willThrow(org.openqa.selenium.NoSuchElementException("Test exception"))
+      given(errorPage.isShown()).willReturn(false)
+      given(driver.currentUrl).willReturn("/current/url")
+
+      val actual = assertThrows<AutomationException> {
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+      }
+      assertEquals("Exception occurred when performing PPUD operation. Current URL is '/current/url'", actual.message)
+      assertTrue(
+        actual.cause?.message?.startsWith("Test exception") == true,
+        "Exception.cause was '${actual.cause?.message}'",
+      )
+    }
+  }
+
+  @Test
   fun `given a PPUD failure when an operation fails then still attempt to logout`() {
     runBlocking {
       // Use search as an example, but this test applies to any call
