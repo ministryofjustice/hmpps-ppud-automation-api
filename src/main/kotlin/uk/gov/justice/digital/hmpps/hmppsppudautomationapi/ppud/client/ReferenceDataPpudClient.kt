@@ -22,6 +22,7 @@ internal class ReferenceDataPpudClient(
   errorPage: ErrorPage,
   loginPage: LoginPage,
   searchPage: SearchPage,
+  @Value("\${ppud.reference.valueToExclude}") private val valueToExclude: String,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
 ) : PpudClientBase(
@@ -64,6 +65,6 @@ internal class ReferenceDataPpudClient(
     driver.navigate().to("$ppudUrl${adminPage.urlPath}")
     adminPage.verifyOn()
     adminPage.goToEditLookups()
-    return editLookupsPage.extractLookupValues(lookupName)
+    return editLookupsPage.extractLookupValues(lookupName).filter { !it.equals(valueToExclude, ignoreCase = true) }
   }
 }
