@@ -73,6 +73,7 @@ internal class ComponentConfiguration {
     errorPage: ErrorPage,
     loginPage: LoginPage,
     searchPage: SearchPage,
+    @Value("\${ppud.reference.valueToExclude}") valueToExclude: String,
     adminPage: AdminPage,
     editLookupsPage: EditLookupsPage,
   ): ReferenceDataPpudClient {
@@ -86,6 +87,7 @@ internal class ComponentConfiguration {
       errorPage,
       loginPage,
       searchPage,
+      valueToExclude,
       adminPage,
       editLookupsPage,
     )
@@ -100,6 +102,7 @@ internal class ComponentConfiguration {
     @Value("\${ppud.admin.username}") ppudAdminUsername: String,
     @Value("\${ppud.admin.password}") ppudAdminPassword: String,
     @Qualifier("scheduledWebDriver") driver: WebDriver,
+    @Value("\${ppud.reference.valueToExclude}") valueToExclude: String,
     dateFormatter: DateTimeFormatter,
   ): ReferenceDataPpudClient {
     return ReferenceDataPpudClient(
@@ -112,6 +115,7 @@ internal class ComponentConfiguration {
       ErrorPage(driver, PageHelper(driver, dateFormatter)),
       LoginPage(driver),
       SearchPage(driver),
+      valueToExclude,
       AdminPage(driver),
       EditLookupsPage(driver),
     )

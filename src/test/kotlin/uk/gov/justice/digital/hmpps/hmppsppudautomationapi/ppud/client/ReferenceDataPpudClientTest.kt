@@ -2,9 +2,12 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
@@ -58,6 +61,8 @@ class ReferenceDataPpudClientTest {
 
   private lateinit var ppudAdminPassword: String
 
+  private val valueToExclude: String = "Value to Exclude"
+
   private lateinit var client: ReferenceDataPpudClient
 
   @BeforeEach
@@ -76,6 +81,7 @@ class ReferenceDataPpudClientTest {
       errorPage,
       loginPage,
       searchPage,
+      valueToExclude,
       adminPage,
       editLookupsPage,
     )
@@ -142,6 +148,23 @@ class ReferenceDataPpudClientTest {
       then(adminPage).should(inOrder).goToEditLookups()
       then(editLookupsPage).should(inOrder).extractLookupValues(lookupName)
       assertEquals(values, result)
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = ["Value to Exclude", "value to exclude"])
+  fun `given lookup is not Genders when retrieveLookupValues is called then exclude configured value from results`(
+    valueToExclude: String,
+  ) {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), valueToExclude, randomString())
+      val lookupName = randomLookupName(exclude = listOf(LookupName.Genders))
+      given(editLookupsPage.extractLookupValues(lookupName)).willReturn(values)
+
+      val result = client.retrieveLookupValues(lookupName)
+
+      assertEquals(values.count() - 1, result.count())
+      assertFalse(result.contains(valueToExclude))
     }
   }
 
