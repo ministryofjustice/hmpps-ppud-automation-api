@@ -2,6 +2,8 @@
 # Per environment values which override defaults in hmpps-ppud-automation-api/values.yaml
 
 generic-service:
+  replicaCount: 8
+
   ingress:
     host: hmpps-ppud-automation-api.hmpps.service.justice.gov.uk
 
