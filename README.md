@@ -81,6 +81,23 @@ or to run linting followed by all tests, similar to running in CI, use:
 ```
 ./build.sh
 ```
+
+### Things to Note About the Tests
+In order to inject a level of independence and avoid clashes with other tests that
+might be running, the integration tests create offenders to use in each test.
+
+These offenders can be identified because their family name is "FamilyName-<UUID>", 
+where <UUID> is an identifier for a particular test run.  At the end of the test run,
+the matching offenders are deleted automatically.
+
+Occasionally, something may happen that means the offenders do not get deleted. This would
+typically be running tests locally and stopping them before they get a chance to tidy up.
+  Perhaps when stepping through to debug something.
+
+Therefore, every so often, it's worth checking that there aren't any "FamilyName-<UUID>" 
+offenders in PPUD, and deleting any that do exist.  They may cause test failures at some
+point if there is a prison number clash.
+
 ## Selenium, Webdriver and Browser
 
 The service is set up to use Firefox as the browser, along with its associated
