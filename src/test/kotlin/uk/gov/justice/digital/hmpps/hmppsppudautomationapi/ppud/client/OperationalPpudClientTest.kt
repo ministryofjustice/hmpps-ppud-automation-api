@@ -58,7 +58,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
-class PpudClientTest {
+class OperationalPpudClientTest {
 
   @Mock
   private lateinit var driver: WebDriver
@@ -692,6 +692,7 @@ class PpudClientTest {
       val inOrder = inOrder(offenderPage, navigationTreeViewComponent, offencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).navigateToOffenceFor(sentenceId)
+      then(offencePage).should(inOrder).verifyOn()
       then(offencePage).should(inOrder).updateOffence(request)
     }
   }
