@@ -4,17 +4,20 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
+import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
 internal class OffencePage(
-  driver: WebDriver,
+  private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
 ) {
@@ -32,6 +35,16 @@ internal class OffencePage(
 
   init {
     PageFactory.initElements(driver, this)
+  }
+
+  fun verifyOn() {
+    WebDriverWait(driver, Duration.ofSeconds(5))
+      .until(
+        ExpectedConditions.and(
+          ExpectedConditions.urlContains("OffenceDetails.aspx"),
+          ExpectedConditions.visibilityOf(indexOffenceInput),
+        ),
+      )
   }
 
   fun updateOffence(request: UpdateOffenceRequest) {

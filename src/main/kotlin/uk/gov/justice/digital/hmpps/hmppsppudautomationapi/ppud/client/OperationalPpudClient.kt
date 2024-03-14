@@ -261,6 +261,7 @@ internal class OperationalPpudClient(
   ) {
     offenderPage.viewOffenderWithId(offenderId)
     navigationTreeViewComponent.navigateToOffenceFor(sentenceId)
+    offencePage.verifyOn()
     offencePage.updateOffence(request)
   }
 
