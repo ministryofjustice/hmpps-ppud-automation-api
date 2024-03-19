@@ -90,7 +90,7 @@ internal class OperationalPpudClient(
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
     log.info("Creating new offender in PPUD Client")
 
-    return performLoggedInOperation {
+    return performLoggedInOperation(disableRetry = true) {
       createOffenderInternal(createOffenderRequest)
     }
   }

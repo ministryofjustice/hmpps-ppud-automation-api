@@ -27,29 +27,29 @@ internal abstract class PpudClientBase(
 
   private val relativeLogoutUrl = "/logout.aspx"
 
-  protected suspend fun <T> performLoggedInOperation(asAdmin: Boolean = false, operation: suspend () -> T): T {
+  protected suspend fun <T> performLoggedInOperation(
+    asAdmin: Boolean = false,
+    disableRetry: Boolean = false,
+    operation: suspend () -> T,
+  ): T {
     if (asAdmin) {
       loginAsAdmin()
     } else {
       login()
     }
+
     val result = try {
-      operation()
-    } catch (ex: WebDriverException) {
-      if (errorPage.isShown()) {
-        throw PpudErrorException(
-          "PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'",
-          ex,
-        )
+      if (disableRetry) {
+        operation.invoke()
       } else {
-        throw AutomationException(
-          "Exception occurred when performing PPUD operation. Current URL is '${driver.currentUrl}'",
-          ex,
-        )
+        operation.invokeWithRetry()
       }
+    } catch (ex: WebDriverException) {
+      throw wrapWebDriverException(ex)
     } finally {
       logout()
     }
+
     return result
   }
 
@@ -74,6 +74,30 @@ internal abstract class PpudClientBase(
       driver.navigate().to("$ppudUrl$relativeLogoutUrl")
     } catch (ex: Exception) {
       log.error("Error attempting to log out of PPUD", ex)
+    }
+  }
+
+  private suspend fun <T> (suspend () -> T).invokeWithRetry(): T {
+    return try {
+      this()
+    } catch (ex: WebDriverException) {
+      val exceptionToLog = wrapWebDriverException(ex)
+      log.error("Exception occurred but operation will be retried.", exceptionToLog)
+      this()
+    }
+  }
+
+  private fun wrapWebDriverException(ex: WebDriverException): AutomationException {
+    return if (errorPage.isShown()) {
+      PpudErrorException(
+        "PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'",
+        ex,
+      )
+    } else {
+      AutomationException(
+        "Exception occurred when performing PPUD operation. Current URL is '${driver.currentUrl}'",
+        ex,
+      )
     }
   }
 }
