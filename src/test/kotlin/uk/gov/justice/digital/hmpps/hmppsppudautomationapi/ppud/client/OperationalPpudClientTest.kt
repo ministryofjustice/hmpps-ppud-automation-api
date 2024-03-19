@@ -15,6 +15,7 @@ import org.mockito.kotlin.given
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
 import org.mockito.kotlin.then
+import org.mockito.kotlin.times
 import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
@@ -165,6 +166,46 @@ class OperationalPpudClientTest {
       val inOrder = inOrder(searchPage, webDriverNavigation)
       then(searchPage).should(inOrder).searchByCroNumber(any())
       then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given Selenium fails when an idempotent operation fails then try again`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any IDEMPOTENT call
+      given(searchPage.searchByCroNumber(any())).willThrow(org.openqa.selenium.NoSuchElementException("Test Selenium exception"))
+
+      assertThrows<AutomationException> {
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+      }
+      then(searchPage).should(times(2)).searchByCroNumber(any())
+    }
+  }
+
+  @Test
+  fun `given Selenium fails when a create offender operation fails then do not try again`() {
+    runBlocking {
+      // Create offender is not idempotent
+      given(newOffenderPage.createOffender(any())).willThrow(org.openqa.selenium.NoSuchElementException("Test Selenium exception"))
+      val createOffenderRequest = generateCreateOffenderRequest()
+
+      assertThrows<AutomationException> {
+        client.createOffender(createOffenderRequest)
+      }
+      then(newOffenderPage).should(times(1)).createOffender(any())
+    }
+  }
+
+  @Test
+  fun `given a non-Selenium fail when an operation fails then do not try again`() {
+    runBlocking {
+      // Use search as an example, but this test applies to any call
+      given(searchPage.searchByCroNumber(any())).willThrow(RuntimeException("Test non-Selenium exception"))
+
+      assertThrows<RuntimeException> {
+        client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
+      }
+      then(searchPage).should(times(1)).searchByCroNumber(any())
     }
   }
 
