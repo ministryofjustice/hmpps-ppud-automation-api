@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import java.time.LocalDate
 
-data class UpdateOffenderRequest(
+class UpdateOffenderRequest(
   val address: OffenderAddress = OffenderAddress(),
   val additionalAddresses: List<OffenderAddress> = emptyList(),
-  val croNumber: String = "",
+  croNumber: String? = null,
   val dateOfBirth: LocalDate,
   @field:NotBlank
   val ethnicity: String,
@@ -18,7 +18,10 @@ data class UpdateOffenderRequest(
   @field:NotBlank
   val gender: String,
   val isInCustody: Boolean,
-  val nomsId: String = "",
+  nomsId: String? = null,
   @field:NotBlank
   val prisonNumber: String,
-)
+) {
+  val croNumber: String = croNumber ?: ""
+  val nomsId: String = nomsId ?: ""
+}

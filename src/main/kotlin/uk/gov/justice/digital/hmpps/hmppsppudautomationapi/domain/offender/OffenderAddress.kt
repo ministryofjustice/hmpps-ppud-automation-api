@@ -1,9 +1,15 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
-data class OffenderAddress(
-  val premises: String = "",
-  val line1: String = "",
-  val line2: String = "",
-  val postcode: String = "",
-  val phoneNumber: String = "",
-)
+class OffenderAddress(
+  premises: String? = null,
+  line1: String? = null,
+  line2: String? = null,
+  postcode: String? = null,
+  phoneNumber: String? = null,
+) {
+  val premises: String = premises ?: ""
+  val line1: String = line1 ?: ""
+  val line2: String = line2 ?: ""
+  val postcode: String = postcode ?: ""
+  val phoneNumber: String = phoneNumber ?: ""
+}

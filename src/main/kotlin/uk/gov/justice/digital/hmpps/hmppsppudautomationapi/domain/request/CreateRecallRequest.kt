@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import java.time.LocalDateTime
 
-data class CreateRecallRequest(
+class CreateRecallRequest(
   val decisionDateTime: LocalDateTime,
   val isExtendedSentence: Boolean,
   val isInCustody: Boolean,
@@ -20,7 +20,9 @@ data class CreateRecallRequest(
   val receivedDateTime: LocalDateTime,
   @field:Valid
   val recommendedTo: PpudUser,
-  val riskOfContrabandDetails: String = "",
+  riskOfContrabandDetails: String? = null,
   @field:NotNull
   val riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel,
-)
+) {
+  val riskOfContrabandDetails: String = riskOfContrabandDetails ?: ""
+}

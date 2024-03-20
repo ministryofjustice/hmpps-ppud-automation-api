@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain
 
-data class Contact(
-  val name: String = "",
-  val faxEmail: String = "",
-)
+class Contact(
+  name: String? = null,
+  faxEmail: String? = null,
+) {
+  val name: String = name ?: ""
+  val faxEmail: String = faxEmail ?: ""
+}
