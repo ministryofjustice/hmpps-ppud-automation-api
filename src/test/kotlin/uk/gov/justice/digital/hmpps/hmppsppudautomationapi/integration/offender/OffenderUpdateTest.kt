@@ -101,7 +101,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given missing optional fields in request body when create offender called then 200 ok is returned`() {
+  fun `given missing optional fields in request body when update offender called then 200 ok is returned`() {
     val testOffenderId = createTestOffenderInPpud()
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"dateOfBirth\":\"${randomDate()}\", " +
@@ -115,6 +115,31 @@ class OffenderUpdateTest : IntegrationTestBase() {
     putOffender(testOffenderId, requestBodyWithOnlyMandatoryFields)
       .expectStatus()
       .isOk
+  }
+
+  @Test
+  fun `given null optional string fields in request body when update offender called then nulls are treated as empty string`() {
+    val testOffenderId = createTestOffenderInPpud()
+    val requestBodyWithNullOptionalFields = "{" +
+      "\"croNumber\":null, " +
+      "\"dateOfBirth\":\"${randomDate()}\", " +
+      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
+      "\"familyName\":\"${FAMILY_NAME_PREFIX}-${testRunId}\", " +
+      "\"firstNames\":\"${randomString("firstNames")}\", " +
+      "\"gender\":\"$PPUD_VALID_GENDER\", " +
+      "\"nomsId\":null, " +
+      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
+      "}"
+
+    putOffender(testOffenderId, requestBodyWithNullOptionalFields)
+      .expectStatus()
+      .isOk
+
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.croOtherNumber").isEqualTo("")
+      .jsonPath("offender.nomsId").isEqualTo("")
   }
 
   @Test

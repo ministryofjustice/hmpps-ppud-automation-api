@@ -127,6 +127,43 @@ class OffenderCreateTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `given null optional string fields in request body when create offender called then nulls are treated as empty strings`() {
+    val requestBodyWithNullOptionalFields = "{" +
+      "\"address\": {" +
+      "\"premises\":null, " +
+      "\"line1\":null, " +
+      "\"line2\":null, " +
+      "\"postcode\":null, " +
+      "\"phoneNumber\":null " +
+      "}, " +
+      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
+      "\"croNumber\":null, " +
+      "\"dateOfBirth\":\"${randomDate()}\", " +
+      "\"dateOfSentence\":\"${randomDate()}\", " +
+      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
+      "\"familyName\":\"$FAMILY_NAME_PREFIX-$testRunId\", " +
+      "\"firstNames\":\"${randomString("firstNames")}\", " +
+      "\"gender\":\"$PPUD_VALID_GENDER\", " +
+      "\"indexOffence\":\"$PPUD_VALID_INDEX_OFFENCE\", " +
+      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\", " +
+      "\"nomsId\":null, " +
+      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
+      "}"
+
+    val createdOffender = testPostOffender(requestBodyWithNullOptionalFields)
+
+    val retrieved = retrieveOffender(createdOffender.id)
+    retrieved.jsonPath("offender.id").isEqualTo(createdOffender.id)
+      .jsonPath("offender.address.premises").isEqualTo("")
+      .jsonPath("offender.address.line1").isEqualTo("")
+      .jsonPath("offender.address.line2").isEqualTo("")
+      .jsonPath("offender.address.postcode").isEqualTo("")
+      .jsonPath("offender.address.phoneNumber").isEqualTo("")
+      .jsonPath("offender.croOtherNumber").isEqualTo("")
+      .jsonPath("offender.nomsId").isEqualTo("")
+  }
+
+  @Test
   fun `given missing token when create offender called then unauthorized is returned`() {
     givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.POST, "/offender")
   }
