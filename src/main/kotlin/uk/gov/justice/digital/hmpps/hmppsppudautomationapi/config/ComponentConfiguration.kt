@@ -34,6 +34,8 @@ import java.time.format.DateTimeFormatter
 internal class ComponentConfiguration {
 
   companion object {
+    const val FIREFOX_PREFERENCE_BLOCK = 2
+
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
@@ -174,6 +176,8 @@ internal class ComponentConfiguration {
     if (headless) {
       options.addArguments("-headless")
     }
+
+    options.addPreference("permissions.default.image", FIREFOX_PREFERENCE_BLOCK)
 
     return WebDriverManager.firefoxdriver().capabilities(options).create()
   }
