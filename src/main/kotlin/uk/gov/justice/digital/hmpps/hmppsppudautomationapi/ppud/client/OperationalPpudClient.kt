@@ -218,6 +218,7 @@ internal class OperationalPpudClient(
     newOffenderPage.verifyOn()
     newOffenderPage.createOffender(createOffenderRequest)
     newOffenderPage.throwIfInvalid()
+    offenderPage.verifyOn()
     offenderPage.updateAdditionalAddresses(createOffenderRequest.additionalAddresses)
     offenderPage.throwIfInvalid()
     return offenderPage.extractCreatedOffenderDetails(::extractCreatedSentence)

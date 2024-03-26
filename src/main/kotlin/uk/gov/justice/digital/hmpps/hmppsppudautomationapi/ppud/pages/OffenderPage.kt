@@ -5,7 +5,9 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
+import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.Select
+import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
@@ -22,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.Pa
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
+import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -156,6 +159,16 @@ internal class OffenderPage(
   fun viewOffenderWithId(offenderId: String) {
     driver.navigate().to("$ppudUrl/Offender/PersonalDetails.aspx?data=$offenderId")
     throwIfErrorViewingOffender()
+  }
+
+  fun verifyOn() {
+    WebDriverWait(driver, Duration.ofSeconds(10))
+      .until(
+        ExpectedConditions.and(
+          ExpectedConditions.urlContains("PersonalDetails.aspx"),
+          ExpectedConditions.visibilityOf(prisonNumberInput),
+        ),
+      )
   }
 
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {

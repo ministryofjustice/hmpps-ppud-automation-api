@@ -483,6 +483,7 @@ class OperationalPpudClientTest {
       then(newOffenderPage).should(inOrder).verifyOn()
       then(newOffenderPage).should(inOrder).createOffender(createOffenderRequest)
       then(newOffenderPage).should(inOrder).throwIfInvalid()
+      then(offenderPage).should(inOrder).verifyOn()
       then(offenderPage).should(inOrder).updateAdditionalAddresses(any())
       then(offenderPage).should(inOrder).throwIfInvalid()
     }
