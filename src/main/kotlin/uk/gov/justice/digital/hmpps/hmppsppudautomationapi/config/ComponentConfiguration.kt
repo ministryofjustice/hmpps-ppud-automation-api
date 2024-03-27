@@ -179,6 +179,10 @@ internal class ComponentConfiguration {
 
     options.addPreference("permissions.default.image", FIREFOX_PREFERENCE_BLOCK)
 
-    return WebDriverManager.firefoxdriver().capabilities(options).create()
+    return WebDriverManager
+      .firefoxdriver()
+      .capabilities(options)
+      .avoidShutdownHook()
+      .create()
   }
 }
