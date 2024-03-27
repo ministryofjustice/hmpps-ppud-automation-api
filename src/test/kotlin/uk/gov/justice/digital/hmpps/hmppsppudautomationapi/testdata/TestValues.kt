@@ -55,8 +55,6 @@ const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test"
 
 const val PPUD_VALID_USER_TEAM = "Recall 1"
 
-const val PPUD_VALID_USER_FULL_NAME_AND_TEAM = "$PPUD_VALID_USER_FULL_NAME($PPUD_VALID_USER_TEAM)"
-
 const val PPUD_IMMIGRATION_STATUS = "Not Applicable"
 
 const val PPUD_LICENCE_TYPE = "Standard"
