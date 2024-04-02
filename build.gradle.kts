@@ -16,13 +16,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.19.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.19.1")
   implementation("io.github.bonigarcia:webdrivermanager:5.7.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("commons-io:commons-io:2.15.1") // Address CVE-2021-29425
+  implementation("commons-io:commons-io:2.16.0") // Address CVE-2021-29425
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -30,7 +30,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.12.5")
