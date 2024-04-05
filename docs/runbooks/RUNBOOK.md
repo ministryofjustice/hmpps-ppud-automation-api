@@ -203,6 +203,8 @@ for operations that can be performed on that page - for example "`createOffender
 `NewOffenderPage`.  The button presses and field entries that are required to achieve
 that are hidden inside the `NewOffenderPage`.
 
+### Troubleshooting
+
 Because of the nature of the interaction, errors may occur that are not expected by
 the PPUD Automation API.  Sometimes these may be because something has gone wrong and
 an expected control is not available on the "screen".  An error like this will
@@ -223,3 +225,51 @@ more than likely be reproducible in the automated tests, provided that appropria
 can be injected.
 
 Help with using Selenium and troubleshooting can be found in the [Selenium Documentation](https://www.selenium.dev/documentation/webdriver/). 
+
+#### Step-by-Step Process
+
+If a user has experienced a failure to book a recall to PPUD, the process for determining what
+exactly has gone wrong would be something along the following lines:
+
+1. Go to App Insights and run the "Failed Requests" query from below.
+This will return any requests that have been unsuccessful.  The `resultCode` in the 
+results will give some indication of the problem - e.g. 400 for an invalid request
+or 500 for an exception.
+2. Copy the `operation_id` from the failed request that you are interested in and 
+click "Transaction Search" in the left hand navigation menu.  Paste the previously
+copied `operation_id` into the search terms box and press enter (make sure that the
+time range is set appropriately). 
+3. The results will show each App Insights entry associated with that 
+`operation_id`. Click one of the entries, then click "View Timeline" and you will
+be presented with a timeline of the whole request.  From here, you will be able to
+determine what has gone wrong.
+4. Any exception will be coloured red. Click on the exception and view the stack
+trace.
+5. The exception message itself might be enough to determine what has gone wrong,
+but if not, examine the stack trace.  You will be able to determine what the problem
+was from the method that has failed and/or the specific line number in the method.
+The specific line number is often useful when it highlights the specific HTML control
+being accessed.
+
+#### Useful App Insights Queries
+
+* Failed Requests - return failed requests, ignoring "clutter"
+```
+requests
+   | where cloud_RoleName == "hmpps-ppud-automation-api"
+   | where success == "False"
+   | where name !has "Health"
+   | where name !has "info"
+   | where name !has "SubscribingRunnable"
+```
+* Failed Requests with Exceptions - failed requests with associated exceptions
+```
+requests
+| where cloud_RoleName == "hmpps-ppud-automation-api"
+| where success == "False"
+| where name !has "Health"
+| where name !has "info"
+| where name !has "SubscribingRunnable"
+| join kind=leftouter exceptions on $left.operation_Id == $right.operation_Id
+| project timestamp, name, resultCode, duration, operation_Id, type, outerMessage 
+```
