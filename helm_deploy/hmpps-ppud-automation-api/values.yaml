@@ -16,6 +16,16 @@ generic-service:
     annotations:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
 
+volumes:
+  - name: docs-volume
+    emptyDir:
+      sizeLimit: 2Gi
+
+volumeMounts:
+  volumeMounts:
+    - mountPath: /docs
+      name: docs-volume
+
   # Environment variables to load into the deployment
   env:
     JAVA_OPTS: "-Xmx512m"
