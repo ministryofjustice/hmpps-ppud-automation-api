@@ -16,12 +16,11 @@ generic-service:
     annotations:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
 
-volumes:
-  - name: docs-volume
-    emptyDir:
-      sizeLimit: 2Gi
+  volumes:
+    - name: docs-volume
+      emptyDir:
+        sizeLimit: 2Gi
 
-volumeMounts:
   volumeMounts:
     - mountPath: /docs
       name: docs-volume
