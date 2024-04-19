@@ -24,7 +24,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-@ActiveProfiles("test")
 class DocumentManagementClientTest(
   @Value("\${document-management.client.timeout}") private val timeout: Long,
 ) : IntegrationTestBase() {

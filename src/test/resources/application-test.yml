@@ -9,6 +9,9 @@ hmpps:
   auth:
     url: http://localhost:9090/auth
 
+cache:
+  refreshInitialDelaySeconds: 9999
+
 document-management:
   client:
     timeout: 2
