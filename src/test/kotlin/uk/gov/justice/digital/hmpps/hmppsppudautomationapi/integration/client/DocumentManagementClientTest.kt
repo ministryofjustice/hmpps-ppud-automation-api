@@ -2,6 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.client
 
 import org.hibernate.validator.internal.util.Contracts.assertNotEmpty
 import org.hibernate.validator.internal.util.Contracts.assertTrue
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockserver.matchers.Times
@@ -28,6 +31,21 @@ class DocumentManagementClientTest(
 
   @Autowired
   private lateinit var documentManagementClient: DocumentManagementClient
+
+  @BeforeAll
+  fun beforeAll() {
+    startupMockServers()
+  }
+
+  @BeforeEach
+  fun beforeEach() {
+    resetMockServers()
+  }
+
+  @AfterAll
+  fun afterAll() {
+    tearDownMockServers()
+  }
 
   @Test
   fun `given document management service returns 500 error when retrieveDocument is called then an exception is thrown`() {

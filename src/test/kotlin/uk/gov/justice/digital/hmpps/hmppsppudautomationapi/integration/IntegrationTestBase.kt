@@ -1,9 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration
 
 import com.google.gson.Gson
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
@@ -48,9 +46,9 @@ abstract class IntegrationTestBase {
   @Autowired
   protected lateinit var jwtAuthHelper: JwtAuthHelper
 
-  var oauthMock: ClientAndServer = ClientAndServer.startClientAndServer(9090)
+  lateinit var oauthMock: ClientAndServer
 
-  var documentManagementMock: ClientAndServer = ClientAndServer.startClientAndServer(8442)
+  lateinit var documentManagementMock: ClientAndServer
 
   companion object {
     const val FAMILY_NAME_PREFIX = "familyName"
@@ -220,16 +218,19 @@ abstract class IntegrationTestBase {
     }
   }
 
-  @BeforeEach
-  fun startUpServer() {
+  fun startupMockServers() {
+    oauthMock = ClientAndServer.startClientAndServer(9090)
+    documentManagementMock = ClientAndServer.startClientAndServer(8442)
+  }
+
+  fun resetMockServers() {
     oauthMock.reset()
     documentManagementMock.reset()
     setupOauth()
     setupHealthChecks()
   }
 
-  @AfterAll
-  fun tearDownServer() {
+  fun tearDownMockServers() {
     oauthMock.stop()
     documentManagementMock.stop()
   }
@@ -244,6 +245,10 @@ abstract class IntegrationTestBase {
         roles = roles,
       ),
     )
+  }
+
+  private fun HttpHeaders.dataTidyAuthToken() {
+    authToken(listOf("ROLE_PPUD_AUTOMATION__TESTS__READWRITE"), "SOME_USER")
   }
 
   protected fun createTestOffenderInPpud(requestBody: String = createOffenderRequestBody()): String {
@@ -270,7 +275,11 @@ abstract class IntegrationTestBase {
     return sentenceId
   }
 
-  protected fun createTestReleaseInPpud(offenderId: String, sentenceId: String, requestBody: String = releaseRequestBody()): String {
+  protected fun createTestReleaseInPpud(
+    offenderId: String,
+    sentenceId: String,
+    requestBody: String = releaseRequestBody(),
+  ): String {
     val idExtractor = ValueConsumer<String>()
     webTestClient.post()
       .uri("/offender/$offenderId/sentence/$sentenceId/release")
@@ -283,6 +292,20 @@ abstract class IntegrationTestBase {
     val id = idExtractor.value
     Assertions.assertNotNull(id, "ID returned from create release request is null")
     return id!!
+  }
+
+  protected fun deleteTestOffenders(familyNamePrefix: String, testRunId: UUID) {
+    webTestClient
+      .delete()
+      .uri(
+        "/offender?" +
+          "familyNamePrefix=$familyNamePrefix" +
+          "&testRunId=$testRunId",
+      )
+      .headers { it.dataTidyAuthToken() }
+      .exchange()
+      .expectStatus()
+      .isOk
   }
 
   protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
