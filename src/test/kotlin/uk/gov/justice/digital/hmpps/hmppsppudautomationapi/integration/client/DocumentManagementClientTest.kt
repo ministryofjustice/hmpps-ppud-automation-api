@@ -2,6 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.client
 
 import org.hibernate.validator.internal.util.Contracts.assertNotEmpty
 import org.hibernate.validator.internal.util.Contracts.assertTrue
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockserver.matchers.Times
@@ -12,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.client.DocumentManagementClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ClientTimeoutException
@@ -21,13 +23,27 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-@ActiveProfiles("test")
 class DocumentManagementClientTest(
   @Value("\${document-management.client.timeout}") private val timeout: Long,
 ) : IntegrationTestBase() {
 
   @Autowired
   private lateinit var documentManagementClient: DocumentManagementClient
+
+  @BeforeAll
+  fun beforeAll() {
+    startupMockServers()
+  }
+
+  @BeforeEach
+  fun beforeEach() {
+    resetMockServers()
+  }
+
+  @AfterAll
+  fun afterAll() {
+    tearDownMockServers()
+  }
 
   @Test
   fun `given document management service returns 500 error when retrieveDocument is called then an exception is thrown`() {

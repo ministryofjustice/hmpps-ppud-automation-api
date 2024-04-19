@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
@@ -41,7 +40,6 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 import kotlin.random.Random
 
-@ExtendWith(OffenderCreateTest.OffenderCreateDataTidyExtension::class)
 class OffenderCreateTest : IntegrationTestBase() {
 
   companion object {
@@ -63,11 +61,10 @@ class OffenderCreateTest : IntegrationTestBase() {
     }
   }
 
-  internal class OffenderCreateDataTidyExtension : DataTidyExtensionBase() {
-    override fun afterAllTidy() {
-      println("TestRunId for this run: $testRunId")
-      deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
-    }
+  @AfterAll
+  fun afterAll() {
+    println("TestRunId for this run: $testRunId")
+    deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
   }
 
   @Test

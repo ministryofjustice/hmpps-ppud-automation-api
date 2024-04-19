@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.health
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import java.time.LocalDateTime
@@ -8,6 +11,21 @@ import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 
 class HealthCheckTest : IntegrationTestBase() {
+
+  @BeforeAll
+  fun beforeAll() {
+    startupMockServers()
+  }
+
+  @BeforeEach
+  fun beforeEach() {
+    resetMockServers()
+  }
+
+  @AfterAll
+  fun afterAll() {
+    tearDownMockServers()
+  }
 
   @Test
   fun `Health page reports ok`() {
