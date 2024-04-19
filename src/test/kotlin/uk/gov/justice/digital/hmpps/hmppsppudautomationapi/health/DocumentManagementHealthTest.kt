@@ -12,7 +12,6 @@ import org.mockserver.model.HttpError
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpStatusCode
-import org.mockserver.model.MediaType
 import org.springframework.boot.actuate.health.Status
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
@@ -20,69 +19,64 @@ import reactor.netty.http.client.HttpClient
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-class PpudHealthTest {
+class DocumentManagementHealthTest {
 
-  private val ppudPort = 8100
+  private val documentManagementPort = 8100
 
-  private val ppudUrl = "http://localhost:$ppudPort"
+  private val documentManagementUrl = "http://localhost:$documentManagementPort"
 
-  private val healthPath = "/login.aspx"
-
-  private val pageTitle = "Mock Page"
+  private val healthPath = "/health/ping"
 
   private val timeout = 5L
 
-  private val ppudMock: ClientAndServer = startClientAndServer(ppudPort)
+  private val documentManagementMock: ClientAndServer = startClientAndServer(documentManagementPort)
 
-  private lateinit var ppudHealth: PpudHealth
+  private lateinit var documentManagementHealth: DocumentManagementHealth
 
   @BeforeEach
   fun beforeEach() {
     val webClient = setupWebClient()
-    ppudHealth = PpudHealth(webClient, healthPath)
+    documentManagementHealth = DocumentManagementHealth(webClient)
   }
 
   @AfterEach
   fun afterEach() {
-    ppudMock.stop()
+    documentManagementMock.stop()
   }
 
   @Test
-  fun `given ppud is ok when called then return UP`() {
-    val responseBody = createResponseBody(pageTitle, "Successful page load")
-    setupMockToRespondWith(HttpStatusCode.OK_200, responseBody)
+  fun `given document management service is ok when called then return UP`() {
+    setupMockToRespondWith(HttpStatusCode.OK_200)
 
-    val result = ppudHealth.health()
+    val result = documentManagementHealth.health()
 
     assertEquals(Status.UP, result?.status)
   }
 
   @Test
-  fun `given ppud is returning 5xx responses when called then return DOWN`() {
-    val responseBody = createResponseBody("Error", "5xx error occurred")
-    setupMockToRespondWith(HttpStatusCode.INTERNAL_SERVER_ERROR_500, responseBody)
+  fun `given document management service is returning 5xx responses when called then return DOWN`() {
+    setupMockToRespondWith(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
 
-    val result = ppudHealth.health()
-
-    assertEquals(Status.DOWN, result?.status)
-  }
-
-  @Test
-  fun `given ppud is returning 4xx responses when called then return DOWN`() {
-    val responseBody = createResponseBody("Error", "4xx error occurred")
-    setupMockToRespondWith(HttpStatusCode.NOT_FOUND_404, responseBody)
-
-    val result = ppudHealth.health()
+    val result = documentManagementHealth.health()
 
     assertEquals(Status.DOWN, result?.status)
   }
 
   @Test
-  fun `given ppud times out when called then return DOWN`() {
-    ppudMock
+  fun `given document management service is returning 4xx responses when called then return DOWN`() {
+    setupMockToRespondWith(HttpStatusCode.NOT_FOUND_404)
+
+    val result = documentManagementHealth.health()
+
+    assertEquals(Status.DOWN, result?.status)
+  }
+
+  @Test
+  fun `given document management service times out when called then return DOWN`() {
+    documentManagementMock
       .`when`(HttpRequest.request().withPath(healthPath))
       .error(HttpError().withDelay(Delay(TimeUnit.MINUTES, 1)))
-    val result = ppudHealth.health()
+    val result = documentManagementHealth.health()
 
     assertEquals(Status.DOWN, result?.status)
     val errorDetails = result?.details?.get("error").toString()
@@ -94,22 +88,16 @@ class PpudHealthTest {
       .responseTimeout(Duration.ofSeconds(timeout))
     return WebClient.builder()
       .clientConnector(ReactorClientHttpConnector(client))
-      .baseUrl(ppudUrl)
+      .baseUrl(documentManagementUrl)
       .build()
   }
 
-  private fun createResponseBody(responsePageTitle: String, text: String): String {
-    return "<html><head><title>$responsePageTitle</title></head><body>$text</body></html>"
-  }
-
-  private fun setupMockToRespondWith(statusCode: HttpStatusCode, responseBody: String) {
-    ppudMock
+  private fun setupMockToRespondWith(statusCode: HttpStatusCode) {
+    documentManagementMock
       .`when`(HttpRequest.request().withPath(healthPath))
       .respond(
         HttpResponse.response()
-          .withStatusCode(statusCode.code())
-          .withContentType(MediaType.HTML_UTF_8)
-          .withBody(responseBody),
+          .withStatusCode(statusCode.code()),
       )
   }
 }

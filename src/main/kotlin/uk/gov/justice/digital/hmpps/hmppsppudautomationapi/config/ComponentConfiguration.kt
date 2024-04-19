@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config
 
 import io.github.bonigarcia.wdm.WebDriverManager
-import io.netty.handler.ssl.SslContextBuilder
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.slf4j.LoggerFactory
@@ -14,10 +12,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Scope
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.context.annotation.RequestScope
-import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.http.client.HttpClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
@@ -27,7 +22,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl
-import java.time.Duration
 import java.time.format.DateTimeFormatter
 
 @Configuration
@@ -140,24 +134,6 @@ internal class ComponentConfiguration {
     @Value("\${automation.firefox.binary}") binary: String?,
   ): WebDriver {
     return createWebDriver(binary, headless)
-  }
-
-  @Bean
-  fun healthCheckWebClient(
-    @Value("\${ppud.url}") ppudUrl: String,
-    @Value("\${ppud.health.timeoutSeconds}") timeoutSeconds: Long = 5,
-  ): WebClient {
-    val sslContext = SslContextBuilder
-      .forClient()
-      .trustManager(InsecureTrustManagerFactory.INSTANCE)
-      .build()
-    val client: HttpClient = HttpClient.create()
-      .secure { t -> t.sslContext(sslContext) }
-      .responseTimeout(Duration.ofSeconds(timeoutSeconds))
-    return WebClient.builder()
-      .clientConnector(ReactorClientHttpConnector(client))
-      .baseUrl(ppudUrl)
-      .build()
   }
 
   @Bean

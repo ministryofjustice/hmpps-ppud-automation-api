@@ -13,6 +13,9 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ClientTimeoutException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.DocumentNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ReleaseNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
@@ -118,6 +121,48 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Sentence was not found",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(DocumentNotFoundException::class)
+  fun handleDocumentNotFoundException(e: DocumentNotFoundException): ResponseEntity<ErrorResponse> {
+    log.info("Document not found exception: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Document was not found",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(WebClientResponseException.InternalServerError::class)
+  fun handleDownstreamDependencyErrorException(e: WebClientResponseException.InternalServerError): ResponseEntity<ErrorResponse> {
+    log.info("Downstream dependency error exception: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_GATEWAY)
+      .body(
+        ErrorResponse(
+          status = HttpStatus.BAD_GATEWAY,
+          userMessage = "A system on which we depend has failed: ${e.message}",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(ClientTimeoutException::class)
+  fun handleClientTimeoutException(e: ClientTimeoutException): ResponseEntity<ErrorResponse> {
+    log.info("Client timeout exception: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.GATEWAY_TIMEOUT)
+      .body(
+        ErrorResponse(
+          status = HttpStatus.GATEWAY_TIMEOUT,
+          userMessage = "Client timeout: ${e.message}",
           developerMessage = e.message,
         ),
       )

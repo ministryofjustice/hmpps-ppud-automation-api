@@ -25,5 +25,18 @@ services:
     ports:
       - "6379:6379"
 
+  fake-document-management:
+    image: wiremock/wiremock
+    networks:
+      - hmpps
+    container_name: fake-document-management
+    ports:
+      - "8442:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+    command: --verbose --local-response-templating
+    volumes:
+      - ./fake-document-management:/home/wiremock
+
 networks:
   hmpps:
