@@ -8,3 +8,7 @@ management.endpoint:
 hmpps:
   auth:
     url: http://localhost:9090/auth
+
+document-management:
+  client:
+    timeout: 2
