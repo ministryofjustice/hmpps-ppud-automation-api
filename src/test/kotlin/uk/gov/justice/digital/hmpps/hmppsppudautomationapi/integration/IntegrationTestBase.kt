@@ -1,6 +1,13 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration
 
+import com.google.gson.Gson
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
+import org.mockserver.integration.ClientAndServer
+import org.mockserver.model.HttpRequest
+import org.mockserver.model.HttpResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -32,6 +39,7 @@ import kotlin.random.Random
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureWebTestClient(timeout = "120000")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class IntegrationTestBase {
 
   @Autowired
@@ -39,6 +47,10 @@ abstract class IntegrationTestBase {
 
   @Autowired
   protected lateinit var jwtAuthHelper: JwtAuthHelper
+
+  var oauthMock: ClientAndServer = ClientAndServer.startClientAndServer(9090)
+
+  var documentManagementMock: ClientAndServer = ClientAndServer.startClientAndServer(8442)
 
   companion object {
     const val FAMILY_NAME_PREFIX = "familyName"
@@ -208,6 +220,20 @@ abstract class IntegrationTestBase {
     }
   }
 
+  @BeforeEach
+  fun startUpServer() {
+    oauthMock.reset()
+    documentManagementMock.reset()
+    setupOauth()
+    setupHealthChecks()
+  }
+
+  @AfterAll
+  fun tearDownServer() {
+    oauthMock.stop()
+    documentManagementMock.stop()
+  }
+
   protected fun HttpHeaders.authToken(
     roles: List<String> = listOf("ROLE_PPUD_AUTOMATION__RECALL__READWRITE"),
     subject: String? = "SOME_USER",
@@ -316,5 +342,33 @@ abstract class IntegrationTestBase {
       .exchange()
       .expectStatus()
       .isForbidden
+  }
+
+  private fun setupOauth() {
+    oauthMock
+      .`when`(HttpRequest.request().withPath("/auth/oauth/token"))
+      .respond(
+        HttpResponse.response()
+          .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+          .withBody(Gson().toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer"))),
+      )
+  }
+
+  fun setupHealthChecks() {
+    oauthMock
+      .`when`(HttpRequest.request().withPath("/auth/health/ping"))
+      .respond(
+        HttpResponse.response()
+          .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+          .withBody(Gson().toJson(mapOf("status" to "OK"))),
+      )
+
+    documentManagementMock
+      .`when`(HttpRequest.request().withPath("/health/ping"))
+      .respond(
+        HttpResponse.response()
+          .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+          .withBody(Gson().toJson(mapOf("status" to "OK"))),
+      )
   }
 }

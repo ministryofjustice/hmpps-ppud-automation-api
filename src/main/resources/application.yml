@@ -26,6 +26,12 @@ spring:
         jwt:
           jwk-set-uri: ${hmpps.auth.url}/.well-known/jwks.json
       client:
+        registration:
+          document-management:
+            provider: hmpps-auth
+            client-id: ${system.client.id:hmpps-ppud-automation-api}
+            client-secret: ${system.client.secret:clientsecret}
+            authorization-grant-type: client_credentials
         provider:
           hmpps-auth:
             token-uri: ${hmpps.auth.url}/oauth/token
@@ -69,7 +75,7 @@ ppud:
   url: https://internaltest.ppud.justice.gov.uk
   health:
     path: /Secure/MJSLogin.aspx
-    timeoutSeconds: 5
+    timeout: 5
   offender:
     caseworker:
       inCustody: "Recall Reps Packs(Recall 1)"
@@ -105,3 +111,11 @@ cache:
 hmpps:
   auth:
     url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
+
+document-management:
+  client:
+    timeout: 30
+  health:
+    timeout: 5
+  api:
+    url: http://localhost:8442
