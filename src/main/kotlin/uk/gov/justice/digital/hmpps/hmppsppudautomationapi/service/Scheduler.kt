@@ -16,7 +16,7 @@ internal class Scheduler(
 
   @Scheduled(
     timeUnit = TimeUnit.SECONDS,
-    initialDelay = 10,
+    initialDelayString = "\${cache.refreshInitialDelaySeconds}",
     fixedDelayString = "#{ T(java.util.concurrent.ThreadLocalRandom).current().nextInt(\${cache.timeToLiveSeconds}/2,\${cache.timeToLiveSeconds}) }",
   )
   suspend fun refreshCaches() {

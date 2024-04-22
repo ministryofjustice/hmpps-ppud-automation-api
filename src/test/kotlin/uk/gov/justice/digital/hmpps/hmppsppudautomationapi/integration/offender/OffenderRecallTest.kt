@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
@@ -17,7 +17,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.IsSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.DataTidyExtensionBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
@@ -34,7 +33,6 @@ import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
 
-@ExtendWith(OffenderRecallTest.OffenderRecallDataTidyExtension::class)
 class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
@@ -120,10 +118,9 @@ class OffenderRecallTest : IntegrationTestBase() {
     }
   }
 
-  internal class OffenderRecallDataTidyExtension : DataTidyExtensionBase() {
-    override fun afterAllTidy() {
-      deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
-    }
+  @AfterAll
+  fun afterAll() {
+    deleteTestOffenders(FAMILY_NAME_PREFIX, testRunId)
   }
 
   @Test
