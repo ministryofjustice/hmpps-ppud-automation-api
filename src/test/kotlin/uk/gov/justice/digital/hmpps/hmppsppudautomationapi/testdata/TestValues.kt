@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
@@ -151,8 +152,11 @@ fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName {
 }
 
 fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
-  val randomIndex = Random.nextInt(0, RiskOfSeriousHarmLevel.entries.count() - 1)
-  return RiskOfSeriousHarmLevel.entries[randomIndex]
+  return RiskOfSeriousHarmLevel.entries.shuffled().first()
+}
+
+fun randomDocumentCategory(): DocumentCategory {
+  return DocumentCategory.entries.shuffled().first()
 }
 
 /**

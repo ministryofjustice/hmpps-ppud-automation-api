@@ -16,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
@@ -23,13 +24,17 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_E
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_POLICE_FORCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
@@ -201,6 +206,46 @@ abstract class IntegrationTestBase {
         "}"
     }
 
+    fun createRecallRequestBody(
+      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      isInCustody: String = "false",
+      isExtendedSentence: String = "false",
+      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
+      policeForce: String = PPUD_VALID_POLICE_FORCE,
+      probationArea: String = PPUD_VALID_PROBATION_SERVICE,
+      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      recommendedTo: String? = ppudUserRequestBody(),
+      riskOfContrabandDetails: String = "",
+      riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
+    ): String {
+      return """
+        {
+          "decisionDateTime":"$decisionDateTime",
+          "isInCustody":"$isInCustody",
+          "isExtendedSentence":"$isExtendedSentence",
+          "mappaLevel":"$mappaLevel",
+          "policeForce":"$policeForce",
+          "probationArea":"$probationArea",
+          "receivedDateTime":"$receivedDateTime",
+          "recommendedTo":${recommendedTo ?: "null"},
+          "riskOfContrabandDetails":"$riskOfContrabandDetails",
+          "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
+        }
+      """.trimIndent()
+    }
+
+    fun ppudUserRequestBody(
+      fullName: String = PPUD_VALID_USER_FULL_NAME,
+      teamName: String = PPUD_VALID_USER_TEAM,
+    ): String {
+      return """
+        {
+          "fullName":"$fullName",
+          "teamName":"$teamName"
+        }
+      """.trimIndent()
+    }
+
     fun addressRequestBody(
       premises: String = randomString("premises"),
       line1: String = randomString("line1"),
@@ -294,6 +339,25 @@ abstract class IntegrationTestBase {
     return id!!
   }
 
+  protected fun createTestRecallInPpud(
+    offenderId: String,
+    releaseId: String,
+    requestBody: String = createRecallRequestBody(),
+  ): String {
+    val idExtractor = ValueConsumer<String>()
+    webTestClient.post()
+      .uri("/offender/$offenderId/release/$releaseId/recall")
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
+      .expectBody()
+      .jsonPath("recall.id").value(idExtractor)
+    val id = idExtractor.value
+    Assertions.assertNotNull(id, "ID returned from create recall request is null")
+    return id!!
+  }
+
   protected fun deleteTestOffenders(familyNamePrefix: String, testRunId: UUID) {
     webTestClient
       .delete()
@@ -333,6 +397,16 @@ abstract class IntegrationTestBase {
       .headers { it.authToken() }
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
+  }
+
+  protected fun retrieveRecall(id: String): WebTestClient.BodyContentSpec {
+    return webTestClient.get()
+      .uri("/recall/$id")
+      .headers { it.authToken() }
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
   }
 
   protected fun givenMissingTokenWhenCalledThenUnauthorizedReturned(method: HttpMethod, uri: String) {
@@ -377,7 +451,7 @@ abstract class IntegrationTestBase {
       )
   }
 
-  fun setupHealthChecks() {
+  private fun setupHealthChecks() {
     oauthMock
       .`when`(HttpRequest.request().withPath("/auth/health/ping"))
       .respond(
