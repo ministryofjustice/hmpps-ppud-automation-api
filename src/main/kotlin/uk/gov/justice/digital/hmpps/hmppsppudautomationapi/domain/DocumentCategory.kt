@@ -8,5 +8,5 @@ enum class DocumentCategory(val title: String, documentType: DocumentType) {
   PreSentenceReport("PSR", DocumentType.Document),
   OASys("OASys", DocumentType.Document),
   ChargeSheet("Charge Sheet", DocumentType.Document),
-  Other("Other", DocumentType.Document)
+  Other("Other", DocumentType.Document),
 }

@@ -11,9 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.IsSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
@@ -152,9 +152,8 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
       .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_RECALL_TYPE)
       .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
-    val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
-    retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
-    assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
+      .jsonPath("recall.recommendedToDateTime")
+      .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))
   }
 
   @Test

@@ -4,11 +4,16 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 
-class IsSameDayAs(private val thisDate: LocalDate) : Consumer<String> {
+class IsSameDayAs(private val thisDate: LocalDate, private val message: String) : Consumer<String> {
 
-  var isSameDay: Boolean = false
   override fun accept(that: String) {
     val thatDate = LocalDate.parse(that, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    isSameDay = thisDate.isEqual(thatDate)
+    if (!thisDate.isEqual(thatDate)) {
+      throw AssertionError(message)
+    }
   }
+}
+
+fun isSameDayAs(date: LocalDate, message: String): IsSameDayAs {
+  return IsSameDayAs(date, message)
 }

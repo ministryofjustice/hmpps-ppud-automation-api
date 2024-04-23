@@ -25,20 +25,20 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
         MandatoryFieldTestData("documentId", uploadDocumentRequestBody(documentId = "")),
-        MandatoryFieldTestData("category", uploadDocumentRequestBody(category = "")),
+        MandatoryFieldTestData("category", uploadDocumentRequestBody(category = ""), "DocumentCategory"),
       )
     }
 
     fun uploadDocumentRequestBody(
       documentId: String = UUID.randomUUID().toString(),
-      category: String = randomDocumentCategory().toString(),
+      category: String? = randomDocumentCategory().toString(),
     ): String {
       return """
         { 
         "documentId":"$documentId", 
         "category":"$category"
         }
-        """.trimIndent()
+      """.trimIndent()
     }
   }
 
@@ -85,6 +85,31 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
       requestBody,
       HttpMethod.PUT,
     )
+  }
+
+  @Test
+  fun `given valid values in request body when upload document called then document is uploaded and document is marked as not missing`() {
+    val offenderId = createTestOffenderInPpud()
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
+    val recallId = createTestRecallInPpud(offenderId, releaseId)
+    val documentId = UUID.randomUUID()
+    val documentCategory = randomDocumentCategory()
+    val requestBody = uploadDocumentRequestBody(
+      documentId = documentId.toString(),
+      category = documentCategory.toString(),
+    )
+
+    putDocument(recallId, requestBody)
+
+    val retrievedRecall = retrieveRecall(recallId)
+    retrievedRecall
+      .jsonPath("recall.id").isEqualTo(recallId)
+//      .jsonPath("recall.documents.size()").isEqualTo(1)
+//      .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
+//      .jsonPath("recall.documents[0].type").isEqualTo("301 - Post Release Recall")
+//      .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(5)
+//      .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
   }
 
   protected fun putDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec =

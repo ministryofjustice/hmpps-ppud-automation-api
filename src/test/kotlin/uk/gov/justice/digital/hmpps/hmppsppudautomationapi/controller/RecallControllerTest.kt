@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 
 @ExtendWith(MockitoExtension::class)
@@ -34,6 +35,18 @@ internal class RecallControllerTest {
       controller.get(id)
 
       then(ppudClient).should().retrieveRecall(id)
+    }
+  }
+
+  @Test
+  fun `given recall id and document data when uploadDocument is called then data is passed to PPUD client`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val uploadDocumentRequest = generateUploadDocumentRequest()
+
+      controller.uploadDocument(recallId, uploadDocumentRequest)
+
+      then(ppudClient).should().uploadDocument(recallId, uploadDocumentRequest)
     }
   }
 }

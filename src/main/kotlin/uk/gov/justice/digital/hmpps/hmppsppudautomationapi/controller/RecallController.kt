@@ -47,5 +47,6 @@ internal class RecallController(private val ppudClient: OperationalPpudClient) {
     @RequestBody(required = true) request: UploadDocumentRequest,
   ) {
     log.info("Recall document upload endpoint hit")
+    ppudClient.uploadDocument(recallId, request)
   }
 }
