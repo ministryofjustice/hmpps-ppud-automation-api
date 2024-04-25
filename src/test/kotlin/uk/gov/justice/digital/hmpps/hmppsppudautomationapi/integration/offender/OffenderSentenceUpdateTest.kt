@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -24,6 +25,10 @@ import kotlin.random.Random
 
 class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
+  private lateinit var offenderId: String
+
+  private lateinit var sentenceId: String
+
   companion object {
 
     @JvmStatic
@@ -32,6 +37,12 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
         MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
       )
     }
+  }
+
+  @BeforeAll
+  fun beforeAll() {
+    offenderId = createTestOffenderInPpud()
+    sentenceId = findSentenceIdOnOffender(offenderId)
   }
 
   @AfterAll
@@ -68,8 +79,6 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update sentence called then 200 OK is returned`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
       "\"dateOfSentence\":\"${randomDate()}\", " +
@@ -108,8 +117,6 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when update sentence called then sentence is updated using supplied values`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val espCustodialPeriodYears = Random.nextInt(0, 1000)
     val espCustodialPeriodMonths = Random.nextInt(0, 1000)

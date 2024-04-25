@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -36,6 +37,8 @@ import kotlin.random.Random
 
 class OffenderUpdateTest : IntegrationTestBase() {
 
+  private lateinit var testOffenderId: String
+
   companion object {
 
     val familyNameToDeleteUuids = mutableSetOf<UUID>()
@@ -51,6 +54,11 @@ class OffenderUpdateTest : IntegrationTestBase() {
         MandatoryFieldTestData("prisonNumber", updateOffenderRequestBody(prisonNumber = "")),
       )
     }
+  }
+
+  @BeforeAll
+  fun beforeAll() {
+    testOffenderId = createTestOffenderInPpud()
   }
 
   @AfterAll
@@ -99,7 +107,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update offender called then 200 ok is returned`() {
-    val testOffenderId = createTestOffenderInPpud()
     val requestBodyWithOnlyMandatoryFields = "{" +
       "\"dateOfBirth\":\"${randomDate()}\", " +
       "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
@@ -116,7 +123,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given null optional string fields in request body when update offender called then nulls are treated as empty string`() {
-    val testOffenderId = createTestOffenderInPpud()
     val requestBodyWithNullOptionalFields = "{" +
       "\"croNumber\":null, " +
       "\"dateOfBirth\":\"${randomDate()}\", " +
@@ -159,7 +165,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val originalIsInCustody = Random.nextBoolean()
     val newIsInCustody = originalIsInCustody.not()
     val originalAdditionalAddressPremises = randomString("originalpremises")
-    val testOffenderId = createTestOffenderInPpud(
+    val localTestOffenderId = createTestOffenderInPpud(
       createOffenderRequestBody(
         additionalAddresses = addressRequestBody(originalAdditionalAddressPremises, "", "", "", ""),
         isInCustody = originalIsInCustody.toString(),
@@ -205,7 +211,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       prisonNumber = prisonNumber,
     )
 
-    putOffender(testOffenderId, requestBody)
+    putOffender(localTestOffenderId, requestBody)
 
     val expectedComments =
       "Additional address:${System.lineSeparator()}" +
@@ -213,9 +219,9 @@ class OffenderUpdateTest : IntegrationTestBase() {
         System.lineSeparator() +
         "Additional address:${System.lineSeparator()}" +
         originalAdditionalAddressPremises
-    val retrieved = retrieveOffender(testOffenderId)
+    val retrieved = retrieveOffender(localTestOffenderId)
     retrieved
-      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.id").isEqualTo(localTestOffenderId)
       .jsonPath("offender.address.premises").isEqualTo(addressPremises)
       .jsonPath("offender.address.line1").isEqualTo(addressLine1)
       .jsonPath("offender.address.line2").isEqualTo(addressLine2)
@@ -245,7 +251,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
     isInCustody: Boolean,
     expectedCaseworker: String,
   ) {
-    val testOffenderId = createTestOffenderInPpud()
     val requestBody = updateOffenderRequestBody(
       isInCustody = isInCustody.toString(),
     )
@@ -273,7 +278,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
   ) {
     val originalDateOfBirth = LocalDate.now().minusYears(originalAge).format(DateTimeFormatter.ISO_LOCAL_DATE)
     val newDateOfBirth = LocalDate.now().minusYears(newAge).format(DateTimeFormatter.ISO_LOCAL_DATE)
-    val testOffenderId = createTestOffenderInPpud(
+    val localTestOffenderId = createTestOffenderInPpud(
       createOffenderRequestBody(
         dateOfBirth = originalDateOfBirth,
       ),
@@ -284,18 +289,17 @@ class OffenderUpdateTest : IntegrationTestBase() {
       dateOfBirth = newDateOfBirth,
     )
 
-    putOffender(testOffenderId, requestBody)
+    putOffender(localTestOffenderId, requestBody)
 
-    val retrieved = retrieveOffender(testOffenderId)
+    val retrieved = retrieveOffender(localTestOffenderId)
     retrieved
-      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.id").isEqualTo(localTestOffenderId)
       .jsonPath("offender.dateOfBirth").isEqualTo(newDateOfBirth)
       .jsonPath("offender.youngOffender").isEqualTo(expected)
   }
 
   @Test
   fun `given capitalised names in request body when update offender called then offender is amended using supplied values`() {
-    val testOffenderId = createTestOffenderInPpud()
     val familyName = "$FAMILY_NAME_PREFIX-$testRunId".uppercase()
     val firstNames = randomString("firstNames").uppercase()
     val requestBody = updateOffenderRequestBody(
@@ -317,7 +321,6 @@ class OffenderUpdateTest : IntegrationTestBase() {
   fun `given gender F was M in request body when create offender called then offender is created`(gender: String) {
     // PPUD has a bug where the gender value is inconsistent. We need to handle that as best we can.
     // PPUD itself doesn't handle it, because if set with one value in create offender, it can't be displayed in view offender
-    val testOffenderId = createTestOffenderInPpud()
     val requestBody = updateOffenderRequestBody(
       gender = gender,
     )
