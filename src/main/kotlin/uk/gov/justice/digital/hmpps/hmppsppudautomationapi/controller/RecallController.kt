@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -7,10 +8,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import java.nio.file.Paths
 
 @RestController
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
@@ -21,10 +26,29 @@ internal class RecallController(private val ppudClient: OperationalPpudClient) {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
+  @Operation(
+    summary = "Retrieve a specific recall.",
+    description = "Retrieve a recall identified by the specified recall ID.",
+  )
   @GetMapping("/recall/{id}")
   suspend fun get(@PathVariable(required = true) id: String): ResponseEntity<GetRecallResponse> {
     log.info("Recall get endpoint hit")
     val recall = ppudClient.retrieveRecall(id)
     return ResponseEntity(GetRecallResponse(recall), HttpStatus.OK)
+  }
+
+  @Operation(
+    summary = "Upload a mandatory document to a recall.",
+    description = "Add a document of the specified category to the recall identified by the recallId.  The document" +
+      "must be present in the Document Management API and identified by the supplied documentId.",
+  )
+  @PutMapping("/recall/{recallId}/mandatory-document")
+  suspend fun uploadMandatoryDocument(
+    @PathVariable(required = true) recallId: String,
+    @RequestBody(required = true) request: UploadMandatoryDocumentRequest,
+  ) {
+    log.info("Recall mandatory document upload endpoint hit")
+    val path = Paths.get("src/test/resources/test-file.pdf").toAbsolutePath().toString()
+    ppudClient.uploadMandatoryDocument(recallId, request, path)
   }
 }

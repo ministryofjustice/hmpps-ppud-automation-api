@@ -43,7 +43,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
+        MandatoryFieldTestData("dateOfBirth", updateOffenderRequestBody(dateOfBirth = "")),
         MandatoryFieldTestData("ethnicity", updateOffenderRequestBody(ethnicity = "")),
         MandatoryFieldTestData("familyName", updateOffenderRequestBody(familyName = "")),
         MandatoryFieldTestData("firstNames", updateOffenderRequestBody(firstNames = "")),

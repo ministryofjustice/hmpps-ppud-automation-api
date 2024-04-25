@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
@@ -12,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -151,8 +153,11 @@ fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName {
 }
 
 fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
-  val randomIndex = Random.nextInt(0, RiskOfSeriousHarmLevel.entries.count() - 1)
-  return RiskOfSeriousHarmLevel.entries[randomIndex]
+  return RiskOfSeriousHarmLevel.entries.shuffled().first()
+}
+
+fun randomDocumentCategory(): DocumentCategory {
+  return DocumentCategory.entries.shuffled().first()
 }
 
 /**
@@ -324,22 +329,35 @@ fun generateCreateRecallRequest(
   )
 }
 
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
+fun generateUploadMandatoryDocumentRequest(): UploadMandatoryDocumentRequest {
+  return UploadMandatoryDocumentRequest(
+    documentId = UUID.randomUUID(),
+    category = randomDocumentCategory(),
+  )
+}
+
 fun generateRecall(id: String = randomPpudId()): Recall {
   return Recall(
     id = id,
     allMandatoryDocumentsReceived = "No",
     decisionDateTime = randomTimeToday(),
+    documents = emptyList(),
     isInCustody = Random.nextBoolean(),
-    mappaLevel = randomString("mappaLevel"),
+    missingMandatoryDocuments = emptyList(),
     owningTeam = randomString("owningTeam"),
     policeForce = randomString("policeForce"),
     probationArea = randomString("probationArea"),
     recallType = randomString("recallType"),
     receivedDateTime = randomTimeToday(),
-    recommendedToDateTime = randomTimeToday(),
+    mappaLevel = randomString("mappaLevel"),
     recommendedToOwner = randomString("recommendedToOwner"),
-    returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
+    recommendedToDateTime = randomTimeToday(),
     revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
+    returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
   )
 }
 

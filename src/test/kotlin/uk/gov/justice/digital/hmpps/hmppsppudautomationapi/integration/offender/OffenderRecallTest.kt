@@ -10,12 +10,10 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.IsSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isNull
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.isSameDayAs
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.withoutSeconds
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
@@ -61,12 +59,12 @@ class OffenderRecallTest : IntegrationTestBase() {
         ),
         MandatoryFieldTestData(
           "recommendedTo",
-          createRecallRequestBody(recommendedTo = createPpudUserRequestBody(fullName = "")),
+          createRecallRequestBody(recommendedTo = ppudUserRequestBody(fullName = "")),
           errorFragment = "fullName",
         ),
         MandatoryFieldTestData(
           "recommendedTo",
-          createRecallRequestBody(recommendedTo = createPpudUserRequestBody(teamName = "")),
+          createRecallRequestBody(recommendedTo = ppudUserRequestBody(teamName = "")),
           errorFragment = "team",
         ),
         MandatoryFieldTestData(
@@ -75,46 +73,6 @@ class OffenderRecallTest : IntegrationTestBase() {
           errorFragment = "RiskOfSeriousHarmLevel",
         ),
       )
-    }
-
-    private fun createRecallRequestBody(
-      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      isInCustody: String = "false",
-      isExtendedSentence: String = "false",
-      mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
-      policeForce: String = PPUD_VALID_POLICE_FORCE,
-      probationArea: String = PPUD_VALID_PROBATION_SERVICE,
-      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      recommendedTo: String? = createPpudUserRequestBody(),
-      riskOfContrabandDetails: String = "",
-      riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
-    ): String {
-      return """
-        {
-          "decisionDateTime":"$decisionDateTime",
-          "isInCustody":"$isInCustody",
-          "isExtendedSentence":"$isExtendedSentence",
-          "mappaLevel":"$mappaLevel",
-          "policeForce":"$policeForce",
-          "probationArea":"$probationArea",
-          "receivedDateTime":"$receivedDateTime",
-          "recommendedTo":${recommendedTo ?: "null"},
-          "riskOfContrabandDetails":"$riskOfContrabandDetails",
-          "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
-        }
-      """.trimIndent()
-    }
-
-    private fun createPpudUserRequestBody(
-      fullName: String = PPUD_VALID_USER_FULL_NAME,
-      teamName: String = PPUD_VALID_USER_TEAM,
-    ): String {
-      return """
-        {
-          "fullName":"$fullName",
-          "teamName":"$teamName"
-        }
-      """.trimIndent()
     }
   }
 
@@ -177,7 +135,7 @@ class OffenderRecallTest : IntegrationTestBase() {
     val requestBody = createRecallRequestBody(
       decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      recommendedTo = createPpudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
+      recommendedTo = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
     val id = postRecall(offenderId, releaseId, requestBody)
@@ -194,9 +152,8 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
       .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_RECALL_TYPE)
       .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
-    val recommendedToDateTimeIsToday = IsSameDayAs(LocalDate.now())
-    retrieved.jsonPath("recall.recommendedToDateTime").value(recommendedToDateTimeIsToday)
-    assertTrue(recommendedToDateTimeIsToday.isSameDay, "recommendedToDateTime is not today")
+      .jsonPath("recall.recommendedToDateTime")
+      .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))
   }
 
   @Test
@@ -304,16 +261,6 @@ class OffenderRecallTest : IntegrationTestBase() {
     assertNotNull(id, "ID returned from create recall request is null")
     assertTrue(id!!.isNotEmpty(), "ID returned from create recall request is empty")
     return id
-  }
-
-  private fun retrieveRecall(id: String): BodyContentSpec {
-    return webTestClient.get()
-      .uri("/recall/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
   }
 
   private fun constructUri(offenderId: String, releaseId: String) =

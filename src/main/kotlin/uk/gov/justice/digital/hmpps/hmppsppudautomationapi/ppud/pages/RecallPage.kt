@@ -10,10 +10,13 @@ import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Document
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
@@ -34,11 +37,15 @@ internal class RecallPage(
   @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
+  @Value("\${ppud.recall.documentType}") private val documentType: String,
 ) {
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
 
   private val pageDescription = "recall page"
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdUploadDoc")
+  private lateinit var uploadDocumentButton: WebElement
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -109,11 +116,52 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_chkMAND_DOC_CHARGE_SHEET")
   private lateinit var missingChargeSheetCheckbox: WebElement
 
+  @FindBy(id = "igtxtcntDetails_PageFooter1_docEdit_dteREPLY_ACTUAL")
+  private lateinit var replyActualInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_PageFooter1_docEdit_dteDELIVERY_ACTUAL")
+  private lateinit var deliveryActualInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_txtDOCUMENT_TITLE")
+  private lateinit var documentTitleInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_ddliDOCUMENT_TYPE")
+  private lateinit var documentTypeDropdown: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_fUpDocuments")
+  private lateinit var chooseFileInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_cmdSaveAndAdd")
+  private lateinit var saveAndAddMoreDocumentsButton: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_cmdCancel")
+  private lateinit var closeDocumentUploadButton: WebElement
+
+  @FindBy(id = "UploadStatusData")
+  private lateinit var documentUploadStatusTable: WebElement
+
+  private val documentUploadStatuses: List<WebElement>
+    get() = documentUploadStatusTable.findElements(By.xpath(".//td[starts-with(@id, 'upload_1')]"))
+
+  private val missingMandatoryDocumentsMap: Map<DocumentCategory, WebElement> by lazy {
+    mapOf(
+      DocumentCategory.ChargeSheet to missingChargeSheetCheckbox,
+      DocumentCategory.Licence to missingLicenceCheckbox,
+      DocumentCategory.OASys to missingOaSysCheckbox,
+      DocumentCategory.PartA to missingPartACheckbox,
+      DocumentCategory.PreSentenceReport to missingPreSentenceReportCheckbox,
+      DocumentCategory.PreviousConvictions to missingPreviousConvictionsCheckbox,
+    )
+  }
+
   private val addMinuteButtonId = "cntDetails_PageFooter1_Minutes1_btnReplyTop"
 
   // We need to detect if the Add Minute button isn't available, rather than throw an exception
   private val addMinuteButton: WebElement?
     get() = driver.findElements(By.id(addMinuteButtonId)).firstOrNull()
+
+  private val documentsTable: WebElement?
+    get() = driver.findElements(By.id("cntDetails_PageFooter1_GridView2")).firstOrNull()
 
   private val minuteEditor: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_MinutesTextRich_tw"))
@@ -191,6 +239,35 @@ internal class RecallPage(
     saveButton.click()
   }
 
+  suspend fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
+    val today = LocalDateTime.now().format(dateFormatter)
+    uploadDocumentButton.click()
+    deliveryActualInput.sendKeys(today)
+    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentType, "document type")
+    documentTitleInput.sendKeys(request.category.title)
+    replyActualInput.sendKeys(today)
+    chooseFileInput.sendKeys(filepath)
+    saveAndAddMoreDocumentsButton.click()
+    waitForDocumentToUpload()
+    closeDocumentUploadButton.click()
+  }
+
+  fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
+    val missingCheckbox = missingMandatoryDocumentsMap[documentCategory]
+      ?: throw RuntimeException("Document category '$documentCategory' is not mapped to a checkbox")
+    if (missingCheckbox.isDisplayed) {
+      pageHelper.selectCheckboxValue(missingCheckbox, false)
+    }
+    if (extractMissingMandatoryDocuments().isEmpty()) {
+      pageHelper.selectDropdownOptionIfNotBlank(
+        mandatoryDocumentsReceivedDropdown,
+        "Yes",
+        "mandatory documents received",
+      )
+    }
+    saveButton.click()
+  }
+
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
     addMinute(contentCreator.generateRecallMinuteText(createRecallRequest))
   }
@@ -225,6 +302,7 @@ internal class RecallPage(
       decisionDateTime = LocalDateTime.parse(decisionFollowingBreachDateInput.getValue(), dateTimeFormatter),
       isInCustody = ualCheckbox.isSelected.not(),
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
+      missingMandatoryDocuments = extractMissingMandatoryDocuments(),
       nextUalCheck = if (nextUalCheckValue.isNotEmpty()) LocalDate.parse(nextUalCheckValue, dateFormatter) else null,
       owningTeam = owningTeamInput.getValue(),
       policeForce = Select(policeForceDropdown).firstSelectedOption.text,
@@ -235,6 +313,7 @@ internal class RecallPage(
       recommendedToOwner = recommendedToOwnerInput.getValue(),
       returnToCustodyNotificationMethod = Select(returnToCustodyNotificationMethodDropdown).firstSelectedOption.text,
       revocationIssuedByOwner = revocationIssuedByOwnerInput.getValue(),
+      documents = extractDocuments(),
     )
   }
 
@@ -243,12 +322,36 @@ internal class RecallPage(
   }
 
   private fun checkAllMissingMandatoryDocuments() {
-    pageHelper.selectCheckboxValue(missingPartACheckbox, true)
-    pageHelper.selectCheckboxValue(missingOaSysCheckbox, true)
-    pageHelper.selectCheckboxValue(missingPreSentenceReportCheckbox, true)
-    pageHelper.selectCheckboxValue(missingPreviousConvictionsCheckbox, true)
-    pageHelper.selectCheckboxValue(missingLicenceCheckbox, true)
-    pageHelper.selectCheckboxValue(missingChargeSheetCheckbox, true)
+    missingMandatoryDocumentsMap.forEach {
+      pageHelper.selectCheckboxValue(it.value, true)
+    }
+  }
+
+  private fun extractMissingMandatoryDocuments(): List<DocumentCategory> {
+    return if (Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text == "No") {
+      missingMandatoryDocumentsMap.mapNotNull { if (it.value.isSelected) it.key else null }
+    } else {
+      emptyList()
+    }
+  }
+
+  private fun extractDocuments(): List<Document> {
+    return if (documentsTable != null) {
+      val rows = documentsTable!!.findElements(By.xpath(".//tr[position()>1]"))
+      rows.map {
+        Document(
+          title = it.findElement(By.xpath(".//td[3]")).text,
+          documentType = it.findElement(By.xpath(".//td[4]")).text,
+        )
+      }
+    } else {
+      emptyList()
+    }
+  }
+
+  private suspend fun waitForDocumentToUpload() {
+    WebDriverWait(driver, Duration.ofSeconds(30))
+      .until { documentUploadStatuses.all { it.text == "Complete" } }
   }
 
   private fun addMinute(text: String) {
