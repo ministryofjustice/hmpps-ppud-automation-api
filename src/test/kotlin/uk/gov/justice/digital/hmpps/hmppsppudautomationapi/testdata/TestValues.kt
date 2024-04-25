@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -333,8 +333,8 @@ fun generateCreateRecallRequest(
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateUploadDocumentRequest(): UploadDocumentRequest {
-  return UploadDocumentRequest(
+fun generateUploadMandatoryDocumentRequest(): UploadMandatoryDocumentRequest {
+  return UploadMandatoryDocumentRequest(
     documentId = UUID.randomUUID(),
     category = randomDocumentCategory(),
   )

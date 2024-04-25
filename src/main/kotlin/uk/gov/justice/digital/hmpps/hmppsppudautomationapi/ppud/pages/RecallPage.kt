@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Document
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
@@ -36,11 +37,15 @@ internal class RecallPage(
   @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
+  @Value("\${ppud.recall.documentType}") private val documentType: String,
 ) {
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
 
   private val pageDescription = "recall page"
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdUploadDoc")
+  private lateinit var uploadDocumentButton: WebElement
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -111,14 +116,41 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_chkMAND_DOC_CHARGE_SHEET")
   private lateinit var missingChargeSheetCheckbox: WebElement
 
-  private val missingMandatoryDocumentsMap: Map<WebElement, DocumentCategory> by lazy {
+  @FindBy(id = "igtxtcntDetails_PageFooter1_docEdit_dteREPLY_ACTUAL")
+  private lateinit var replyActualInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_PageFooter1_docEdit_dteDELIVERY_ACTUAL")
+  private lateinit var deliveryActualInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_txtDOCUMENT_TITLE")
+  private lateinit var documentTitleInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_ddliDOCUMENT_TYPE")
+  private lateinit var documentTypeDropdown: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_fUpDocuments")
+  private lateinit var chooseFileInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_cmdSaveAndAdd")
+  private lateinit var saveAndAddMoreDocumentsButton: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_cmdCancel")
+  private lateinit var closeDocumentUploadButton: WebElement
+
+  @FindBy(id = "UploadStatusData")
+  private lateinit var documentUploadStatusTable: WebElement
+
+  private val documentUploadStatuses: List<WebElement>
+    get() = documentUploadStatusTable.findElements(By.xpath(".//td[starts-with(@id, 'upload_1')]"))
+
+  private val missingMandatoryDocumentsMap: Map<DocumentCategory, WebElement> by lazy {
     mapOf(
-      missingChargeSheetCheckbox to DocumentCategory.ChargeSheet,
-      missingLicenceCheckbox to DocumentCategory.Licence,
-      missingOaSysCheckbox to DocumentCategory.OASys,
-      missingPartACheckbox to DocumentCategory.PartA,
-      missingPreSentenceReportCheckbox to DocumentCategory.PreSentenceReport,
-      missingPreviousConvictionsCheckbox to DocumentCategory.PreviousConvictions,
+      DocumentCategory.ChargeSheet to missingChargeSheetCheckbox,
+      DocumentCategory.Licence to missingLicenceCheckbox,
+      DocumentCategory.OASys to missingOaSysCheckbox,
+      DocumentCategory.PartA to missingPartACheckbox,
+      DocumentCategory.PreSentenceReport to missingPreSentenceReportCheckbox,
+      DocumentCategory.PreviousConvictions to missingPreviousConvictionsCheckbox,
     )
   }
 
@@ -207,6 +239,35 @@ internal class RecallPage(
     saveButton.click()
   }
 
+  suspend fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
+    val today = LocalDateTime.now().format(dateFormatter)
+    uploadDocumentButton.click()
+    deliveryActualInput.sendKeys(today)
+    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentType, "document type")
+    documentTitleInput.sendKeys(request.category.title)
+    replyActualInput.sendKeys(today)
+    chooseFileInput.sendKeys(filepath)
+    saveAndAddMoreDocumentsButton.click()
+    waitForDocumentToUpload()
+    closeDocumentUploadButton.click()
+  }
+
+  fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
+    val missingCheckbox = missingMandatoryDocumentsMap[documentCategory]
+      ?: throw RuntimeException("Document category '$documentCategory' is not mapped to a checkbox")
+    if (missingCheckbox.isDisplayed) {
+      pageHelper.selectCheckboxValue(missingCheckbox, false)
+    }
+    if (extractMissingMandatoryDocuments().isEmpty()) {
+      pageHelper.selectDropdownOptionIfNotBlank(
+        mandatoryDocumentsReceivedDropdown,
+        "Yes",
+        "mandatory documents received",
+      )
+    }
+    saveButton.click()
+  }
+
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
     addMinute(contentCreator.generateRecallMinuteText(createRecallRequest))
   }
@@ -262,13 +323,13 @@ internal class RecallPage(
 
   private fun checkAllMissingMandatoryDocuments() {
     missingMandatoryDocumentsMap.forEach {
-      pageHelper.selectCheckboxValue(it.key, true)
+      pageHelper.selectCheckboxValue(it.value, true)
     }
   }
 
   private fun extractMissingMandatoryDocuments(): List<DocumentCategory> {
     return if (Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text == "No") {
-      missingMandatoryDocumentsMap.mapNotNull { if (it.key.isSelected) it.value else null }
+      missingMandatoryDocumentsMap.mapNotNull { if (it.value.isSelected) it.key else null }
     } else {
       emptyList()
     }
@@ -286,6 +347,11 @@ internal class RecallPage(
     } else {
       emptyList()
     }
+  }
+
+  private suspend fun waitForDocumentToUpload() {
+    WebDriverWait(driver, Duration.ofSeconds(30))
+      .until { documentUploadStatuses.all { it.text == "Complete" } }
   }
 
   private fun addMinute(text: String) {

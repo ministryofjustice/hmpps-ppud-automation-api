@@ -68,7 +68,7 @@ The system makes use of 2 users in PPUD.  One for the "normal" operations of boo
 recall and another for admin operations such as retrieving the reference data.
 
 These users are set up in PPUD as follows:
-Normal user - Level 1, belongs to "Recall Team" team ("Recall 1" in Internal Test)
+Normal user - Level 2, belongs to "Recall Team" team ("Recall 1" in Internal Test)
 Admin user - Level 5, belongs to "Performance Management" team.
 
 Further details can be found in [Setting Up Users in PPUD in Confluence](https://dsdmoj.atlassian.net/wiki/x/DQBREwE).

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.recall
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -9,6 +10,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.doesNotContain
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDocumentCategory
@@ -17,19 +20,23 @@ import java.util.UUID
 import java.util.function.Consumer
 import java.util.stream.Stream
 
-class RecallDocumentUploadTest : IntegrationTestBase() {
+class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
+
+  private lateinit var offenderId: String
+
+  private lateinit var releaseId: String
 
   companion object {
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
       return Stream.of(
-        MandatoryFieldTestData("documentId", uploadDocumentRequestBody(documentId = "")),
-        MandatoryFieldTestData("category", uploadDocumentRequestBody(category = ""), "DocumentCategory"),
+        MandatoryFieldTestData("documentId", uploadMandatoryDocumentRequestBody(documentId = "")),
+        MandatoryFieldTestData("category", uploadMandatoryDocumentRequestBody(category = ""), "DocumentCategory"),
       )
     }
 
-    fun uploadDocumentRequestBody(
+    fun uploadMandatoryDocumentRequestBody(
       documentId: String = UUID.randomUUID().toString(),
       category: String? = randomDocumentCategory().toString(),
     ): String {
@@ -42,6 +49,13 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
     }
   }
 
+  @BeforeAll
+  fun beforeAll() {
+    offenderId = createTestOffenderInPpud()
+    val sentenceId = findSentenceIdOnOffender(offenderId)
+    releaseId = createTestReleaseInPpud(offenderId, sentenceId)
+  }
+
   @AfterAll
   fun afterAll() {
     println("TestRunId for this run: $testRunId")
@@ -51,7 +65,7 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
   @Test
   fun `given missing request body when upload document called then bad request is returned`() {
     webTestClient.put()
-      .uri("/recall/${randomPpudId()}/document")
+      .uri(constructUri(randomPpudId()))
       .headers { it.authToken() }
       .exchange()
       .expectStatus()
@@ -74,14 +88,14 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
 
   @Test
   fun `given missing token when upload document called then unauthorized is returned`() {
-    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.PUT, "/recall/${randomPpudId()}/document")
+    givenMissingTokenWhenCalledThenUnauthorizedReturned(HttpMethod.PUT, constructUri(randomPpudId()))
   }
 
   @Test
   fun `given token without recall role when upload document called then forbidden is returned`() {
-    val requestBody = uploadDocumentRequestBody()
+    val requestBody = uploadMandatoryDocumentRequestBody()
     givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(
-      "/recall/${randomPpudId()}/document",
+      constructUri(randomPpudId()),
       requestBody,
       HttpMethod.PUT,
     )
@@ -89,13 +103,10 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when upload document called then document is uploaded and document is marked as not missing`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
     val recallId = createTestRecallInPpud(offenderId, releaseId)
     val documentId = UUID.randomUUID()
     val documentCategory = randomDocumentCategory()
-    val requestBody = uploadDocumentRequestBody(
+    val requestBody = uploadMandatoryDocumentRequestBody(
       documentId = documentId.toString(),
       category = documentCategory.toString(),
     )
@@ -105,18 +116,41 @@ class RecallDocumentUploadTest : IntegrationTestBase() {
     val retrievedRecall = retrieveRecall(recallId)
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
-//      .jsonPath("recall.documents.size()").isEqualTo(1)
-//      .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
-//      .jsonPath("recall.documents[0].type").isEqualTo("301 - Post Release Recall")
-//      .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(5)
-//      .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
+      .jsonPath("recall.documents.size()").isEqualTo(1)
+      .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
+      .jsonPath("recall.documents[0].documentType").isEqualTo("216 - Post Release Recall")
+      .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(5)
+      .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
+  }
+
+  @Test
+  fun `given last mandatory document when upload document called then document is uploaded and all documents are marked as not missing`() {
+    val recallId = createTestRecallInPpud(offenderId, releaseId)
+    val documentId = UUID.randomUUID()
+
+    for (category in DocumentCategory.entries.shuffled()) {
+      val requestBody = uploadMandatoryDocumentRequestBody(
+        documentId = documentId.toString(),
+        category = category.toString(),
+      )
+      putDocument(recallId, requestBody)
+    }
+
+    val retrievedRecall = retrieveRecall(recallId)
+    retrievedRecall
+      .jsonPath("recall.id").isEqualTo(recallId)
+      .jsonPath("recall.documents.size()").isEqualTo(6)
+      .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(0)
+      .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("Yes")
   }
 
   protected fun putDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec =
     webTestClient.put()
-      .uri("/recall/$recallId/document")
+      .uri(constructUri(recallId))
       .headers { it.authToken() }
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestBody))
       .exchange()
+
+  private fun constructUri(recallId: String) = "/recall/$recallId/mandatory-document"
 }

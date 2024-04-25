@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import java.nio.file.Paths
 
 @RestController
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
@@ -37,16 +38,17 @@ internal class RecallController(private val ppudClient: OperationalPpudClient) {
   }
 
   @Operation(
-    summary = "Upload a document to a recall.",
+    summary = "Upload a mandatory document to a recall.",
     description = "Add a document of the specified category to the recall identified by the recallId.  The document" +
       "must be present in the Document Management API and identified by the supplied documentId.",
   )
-  @PutMapping("/recall/{recallId}/document")
-  suspend fun uploadDocument(
+  @PutMapping("/recall/{recallId}/mandatory-document")
+  suspend fun uploadMandatoryDocument(
     @PathVariable(required = true) recallId: String,
-    @RequestBody(required = true) request: UploadDocumentRequest,
+    @RequestBody(required = true) request: UploadMandatoryDocumentRequest,
   ) {
-    log.info("Recall document upload endpoint hit")
-    ppudClient.uploadDocument(recallId, request)
+    log.info("Recall mandatory document upload endpoint hit")
+    val path = Paths.get("src/test/resources/test-file.pdf").toAbsolutePath().toString()
+    ppudClient.uploadMandatoryDocument(recallId, request, path)
   }
 }

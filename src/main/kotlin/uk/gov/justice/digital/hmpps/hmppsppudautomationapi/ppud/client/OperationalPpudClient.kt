@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -171,15 +171,26 @@ internal class OperationalPpudClient(
     }
   }
 
+  suspend fun uploadMandatoryDocument(
+    recallId: String,
+    uploadMandatoryDocumentRequest: UploadMandatoryDocumentRequest,
+    filepath: String,
+  ) {
+    log.info("Uploading mandatory document in PPUD to recall with ID '$recallId'")
+    performLoggedInOperation {
+      driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
+      recallPage.uploadMandatoryDocument(uploadMandatoryDocumentRequest, filepath)
+      recallPage.markMandatoryDocumentAsReceived(uploadMandatoryDocumentRequest.category)
+      recallPage.throwIfInvalid()
+    }
+  }
+
   suspend fun retrieveRecall(id: String): Recall {
     log.info("Retrieving recall in PPUD Client with ID '$id'")
 
     return performLoggedInOperation {
       extractRecallDetails(id)
     }
-  }
-
-  fun uploadDocument(recallId: String, uploadDocumentRequest: UploadDocumentRequest) {
   }
 
   suspend fun deleteOffenders(familyName: String) {
