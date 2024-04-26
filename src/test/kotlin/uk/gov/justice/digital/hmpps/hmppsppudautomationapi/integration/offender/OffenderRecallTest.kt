@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -22,7 +23,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_P
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
@@ -32,6 +32,12 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 
 class OffenderRecallTest : IntegrationTestBase() {
+
+  private lateinit var offenderId: String
+
+  private lateinit var sentenceId: String
+
+  private lateinit var releaseId: String
 
   companion object {
 
@@ -74,6 +80,13 @@ class OffenderRecallTest : IntegrationTestBase() {
         ),
       )
     }
+  }
+
+  @BeforeAll
+  fun beforeAll() {
+    offenderId = createTestOffenderInPpud()
+    sentenceId = findSentenceIdOnOffender(offenderId)
+    releaseId = createTestReleaseInPpud(offenderId, sentenceId)
   }
 
   @AfterAll
@@ -127,9 +140,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when recall called then recall is created using supplied values and 201 created and recall Id are returned`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
     val decisionDateTime = randomTimeToday()
     val receivedDateTime = randomTimeToday()
     val requestBody = createRecallRequestBody(
@@ -158,9 +168,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given subsequent call with same values in request body when recall called then recall is not created and existing recall Id is returned`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(offenderId, sentenceId)
     val requestBody = createRecallRequestBody()
 
     val firstId = postRecall(offenderId, releaseId, requestBody)
@@ -171,17 +178,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given offender is already in custody when recall called then UAL is unchecked UAL check is not set and return to custody is set`() {
-    val offenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(
-        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
-      ),
-    )
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(
-      offenderId,
-      sentenceId,
-      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
-    )
     val requestBody = createRecallRequestBody(isInCustody = "true")
 
     val id = postRecall(offenderId, releaseId, requestBody)
@@ -196,17 +192,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given offender is not in custody when recall called then UAL is checked UAL check is set and return to custody is not set`() {
-    val offenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(
-        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
-      ),
-    )
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(
-      offenderId,
-      sentenceId,
-      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
-    )
     val requestBody = createRecallRequestBody(isInCustody = "false")
 
     val id = postRecall(offenderId, releaseId, requestBody)
@@ -222,17 +207,6 @@ class OffenderRecallTest : IntegrationTestBase() {
   // TODO: This is a bit of a rubbish test. Can we assert that riskOfContrabandDetails was used?
   @Test
   fun `given risk of contraband details when recall called then 201 created and recall Id are returned`() {
-    val offenderId = createTestOffenderInPpud(
-      createOffenderRequestBody(
-        dateOfSentence = ppudKnownExistingOffender.sentenceDate,
-      ),
-    )
-    val sentenceId = findSentenceIdOnOffender(offenderId)
-    val releaseId = createTestReleaseInPpud(
-      offenderId,
-      sentenceId,
-      releaseRequestBody(dateOfRelease = ppudKnownExistingOffender.releaseDate),
-    )
     val requestBody = createRecallRequestBody(riskOfContrabandDetails = randomString("riskOfContrabandDetails"))
 
     webTestClient.post()

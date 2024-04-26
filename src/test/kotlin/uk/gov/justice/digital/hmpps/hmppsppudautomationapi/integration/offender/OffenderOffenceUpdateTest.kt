@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -20,6 +21,10 @@ import java.util.function.Consumer
 import java.util.stream.Stream
 
 class OffenderOffenceUpdateTest : IntegrationTestBase() {
+
+  private lateinit var offenderId: String
+
+  private lateinit var sentenceId: String
 
   companion object {
 
@@ -41,6 +46,12 @@ class OffenderOffenceUpdateTest : IntegrationTestBase() {
         }
       """.trimIndent()
     }
+  }
+
+  @BeforeAll
+  fun beforeAll() {
+    offenderId = createTestOffenderInPpud()
+    sentenceId = findSentenceIdOnOffender(offenderId)
   }
 
   @AfterAll
@@ -75,8 +86,6 @@ class OffenderOffenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update offence called then 200 OK is returned`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
     val requestBodyWithOnlyMandatoryFields = """
       {
         "indexOffence":"$PPUD_VALID_INDEX_OFFENCE"
@@ -103,8 +112,6 @@ class OffenderOffenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when update offence called then offence is updated using supplied values`() {
-    val offenderId = createTestOffenderInPpud()
-    val sentenceId = findSentenceIdOnOffender(offenderId)
     val indexOffence = PPUD_VALID_INDEX_OFFENCE_2
     val dateOfIndexOffence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val requestBody = updateOffenceRequestBody(
