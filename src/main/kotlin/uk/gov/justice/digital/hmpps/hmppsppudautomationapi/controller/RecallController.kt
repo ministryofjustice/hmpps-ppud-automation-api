@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
-import java.nio.file.Paths
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.DocumentService
 
 @RestController
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class RecallController(private val ppudClient: OperationalPpudClient) {
+internal class RecallController(
+  private val documentService: DocumentService,
+  private val ppudClient: OperationalPpudClient,
+) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -48,7 +51,7 @@ internal class RecallController(private val ppudClient: OperationalPpudClient) {
     @RequestBody(required = true) request: UploadMandatoryDocumentRequest,
   ) {
     log.info("Recall mandatory document upload endpoint hit")
-    val path = Paths.get("src/test/resources/test-file.pdf").toAbsolutePath().toString()
+    val path = documentService.downloadDocument(request.documentId)
     ppudClient.uploadMandatoryDocument(recallId, request, path)
   }
 }

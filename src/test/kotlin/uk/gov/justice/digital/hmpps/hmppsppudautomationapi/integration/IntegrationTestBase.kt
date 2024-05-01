@@ -2,11 +2,13 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration
 
 import com.google.gson.Gson
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -35,8 +37,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneN
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
+import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.random.Random
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -263,9 +268,18 @@ abstract class IntegrationTestBase {
     }
   }
 
+  @BeforeAll
+  fun beforeAll(@Value("\${documents.storageDirectory}") documentsStorageDirectory: String) {
+    File(documentsStorageDirectory).mkdir()
+  }
+
   fun startupMockServers() {
     oauthMock = ClientAndServer.startClientAndServer(9090)
     documentManagementMock = ClientAndServer.startClientAndServer(8442)
+
+    // Mock servers seem to modify the java.util.logging level so set this back
+    // to SEVERE so that we don't get Selenium logging superfluous warnings
+    Logger.getLogger("").level = Level.SEVERE
   }
 
   fun resetMockServers() {
@@ -290,10 +304,6 @@ abstract class IntegrationTestBase {
         roles = roles,
       ),
     )
-  }
-
-  private fun HttpHeaders.dataTidyAuthToken() {
-    authToken(listOf("ROLE_PPUD_AUTOMATION__TESTS__READWRITE"), "SOME_USER")
   }
 
   protected fun createTestOffenderInPpud(requestBody: String = createOffenderRequestBody()): String {
@@ -439,6 +449,10 @@ abstract class IntegrationTestBase {
       .exchange()
       .expectStatus()
       .isForbidden
+  }
+
+  private fun HttpHeaders.dataTidyAuthToken() {
+    authToken(listOf("ROLE_PPUD_AUTOMATION__TESTS__READWRITE"), "SOME_USER")
   }
 
   private fun setupOauth() {

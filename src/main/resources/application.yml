@@ -106,6 +106,9 @@ automation:
   firefox:
     binary: ''
 
+documents:
+  storageDirectory: /docs
+
 cache:
   timeToLiveSeconds: 1200
   refreshInitialDelaySeconds: 10
