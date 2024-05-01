@@ -34,6 +34,7 @@ class WebClientConfiguration(
   @Value("\${document-management.api.url}") private val documentManagementApiRootUri: String,
   @Value("\${document-management.client.timeout}") private val documentManagementTimeout: Long,
   @Value("\${document-management.health.timeout}") private val documentManagementHealthTimeout: Long,
+  @Value("\${document-management.client.headers.serviceName}") private val documentManagementHeaderServiceName: String,
 ) {
 
   companion object {
@@ -120,7 +121,8 @@ class WebClientConfiguration(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: OAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
   ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, documentManagementApiRootUri, "document-management")
+    val withServiceNameHeader = builder.defaultHeader("Service-Name", documentManagementHeaderServiceName)
+    return getOAuthWebClient(authorizedClientManager, withServiceNameHeader, documentManagementApiRootUri, "document-management")
   }
 
   @Bean

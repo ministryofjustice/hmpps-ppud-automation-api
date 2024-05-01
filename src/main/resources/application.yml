@@ -120,6 +120,8 @@ hmpps:
 document-management:
   client:
     timeout: 30
+    headers:
+      serviceName: "Making a recall decision Manage a Recall (PPCS) Consider a Recall (CaR)"
   health:
     timeout: 5
   api:

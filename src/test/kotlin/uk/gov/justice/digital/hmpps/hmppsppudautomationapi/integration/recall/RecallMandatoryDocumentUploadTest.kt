@@ -163,7 +163,9 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
 
   private fun setupDocumentManagementMockToReturnDocument(documentId: UUID) {
     val request =
-      HttpRequest.request().withPath("/documents/$documentId/file")
+      HttpRequest.request()
+        .withPath("/documents/$documentId/file")
+        .withHeader("Service-Name", "Making a recall decision Manage a Recall (PPCS) Consider a Recall (CaR)")
     documentManagementMock.`when`(request).respond(
       HttpResponse.response()
         .withHeader(HttpHeaders.CONTENT_TYPE, "application/pdf;charset=UTF-8")
