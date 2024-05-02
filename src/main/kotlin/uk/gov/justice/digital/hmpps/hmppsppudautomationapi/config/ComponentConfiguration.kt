@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.Pa
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 @Configuration
 internal class ComponentConfiguration {
@@ -160,5 +161,10 @@ internal class ComponentConfiguration {
       .capabilities(options)
       .avoidShutdownHook()
       .create()
+  }
+
+  @Bean
+  fun uuidProvider(): () -> UUID {
+    return { UUID.randomUUID() }
   }
 }

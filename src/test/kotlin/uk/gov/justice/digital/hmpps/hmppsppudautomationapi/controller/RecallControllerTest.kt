@@ -3,10 +3,13 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.DocumentService
@@ -58,6 +61,44 @@ internal class RecallControllerTest {
         .downloadDocument(documentId)
       then(ppudClient).should()
         .uploadMandatoryDocument(recallId, request, pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given document uploaded successfully when uploadMandatoryDocument is called then downloaded document is deleted`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadMandatoryDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
+
+      controller.uploadMandatoryDocument(recallId, request)
+
+      val inOrder = inOrder(ppudClient, documentService)
+      then(ppudClient).should(inOrder)
+        .uploadMandatoryDocument(any(), any(), any())
+      then(documentService).should(inOrder)
+        .deleteDownloadedDocument(pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given document upload fails when uploadMandatoryDocument is called then downloaded document is deleted`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadMandatoryDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
+      given(ppudClient.uploadMandatoryDocument(any(), any(), any())).willThrow(RuntimeException("Test Exception"))
+
+      assertThrows<RuntimeException> {
+        controller.uploadMandatoryDocument(recallId, request)
+      }
+
+      then(documentService).should()
+        .deleteDownloadedDocument(pathToDownloadedDocument)
     }
   }
 }
