@@ -52,6 +52,10 @@ internal class RecallController(
   ) {
     log.info("Recall mandatory document upload endpoint hit")
     val path = documentService.downloadDocument(request.documentId)
-    ppudClient.uploadMandatoryDocument(recallId, request, path)
+    try {
+      ppudClient.uploadMandatoryDocument(recallId, request, path)
+    } finally {
+      documentService.deleteDownloadedDocument(path)
+    }
   }
 }
