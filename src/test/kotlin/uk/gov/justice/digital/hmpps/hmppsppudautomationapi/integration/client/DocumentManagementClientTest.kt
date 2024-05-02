@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.client
 import org.hibernate.validator.internal.util.Contracts.assertNotEmpty
 import org.hibernate.validator.internal.util.Contracts.assertTrue
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -68,7 +69,7 @@ class DocumentManagementClientTest(
   }
 
   @Test
-  fun `given non existing document ID when retrieveDocument is called then a DocumentNotFoundException is thrown`() {
+  fun `given non existent document ID when retrieveDocument is called then a DocumentNotFoundException is thrown`() {
     val nonExistentDocumentId = UUID.randomUUID()
     setupMockNotFoundResponse(nonExistentDocumentId)
     val exception = assertThrows<DocumentNotFoundException> {
@@ -85,7 +86,8 @@ class DocumentManagementClientTest(
     val documentId = UUID.randomUUID()
     setupMockDocumentResponse(documentId)
     val result = documentManagementClient.retrieveDocument(documentId)
-    assertNotEmpty(result.readAllBytes(), "Document stream is empty")
+    assertNotEmpty(result.content, "Document is empty")
+    assertEquals("test-file.pdf", result.filename)
   }
 
   @Test
@@ -93,7 +95,7 @@ class DocumentManagementClientTest(
     val documentId = UUID.randomUUID()
     setupMockDocumentResponseRequiringRetry(documentId)
     val result = documentManagementClient.retrieveDocument(documentId)
-    assertNotEmpty(result.readAllBytes(), "Document stream is empty")
+    assertNotEmpty(result.content, "Document stream is empty")
   }
 
   private fun setupMockDocumentResponse(documentId: UUID) {

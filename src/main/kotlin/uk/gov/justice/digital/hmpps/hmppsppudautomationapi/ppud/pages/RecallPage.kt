@@ -239,7 +239,7 @@ internal class RecallPage(
     saveButton.click()
   }
 
-  suspend fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
+  fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
     val today = LocalDateTime.now().format(dateFormatter)
     uploadDocumentButton.click()
     deliveryActualInput.sendKeys(today)
@@ -349,7 +349,7 @@ internal class RecallPage(
     }
   }
 
-  private suspend fun waitForDocumentToUpload() {
+  private fun waitForDocumentToUpload() {
     WebDriverWait(driver, Duration.ofSeconds(30))
       .until { documentUploadStatuses.all { it.text == "Complete" } }
   }

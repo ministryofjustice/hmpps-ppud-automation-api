@@ -7,13 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.DocumentService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
+import java.util.UUID
 
 @ExtendWith(MockitoExtension::class)
 internal class RecallControllerTest {
@@ -21,11 +21,14 @@ internal class RecallControllerTest {
   @Mock
   lateinit var ppudClient: OperationalPpudClient
 
+  @Mock
+  lateinit var documentService: DocumentService
+
   private lateinit var controller: RecallController
 
   @BeforeEach
   fun beforeEach() {
-    controller = RecallController(ppudClient)
+    controller = RecallController(documentService, ppudClient)
   }
 
   @Test
@@ -41,15 +44,20 @@ internal class RecallControllerTest {
   }
 
   @Test
-  fun `given recall id and document data when uploadMandatoryDocument is called then data is passed to PPUD client`() {
+  fun `given recall id and document data when uploadMandatoryDocument is called then document is downloaded and data is passed to PPUD client`() {
     runBlocking {
       val recallId = randomPpudId()
-      val request = generateUploadMandatoryDocumentRequest()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadMandatoryDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
 
       controller.uploadMandatoryDocument(recallId, request)
 
+      then(documentService).should()
+        .downloadDocument(documentId)
       then(ppudClient).should()
-        .uploadMandatoryDocument(eq(recallId), eq(request), any())
+        .uploadMandatoryDocument(recallId, request, pathToDownloadedDocument)
     }
   }
 }

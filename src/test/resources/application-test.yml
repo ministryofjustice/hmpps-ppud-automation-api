@@ -12,6 +12,9 @@ hmpps:
 cache:
   refreshInitialDelaySeconds: 9999
 
+documents:
+  storageDirectory: ./build/tmp/docs
+
 document-management:
   client:
     timeout: 2
