@@ -107,7 +107,7 @@ automation:
     binary: ''
 
 documents:
-  storageDirectory: /docs
+  storageDirectory: ./build/tmp/docs
 
 cache:
   timeToLiveSeconds: 1200

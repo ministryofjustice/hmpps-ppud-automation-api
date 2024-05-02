@@ -34,6 +34,7 @@ generic-service:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
     SPRING_DATA_REDIS_SSL_ENABLED: "true"
     CACHE_TIMETOLIVESECONDS: 43200  # 12 hours
+    DOCUMENTS_STORAGEDIRECTORY: /docs # Must match volumeMount mountPath above
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:
