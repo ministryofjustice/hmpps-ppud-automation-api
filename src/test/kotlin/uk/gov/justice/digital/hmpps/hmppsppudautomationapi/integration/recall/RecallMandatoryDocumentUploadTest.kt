@@ -118,7 +118,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
     val recallId = createTestRecallInPpud(offenderId, releaseId)
     val documentId = UUID.randomUUID()
     setupDocumentManagementMockToReturnDocument(documentId)
-    val documentCategory = randomDocumentCategory()
+    val documentCategory = randomDocumentCategory(exclude = DocumentCategory.RecallRequestEmail)
     val requestBody = uploadMandatoryDocumentRequestBody(
       documentId = documentId.toString(),
       category = documentCategory.toString(),
@@ -129,12 +129,40 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
 
     documentManagementMock.verify(HttpRequest.request().withPath("/documents/$documentId/file"))
     val retrievedRecall = retrieveRecall(recallId)
+    val expectedDocumentType = "216 - Post Release Recall" // As configured for InternalTest
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
       .jsonPath("recall.documents.size()").isEqualTo(1)
       .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
-      .jsonPath("recall.documents[0].documentType").isEqualTo("216 - Post Release Recall")
+      .jsonPath("recall.documents[0].documentType").isEqualTo(expectedDocumentType)
       .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(5)
+      .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
+  }
+
+  @Test
+  fun `given valid values in request body for Recall Request Email when upload document called then document is uploaded`() {
+    val recallId = createTestRecallInPpud(offenderId, releaseId)
+    val documentId = UUID.randomUUID()
+    setupDocumentManagementMockToReturnDocument(documentId)
+    val documentCategory = DocumentCategory.RecallRequestEmail
+    val requestBody = uploadMandatoryDocumentRequestBody(
+      documentId = documentId.toString(),
+      category = documentCategory.toString(),
+    )
+
+    putDocument(recallId, requestBody)
+      .expectStatus().isOk
+
+    documentManagementMock.verify(HttpRequest.request().withPath("/documents/$documentId/file"))
+    val retrievedRecall = retrieveRecall(recallId)
+    // DocumentType is the same for emails and non-emails for now, but that doesn't match the job card
+    val expectedDocumentType = "216 - Post Release Recall"
+    retrievedRecall
+      .jsonPath("recall.id").isEqualTo(recallId)
+      .jsonPath("recall.documents.size()").isEqualTo(1)
+      .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
+      .jsonPath("recall.documents[0].documentType").isEqualTo(expectedDocumentType)
+      .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(6)
       .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
   }
 
@@ -156,7 +184,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
     val retrievedRecall = retrieveRecall(recallId)
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
-      .jsonPath("recall.documents.size()").isEqualTo(6)
+      .jsonPath("recall.documents.size()").isEqualTo(7)
       .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(0)
       .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("Yes")
   }

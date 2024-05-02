@@ -143,6 +143,7 @@ internal class RecallPage(
   private val documentUploadStatuses: List<WebElement>
     get() = documentUploadStatusTable.findElements(By.xpath(".//td[starts-with(@id, 'upload_1')]"))
 
+  // Recall Request Email is a mandatory document but doesn't have a checkbox
   private val missingMandatoryDocumentsMap: Map<DocumentCategory, WebElement> by lazy {
     mapOf(
       DocumentCategory.ChargeSheet to missingChargeSheetCheckbox,
@@ -254,18 +255,19 @@ internal class RecallPage(
 
   fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
     val missingCheckbox = missingMandatoryDocumentsMap[documentCategory]
-      ?: throw RuntimeException("Document category '$documentCategory' is not mapped to a checkbox")
-    if (missingCheckbox.isDisplayed) {
-      pageHelper.selectCheckboxValue(missingCheckbox, false)
+    if (missingCheckbox != null) {
+      if (missingCheckbox.isDisplayed) {
+        pageHelper.selectCheckboxValue(missingCheckbox, false)
+      }
+      if (extractMissingMandatoryDocuments().isEmpty()) {
+        pageHelper.selectDropdownOptionIfNotBlank(
+          mandatoryDocumentsReceivedDropdown,
+          "Yes",
+          "mandatory documents received",
+        )
+      }
+      saveButton.click()
     }
-    if (extractMissingMandatoryDocuments().isEmpty()) {
-      pageHelper.selectDropdownOptionIfNotBlank(
-        mandatoryDocumentsReceivedDropdown,
-        "Yes",
-        "mandatory documents received",
-      )
-    }
-    saveButton.click()
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {

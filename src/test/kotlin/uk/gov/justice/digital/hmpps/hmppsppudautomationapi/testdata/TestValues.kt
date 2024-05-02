@@ -156,8 +156,8 @@ fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
   return RiskOfSeriousHarmLevel.entries.shuffled().first()
 }
 
-fun randomDocumentCategory(): DocumentCategory {
-  return DocumentCategory.entries.shuffled().first()
+fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory {
+  return DocumentCategory.entries.shuffled().first { it != exclude }
 }
 
 /**
