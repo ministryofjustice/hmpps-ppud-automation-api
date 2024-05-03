@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
@@ -54,6 +56,27 @@ internal class RecallController(
     val path = documentService.downloadDocument(request.documentId)
     try {
       ppudClient.uploadMandatoryDocument(recallId, request, path)
+    } finally {
+      documentService.deleteDownloadedDocument(path)
+    }
+  }
+
+  @Operation(
+    summary = "Upload an additional document to a recall.",
+    description = "Add a non-mandatory document to the recall identified by the recallId.  The document" +
+      "must be present in the Document Management API and identified by the supplied documentId.",
+  )
+  @PutMapping("/recall/{recallId}/additional-document")
+  suspend fun uploadAdditionalDocument(
+    @PathVariable(required = true) recallId: String,
+    @Valid
+    @RequestBody(required = true)
+    request: UploadAdditionalDocumentRequest,
+  ) {
+    log.info("Recall additional document upload endpoint hit")
+    val path = documentService.downloadDocument(request.documentId)
+    try {
+      ppudClient.uploadAdditionalDocument(recallId, request, path)
     } finally {
       documentService.deleteDownloadedDocument(path)
     }

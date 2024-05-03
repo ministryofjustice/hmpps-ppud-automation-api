@@ -8,9 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockserver.model.HttpRequest
-import org.mockserver.model.HttpResponse
-import org.springframework.core.io.ClassPathResource
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -187,19 +184,6 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
       .jsonPath("recall.documents.size()").isEqualTo(7)
       .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(0)
       .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("Yes")
-  }
-
-  private fun setupDocumentManagementMockToReturnDocument(documentId: UUID) {
-    val request =
-      HttpRequest.request()
-        .withPath("/documents/$documentId/file")
-        .withHeader("Service-Name", "Making a recall decision Manage a Recall (PPCS) Consider a Recall (CaR)")
-    documentManagementMock.`when`(request).respond(
-      HttpResponse.response()
-        .withHeader(HttpHeaders.CONTENT_TYPE, "application/pdf;charset=UTF-8")
-        .withHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"test-file.pdf\"")
-        .withBody(ClassPathResource("test-file.pdf").file.readBytes()),
-    )
   }
 
   private fun putDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec =

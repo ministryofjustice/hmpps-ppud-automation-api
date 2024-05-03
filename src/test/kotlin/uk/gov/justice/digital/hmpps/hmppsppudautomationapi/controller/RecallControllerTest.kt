@@ -14,6 +14,7 @@ import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.DocumentService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.util.UUID
@@ -95,6 +96,62 @@ internal class RecallControllerTest {
 
       assertThrows<RuntimeException> {
         controller.uploadMandatoryDocument(recallId, request)
+      }
+
+      then(documentService).should()
+        .deleteDownloadedDocument(pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given recall id and document data when uploadAdditionalDocument is called then document is downloaded and data is passed to PPUD client`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadAdditionalDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
+
+      controller.uploadAdditionalDocument(recallId, request)
+
+      then(documentService).should()
+        .downloadDocument(documentId)
+      then(ppudClient).should()
+        .uploadAdditionalDocument(recallId, request, pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given document uploaded successfully when uploadAdditionalDocument is called then downloaded document is deleted`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadAdditionalDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
+
+      controller.uploadAdditionalDocument(recallId, request)
+
+      val inOrder = inOrder(ppudClient, documentService)
+      then(ppudClient).should(inOrder)
+        .uploadAdditionalDocument(any(), any(), any())
+      then(documentService).should(inOrder)
+        .deleteDownloadedDocument(pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given document upload fails when uploadAdditionalDocument is called then downloaded document is deleted`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val documentId = UUID.randomUUID()
+      val request = generateUploadAdditionalDocumentRequest(documentId = documentId)
+      val pathToDownloadedDocument = "some/path/doc.doc"
+      given(documentService.downloadDocument(documentId)).willReturn(pathToDownloadedDocument)
+      given(ppudClient.uploadAdditionalDocument(any(), any(), any())).willThrow(RuntimeException("Test Exception"))
+
+      assertThrows<RuntimeException> {
+        controller.uploadAdditionalDocument(recallId, request)
       }
 
       then(documentService).should()

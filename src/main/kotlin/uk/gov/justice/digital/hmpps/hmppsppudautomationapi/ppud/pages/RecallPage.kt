@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Document
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
@@ -241,16 +242,7 @@ internal class RecallPage(
   }
 
   fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
-    val today = LocalDateTime.now().format(dateFormatter)
-    uploadDocumentButton.click()
-    deliveryActualInput.sendKeys(today)
-    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentType, "document type")
-    documentTitleInput.sendKeys(request.category.title)
-    replyActualInput.sendKeys(today)
-    chooseFileInput.sendKeys(filepath)
-    saveAndAddMoreDocumentsButton.click()
-    waitForDocumentToUpload()
-    closeDocumentUploadButton.click()
+    uploadDocument(documentType, request.category.title, filepath)
   }
 
   fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
@@ -268,6 +260,10 @@ internal class RecallPage(
       }
       saveButton.click()
     }
+  }
+
+  fun uploadAdditionalDocument(request: UploadAdditionalDocumentRequest, filepath: String) {
+    uploadDocument(documentType, request.title, filepath)
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
@@ -349,6 +345,19 @@ internal class RecallPage(
     } else {
       emptyList()
     }
+  }
+
+  private fun uploadDocument(documentType: String, title: String, filepath: String) {
+    val today = LocalDate.now().format(dateFormatter)
+    uploadDocumentButton.click()
+    deliveryActualInput.sendKeys(today)
+    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentType, "document type")
+    documentTitleInput.sendKeys(title)
+    replyActualInput.sendKeys(today)
+    chooseFileInput.sendKeys(filepath)
+    saveAndAddMoreDocumentsButton.click()
+    waitForDocumentToUpload()
+    closeDocumentUploadButton.click()
   }
 
   private fun waitForDocumentToUpload() {

@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
@@ -337,6 +338,17 @@ fun generateUploadMandatoryDocumentRequest(documentId: UUID = UUID.randomUUID())
   return UploadMandatoryDocumentRequest(
     documentId = documentId,
     category = randomDocumentCategory(),
+  )
+}
+
+/**
+ * This will create a request that is useful for mocked testing but uses random values
+ * so some of the values won't be acceptable to PPUD.
+ */
+fun generateUploadAdditionalDocumentRequest(documentId: UUID = UUID.randomUUID()): UploadAdditionalDocumentRequest {
+  return UploadAdditionalDocumentRequest(
+    documentId = documentId,
+    title = randomString("title"),
   )
 }
 

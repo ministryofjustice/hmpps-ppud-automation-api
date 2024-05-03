@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -425,6 +426,19 @@ abstract class IntegrationTestBase {
       .exchange()
       .expectStatus()
       .isUnauthorized
+  }
+
+  protected fun setupDocumentManagementMockToReturnDocument(documentId: UUID) {
+    val request =
+      HttpRequest.request()
+        .withPath("/documents/$documentId/file")
+        .withHeader("Service-Name", "Making a recall decision Manage a Recall (PPCS) Consider a Recall (CaR)")
+    documentManagementMock.`when`(request).respond(
+      HttpResponse.response()
+        .withHeader(HttpHeaders.CONTENT_TYPE, "application/pdf;charset=UTF-8")
+        .withHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"test-file.pdf\"")
+        .withBody(ClassPathResource("test-file.pdf").file.readBytes()),
+    )
   }
 
   protected fun givenTokenWithoutRecallRoleWhenCalledThenForbiddenReturned(uri: String) {

@@ -50,6 +50,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateReca
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateSearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUpdateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
@@ -1074,6 +1075,55 @@ class OperationalPpudClientTest {
       then(webDriverNavigation).should(inOrder).to(absoluteUrl)
       then(recallPage).should(inOrder).uploadMandatoryDocument(uploadMandatoryDocumentRequest, filepath)
       then(recallPage).should(inOrder).markMandatoryDocumentAsReceived(uploadMandatoryDocumentRequest.category)
+      then(recallPage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Test
+  fun `given recall ID and document data when upload additional document is called then log in to PPUD and verify success`() {
+    runBlocking {
+      val uploadAdditionalDocumentRequest = generateUploadAdditionalDocumentRequest()
+      client.uploadAdditionalDocument(
+        recallId = randomPpudId(),
+        uploadAdditionalDocumentRequest = uploadAdditionalDocumentRequest,
+        filepath = randomString("path"),
+      )
+
+      assertThatLogsOnAndVerifiesSuccess()
+    }
+  }
+
+  @Test
+  fun `given recall ID and document data when upload additional document is called then log out once done`() {
+    runBlocking {
+      val uploadAdditionalDocumentRequest = generateUploadAdditionalDocumentRequest()
+      client.uploadAdditionalDocument(
+        recallId = randomPpudId(),
+        uploadAdditionalDocumentRequest = uploadAdditionalDocumentRequest,
+        filepath = randomString("path"),
+      )
+
+      val inOrder = inOrder(recallPage, webDriverNavigation)
+      then(recallPage).should(inOrder).uploadAdditionalDocument(any(), any())
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given recall ID and document data when upload additional document is called then navigate to recall and upload document`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val uploadAdditionalDocumentRequest = generateUploadAdditionalDocumentRequest()
+      val filepath = randomString("path")
+      val url = randomString("/url")
+      val absoluteUrl = ppudUrl + url
+      given(recallPage.urlFor(recallId)).willReturn(url)
+
+      client.uploadAdditionalDocument(recallId, uploadAdditionalDocumentRequest, filepath)
+
+      val inOrder = inOrder(recallPage, webDriverNavigation)
+      then(webDriverNavigation).should(inOrder).to(absoluteUrl)
+      then(recallPage).should(inOrder).uploadAdditionalDocument(uploadAdditionalDocumentRequest, filepath)
       then(recallPage).should(inOrder).throwIfInvalid()
     }
   }
