@@ -126,7 +126,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
 
     documentManagementMock.verify(HttpRequest.request().withPath("/documents/$documentId/file"))
     val retrievedRecall = retrieveRecall(recallId)
-    val expectedDocumentType = "216 - Post Release Recall" // As configured for InternalTest
+    val expectedDocumentType = "301 - Post Release Recall"
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
       .jsonPath("recall.documents.size()").isEqualTo(1)
@@ -152,8 +152,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
 
     documentManagementMock.verify(HttpRequest.request().withPath("/documents/$documentId/file"))
     val retrievedRecall = retrieveRecall(recallId)
-    // DocumentType is the same for emails and non-emails for now, but that doesn't match the job card
-    val expectedDocumentType = "216 - Post Release Recall"
+    val expectedDocumentType = "303 - Correspondence (Post Release)"
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
       .jsonPath("recall.documents.size()").isEqualTo(1)

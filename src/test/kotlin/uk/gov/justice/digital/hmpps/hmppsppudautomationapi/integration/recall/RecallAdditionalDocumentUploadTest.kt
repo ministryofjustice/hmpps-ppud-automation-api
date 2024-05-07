@@ -124,7 +124,7 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
 
     documentManagementMock.verify(HttpRequest.request().withPath("/documents/$documentId/file"))
     val retrievedRecall = retrieveRecall(recallId)
-    val expectedDocumentType = "216 - Post Release Recall" // As configured for InternalTest
+    val expectedDocumentType = "301 - Post Release Recall"
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
       .jsonPath("recall.documents.size()").isEqualTo(1)

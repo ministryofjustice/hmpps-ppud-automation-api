@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Document
@@ -38,7 +39,8 @@ internal class RecallPage(
   @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
-  @Value("\${ppud.recall.documentType}") private val documentType: String,
+  @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
+  @Value("\${ppud.recall.documentType.email}") private val documentTypeEmail: String,
 ) {
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
@@ -156,9 +158,15 @@ internal class RecallPage(
     )
   }
 
+  private val documentTypeDescriptions: Map<DocumentType, String> by lazy {
+    mapOf(
+      DocumentType.Document to documentTypeDocument,
+      DocumentType.Email to documentTypeEmail,
+    )
+  }
+
   private val addMinuteButtonId = "cntDetails_PageFooter1_Minutes1_btnReplyTop"
 
-  // We need to detect if the Add Minute button isn't available, rather than throw an exception
   private val addMinuteButton: WebElement?
     get() = driver.findElements(By.id(addMinuteButtonId)).firstOrNull()
 
@@ -242,7 +250,7 @@ internal class RecallPage(
   }
 
   fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
-    uploadDocument(documentType, request.category.title, filepath)
+    uploadDocument(request.category.documentType, request.category.title, filepath)
   }
 
   fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
@@ -263,7 +271,9 @@ internal class RecallPage(
   }
 
   fun uploadAdditionalDocument(request: UploadAdditionalDocumentRequest, filepath: String) {
-    uploadDocument(documentType, request.title, filepath)
+    // We're setting document type to document for now so that we don't have to
+    // ask the user what type it is
+    uploadDocument(DocumentType.Document, request.title, filepath)
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
@@ -347,11 +357,11 @@ internal class RecallPage(
     }
   }
 
-  private fun uploadDocument(documentType: String, title: String, filepath: String) {
+  private fun uploadDocument(documentType: DocumentType, title: String, filepath: String) {
     val today = LocalDate.now().format(dateFormatter)
     uploadDocumentButton.click()
     deliveryActualInput.sendKeys(today)
-    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentType, "document type")
+    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentTypeDescriptions[documentType], "document type")
     documentTitleInput.sendKeys(title)
     replyActualInput.sendKeys(today)
     chooseFileInput.sendKeys(filepath)

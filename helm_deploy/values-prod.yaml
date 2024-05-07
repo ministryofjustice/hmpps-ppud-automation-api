@@ -11,7 +11,6 @@ generic-service:
     HMPPS_AUTH_URL: https://sign-in.hmpps.service.justice.gov.uk/auth
     PPUD_URL: https://www.ppud.justice.gov.uk
     DOCUMENT_MANAGEMENT_API_URL: https://document-api.hmpps.service.justice.gov.uk
-    PPUD_RECALL_DOCUMENTTYPE: "301 - Post Release Recall"
     PPUD_RECALL_REVOCATIONISSUEDBYOWNER: "EO Recall(Recall Team)"
     PPUD_RECALL_RECALLTYPE: "To be determined"
     PPUD_RECALL_RETURNTOCUSTODYNOTIFICATIONMETHOD: "Already in custody"

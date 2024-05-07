@@ -93,7 +93,9 @@ ppud:
     postRelease:
       licenceType: "Standard"
   recall:
-    documentType: "216 - Post Release Recall"
+    documentType:
+      document: "301 - Post Release Recall"
+      email: "303 - Correspondence (Post Release)"
     revocationIssuedByOwner: "EO Officer(Not Specified)"
     recallType: "Standard"
     returnToCustodyNotificationMethod: "Not Applicable"
