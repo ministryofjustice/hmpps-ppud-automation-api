@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
@@ -181,6 +182,19 @@ internal class OperationalPpudClient(
       driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
       recallPage.uploadMandatoryDocument(uploadMandatoryDocumentRequest, filepath)
       recallPage.markMandatoryDocumentAsReceived(uploadMandatoryDocumentRequest.category)
+      recallPage.throwIfInvalid()
+    }
+  }
+
+  suspend fun uploadAdditionalDocument(
+    recallId: String,
+    uploadAdditionalDocumentRequest: UploadAdditionalDocumentRequest,
+    filepath: String,
+  ) {
+    log.info("Uploading additional document in PPUD to recall with ID '$recallId'")
+    performLoggedInOperation {
+      driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
+      recallPage.uploadAdditionalDocument(uploadAdditionalDocumentRequest, filepath)
       recallPage.throwIfInvalid()
     }
   }
