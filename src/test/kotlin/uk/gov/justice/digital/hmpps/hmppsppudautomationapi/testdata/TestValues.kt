@@ -334,10 +334,14 @@ fun generateCreateRecallRequest(
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateUploadMandatoryDocumentRequest(documentId: UUID = UUID.randomUUID()): UploadMandatoryDocumentRequest {
+fun generateUploadMandatoryDocumentRequest(
+  documentId: UUID = UUID.randomUUID(),
+  owningCaseworker: PpudUser = generatePpudUser(),
+): UploadMandatoryDocumentRequest {
   return UploadMandatoryDocumentRequest(
     documentId = documentId,
     category = randomDocumentCategory(),
+    owningCaseworker = owningCaseworker,
   )
 }
 
@@ -345,10 +349,14 @@ fun generateUploadMandatoryDocumentRequest(documentId: UUID = UUID.randomUUID())
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateUploadAdditionalDocumentRequest(documentId: UUID = UUID.randomUUID()): UploadAdditionalDocumentRequest {
+fun generateUploadAdditionalDocumentRequest(
+  documentId: UUID = UUID.randomUUID(),
+  owningCaseworker: PpudUser = generatePpudUser(),
+): UploadAdditionalDocumentRequest {
   return UploadAdditionalDocumentRequest(
     documentId = documentId,
     title = randomString("title"),
+    owningCaseworker = owningCaseworker,
   )
 }
 

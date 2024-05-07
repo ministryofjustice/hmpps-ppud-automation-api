@@ -50,7 +50,9 @@ internal class RecallController(
   @PutMapping("/recall/{recallId}/mandatory-document")
   suspend fun uploadMandatoryDocument(
     @PathVariable(required = true) recallId: String,
-    @RequestBody(required = true) request: UploadMandatoryDocumentRequest,
+    @Valid
+    @RequestBody(required = true)
+    request: UploadMandatoryDocumentRequest,
   ) {
     log.info("Recall mandatory document upload endpoint hit")
     val path = documentService.downloadDocument(request.documentId)
