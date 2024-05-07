@@ -16,6 +16,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCatego
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.doesNotContain
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import java.util.UUID
@@ -137,6 +139,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
     val requestBody = uploadMandatoryDocumentRequestBody(
       documentId = documentId.toString(),
       category = documentCategory.toString(),
+      owningCaseworker = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
     putDocument(recallId, requestBody)
@@ -150,6 +153,7 @@ class RecallMandatoryDocumentUploadTest : IntegrationTestBase() {
       .jsonPath("recall.documents.size()").isEqualTo(1)
       .jsonPath("recall.documents[0].title").isEqualTo(documentCategory.title)
       .jsonPath("recall.documents[0].documentType").isEqualTo(expectedDocumentType)
+      .jsonPath("recall.documents[0].owningCaseworker").isEqualTo(PPUD_VALID_USER_FULL_NAME)
       .jsonPath("recall.missingMandatoryDocuments.size()").isEqualTo(5)
       .jsonPath("recall.missingMandatoryDocuments").value(doesNotContain(documentCategory.toString()))
   }

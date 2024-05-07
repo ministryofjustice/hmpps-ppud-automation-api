@@ -131,6 +131,12 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_PageFooter1_docEdit_ddliDOCUMENT_TYPE")
   private lateinit var documentTypeDropdown: WebElement
 
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_CASEWORKER_AutoCompleteTextBox")
+  private lateinit var owningCaseworkerInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_CASEWORKER_AutoSelect")
+  private lateinit var owningCaseworkerDropdown: WebElement
+
   @FindBy(id = "cntDetails_PageFooter1_docEdit_fUpDocuments")
   private lateinit var chooseFileInput: WebElement
 
@@ -250,7 +256,7 @@ internal class RecallPage(
   }
 
   fun uploadMandatoryDocument(request: UploadMandatoryDocumentRequest, filepath: String) {
-    uploadDocument(request.category.documentType, request.category.title, filepath)
+    uploadDocument(request.category.documentType, request.category.title, request.owningCaseworker, filepath)
   }
 
   fun markMandatoryDocumentAsReceived(documentCategory: DocumentCategory) {
@@ -273,7 +279,7 @@ internal class RecallPage(
   fun uploadAdditionalDocument(request: UploadAdditionalDocumentRequest, filepath: String) {
     // We're setting document type to document for now so that we don't have to
     // ask the user what type it is
-    uploadDocument(DocumentType.Document, request.title, filepath)
+    uploadDocument(DocumentType.Document, request.title, request.owningCaseworker, filepath)
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
@@ -350,6 +356,7 @@ internal class RecallPage(
         Document(
           title = it.findElement(By.xpath(".//td[3]")).text,
           documentType = it.findElement(By.xpath(".//td[4]")).text,
+          owningCaseworker = it.findElement(By.xpath(".//td[12]")).text,
         )
       }
     } else {
@@ -357,14 +364,25 @@ internal class RecallPage(
     }
   }
 
-  private fun uploadDocument(documentType: DocumentType, title: String, filepath: String) {
+  private fun uploadDocument(documentType: DocumentType, title: String, owningCaseworker: PpudUser, filepath: String) {
     val today = LocalDate.now().format(dateFormatter)
     uploadDocumentButton.click()
+    owningCaseworkerInput.click()
+    owningCaseworkerInput.sendKeys(owningCaseworker.fullName)
     deliveryActualInput.sendKeys(today)
-    pageHelper.selectDropdownOptionIfNotBlank(documentTypeDropdown, documentTypeDescriptions[documentType], "document type")
+    pageHelper.selectDropdownOptionIfNotBlank(
+      documentTypeDropdown,
+      documentTypeDescriptions[documentType],
+      "document type",
+    )
     documentTitleInput.sendKeys(title)
     replyActualInput.sendKeys(today)
     chooseFileInput.sendKeys(filepath)
+    pageHelper.selectDropdownOptionIfNotBlank(
+      owningCaseworkerDropdown,
+      owningCaseworker.formattedFullNameAndTeam,
+      "owning caseworker",
+    )
     saveAndAddMoreDocumentsButton.click()
     waitForDocumentToUpload()
     closeDocumentUploadButton.click()

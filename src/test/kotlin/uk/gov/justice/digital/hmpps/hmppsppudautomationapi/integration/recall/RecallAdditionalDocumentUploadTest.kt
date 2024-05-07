@@ -14,6 +14,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.util.UUID
@@ -135,6 +137,7 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
     val requestBody = uploadAdditionalDocumentRequestBody(
       documentId = documentId.toString(),
       title = title,
+      owningCaseworker = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
     putAdditionalDocument(recallId, requestBody)
@@ -148,6 +151,7 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
       .jsonPath("recall.documents.size()").isEqualTo(1)
       .jsonPath("recall.documents[0].title").isEqualTo(title)
       .jsonPath("recall.documents[0].documentType").isEqualTo(expectedDocumentType)
+      .jsonPath("recall.documents[0].owningCaseworker").isEqualTo(PPUD_VALID_USER_FULL_NAME)
   }
 
   private fun putAdditionalDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec =
