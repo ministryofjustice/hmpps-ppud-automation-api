@@ -33,17 +33,35 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
       return Stream.of(
         MandatoryFieldTestData("documentId", uploadAdditionalDocumentRequestBody(documentId = "")),
         MandatoryFieldTestData("title", uploadAdditionalDocumentRequestBody(title = ""), "title"),
+        MandatoryFieldTestData("owningCaseworker", uploadAdditionalDocumentRequestBody(owningCaseworker = null)),
+        MandatoryFieldTestData(
+          "owningCaseworker",
+          uploadAdditionalDocumentRequestBody(owningCaseworker = "{}"),
+          errorFragment = "fullName",
+        ),
+        MandatoryFieldTestData(
+          "owningCaseworker",
+          uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(fullName = "")),
+          errorFragment = "fullName",
+        ),
+        MandatoryFieldTestData(
+          "owningCaseworker",
+          uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(teamName = "")),
+          errorFragment = "team",
+        ),
       )
     }
 
     fun uploadAdditionalDocumentRequestBody(
       documentId: String = UUID.randomUUID().toString(),
       title: String? = randomString("title"),
+      owningCaseworker: String? = ppudUserRequestBody(),
     ): String {
       return """
         { 
-        "documentId":"$documentId", 
-        "title":"$title"
+          "documentId":"$documentId", 
+          "title":"$title",
+          "owningCaseworker":${owningCaseworker ?: "null"}
         }
       """.trimIndent()
     }
