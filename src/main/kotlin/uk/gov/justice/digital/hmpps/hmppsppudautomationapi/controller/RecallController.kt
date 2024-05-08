@@ -45,7 +45,7 @@ internal class RecallController(
   @Operation(
     summary = "Upload a mandatory document to a recall.",
     description = "Add a document of the specified category to the recall identified by the recallId.  The document" +
-      "must be present in the Document Management API and identified by the supplied documentId.",
+      " must be present in the Document Management API and identified by the supplied documentId.",
   )
   @PutMapping("/recall/{recallId}/mandatory-document")
   suspend fun uploadMandatoryDocument(
@@ -66,7 +66,7 @@ internal class RecallController(
   @Operation(
     summary = "Upload an additional document to a recall.",
     description = "Add a non-mandatory document to the recall identified by the recallId.  The document" +
-      "must be present in the Document Management API and identified by the supplied documentId.",
+      " must be present in the Document Management API and identified by the supplied documentId.",
   )
   @PutMapping("/recall/{recallId}/additional-document")
   suspend fun uploadAdditionalDocument(
