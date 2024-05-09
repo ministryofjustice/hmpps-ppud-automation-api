@@ -13,6 +13,7 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.DocumentService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateUploadMandatoryDocumentRequest
@@ -156,6 +157,18 @@ internal class RecallControllerTest {
 
       then(documentService).should()
         .deleteDownloadedDocument(pathToDownloadedDocument)
+    }
+  }
+
+  @Test
+  fun `given recall id and minute data when addMinute is called then data is passed to PPUD client`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val request = generateAddMinuteRequest()
+
+      controller.addMinute(recallId, request)
+
+      then(ppudClient).should().addMinute(recallId, request)
     }
   }
 }

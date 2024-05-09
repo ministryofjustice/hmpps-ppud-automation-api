@@ -9,7 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 @ApplicationScope
 internal class ContentCreator {
 
-  fun generateRecallMinuteText(createRecallRequest: CreateRecallRequest): String {
+  fun generateRecallMinuteBackgroundInfoText(createRecallRequest: CreateRecallRequest): String {
     val extended = if (createRecallRequest.isExtendedSentence) {
       "YES"
     } else {

@@ -40,6 +40,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
@@ -1125,6 +1126,51 @@ class OperationalPpudClientTest {
       then(webDriverNavigation).should(inOrder).to(absoluteUrl)
       then(recallPage).should(inOrder).uploadAdditionalDocument(uploadAdditionalDocumentRequest, filepath)
       then(recallPage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Test
+  fun `given recall ID and minute data when add minute is called then log in to PPUD and verify success`() {
+    runBlocking {
+      val request = generateAddMinuteRequest()
+      client.addMinute(
+        recallId = randomPpudId(),
+        request = request,
+      )
+
+      assertThatLogsOnAndVerifiesSuccess()
+    }
+  }
+
+  @Test
+  fun `given recall ID and minute data when add minute is called then log out once done`() {
+    runBlocking {
+      val request = generateAddMinuteRequest()
+      client.addMinute(
+        recallId = randomPpudId(),
+        request = request,
+      )
+
+      val inOrder = inOrder(recallPage, webDriverNavigation)
+      then(recallPage).should(inOrder).addMinute(any(), any())
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given recall ID and minute data when add minute is called then navigate to recall and upload document`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val request = generateAddMinuteRequest()
+      val url = randomString("/url")
+      val absoluteUrl = ppudUrl + url
+      given(recallPage.urlFor(recallId)).willReturn(url)
+
+      client.addMinute(recallId, request)
+
+      val inOrder = inOrder(recallPage, webDriverNavigation)
+      then(webDriverNavigation).should(inOrder).to(absoluteUrl)
+      then(recallPage).should(inOrder).addMinute(request.subject, request.text)
     }
   }
 

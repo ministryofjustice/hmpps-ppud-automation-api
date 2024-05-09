@@ -26,7 +26,7 @@ class ContentCreatorTest {
   ) {
     val creator = ContentCreator()
     val request = generateCreateRecallRequest(isExtendedSentence = isExtendedSentence)
-    val result = creator.generateRecallMinuteText(request)
+    val result = creator.generateRecallMinuteBackgroundInfoText(request)
     assertTrue(result.contains("Extended sentence: $expected"), "Text was:\n$result")
   }
 
@@ -45,7 +45,7 @@ class ContentCreatorTest {
     val creator = ContentCreator()
     val request =
       generateCreateRecallRequest(riskOfSeriousHarmLevel = RiskOfSeriousHarmLevel.valueOf(riskOfSeriousHarmLevel))
-    val result = creator.generateRecallMinuteText(request)
+    val result = creator.generateRecallMinuteBackgroundInfoText(request)
     assertTrue(result.contains("Risk of Serious Harm Level: $expected"), "Text was:\n$result")
   }
 
@@ -60,7 +60,7 @@ class ContentCreatorTest {
   ) {
     val creator = ContentCreator()
     val request = generateCreateRecallRequest(isInCustody = isInCustody)
-    val result = creator.generateRecallMinuteText(request)
+    val result = creator.generateRecallMinuteBackgroundInfoText(request)
     assertTrue(result.contains("In custody: $expected"), "Text was:\n$result")
   }
 

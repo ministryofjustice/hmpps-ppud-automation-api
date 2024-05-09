@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Document
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Minute
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
@@ -23,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -171,16 +173,26 @@ internal class RecallPage(
     )
   }
 
-  private val addMinuteButtonId = "cntDetails_PageFooter1_Minutes1_btnReplyTop"
-
-  private val addMinuteButton: WebElement?
-    get() = driver.findElements(By.id(addMinuteButtonId)).firstOrNull()
-
   private val documentsTable: WebElement?
     get() = driver.findElements(By.id("cntDetails_PageFooter1_GridView2")).firstOrNull()
 
-  private val minuteEditor: WebElement
-    get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_MinutesTextRich_tw"))
+  @FindBy(id = "M_ctl00cntDetailsPageFooter1Minutes1UltraWebTree1")
+  private lateinit var minutesTreeViewRoot: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_Minutes1_txtEditSubject")
+  private lateinit var minuteSubjectInput: WebElement
+
+  @FindBy(id = "MinuteDetail")
+  private lateinit var minuteTextDiv: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_Minutes1_btnReplyTop")
+  private lateinit var addMinuteButton: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_Minutes1_txtSubject")
+  private lateinit var addMinuteSubjectInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_Minutes1_MinutesTextRich_tw")
+  private lateinit var addMinuteEditor: WebElement
 
   private val saveMinuteButton: WebElement
     get() = driver.findElement(By.id("cntDetails_PageFooter1_Minutes1_btnSave"))
@@ -283,12 +295,16 @@ internal class RecallPage(
   }
 
   fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
-    addMinute(contentCreator.generateRecallMinuteText(createRecallRequest))
+    addMinuteInternal(contentCreator.generateRecallMinuteBackgroundInfoText(createRecallRequest))
+  }
+
+  fun addMinute(subject: String, text: String) {
+    addMinuteInternal(subject = subject, text = text)
   }
 
   fun addContrabandMinuteIfNeeded(createRecallRequest: CreateRecallRequest) {
     if (createRecallRequest.riskOfContrabandDetails.isNotBlank()) {
-      addMinute(createRecallRequest.riskOfContrabandDetails)
+      addMinuteInternal(createRecallRequest.riskOfContrabandDetails, subject = "RISK OF CONTRABAND")
     }
   }
 
@@ -301,7 +317,7 @@ internal class RecallPage(
   fun extractCreatedRecallDetails(): CreatedRecall {
     // This should be performed when the Recall screen is in "existing recall" mode.
     // The add minute button is shown then, but not for a new recall
-    if (addMinuteButton?.isDisplayed == true) {
+    if (addMinuteButton.isDisplayed) {
       return CreatedRecall(id = extractRecallId())
     } else {
       throw AutomationException("Recall screen not refreshed")
@@ -317,6 +333,7 @@ internal class RecallPage(
       isInCustody = ualCheckbox.isSelected.not(),
       mappaLevel = Select(mappaLevelDropdown).firstSelectedOption.text,
       missingMandatoryDocuments = extractMissingMandatoryDocuments(),
+      minutes = extractMinutes(),
       nextUalCheck = if (nextUalCheckValue.isNotEmpty()) LocalDate.parse(nextUalCheckValue, dateFormatter) else null,
       owningTeam = owningTeamInput.getValue(),
       policeForce = Select(policeForceDropdown).firstSelectedOption.text,
@@ -364,6 +381,18 @@ internal class RecallPage(
     }
   }
 
+  private fun extractMinutes(): List<Minute> {
+    val treeView = TreeView(minutesTreeViewRoot)
+    val minuteEntryNodes = treeView.expandNodeWithText("Minutes").children()
+    return minuteEntryNodes.map {
+      it.click()
+      Minute(
+        subject = minuteSubjectInput.getValue(),
+        text = minuteTextDiv.text,
+      )
+    }
+  }
+
   private fun uploadDocument(documentType: DocumentType, title: String, owningCaseworker: PpudUser, filepath: String) {
     val today = LocalDate.now().format(dateFormatter)
     uploadDocumentButton.click()
@@ -393,12 +422,13 @@ internal class RecallPage(
       .until { documentUploadStatuses.all { it.text == "Complete" } }
   }
 
-  private fun addMinute(text: String) {
+  private fun addMinuteInternal(text: String, subject: String = "") {
     WebDriverWait(driver, Duration.ofSeconds(2))
-      .until(ExpectedConditions.elementToBeClickable(By.id(addMinuteButtonId)))
-    addMinuteButton?.click()
-    minuteEditor.click()
-    minuteEditor.sendKeys(text)
+      .until(ExpectedConditions.elementToBeClickable(addMinuteButton))
+    addMinuteButton.click()
+    pageHelper.enterTextIfNotBlank(addMinuteSubjectInput, subject)
+    addMinuteEditor.click()
+    addMinuteEditor.sendKeys(text)
     saveMinuteButton.click()
   }
 
