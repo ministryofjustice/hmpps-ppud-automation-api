@@ -9,6 +9,7 @@ data class Recall(
   val allMandatoryDocumentsReceived: String,
   val decisionDateTime: LocalDateTime,
   val isInCustody: Boolean,
+  val minutes: List<Minute>,
   val missingMandatoryDocuments: List<DocumentCategory>,
   val nextUalCheck: LocalDate? = null,
   val owningTeam: String,

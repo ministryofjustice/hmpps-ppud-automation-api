@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Searc
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
@@ -196,6 +197,14 @@ internal class OperationalPpudClient(
       driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
       recallPage.uploadAdditionalDocument(uploadAdditionalDocumentRequest, filepath)
       recallPage.throwIfInvalid()
+    }
+  }
+
+  suspend fun addMinute(recallId: String, request: AddMinuteRequest) {
+    log.info("Adding minute in PPUD to recall with ID '$recallId'")
+    performLoggedInOperation {
+      driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
+      recallPage.addMinute(request.subject, request.text)
     }
   }
 

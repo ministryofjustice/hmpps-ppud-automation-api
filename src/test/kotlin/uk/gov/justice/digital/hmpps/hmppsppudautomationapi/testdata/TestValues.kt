@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
@@ -360,6 +361,16 @@ fun generateUploadAdditionalDocumentRequest(
   )
 }
 
+fun generateAddMinuteRequest(
+  subject: String = randomString("subject"),
+  text: String = randomString("text"),
+): AddMinuteRequest {
+  return AddMinuteRequest(
+    subject = subject,
+    text = text,
+  )
+}
+
 fun generateRecall(id: String = randomPpudId()): Recall {
   return Recall(
     id = id,
@@ -367,6 +378,7 @@ fun generateRecall(id: String = randomPpudId()): Recall {
     decisionDateTime = randomTimeToday(),
     documents = emptyList(),
     isInCustody = Random.nextBoolean(),
+    minutes = emptyList(),
     missingMandatoryDocuments = emptyList(),
     owningTeam = randomString("owningTeam"),
     policeForce = randomString("policeForce"),

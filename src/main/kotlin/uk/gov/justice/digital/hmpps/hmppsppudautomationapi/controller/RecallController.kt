@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetRecallResponse
@@ -82,5 +83,20 @@ internal class RecallController(
     } finally {
       documentService.deleteDownloadedDocument(path)
     }
+  }
+
+  @Operation(
+    summary = "Add a minute to a recall.",
+    description = "Add a minute (explanatory note) to the recall identified by the recallId.",
+  )
+  @PutMapping("/recall/{recallId}/minutes")
+  suspend fun addMinute(
+    @PathVariable(required = true) recallId: String,
+    @Valid
+    @RequestBody
+    request: AddMinuteRequest,
+  ) {
+    log.info("Recall add minute endpoint hit")
+    ppudClient.addMinute(recallId, request)
   }
 }
