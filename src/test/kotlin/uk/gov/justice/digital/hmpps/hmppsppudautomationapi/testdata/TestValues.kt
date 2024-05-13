@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.random.Random
 
@@ -119,6 +120,13 @@ fun randomPrisonNumber(): String {
 
 fun randomDate(): LocalDate {
   return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
+}
+
+fun randomDateTime(): LocalDateTime {
+  val earliest = LocalDateTime.parse("2000-01-01T00:00:00")
+  val latest = LocalDateTime.now()
+  val randomEpochSecond = Random.nextLong(earliest.toEpochSecond(ZoneOffset.UTC), latest.toEpochSecond(ZoneOffset.UTC))
+  return LocalDateTime.ofEpochSecond(randomEpochSecond, 0, ZoneOffset.UTC)
 }
 
 fun randomTimeToday(): LocalDateTime {

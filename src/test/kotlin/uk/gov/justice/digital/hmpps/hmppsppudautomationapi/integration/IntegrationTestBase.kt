@@ -34,6 +34,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_R
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDateTime
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -213,7 +214,7 @@ abstract class IntegrationTestBase {
     }
 
     fun createRecallRequestBody(
-      decisionDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      decisionDateTime: String = randomDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       isInCustody: String = "false",
       isExtendedSentence: String = "false",
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
