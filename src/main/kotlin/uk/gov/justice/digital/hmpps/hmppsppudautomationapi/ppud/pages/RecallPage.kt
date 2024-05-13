@@ -44,6 +44,9 @@ internal class RecallPage(
   @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
   @Value("\${ppud.recall.documentType.email}") private val documentTypeEmail: String,
 ) {
+  companion object {
+    const val MINUTES_TEXT = "Minutes"
+  }
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
 
@@ -175,6 +178,9 @@ internal class RecallPage(
 
   private val documentsTable: WebElement?
     get() = driver.findElements(By.id("cntDetails_PageFooter1_GridView2")).firstOrNull()
+
+  @FindBy(id = "minute_tree_container")
+  private lateinit var minutesTreeContainer: WebElement
 
   @FindBy(id = "M_ctl00cntDetailsPageFooter1Minutes1UltraWebTree1")
   private lateinit var minutesTreeViewRoot: WebElement
@@ -382,8 +388,10 @@ internal class RecallPage(
   }
 
   private fun extractMinutes(): List<Minute> {
+    WebDriverWait(driver, Duration.ofSeconds(2))
+      .until(ExpectedConditions.textToBePresentInElement(minutesTreeContainer, MINUTES_TEXT))
     val treeView = TreeView(minutesTreeViewRoot)
-    val minuteEntryNodes = treeView.expandNodeWithText("Minutes").children()
+    val minuteEntryNodes = treeView.expandNodeWithText(MINUTES_TEXT).children()
     return minuteEntryNodes.map {
       it.click()
       Minute(
