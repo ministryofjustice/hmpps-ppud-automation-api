@@ -304,6 +304,10 @@ internal class RecallPage(
     addMinuteInternal(contentCreator.generateRecallMinuteBackgroundInfoText(createRecallRequest))
   }
 
+  fun isMatchingMinute(subject: String, text: String): Boolean {
+    return extractMinutes().stream().anyMatch { it.subject == subject && it.text == text }
+  }
+
   fun addMinute(subject: String, text: String) {
     addMinuteInternal(subject = subject, text = text)
   }
@@ -433,6 +437,7 @@ internal class RecallPage(
   private fun addMinuteInternal(text: String, subject: String = "") {
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until(ExpectedConditions.elementToBeClickable(addMinuteButton))
+    TreeView(minutesTreeViewRoot).children().first().click()
     addMinuteButton.click()
     pageHelper.enterTextIfNotBlank(addMinuteSubjectInput, subject)
     addMinuteEditor.click()

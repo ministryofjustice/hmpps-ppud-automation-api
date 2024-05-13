@@ -14,4 +14,8 @@ class TreeView(rootElement: WebElement) {
   fun expandNodeWithText(text: String): TreeViewNode {
     return TreeViewNode(nodes.first { it.text.trim() == text }).expandNode()
   }
+
+  fun children(): List<TreeViewNode> {
+    return nodes.map { TreeViewNode(it) }
+  }
 }

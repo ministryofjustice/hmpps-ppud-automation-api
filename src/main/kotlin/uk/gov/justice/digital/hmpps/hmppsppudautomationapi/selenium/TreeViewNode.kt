@@ -18,6 +18,8 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
 
   private val expanderImage by lazy { findElement(By.xpath("./img[@imgtype='exp']")) }
 
+  private val nodeTextElement by lazy { findElement(By.xpath("./span[@igtxt='1']")) }
+
   fun children(): List<TreeViewNode> {
     return expansionElement.findElements(By.xpath("./div"))
       .filter { !it.isExpansionElement }
@@ -75,7 +77,7 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
   }
 
   override fun click() {
-    element.click()
+    nodeTextElement.click()
   }
 
   override fun submit() {
