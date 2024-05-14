@@ -1165,7 +1165,7 @@ class OperationalPpudClientTest {
       val url = randomString("/url")
       val absoluteUrl = ppudUrl + url
       given(recallPage.urlFor(recallId)).willReturn(url)
-      given(recallPage.isMatchingMinute(request.subject, request.text)).willReturn(false)
+      given(recallPage.hasMatchingMinute(request.subject, request.text)).willReturn(false)
 
       client.addMinute(recallId, request)
 
@@ -1182,7 +1182,7 @@ class OperationalPpudClientTest {
       val request = generateAddMinuteRequest()
       val url = randomString("/url")
       given(recallPage.urlFor(recallId)).willReturn(url)
-      given(recallPage.isMatchingMinute(request.subject, request.text)).willReturn(true)
+      given(recallPage.hasMatchingMinute(request.subject, request.text)).willReturn(true)
 
       client.addMinute(recallId, request)
 

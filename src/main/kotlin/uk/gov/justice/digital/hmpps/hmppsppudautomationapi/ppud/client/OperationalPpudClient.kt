@@ -204,7 +204,7 @@ internal class OperationalPpudClient(
     log.info("Adding minute in PPUD to recall with ID '$recallId'")
     performLoggedInOperation {
       driver.navigate().to("$ppudUrl${recallPage.urlFor(recallId)}")
-      if (!recallPage.isMatchingMinute(request.subject, request.text)) {
+      if (!recallPage.hasMatchingMinute(request.subject, request.text)) {
         recallPage.addMinute(request.subject, request.text)
       }
     }

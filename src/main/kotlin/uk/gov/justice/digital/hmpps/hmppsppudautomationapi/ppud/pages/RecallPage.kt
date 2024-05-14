@@ -304,7 +304,7 @@ internal class RecallPage(
     addMinuteInternal(contentCreator.generateRecallMinuteBackgroundInfoText(createRecallRequest))
   }
 
-  fun isMatchingMinute(subject: String, text: String): Boolean {
+  fun hasMatchingMinute(subject: String, text: String): Boolean {
     return extractMinutes().stream().anyMatch { it.subject == subject && it.text == text }
   }
 
