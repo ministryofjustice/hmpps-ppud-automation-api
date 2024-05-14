@@ -117,6 +117,22 @@ class RecallMinuteTest : IntegrationTestBase() {
       .jsonPath("recall.minutes[1].text").isEqualTo(text)
   }
 
+  @Test
+  fun `given repeated request with same values in request body when add minute called then minute is not created`() {
+    val recallId = createTestRecallInPpud(offenderId, releaseId)
+    val subject = randomString("subject")
+    val text = randomString("text line 1")
+    val requestBody = addMinuteRequestBody(subject, text)
+
+    putMinute(recallId, requestBody).expectStatus().isOk
+    putMinute(recallId, requestBody).expectStatus().isOk
+
+    val retrievedRecall = retrieveRecall(recallId)
+    retrievedRecall
+      .jsonPath("recall.id").isEqualTo(recallId)
+      .jsonPath("recall.minutes.size()").isEqualTo(2)
+  }
+
   @ParameterizedTest
   @ValueSource(strings = ["\\n", "\\r\\n"])
   fun `given minute text with line breaks in request body when add minute called then line breaks are preserved`(

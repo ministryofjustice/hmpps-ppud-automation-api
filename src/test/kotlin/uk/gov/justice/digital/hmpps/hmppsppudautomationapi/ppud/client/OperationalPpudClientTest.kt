@@ -1158,19 +1158,35 @@ class OperationalPpudClientTest {
   }
 
   @Test
-  fun `given recall ID and minute data when add minute is called then navigate to recall and upload document`() {
+  fun `given recall ID and minute data when add minute is called then navigate to recall and add minute`() {
     runBlocking {
       val recallId = randomPpudId()
       val request = generateAddMinuteRequest()
       val url = randomString("/url")
       val absoluteUrl = ppudUrl + url
       given(recallPage.urlFor(recallId)).willReturn(url)
+      given(recallPage.hasMatchingMinute(request.subject, request.text)).willReturn(false)
 
       client.addMinute(recallId, request)
 
       val inOrder = inOrder(recallPage, webDriverNavigation)
       then(webDriverNavigation).should(inOrder).to(absoluteUrl)
       then(recallPage).should(inOrder).addMinute(request.subject, request.text)
+    }
+  }
+
+  @Test
+  fun `given recall ID and duplicated minute data when add minute is called then do not create minute`() {
+    runBlocking {
+      val recallId = randomPpudId()
+      val request = generateAddMinuteRequest()
+      val url = randomString("/url")
+      given(recallPage.urlFor(recallId)).willReturn(url)
+      given(recallPage.hasMatchingMinute(request.subject, request.text)).willReturn(true)
+
+      client.addMinute(recallId, request)
+
+      then(recallPage).should(never()).addMinute(any(), any())
     }
   }
 
