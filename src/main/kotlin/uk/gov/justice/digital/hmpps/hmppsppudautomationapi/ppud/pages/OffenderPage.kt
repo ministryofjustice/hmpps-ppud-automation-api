@@ -8,6 +8,7 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.Select
 import org.openqa.selenium.support.ui.WebDriverWait
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
@@ -47,6 +48,8 @@ internal class OffenderPage(
 
   companion object {
     private const val ADDRESS_HISTORY_TABLE_ID = "cntDetails_GridView2"
+
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
@@ -227,16 +230,24 @@ internal class OffenderPage(
     )
   }
 
-  fun extractSearchResultOffenderDetails(): SearchResultOffender {
-    return SearchResultOffender(
-      id = extractOffenderId(),
-      croNumber = croOtherNumberInput.getValue(),
-      croOtherNumber = croOtherNumberInput.getValue(),
-      nomsId = nomsIdInput.getValue(),
-      firstNames = firstNamesInput.getValue(),
-      familyName = familyNameInput.getValue(),
-      dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-    )
+  fun extractSearchResultOffenderDetails(): SearchResultOffender? {
+    val offenderId = extractOffenderId()
+    val dateOfBirthString = dateOfBirthInput.getValue()
+    return if (dateOfBirthString.isNotEmpty()) {
+      SearchResultOffender(
+        id = offenderId,
+        croNumber = croOtherNumberInput.getValue(),
+        croOtherNumber = croOtherNumberInput.getValue(),
+        nomsId = nomsIdInput.getValue(),
+        firstNames = firstNamesInput.getValue(),
+        familyName = familyNameInput.getValue(),
+        dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+      )
+    } else {
+      // This should never happen, but we experienced an offender in Internal Test that would not render
+      log.warn("Encountered an offender in PPUD without a date of birth. This is probably corrupt data. Offender ID is '$offenderId'")
+      null
+    }
   }
 
   fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender {

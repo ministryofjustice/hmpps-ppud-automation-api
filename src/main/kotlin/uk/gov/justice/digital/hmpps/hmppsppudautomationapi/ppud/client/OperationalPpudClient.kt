@@ -86,7 +86,7 @@ internal class OperationalPpudClient(
 
     return performLoggedInOperation {
       val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
-      resultLinks.map { extractSearchResultOffenderDetails(it) }
+      resultLinks.mapNotNull { extractSearchResultOffenderDetails(it) }
     }
   }
 
@@ -374,7 +374,7 @@ internal class OperationalPpudClient(
     }
   }
 
-  private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender {
+  private suspend fun extractSearchResultOffenderDetails(url: String): SearchResultOffender? {
     driver.navigate().to(url)
     return offenderPage.extractSearchResultOffenderDetails()
   }
