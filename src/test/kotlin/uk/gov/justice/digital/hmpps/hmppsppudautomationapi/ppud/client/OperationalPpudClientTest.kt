@@ -403,6 +403,30 @@ class OperationalPpudClientTest {
   }
 
   @Test
+  fun `given search matches invalid offender when search offender is called then return results with invalid offender excluded`() {
+    // This test is because we encountered an offender in PPUD Internal Test that did not render correctly.
+    // This meant that the date of birth was empty and could not be parsed, causing an exception.
+    // This looks like some dodgy test data and would hopefully never occur in production, but we handle it to avoid
+    // similar failures in the test environments.
+    runBlocking {
+      val familyName = randomString("familyName")
+      val dateOfBirth = randomDate()
+      val searchResultLinks = listOf(
+        "/link/to/offender/details/invalid",
+        "/link/to/offender/details/1",
+      )
+      val offenders = listOf(
+        generateSearchResultOffender(familyName = familyName, dateOfBirth = dateOfBirth),
+      )
+      setUpMocksToReturnSearchResultsWithInvalidOffender(searchResultLinks, offenders)
+
+      val result = client.searchForOffender(null, null, familyName, dateOfBirth)
+
+      assertEquals(offenders, result)
+    }
+  }
+
+  @Test
   fun `given search criteria and PPUD login page is failing when search offender is called then exception is bubbled up`() {
     runBlocking {
       given(loginPage.verifyOn()).willThrow(NotFoundException())
@@ -1252,5 +1276,15 @@ class OperationalPpudClientTest {
     given(searchPage.searchResultsCount()).willReturn(searchResultLinks.size)
     given(searchPage.searchResultsLinks()).willReturn(searchResultLinks)
     given(offenderPage.extractSearchResultOffenderDetails()).willReturnConsecutively(searchResultOffenders)
+  }
+
+  private fun setUpMocksToReturnSearchResultsWithInvalidOffender(
+    searchResultLinks: List<String>,
+    searchResultOffenders: List<SearchResultOffender>,
+  ) {
+    given(searchPage.searchResultsCount()).willReturn(searchResultLinks.size)
+    given(searchPage.searchResultsLinks()).willReturn(searchResultLinks)
+    val responsesWithInvalid = listOf(null, *searchResultOffenders.toTypedArray())
+    given(offenderPage.extractSearchResultOffenderDetails()).willReturnConsecutively(responsesWithInvalid)
   }
 }
