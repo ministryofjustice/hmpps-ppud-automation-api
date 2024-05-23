@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.6"
   kotlin("plugin.spring") version "2.0.0"
@@ -42,11 +44,9 @@ java {
   toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-tasks {
-  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = "21"
-    }
+kotlin {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_21)
   }
 }
 
