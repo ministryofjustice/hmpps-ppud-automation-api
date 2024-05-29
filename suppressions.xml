@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+
+    <suppress>
+        <notes><![CDATA[
+            We don't use Chrome Driver.
+            file name: selenium-chrome-driver-4.19.1-sources.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.seleniumhq\.selenium/selenium\-chrome\-driver@.*$</packageUrl>
+        <cve>CVE-2023-26156</cve>
+    </suppress>
+
+</suppressions>
