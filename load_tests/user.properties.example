@@ -1,0 +1,35 @@
+#Set to dev or preprod depending on the environment you're running this test in
+auth_env=dev
+
+#The bearer token to use - an encoded jwt from auth that is added to the http request in the Bearer header
+auth=
+
+#Protocol, port and server for the ppud automation api
+api_protocol=http
+api_server=hmpps-ppud-automation-api-dev.hmpps.service.justice.gov.uk
+api_port=80
+
+#Team name for the recall
+team_name=""
+
+#ID of the document to upload from the document service
+document_id=""
+
+#Number of concurrent users to run the test as
+NumberOfThreads=1
+
+#Number of seconds until max users is reached
+RampUpPeriod=0
+
+#Number of iterations to run
+LoopCount=1
+
+#Setting to append to results file - if this isn't present jmeter will ask each time
+resultcollector.action_if_file_exists=APPEND
+
+#Constant delay in milliseconds to be added between each screen
+#ConstantDelay=10000
+#
+#Maximum random time in milliseconds to be added between screens
+#This is added to the constant delay to enable some random-like behaviour
+#RandomDelayMax=30000
