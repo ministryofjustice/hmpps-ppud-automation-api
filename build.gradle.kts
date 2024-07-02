@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
   kotlin("plugin.spring") version "2.0.0"
   id("org.sonarqube") version "5.0.0.4638"
   id("jacoco")
@@ -20,8 +20,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.21.0")
-  implementation("io.github.bonigarcia:webdrivermanager:5.8.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.22.0")
+  implementation("io.github.bonigarcia:webdrivermanager:5.9.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -34,12 +34,12 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
   implementation("org.bouncycastle:bcprov-jdk18on:1.78.1") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
-  testImplementation("io.jsonwebtoken:jjwt:0.12.5")
+  testImplementation("io.jsonwebtoken:jjwt:0.12.6")
 }
 
 java {
