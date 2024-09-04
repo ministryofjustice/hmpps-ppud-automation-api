@@ -15,7 +15,6 @@ generic-service:
     tlsSecretName: hmpps-ppud-automation-api-cert
     annotations:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
 
   volumes:
     - name: docs-volume
