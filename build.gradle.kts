@@ -20,13 +20,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.24.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.25.0")
   implementation("io.github.bonigarcia:webdrivermanager:5.9.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("commons-io:commons-io:2.16.1") // Address CVE-2021-29425
+  implementation("commons-io:commons-io:2.17.0") // Address CVE-2021-29425
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
