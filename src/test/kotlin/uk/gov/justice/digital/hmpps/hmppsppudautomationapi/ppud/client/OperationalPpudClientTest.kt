@@ -13,6 +13,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.given
 import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.never
 import org.mockito.kotlin.then
 import org.mockito.kotlin.times
@@ -28,6 +29,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -86,9 +89,6 @@ class OperationalPpudClientTest {
   private lateinit var newOffenderPage: NewOffenderPage
 
   @Mock
-  private lateinit var offenderPage: OffenderPage
-
-  @Mock
   private lateinit var offencePage: OffencePage
 
   @Mock
@@ -102,6 +102,15 @@ class OperationalPpudClientTest {
 
   @Mock
   private lateinit var sentencePage: SentencePage
+
+  @Mock
+  private lateinit var offenderPage: OffenderPage
+
+  @Mock
+  private lateinit var adminPage: AdminPage
+
+  @Mock
+  private lateinit var caseworkerAdminPage: CaseworkerAdminPage
 
   @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
@@ -147,6 +156,8 @@ class OperationalPpudClientTest {
       recallPage,
       releasePage,
       sentencePageFactory,
+      adminPage,
+      caseworkerAdminPage,
     )
 
     given(driver.navigate()).willReturn(webDriverNavigation)
@@ -1253,9 +1264,128 @@ class OperationalPpudClientTest {
     }
   }
 
-  private fun assertThatLogsOnAndVerifiesSuccess() {
+  @Test
+  fun `given search criteria when search user is called then log in to PPUD and verify success`() {
+    runBlocking {
+      client.searchUsers("John Smith", null)
+
+      assertThatLogsOnAndVerifiesSuccess(asAdmin = true)
+    }
+  }
+
+  @Test
+  fun `given search criteria when search user is called then logout once done`() {
+    runBlocking {
+      client.searchUsers("John Smith", null)
+
+      val inOrder = inOrder(adminPage, webDriverNavigation)
+      then(adminPage).should(inOrder).goToEditCaseworker()
+      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
+    }
+  }
+
+  @Test
+  fun `given user fullName and userName that return multiple results when searchUsers is called then return user's details`() {
+    runBlocking {
+      val fullName = randomString("fullName")
+      val userName = randomString("userName")
+      given(loginPage.urlPath).willReturn("/login")
+      given(adminPage.urlPath).willReturn("/adminPage")
+      val users = listOf(
+        generatePpudUser(),
+        generatePpudUser(),
+      )
+      given(caseworkerAdminPage.searchByCriteria(any(), any())).willReturn(users)
+
+      val result = client.searchUsers(fullName, userName)
+
+      val inOrder = inOrder(webDriverNavigation, adminPage, caseworkerAdminPage)
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/adminPage")
+      then(adminPage).should(inOrder).goToEditCaseworker()
+      then(caseworkerAdminPage).should(inOrder).searchByCriteria(fullName, userName)
+      assertEquals(users, result)
+    }
+  }
+
+  @Test
+  fun `given user fullName and null userName that return multiple results when searchUsers is called then return user's details`() {
+    runBlocking {
+      val fullName = randomString("fullName")
+      val userName = null
+      given(loginPage.urlPath).willReturn("/login")
+      given(adminPage.urlPath).willReturn("/adminPage")
+      val users = listOf(
+        generatePpudUser(),
+        generatePpudUser(),
+      )
+      given(caseworkerAdminPage.searchByCriteria(any(), isNull())).willReturn(users)
+
+      val result = client.searchUsers(fullName, userName)
+
+      val inOrder = inOrder(webDriverNavigation, adminPage, caseworkerAdminPage)
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/adminPage")
+      then(adminPage).should(inOrder).goToEditCaseworker()
+      then(caseworkerAdminPage).should(inOrder).searchByCriteria(fullName, userName)
+      assertEquals(users, result)
+    }
+  }
+
+  @Test
+  fun `given null user fullName and userName that return multiple results when searchUsers is called then return user's details`() {
+    runBlocking {
+      val fullName = null
+      val userName = randomString("userName")
+      given(loginPage.urlPath).willReturn("/login")
+      given(adminPage.urlPath).willReturn("/adminPage")
+      val users = listOf(
+        generatePpudUser(),
+        generatePpudUser(),
+      )
+      given(caseworkerAdminPage.searchByCriteria(isNull(), any())).willReturn(users)
+
+      val result = client.searchUsers(fullName, userName)
+
+      val inOrder = inOrder(webDriverNavigation, adminPage, caseworkerAdminPage)
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/adminPage")
+      then(adminPage).should(inOrder).goToEditCaseworker()
+      then(caseworkerAdminPage).should(inOrder).searchByCriteria(fullName, userName)
+      assertEquals(users, result)
+    }
+  }
+
+  @Test
+  fun `given user extraction return multiple results`() {
+    runBlocking {
+      given(loginPage.urlPath).willReturn("/login")
+      given(adminPage.urlPath).willReturn("/adminPage")
+      val users = listOf(
+        generatePpudUser(),
+        generatePpudUser(),
+      )
+      given(caseworkerAdminPage.extractActiveUsers()).willReturn(users)
+
+      val result = client.retrieveActiveUsers()
+
+      val inOrder = inOrder(webDriverNavigation, adminPage, caseworkerAdminPage)
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/login")
+      then(webDriverNavigation).should(inOrder).to("$ppudUrl/adminPage")
+      then(adminPage).should(inOrder).goToEditCaseworker()
+      then(caseworkerAdminPage).should(inOrder).extractActiveUsers()
+      assertEquals(users, result)
+    }
+  }
+
+  private fun assertThatLogsOnAndVerifiesSuccess(asAdmin: Boolean = false) {
     val inOrder = inOrder(loginPage, searchPage)
-    then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+    if (!asAdmin) {
+      then(loginPage).should(inOrder).login(ppudUsername, ppudPassword)
+    } else {
+      then(loginPage).should(inOrder).login(ppudAdminUsername, ppudAdminPassword)
+    }
+
     then(loginPage).should(inOrder).throwIfInvalid()
     then(searchPage).should(inOrder).verifyOn()
   }

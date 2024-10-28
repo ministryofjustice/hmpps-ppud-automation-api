@@ -26,6 +26,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Update
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
@@ -60,6 +62,8 @@ internal class OperationalPpudClient(
   private val recallPage: RecallPage,
   private val releasePage: ReleasePage,
   private val sentencePageFactory: SentencePageFactory,
+  private val adminPage: AdminPage,
+  private val caseworkerAdminPage: CaseworkerAdminPage,
 ) : PpudClientBase(
   ppudUrl,
   ppudUsername,
@@ -225,6 +229,20 @@ internal class OperationalPpudClient(
       searchPage.searchByFamilyName(familyName)
       val links = searchPage.searchResultsLinks()
       deleteOffenders(links)
+    }
+  }
+
+  suspend fun searchUsers(fullName: String?, userName: String?): List<PpudUser> {
+    log.info("Retrieving users matching fullName '$fullName' and/or '$userName'")
+    return performLoggedInOperation(asAdmin = true) {
+      searchUsersByCriteria(fullName, userName)
+    }
+  }
+
+  suspend fun retrieveActiveUsers(): List<PpudUser> {
+    log.info("Retrieving active users")
+    return performLoggedInOperation(asAdmin = true) {
+      extractActiveUsers()
     }
   }
 
@@ -448,5 +466,19 @@ internal class OperationalPpudClient(
       driver.navigate().to("$ppudUrl$it")
       recallPage.isMatching(receivedDateTime, recommendedTo)
     }
+  }
+
+  private suspend fun searchUsersByCriteria(fullName: String?, userName: String?): List<PpudUser> {
+    driver.navigate().to("$ppudUrl${adminPage.urlPath}")
+    adminPage.verifyOn()
+    adminPage.goToEditCaseworker()
+    return caseworkerAdminPage.searchByCriteria(fullName, userName)
+  }
+
+  private suspend fun extractActiveUsers(): List<PpudUser> {
+    driver.navigate().to("$ppudUrl${adminPage.urlPath}")
+    adminPage.verifyOn()
+    adminPage.goToEditCaseworker()
+    return caseworkerAdminPage.extractActiveUsers()
   }
 }
