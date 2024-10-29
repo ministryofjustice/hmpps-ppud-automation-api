@@ -409,6 +409,6 @@ fun generatePpudUser(): PpudUser {
   )
 }
 
-fun generateUserSearchRequest(fullName: String?, userName:String?): UserSearchRequest {
+fun generateUserSearchRequest(fullName: String?, userName: String?): UserSearchRequest {
   return UserSearchRequest(fullName, userName)
 }
