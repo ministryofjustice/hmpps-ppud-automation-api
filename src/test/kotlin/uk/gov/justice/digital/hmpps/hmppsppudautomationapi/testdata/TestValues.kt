@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Update
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UserSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -406,4 +407,8 @@ fun generatePpudUser(): PpudUser {
     fullName = randomString("fullName"),
     teamName = randomString("teamName"),
   )
+}
+
+fun generateUserSearchRequest(fullName: String?, userName:String?): UserSearchRequest {
+  return UserSearchRequest(fullName, userName)
 }
