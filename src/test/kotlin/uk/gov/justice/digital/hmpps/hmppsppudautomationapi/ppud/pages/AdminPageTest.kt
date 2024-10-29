@@ -28,13 +28,13 @@ class AdminPageTest {
 
   @Test
   fun `goToEditLookups should call editLookupsLink`() {
-    doNothing().`when` (adminPage).goToEditLookups()
+    doNothing().`when`(adminPage).goToEditLookups()
     adminPage.goToEditLookups()
   }
 
   @Test
   fun `goToEditCaseworker should call goToEditCaseworker`() {
-    doNothing().`when` (adminPage).goToEditLookups()
+    doNothing().`when`(adminPage).goToEditLookups()
     adminPage.goToEditCaseworker()
   }
 }
