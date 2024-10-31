@@ -19,6 +19,9 @@ internal class AdminPage(private val driver: WebDriver) {
   @FindBy(linkText = "Lookup Edit")
   private lateinit var editLookupsLink: WebElement
 
+  @FindBy(linkText = "Edit Caseworker")
+  private lateinit var editCaseworkerLink: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -30,5 +33,9 @@ internal class AdminPage(private val driver: WebDriver) {
 
   fun goToEditLookups() {
     editLookupsLink.click()
+  }
+
+  fun goToEditCaseworker() {
+    editCaseworkerLink.click()
   }
 }
