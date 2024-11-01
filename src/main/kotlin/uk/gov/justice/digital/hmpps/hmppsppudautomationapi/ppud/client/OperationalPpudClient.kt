@@ -233,7 +233,7 @@ internal class OperationalPpudClient(
   }
 
   suspend fun searchActiveUsers(fullName: String?, userName: String?): List<PpudUser> {
-    log.info("Retrieving users matching fullName '$fullName' and/or '$userName'")
+    log.info("Retrieving users matching fullName and/or userName")
     return performLoggedInOperation(asAdmin = true) {
       extractActiveUsersByCriteria(fullName, userName)
     }
