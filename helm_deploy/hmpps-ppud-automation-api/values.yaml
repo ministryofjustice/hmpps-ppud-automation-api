@@ -14,7 +14,7 @@ generic-service:
     host: app-hostname.local # override per environment
     tlsSecretName: hmpps-ppud-automation-api-cert
     annotations:
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 
   volumes:
     - name: docs-volume
