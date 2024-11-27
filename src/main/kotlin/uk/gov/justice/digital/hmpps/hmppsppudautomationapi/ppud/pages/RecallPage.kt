@@ -426,7 +426,7 @@ internal class RecallPage(
     )
     saveAndAddMoreDocumentsButton.click()
     waitForDocumentToUpload()
-    closeDocumentUploadButton.click()
+    WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.elementToBeClickable(closeDocumentUploadButton)).click()
   }
 
   private fun waitForDocumentToUpload() {
