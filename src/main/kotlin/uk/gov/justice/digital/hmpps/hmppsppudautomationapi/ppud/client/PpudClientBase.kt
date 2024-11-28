@@ -32,6 +32,9 @@ internal abstract class PpudClientBase(
     disableRetry: Boolean = false,
     operation: suspend () -> T,
   ): T {
+    // Modal dialogs aren't scrollable, and their contents can be inaccessible by Selenium if outside of the viewport. Maximising the window to maximise the viewport.
+    driver.manage()?.window()?.maximize()
+
     if (asAdmin) {
       loginAsAdmin()
     } else {
