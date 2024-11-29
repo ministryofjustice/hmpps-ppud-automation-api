@@ -424,6 +424,8 @@ internal class RecallPage(
       owningCaseworker.formattedFullNameAndTeam,
       "owning caseworker",
     )
+    saveAndAddMoreDocumentsButton.click()
+    waitForDocumentToUpload()
     closeDocumentUploadButton.click()
   }
 
