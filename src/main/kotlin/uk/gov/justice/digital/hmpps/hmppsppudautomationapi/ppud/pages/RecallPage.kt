@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
+import org.openqa.selenium.OutputType
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -25,6 +26,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.ContentCreator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeView
+import java.io.File
+import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -153,6 +156,12 @@ internal class RecallPage(
 
   @FindBy(id = "UploadStatusData")
   private lateinit var documentUploadStatusTable: WebElement
+
+  @FindBy(id = "popDocument_foregroundElement")
+  private lateinit var documentUploadModalDialog: WebElement
+
+  @FindBy(tagName = "html")
+  private lateinit var htmlTag: WebElement
 
   private val documentUploadStatuses: List<WebElement>
     get() = documentUploadStatusTable.findElements(By.xpath(".//td[starts-with(@id, 'upload_1')]"))
@@ -424,10 +433,28 @@ internal class RecallPage(
       owningCaseworker.formattedFullNameAndTeam,
       "owning caseworker",
     )
+
+    // BEGIN-NOSCAN
+    takeScreenshot(htmlTag, "BeforeSaveAndAddMore")
+    takeScreenshot(documentUploadModalDialog, "BeforeSaveAndAddMore_documentUploadModalDialog")
     saveAndAddMoreDocumentsButton.click()
+    takeScreenshot(htmlTag, "BeforeWaitForUpload")
+    takeScreenshot(documentUploadModalDialog, "BeforeWaitForUpload_documentUploadModalDialog")
     waitForDocumentToUpload()
+    takeScreenshot(htmlTag, "BeforeClose")
+    takeScreenshot(documentUploadModalDialog, "BeforeClose_documentUploadModalDialog")
     WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.elementToBeClickable(closeDocumentUploadButton)).click()
+    // END-NOSCAN
   }
+
+  // BEGIN-NOSCAN
+  private fun takeScreenshot(webElement: WebElement, fileName: String, overwrite: Boolean = true) {
+    val screenshotFile = webElement.getScreenshotAs(OutputType.FILE)
+    val tempDir = System.getProperty("java.io.tmpdir")
+    val destFile = File(Paths.get(tempDir, "$fileName.png").toString())
+    screenshotFile.copyTo(destFile, overwrite)
+  }
+  // END-NOSCAN
 
   private fun waitForDocumentToUpload() {
     WebDriverWait(driver, Duration.ofSeconds(30))
