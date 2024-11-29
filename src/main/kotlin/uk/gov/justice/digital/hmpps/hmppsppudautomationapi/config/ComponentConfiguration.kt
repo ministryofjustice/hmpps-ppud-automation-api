@@ -155,6 +155,8 @@ internal class ComponentConfiguration {
     }
 
     options.addPreference("permissions.default.image", FIREFOX_PREFERENCE_BLOCK)
+    // Non-scrollable modal dialogs can result in controls being outside the viewport and inaccessible;
+    // simple workaround to increase the viewport
     options.addPreference("layout.css.devPixelsPerPx", "0.5")
 
     return WebDriverManager
