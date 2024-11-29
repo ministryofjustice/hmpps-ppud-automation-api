@@ -47,6 +47,7 @@ internal class RecallPage(
   @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
   @Value("\${ppud.recall.documentType.email}") private val documentTypeEmail: String,
 ) {
+  // BEGIN-NOSCAN
   companion object {
     const val MINUTES_TEXT = "Minutes"
   }
@@ -434,7 +435,6 @@ internal class RecallPage(
       "owning caseworker",
     )
 
-    // BEGIN-NOSCAN
     takeScreenshot(htmlTag, "BeforeSaveAndAddMore")
     takeScreenshot(documentUploadModalDialog, "BeforeSaveAndAddMore_documentUploadModalDialog")
     saveAndAddMoreDocumentsButton.click()
@@ -444,17 +444,14 @@ internal class RecallPage(
     takeScreenshot(htmlTag, "BeforeClose")
     takeScreenshot(documentUploadModalDialog, "BeforeClose_documentUploadModalDialog")
     WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.elementToBeClickable(closeDocumentUploadButton)).click()
-    // END-NOSCAN
   }
 
-  // BEGIN-NOSCAN
   private fun takeScreenshot(webElement: WebElement, fileName: String, overwrite: Boolean = true) {
     val screenshotFile = webElement.getScreenshotAs(OutputType.FILE)
     val tempDir = System.getProperty("java.io.tmpdir")
     val destFile = File(Paths.get(tempDir, "$fileName.png").toString())
     screenshotFile.copyTo(destFile, overwrite)
   }
-  // END-NOSCAN
 
   private fun waitForDocumentToUpload() {
     WebDriverWait(driver, Duration.ofSeconds(30))
@@ -475,4 +472,5 @@ internal class RecallPage(
   private fun extractRecallId() = pageHelper.extractId(pageDescription)
 
   private fun removeTeamName(nameWithTeam: String) = nameWithTeam.takeWhile { (it == '(').not() }
+  // END-NOSCAN
 }
