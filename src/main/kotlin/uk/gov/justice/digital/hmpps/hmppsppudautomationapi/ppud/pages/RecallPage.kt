@@ -429,13 +429,6 @@ internal class RecallPage(
     closeDocumentUploadButton.click()
   }
 
-  private fun takeScreenshot(webElement: WebElement, fileName: String, overwrite: Boolean = true) {
-    val screenshotFile = webElement.getScreenshotAs(OutputType.FILE)
-    val tempDir = System.getProperty("java.io.tmpdir")
-    val destFile = File(Paths.get(tempDir, "$fileName.png").toString())
-    screenshotFile.copyTo(destFile, overwrite)
-  }
-
   private fun waitForDocumentToUpload() {
     WebDriverWait(driver, Duration.ofSeconds(30))
       .until { documentUploadStatuses.all { it.text == "Complete" } }
