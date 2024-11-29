@@ -155,6 +155,7 @@ internal class ComponentConfiguration {
     }
 
     options.addPreference("permissions.default.image", FIREFOX_PREFERENCE_BLOCK)
+    options.addPreference("layout.css.devPixelsPerPx", "0.5")
 
     return WebDriverManager
       .firefoxdriver()
