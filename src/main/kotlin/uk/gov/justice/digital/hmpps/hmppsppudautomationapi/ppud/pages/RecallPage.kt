@@ -434,7 +434,6 @@ internal class RecallPage(
       owningCaseworker.formattedFullNameAndTeam,
       "owning caseworker",
     )
-
     takeScreenshot(htmlTag, "BeforeSaveAndAddMore")
     takeScreenshot(documentUploadModalDialog, "BeforeSaveAndAddMore_documentUploadModalDialog")
     saveAndAddMoreDocumentsButton.click()
