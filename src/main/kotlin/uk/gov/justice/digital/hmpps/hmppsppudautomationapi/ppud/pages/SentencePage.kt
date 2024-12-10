@@ -4,7 +4,6 @@ import org.openqa.selenium.WebDriver
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
@@ -23,7 +22,7 @@ internal abstract class SentencePage(
   abstract fun selectCustodyType(custodyType: String)
 
   fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
-    val existing = extractSentenceDetails(false, ::Offence) { emptyList() }
+    val existing = extractSentenceDetails(::Offence)
     return sentenceComparator.areMatching(existing, request)
   }
 
@@ -34,9 +33,7 @@ internal abstract class SentencePage(
   abstract fun extractCreatedSentenceDetails(): CreatedSentence
 
   abstract fun extractSentenceDetails(
-    includeEmptyReleases: Boolean,
     offenceExtractor: (String) -> Offence,
-    releaseExtractor: (List<String>) -> List<Release>,
   ): Sentence
 
   abstract fun throwIfInvalid()

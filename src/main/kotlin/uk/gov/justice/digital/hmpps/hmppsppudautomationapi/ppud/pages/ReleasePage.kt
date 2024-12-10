@@ -8,14 +8,10 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Component
@@ -23,7 +19,6 @@ internal class ReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
-  private val navigationTreeViewComponent: NavigationTreeViewComponent,
   @Value("\${ppud.release.category}") private val category: String,
   @Value("\${ppud.release.releaseType}") private val releaseType: String,
 ) {
@@ -88,19 +83,6 @@ internal class ReleasePage(
     saveButton.click()
   }
 
-  fun extractReleaseDetails(postReleaseExtractor: (String) -> PostRelease): Release {
-    val dateOfRelease = dateOfReleaseInput.getValue()
-    return Release(
-      category = Select(categoryDropdown).firstSelectedOption.text,
-      dateOfRelease = if (dateOfRelease.isEmpty()) LocalDate.MIN else LocalDate.parse(dateOfRelease, dateFormatter),
-      releasedFrom = releasedFromInput.getValue(),
-      releasedUnder = Select(releasedUnderDropdown).firstSelectedOption.text,
-      releaseType = Select(releaseTypeDropdown).firstSelectedOption.text,
-      // Do Post Release last because it navigates away
-      postRelease = postReleaseExtractor(determinePostReleaseLink()),
-    )
-  }
-
   fun extractReleaseId(): String {
     return pageHelper.extractId(pageDescription)
   }
@@ -114,12 +96,5 @@ internal class ReleasePage(
   private fun completeNonKeyFields() {
     pageHelper.selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
     pageHelper.selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")
-  }
-
-  private fun determinePostReleaseLink(): String {
-    val releaseId = pageHelper.extractId(pageDescription)
-    return navigationTreeViewComponent
-      .findPostReleaseNodeFor(releaseId)
-      .getAttribute("igurl")
   }
 }

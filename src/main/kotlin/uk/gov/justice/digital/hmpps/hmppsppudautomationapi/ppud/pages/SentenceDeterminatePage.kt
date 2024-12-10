@@ -11,7 +11,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceCompar
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
@@ -123,11 +122,8 @@ internal class SentenceDeterminatePage(
   }
 
   override fun extractSentenceDetails(
-    includeEmptyReleases: Boolean,
     offenceExtractor: (String) -> Offence,
-    releaseExtractor: (List<String>) -> List<Release>,
   ): Sentence {
-    val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     val offenceLink = determineOffenceLink()
     return with(pageHelper) {
       Sentence(
@@ -153,9 +149,8 @@ internal class SentenceDeterminatePage(
           partDays = readIntegerOrDefault(sentenceLengthPartDaysInput, 0),
         ),
         sentencingCourt = sentencingCourtInput.getValue(),
-        // Do offence and releases last because it navigates away
+        // Do offence last because it navigates away
         offence = offenceExtractor(offenceLink),
-        releases = releaseExtractor(releaseLinks),
       )
     }
   }
