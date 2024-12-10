@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
@@ -68,14 +67,9 @@ internal class OffenderController(private val ppudClient: OperationalPpudClient)
   )
   suspend fun get(
     @PathVariable(required = true) id: String,
-    @Parameter(
-      description = "Only required for testing/diagnostic purposes. If true, this will mean that releases " +
-        "that are titled as 'Not Specified - Not Specified' will be included.",
-    )
-    @RequestParam(required = false) includeEmptyReleases: Boolean = false,
   ): ResponseEntity<GetOffenderResponse> {
     log.info("Offender get endpoint hit")
-    val offender = ppudClient.retrieveOffender(id, includeEmptyReleases)
+    val offender = ppudClient.retrieveOffender(id)
     return ResponseEntity(GetOffenderResponse(offender), HttpStatus.OK)
   }
 

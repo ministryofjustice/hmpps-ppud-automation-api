@@ -12,7 +12,6 @@ data class Sentence(
   val mappaLevel: String,
   val offence: Offence = Offence(),
   val releaseDate: LocalDate? = null,
-  val releases: List<Release> = emptyList(),
   val sentenceExpiryDate: LocalDate? = null,
   val sentencedUnder: String? = null,
   val sentenceLength: SentenceLength? = null,
