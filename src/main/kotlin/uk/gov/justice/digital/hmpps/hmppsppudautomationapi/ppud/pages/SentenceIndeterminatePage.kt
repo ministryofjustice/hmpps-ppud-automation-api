@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
@@ -57,12 +56,9 @@ internal class SentenceIndeterminatePage(
   }
 
   override fun extractSentenceDetails(
-    includeEmptyReleases: Boolean,
     offenceExtractor: (String) -> Offence,
-    releaseExtractor: (List<String>) -> List<Release>,
   ): Sentence {
     val offenceLink = determineOffenceLink()
-    val releaseLinks = determineReleaseLinks(includeEmptyReleases)
     return Sentence(
       id = pageHelper.extractId(pageDescription),
       custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
@@ -74,9 +70,8 @@ internal class SentenceIndeterminatePage(
       sentenceExpiryDate = null,
       sentenceLength = null,
       sentencingCourt = sentencingCourtInput.getValue(),
-      // Do offence and releases last because it navigates away
+      // Do offence last because it navigates away
       offence = offenceExtractor(offenceLink),
-      releases = releaseExtractor(releaseLinks),
     )
   }
 

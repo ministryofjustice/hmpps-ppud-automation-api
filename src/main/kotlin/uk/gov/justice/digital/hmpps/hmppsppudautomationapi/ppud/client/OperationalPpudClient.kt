@@ -11,8 +11,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.PostRelease
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Release
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
@@ -111,12 +109,12 @@ internal class OperationalPpudClient(
     }
   }
 
-  suspend fun retrieveOffender(id: String, includeEmptyReleases: Boolean = false): Offender {
+  suspend fun retrieveOffender(id: String): Offender {
     log.info("Retrieving offender in PPUD Client with ID '$id'")
 
     return performLoggedInOperation {
       offenderPage.viewOffenderWithId(id)
-      offenderPage.extractOffenderDetails(extractSentences(includeEmptyReleases))
+      offenderPage.extractOffenderDetails(extractSentences())
     }
   }
 
@@ -403,12 +401,12 @@ internal class OperationalPpudClient(
     return sentencePage.extractCreatedSentenceDetails()
   }
 
-  private fun extractSentences(includeEmptyReleases: Boolean = false): (List<String>) -> List<Sentence> {
+  private fun extractSentences(): (List<String>) -> List<Sentence> {
     return { urls ->
       urls.map {
         driver.navigate().to("$ppudUrl$it")
         val sentencePage = sentencePageFactory.sentencePage()
-        sentencePage.extractSentenceDetails(includeEmptyReleases, ::extractOffenceDetails, ::extractReleases)
+        sentencePage.extractSentenceDetails(::extractOffenceDetails)
       }
     }
   }
@@ -416,18 +414,6 @@ internal class OperationalPpudClient(
   private fun extractOffenceDetails(link: String): Offence {
     driver.navigate().to("$ppudUrl$link")
     return offencePage.extractOffenceDetails()
-  }
-
-  private fun extractReleases(urls: List<String>): List<Release> {
-    return urls.map {
-      driver.navigate().to("$ppudUrl$it")
-      releasePage.extractReleaseDetails(::extractPostReleaseDetails)
-    }
-  }
-
-  private fun extractPostReleaseDetails(link: String): PostRelease {
-    driver.navigate().to("$ppudUrl$link")
-    return postReleasePage.extractPostReleaseDetails()
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {

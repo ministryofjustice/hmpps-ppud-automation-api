@@ -12,18 +12,11 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_LICENCE_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM_2
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
-import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -109,118 +102,7 @@ class OffenderReleaseTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given existing release and valid values in request body when post release called then category and release type are set`() {
-    // TODO: This test worked OK to drive the initial work, but we need to be able to create an offender
-    //  with a release that has different values for category and release type.
-    val testOffenderId = createTestOffenderInPpud()
-    val idExtractor = ValueConsumer<String>()
-    retrieveOffender(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isNotEmpty
-      .jsonPath("offender.sentences[0].id").value(idExtractor)
-    val sentenceId = idExtractor.value!!
-    val dateOfRelease = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
-    val releasedFrom = PPUD_VALID_RELEASED_FROM
-    val releasedUnder = PPUD_VALID_RELEASED_UNDER
-    val requestBody = releaseRequestBody(
-      dateOfRelease = dateOfRelease,
-      releasedFrom = releasedFrom,
-      releasedUnder = releasedUnder,
-    )
-    postRelease(testOffenderId, sentenceId, requestBody)
-      .expectStatus()
-      .isOk
-    retrieveOffender(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isNotEmpty
-      .jsonPath("offender.sentences[0].id").value(idExtractor)
-
-    postRelease(testOffenderId, sentenceId, requestBody)
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("release.id").isNotEmpty
-
-    val retrieved = retrieveOffender(testOffenderId)
-    retrieved
-      .jsonPath("offender.id").isEqualTo(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo(dateOfRelease)
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo(releasedFrom)
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)
-      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
-      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
-  }
-
-  @Test
-  fun `given values for new release in request body when post release called then release is created`() {
-    val testOffenderId = createTestOffenderInPpud()
-    val idExtractor = ValueConsumer<String>()
-    retrieveOffender(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isNotEmpty
-      .jsonPath("offender.sentences[0].id").value(idExtractor)
-    val sentenceId = idExtractor.value!!
-    val dateOfRelease = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
-    val releasedFrom = PPUD_VALID_RELEASED_FROM_2
-    val releasedUnder = PPUD_VALID_RELEASED_UNDER_2
-    val requestBody = releaseRequestBody(
-      dateOfRelease = dateOfRelease,
-      releasedFrom = releasedFrom,
-      releasedUnder = releasedUnder,
-    )
-
-    postRelease(testOffenderId, sentenceId, requestBody)
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("release.id").isNotEmpty
-
-    val retrieved = retrieveOffender(testOffenderId)
-    retrieved
-      .jsonPath("offender.id").isEqualTo(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo(dateOfRelease)
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo(releasedFrom)
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)
-      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
-      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
-  }
-
-  @Test
-  fun `given values for new release in request body and empty release exists when post release called then empty release is updated`() {
-    val testOffenderId = createTestOffenderInPpud()
-    val idExtractor = ValueConsumer<String>()
-    retrieveOffender(testOffenderId, true)
-      .jsonPath("offender.sentences[0].id").isNotEmpty
-      .jsonPath("offender.sentences[0].id").value(idExtractor)
-    val sentenceId = idExtractor.value!!
-    val dateOfRelease = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
-    val releasedFrom = PPUD_VALID_RELEASED_FROM_2
-    val releasedUnder = PPUD_VALID_RELEASED_UNDER_2
-    val requestBody = releaseRequestBody(
-      dateOfRelease = dateOfRelease,
-      releasedFrom = releasedFrom,
-      releasedUnder = releasedUnder,
-    )
-
-    postRelease(testOffenderId, sentenceId, requestBody)
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("release.id").isNotEmpty
-
-    val retrieved = retrieveOffender(testOffenderId, includeEmptyReleases = true)
-    retrieved
-      .jsonPath("offender.id").isEqualTo(testOffenderId)
-      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(1)
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo(dateOfRelease)
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo(releasedFrom)
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo(releasedUnder)
-      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
-      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
-  }
-
-  @Test
-  fun `given valid values in request body when post release called then Post Release PPUD entity is updated`() {
+  fun `given valid values in request body when post release called then status is Ok and offender id and sentence id are still returned`() {
     val testOffenderId = createTestOffenderInPpud()
     val idExtractor = ValueConsumer<String>()
     retrieveOffender(testOffenderId)
@@ -229,7 +111,6 @@ class OffenderReleaseTest : IntegrationTestBase() {
     val sentenceId = idExtractor.value!!
     val assistantChiefOfficerName = randomString("acoName")
     val assistantChiefOfficerFaxEmail = randomString("acoFaxEmail")
-    val licenceType = PPUD_LICENCE_TYPE
     val offenderManagerName = randomString("omName")
     val offenderManagerFaxEmail = randomString("omFaxEmail")
     val offenderManagerTelephone = randomPhoneNumber()
@@ -256,20 +137,8 @@ class OffenderReleaseTest : IntegrationTestBase() {
 
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.name")
-      .isEqualTo(assistantChiefOfficerName)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.faxEmail")
-      .isEqualTo(assistantChiefOfficerFaxEmail)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo(licenceType)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.name").isEqualTo(offenderManagerName)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.faxEmail")
-      .isEqualTo(offenderManagerFaxEmail)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone")
-      .isEqualTo(offenderManagerTelephone)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo(probationService)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.name").isEqualTo(spocName)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.faxEmail").isEqualTo(spocFaxEmail)
   }
 
   private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =

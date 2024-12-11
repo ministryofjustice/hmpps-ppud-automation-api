@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.http.HttpMethod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_OFFENDER_ID_WITH_PAGED_ADDRESSES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
@@ -87,45 +86,6 @@ class OffenderGetTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].offence.dateOfIndexOffence").isEqualTo("2001-02-12")
       .jsonPath("offender.sentences[1].offence.indexOffence").isEqualTo("Not Specified")
       .jsonPath("offender.sentences[1].offence.dateOfIndexOffence").isEmpty
-  }
-
-  @Test
-  fun `given Offender with release when get offender called then release is returned`() {
-    retrieveOffender(ppudKnownExistingOffender.id)
-      .jsonPath("offender.sentences[0].releases[0].dateOfRelease").isEqualTo("2013-02-02")
-      .jsonPath("offender.sentences[0].releases[0].releaseType").isEqualTo("On Licence")
-      .jsonPath("offender.sentences[0].releases[0].releasedUnder").isEqualTo("CJA 2008")
-      .jsonPath("offender.sentences[0].releases[0].releasedFrom").isEqualTo("HMP Wakefield")
-      .jsonPath("offender.sentences[0].releases[0].category").isEqualTo("Not Applicable")
-      .jsonPath("offender.sentences[1].releases.size()").isEqualTo(0)
-  }
-
-  @Test
-  fun `given Offender with release when get offender called then Post Release is returned`() {
-    retrieveOffender(ppudKnownExistingOffender.id)
-      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.name").isEqualTo("Joe Bloggs")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.assistantChiefOfficer.faxEmail")
-      .isEqualTo("Joe.Bloggs@example.com")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.licenceType").isEqualTo("Standard")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.name").isEqualTo("Jane Doe")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.faxEmail")
-      .isEqualTo("Jane.Doe@example.com")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.offenderManager.telephone").isEqualTo("099 1234567")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.probationService").isEqualTo("Merseyside")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.name").isEqualTo("Merseyside Constabulary")
-      .jsonPath("offender.sentences[0].releases[0].postRelease.spoc.faxEmail").isEqualTo("spoc@example.com")
-  }
-
-  @Test
-  fun `given Offender with empty release when get offender called then release is not returned`() {
-    retrieveOffender(PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE)
-      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(0)
-  }
-
-  @Test
-  fun `given Offender with empty release and includeEmptyReleases is set to true when get offender called then release is returned`() {
-    retrieveOffender(PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE, includeEmptyReleases = true)
-      .jsonPath("offender.sentences[0].releases.size()").isEqualTo(1)
   }
 
   @ParameterizedTest

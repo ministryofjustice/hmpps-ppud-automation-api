@@ -69,25 +69,11 @@ internal class OffenderControllerTest {
     runBlocking {
       val id = randomPpudId()
       val offender = generateOffender(id = id)
-      given(ppudClient.retrieveOffender(id, includeEmptyReleases = false)).willReturn(offender)
+      given(ppudClient.retrieveOffender(id)).willReturn(offender)
 
       val result = controller.get(id)
 
-      then(ppudClient).should().retrieveOffender(id, includeEmptyReleases = false)
-      assertEquals(offender, result.body?.offender)
-    }
-  }
-
-  @Test
-  fun `given offender ID and includeEmptyReleases flag when get is called then pass on flag`() {
-    runBlocking {
-      val id = randomPpudId()
-      val offender = generateOffender(id = id)
-      given(ppudClient.retrieveOffender(id, includeEmptyReleases = true)).willReturn(offender)
-
-      val result = controller.get(id, includeEmptyReleases = true)
-
-      then(ppudClient).should().retrieveOffender(id, true)
+      then(ppudClient).should().retrieveOffender(id)
       assertEquals(offender, result.body?.offender)
     }
   }
