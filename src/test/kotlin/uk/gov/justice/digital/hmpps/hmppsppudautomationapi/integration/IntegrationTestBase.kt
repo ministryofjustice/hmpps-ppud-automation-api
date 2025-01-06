@@ -146,29 +146,33 @@ abstract class IntegrationTestBase {
       sentenceLengthPartMonths: Int = Random.nextInt(0, 20),
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
+      sentencedUnder: String = randomString(),
     ): String {
-      return "{" +
-        "\"custodyType\":\"$custodyType\", " +
-        "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"espCustodialPeriod\":{" +
-        "  \"years\":\"$espCustodialPeriodYears\", " +
-        "  \"months\":\"$espCustodialPeriodMonths\" " +
-        "}," +
-        "\"espExtendedPeriod\":{" +
-        "  \"years\":\"$espExtendedPeriodYears\", " +
-        "  \"months\":\"$espExtendedPeriodMonths\" " +
-        "}," +
-        "\"licenceExpiryDate\":\"$licenceExpiryDate\", " +
-        "\"mappaLevel\":\"$mappaLevel\", " +
-        "\"releaseDate\":\"$releaseDate\", " +
-        "\"sentenceExpiryDate\":\"$sentenceExpiryDate\", " +
-        "\"sentenceLength\":{" +
-        "  \"partYears\":\"$sentenceLengthPartYears\", " +
-        "  \"partMonths\":\"$sentenceLengthPartMonths\", " +
-        "  \"partDays\":\"$sentenceLengthPartDays\" " +
-        "}," +
-        "\"sentencingCourt\":\"$sentencingCourt\" " +
-        "}"
+      return """ 
+        {
+          "custodyType":"$custodyType",
+          "dateOfSentence":"$dateOfSentence",
+          "espCustodialPeriod": {
+            "years":"$espCustodialPeriodYears",
+            "months":"$espCustodialPeriodMonths"
+          },
+          "espExtendedPeriod": {
+            "years":"$espExtendedPeriodYears",
+            "months":"$espExtendedPeriodMonths"
+          },
+          "licenceExpiryDate":"$licenceExpiryDate",
+          "mappaLevel":"$mappaLevel",
+          "releaseDate":"$releaseDate",
+          "sentenceExpiryDate":"$sentenceExpiryDate",
+          "sentenceLength": {
+            "partYears":"$sentenceLengthPartYears",
+            "partMonths":"$sentenceLengthPartMonths",
+            "partDays":"$sentenceLengthPartDays"
+          },
+          "sentencingCourt":"$sentencingCourt",
+          "sentencedUnder":"$sentencedUnder"
+        }
+        """.trimIndent()
     }
 
     fun releaseRequestBody(

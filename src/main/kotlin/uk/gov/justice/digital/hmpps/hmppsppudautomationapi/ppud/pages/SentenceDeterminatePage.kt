@@ -25,7 +25,6 @@ internal class SentenceDeterminatePage(
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
   sentenceComparator: SentenceComparator,
-  @Value("\${ppud.sentence.sentencedUnder}") private val sentencedUnder: String,
 ) : SentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
@@ -104,7 +103,7 @@ internal class SentenceDeterminatePage(
       enterDate(licenceExpiryDateInput, request.licenceExpiryDate)
       selectDropdownOptionIfNotBlank(mappaLevelDropdown, request.mappaLevel, "mappa level")
       enterDate(releaseDateInput, request.releaseDate)
-      selectDropdownOptionIfNotBlank(sentencedUnderDropdown, sentencedUnder, "sentenced under")
+      selectDropdownOptionIfNotBlank(sentencedUnderDropdown, request.sentencedUnder, "sentenced under")
       enterDate(sentenceExpiryDateInput, request.sentenceExpiryDate)
       enterText(sentencingCourtInput, request.sentencingCourt)
       enterInteger(sentenceLengthPartYearsInput, request.sentenceLength?.partYears)
