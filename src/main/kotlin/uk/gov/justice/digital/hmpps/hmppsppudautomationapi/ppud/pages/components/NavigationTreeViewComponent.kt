@@ -33,11 +33,9 @@ class NavigationTreeViewComponent(
     private const val URL_ATTRIBUTE = "igurl"
 
     val TreeViewNode.url: String
-      get() = this.getAttribute(URL_ATTRIBUTE)
+      get() = this.getAttribute(URL_ATTRIBUTE).orEmpty()
 
-    fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> {
-      return this.filter { it.text != NEW_NODE_TEXT }
-    }
+    fun List<TreeViewNode>.excludeNewNode(): List<TreeViewNode> = this.filter { it.text != NEW_NODE_TEXT }
   }
 
   init {
@@ -62,18 +60,14 @@ class NavigationTreeViewComponent(
     return sentenceNode
   }
 
-  fun findOffenceNodeFor(sentenceId: String): TreeViewNode {
-    return findSentenceNodeFor(sentenceId)
-      .expandNode()
-      .findNodeWithText(OFFENCE_NODE_TEXT)
-  }
+  fun findOffenceNodeFor(sentenceId: String): TreeViewNode = findSentenceNodeFor(sentenceId)
+    .expandNode()
+    .findNodeWithText(OFFENCE_NODE_TEXT)
 
-  fun findReleaseNodesFor(sentenceId: String): List<TreeViewNode> {
-    return findSentenceNodeFor(sentenceId)
-      .expandNode()
-      .expandNodeWithText(RELEASES_NODE_TEXT)
-      .children()
-  }
+  fun findReleaseNodesFor(sentenceId: String): List<TreeViewNode> = findSentenceNodeFor(sentenceId)
+    .expandNode()
+    .expandNodeWithText(RELEASES_NODE_TEXT)
+    .children()
 
   fun findReleaseNodeFor(releaseId: String): TreeViewNode {
     val releaseNodes = sentenceNodes
@@ -96,23 +90,17 @@ class NavigationTreeViewComponent(
     return matchingRelease
   }
 
-  fun findPostReleaseNodeFor(releaseId: String): TreeViewNode {
-    return findReleaseNodeFor(releaseId)
-      .expandNode()
-      .findNodeWithTextContaining(POST_RELEASE_NODE_TEXT)
-  }
+  fun findPostReleaseNodeFor(releaseId: String): TreeViewNode = findReleaseNodeFor(releaseId)
+    .expandNode()
+    .findNodeWithTextContaining(POST_RELEASE_NODE_TEXT)
 
-  fun findRecallNodesFor(releaseId: String): List<TreeViewNode> {
-    return findReleaseNodeFor(releaseId)
-      .expandNode()
-      .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
-      .children()
-  }
+  fun findRecallNodesFor(releaseId: String): List<TreeViewNode> = findReleaseNodeFor(releaseId)
+    .expandNode()
+    .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
+    .children()
 
-  fun findRecallsNodeFor(releaseId: String): TreeViewNode {
-    return findReleaseNodeFor(releaseId)
-      .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
-  }
+  fun findRecallsNodeFor(releaseId: String): TreeViewNode = findReleaseNodeFor(releaseId)
+    .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
 
   fun navigateToNewSentence() {
     TreeView(navigationTreeViewRoot)
@@ -141,11 +129,9 @@ class NavigationTreeViewComponent(
     resultNode.click()
   }
 
-  fun navigateToNewRecallFor(releaseId: String) {
-    return findRecallsNodeFor(releaseId)
-      .findNodeWithText(NEW_NODE_TEXT)
-      .click()
-  }
+  fun navigateToNewRecallFor(releaseId: String) = findRecallsNodeFor(releaseId)
+    .findNodeWithText(NEW_NODE_TEXT)
+    .click()
 
   fun extractSentenceLinks(dateOfSentence: LocalDate, custodyType: String): List<String> {
     val formattedDate = dateOfSentence.format(dateFormatter)
@@ -154,24 +140,18 @@ class NavigationTreeViewComponent(
       .map { it.url }
   }
 
-  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> {
-    return findReleaseNodesFor(sentenceId)
-      .filter {
-        it.text.startsWith(NEW_NODE_TEXT).not() &&
-          (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
-      }
-      .map { it.url }
-  }
+  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> = findReleaseNodesFor(sentenceId)
+    .filter {
+      it.text.startsWith(NEW_NODE_TEXT).not() &&
+        (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
+    }
+    .map { it.url }
 
-  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> {
-    return findReleaseNodesFor(sentenceId)
-      .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
-      .map { it.url }
-  }
+  fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> = findReleaseNodesFor(sentenceId)
+    .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
+    .map { it.url }
 
-  fun extractRecallLinks(releaseId: String): List<String> {
-    return findRecallNodesFor(releaseId)
-      .excludeNewNode()
-      .map { it.url }
-  }
+  fun extractRecallLinks(releaseId: String): List<String> = findRecallNodesFor(releaseId)
+    .excludeNewNode()
+    .map { it.url }
 }

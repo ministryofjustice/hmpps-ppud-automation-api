@@ -15,16 +15,12 @@ internal class ErrorPage(
   private val body: WebElement?
     get() = driver.findElements(By.xpath("//body")).firstOrNull()
 
-  fun isShown(): Boolean {
-    return pageHelper.isCustomErrorUrl() ||
-      body?.text?.startsWith("Server Error in") == true
-  }
+  fun isShown(): Boolean = pageHelper.isCustomErrorUrl() ||
+    body?.text?.startsWith("Server Error in") == true
 
-  fun extractErrorDetails(): String {
-    return if (pageHelper.isCustomErrorUrl()) {
-      "An error has occurred"
-    } else {
-      driver.title
-    }
+  fun extractErrorDetails(): String = if (pageHelper.isCustomErrorUrl()) {
+    "An error has occurred"
+  } else {
+    driver.title.orEmpty()
   }
 }
