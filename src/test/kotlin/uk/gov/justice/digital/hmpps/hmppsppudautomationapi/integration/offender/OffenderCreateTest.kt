@@ -45,20 +45,18 @@ class OffenderCreateTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("custodyType", createOffenderRequestBody(custodyType = "")),
-        MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
-        MandatoryFieldTestData("dateOfSentence", createOffenderRequestBody(dateOfSentence = "")),
-        MandatoryFieldTestData("ethnicity", createOffenderRequestBody(ethnicity = "")),
-        MandatoryFieldTestData("firstNames", createOffenderRequestBody(firstNames = "")),
-        MandatoryFieldTestData("familyName", createOffenderRequestBody(familyName = "")),
-        MandatoryFieldTestData("gender", createOffenderRequestBody(gender = "")),
-        MandatoryFieldTestData("indexOffence", createOffenderRequestBody(indexOffence = "")),
-        MandatoryFieldTestData("mappaLevel", createOffenderRequestBody(mappaLevel = "")),
-        MandatoryFieldTestData("prisonNumber", createOffenderRequestBody(prisonNumber = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("custodyType", createOffenderRequestBody(custodyType = "")),
+      MandatoryFieldTestData("dateOfBirth", createOffenderRequestBody(dateOfBirth = "")),
+      MandatoryFieldTestData("dateOfSentence", createOffenderRequestBody(dateOfSentence = "")),
+      MandatoryFieldTestData("ethnicity", createOffenderRequestBody(ethnicity = "")),
+      MandatoryFieldTestData("firstNames", createOffenderRequestBody(firstNames = "")),
+      MandatoryFieldTestData("familyName", createOffenderRequestBody(familyName = "")),
+      MandatoryFieldTestData("gender", createOffenderRequestBody(gender = "")),
+      MandatoryFieldTestData("indexOffence", createOffenderRequestBody(indexOffence = "")),
+      MandatoryFieldTestData("mappaLevel", createOffenderRequestBody(mappaLevel = "")),
+      MandatoryFieldTestData("prisonNumber", createOffenderRequestBody(prisonNumber = "")),
+    )
   }
 
   @AfterAll
@@ -329,11 +327,10 @@ class OffenderCreateTest : IntegrationTestBase() {
     return CreatedOffender(offenderId, CreatedSentence(sentenceId))
   }
 
-  private fun postOffender(requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.post()
-      .uri("/offender")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun postOffender(requestBody: String): WebTestClient.ResponseSpec = webTestClient.post()
+    .uri("/offender")
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 }

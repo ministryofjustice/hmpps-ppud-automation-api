@@ -82,13 +82,9 @@ internal class CaseworkerAdminPage(
     return users
   }
 
-  private fun getPageLink(nextPageNum: Number): WebElement? {
-    return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td/a[text()='$nextPageNum']"))?.firstOrNull()
-  }
+  private fun getPageLink(nextPageNum: Number): WebElement? = resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td/a[text()='$nextPageNum']"))?.firstOrNull()
 
-  private fun getForwardEllipsisLink(): WebElement? {
-    return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td[last()]/a[text()='...']"))?.firstOrNull()
-  }
+  private fun getForwardEllipsisLink(): WebElement? = resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td[last()]/a[text()='...']"))?.firstOrNull()
 
   private fun resetPage() {
     pageHelper.selectDropdownOptionIfNotBlank(roleDropdown, "Level 1", "role")

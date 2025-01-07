@@ -40,17 +40,15 @@ class WebClientConfiguration(
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    fun <T> Mono<T>.withRetry(): Mono<T> {
-      return this
-        .retryWhen(
-          Retry.backoff(2, Duration.ofMillis(500))
-            .filter(::shouldBeRetried)
-            .doBeforeRetry(::logRetrySignal)
-            .onRetryExhaustedThrow { _, retrySignal ->
-              retrySignal.failure()
-            },
-        )
-    }
+    fun <T> Mono<T>.withRetry(): Mono<T> = this
+      .retryWhen(
+        Retry.backoff(2, Duration.ofMillis(500))
+          .filter(::shouldBeRetried)
+          .doBeforeRetry(::logRetrySignal)
+          .onRetryExhaustedThrow { _, retrySignal ->
+            retrySignal.failure()
+          },
+      )
 
     private fun logRetrySignal(retrySignal: Retry.RetrySignal) {
       val exception = retrySignal.failure()?.cause ?: retrySignal.failure()
@@ -69,12 +67,10 @@ class WebClientConfiguration(
       499,
     )
 
-    private fun shouldBeRetried(ex: Throwable): Boolean {
-      return ex is ClientTimeoutException ||
-        ex is TimeoutException ||
-        ex is WebClientRequestException ||
-        (ex is WebClientResponseException && transientStatusCodes.contains(ex.statusCode.value()))
-    }
+    private fun shouldBeRetried(ex: Throwable): Boolean = ex is ClientTimeoutException ||
+      ex is TimeoutException ||
+      ex is WebClientRequestException ||
+      (ex is WebClientResponseException && transientStatusCodes.contains(ex.statusCode.value()))
   }
 
   @Bean
@@ -126,9 +122,7 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun documentManagementApiClient(@Qualifier("documentManagementApiWebClientAppScope") webClient: WebClient): DocumentManagementClient {
-    return DocumentManagementClient(webClient, documentManagementTimeout)
-  }
+  fun documentManagementApiClient(@Qualifier("documentManagementApiWebClientAppScope") webClient: WebClient): DocumentManagementClient = DocumentManagementClient(webClient, documentManagementTimeout)
 
   private fun getOAuthWebClient(
     authorizedClientManager: OAuth2AuthorizedClientManager,

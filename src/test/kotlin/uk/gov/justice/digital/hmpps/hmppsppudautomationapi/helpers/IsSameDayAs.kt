@@ -14,6 +14,4 @@ class IsSameDayAs(private val thisDate: LocalDate, private val message: String) 
   }
 }
 
-fun isSameDayAs(date: LocalDate, message: String): IsSameDayAs {
-  return IsSameDayAs(date, message)
-}
+fun isSameDayAs(date: LocalDate, message: String): IsSameDayAs = IsSameDayAs(date, message)

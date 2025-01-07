@@ -210,10 +210,8 @@ internal class RecallPage(
     PageFactory.initElements(driver, this)
   }
 
-  fun isMatching(receivedDateTime: LocalDateTime, recommendedTo: PpudUser): Boolean {
-    return reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
-      recommendedToOwnerInput.getValue() == recommendedTo.fullName
-  }
+  fun isMatching(receivedDateTime: LocalDateTime, recommendedTo: PpudUser): Boolean = reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
+    recommendedToOwnerInput.getValue() == recommendedTo.fullName
 
   suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
     // Complete these first as they trigger additional processing
@@ -304,9 +302,7 @@ internal class RecallPage(
     addMinuteInternal(contentCreator.generateRecallMinuteBackgroundInfoText(createRecallRequest))
   }
 
-  fun hasMatchingMinute(subject: String, text: String): Boolean {
-    return extractMinutes().stream().anyMatch { it.subject == subject && it.text == text }
-  }
+  fun hasMatchingMinute(subject: String, text: String): Boolean = extractMinutes().stream().anyMatch { it.subject == subject && it.text == text }
 
   fun addMinute(subject: String, text: String) {
     addMinuteInternal(subject = subject, text = text)
@@ -358,9 +354,7 @@ internal class RecallPage(
     )
   }
 
-  fun urlFor(id: String): String {
-    return urlPathTemplate.replace("{id}", id)
-  }
+  fun urlFor(id: String): String = urlPathTemplate.replace("{id}", id)
 
   private fun checkAllMissingMandatoryDocuments() {
     missingMandatoryDocumentsMap.forEach {
@@ -368,27 +362,23 @@ internal class RecallPage(
     }
   }
 
-  private fun extractMissingMandatoryDocuments(): List<DocumentCategory> {
-    return if (Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text == "No") {
-      missingMandatoryDocumentsMap.mapNotNull { if (it.value.isSelected) it.key else null }
-    } else {
-      emptyList()
-    }
+  private fun extractMissingMandatoryDocuments(): List<DocumentCategory> = if (Select(mandatoryDocumentsReceivedDropdown).firstSelectedOption.text == "No") {
+    missingMandatoryDocumentsMap.mapNotNull { if (it.value.isSelected) it.key else null }
+  } else {
+    emptyList()
   }
 
-  private fun extractDocuments(): List<Document> {
-    return if (documentsTable != null) {
-      val rows = documentsTable!!.findElements(By.xpath(".//tr[position()>1]"))
-      rows.map {
-        Document(
-          title = it.findElement(By.xpath(".//td[3]")).text,
-          documentType = it.findElement(By.xpath(".//td[4]")).text,
-          owningCaseworker = it.findElement(By.xpath(".//td[12]")).text,
-        )
-      }
-    } else {
-      emptyList()
+  private fun extractDocuments(): List<Document> = if (documentsTable != null) {
+    val rows = documentsTable!!.findElements(By.xpath(".//tr[position()>1]"))
+    rows.map {
+      Document(
+        title = it.findElement(By.xpath(".//td[3]")).text,
+        documentType = it.findElement(By.xpath(".//td[4]")).text,
+        owningCaseworker = it.findElement(By.xpath(".//td[12]")).text,
+      )
     }
+  } else {
+    emptyList()
   }
 
   private fun extractMinutes(): List<Minute> {

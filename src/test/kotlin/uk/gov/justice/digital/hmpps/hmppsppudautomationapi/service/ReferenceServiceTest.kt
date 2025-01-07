@@ -57,8 +57,7 @@ class ReferenceServiceTest {
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager(*Companion.cacheNames)
 
     @Bean
-    fun referenceService(ppudClient: ReferenceDataPpudClient, cacheManager: CacheManager): ReferenceService =
-      ReferenceServiceImpl(ppudClient, cacheManager)
+    fun referenceService(ppudClient: ReferenceDataPpudClient, cacheManager: CacheManager): ReferenceService = ReferenceServiceImpl(ppudClient, cacheManager)
   }
 
   @Test

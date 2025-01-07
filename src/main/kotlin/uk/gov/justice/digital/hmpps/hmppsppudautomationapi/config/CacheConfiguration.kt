@@ -13,9 +13,7 @@ class CacheConfiguration {
   var timeToLiveSeconds: Long = 20
 
   @Bean
-  fun defaultRedisCacheConfiguration(): RedisCacheConfiguration {
-    return RedisCacheConfiguration
-      .defaultCacheConfig()
-      .entryTtl(Duration.ofSeconds(timeToLiveSeconds))
-  }
+  fun defaultRedisCacheConfiguration(): RedisCacheConfiguration = RedisCacheConfiguration
+    .defaultCacheConfig()
+    .entryTtl(Duration.ofSeconds(timeToLiveSeconds))
 }

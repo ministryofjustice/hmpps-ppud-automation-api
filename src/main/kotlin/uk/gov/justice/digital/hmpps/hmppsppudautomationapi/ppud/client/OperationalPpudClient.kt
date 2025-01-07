@@ -401,13 +401,11 @@ internal class OperationalPpudClient(
     return sentencePage.extractCreatedSentenceDetails()
   }
 
-  private fun extractSentences(): (List<String>) -> List<Sentence> {
-    return { urls ->
-      urls.map {
-        driver.navigate().to("$ppudUrl$it")
-        val sentencePage = sentencePageFactory.sentencePage()
-        sentencePage.extractSentenceDetails(::extractOffenceDetails)
-      }
+  private fun extractSentences(): (List<String>) -> List<Sentence> = { urls ->
+    urls.map {
+      driver.navigate().to("$ppudUrl$it")
+      val sentencePage = sentencePageFactory.sentencePage()
+      sentencePage.extractSentenceDetails(::extractOffenceDetails)
     }
   }
 

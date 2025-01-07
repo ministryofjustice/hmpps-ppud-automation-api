@@ -96,9 +96,7 @@ private const val SIXTY_YEARS_IN_DAYS: Long = 21900
 
 private const val SECONDS_IN_A_DAY: Long = 86400
 
-fun randomString(prefix: String = "random"): String {
-  return "$prefix-${UUID.randomUUID()}"
-}
+fun randomString(prefix: String = "random"): String = "$prefix-${UUID.randomUUID()}"
 
 fun randomCroNumber(): String {
   val serial = Random.nextInt(100000, 999999)
@@ -119,9 +117,7 @@ fun randomPrisonNumber(): String {
   return number
 }
 
-fun randomDate(): LocalDate {
-  return LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
-}
+fun randomDate(): LocalDate = LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
 
 fun randomDateTime(): LocalDateTime {
   val earliest = LocalDateTime.parse("2000-01-01T00:00:00")
@@ -130,9 +126,7 @@ fun randomDateTime(): LocalDateTime {
   return LocalDateTime.ofEpochSecond(randomEpochSecond, 0, ZoneOffset.UTC)
 }
 
-fun randomTimeToday(): LocalDateTime {
-  return LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
-}
+fun randomTimeToday(): LocalDateTime = LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
 
 fun randomPhoneNumber(): String {
   val number = Random.nextInt(100000000, 999999999)
@@ -159,57 +153,47 @@ fun randomPpudId(): String {
   return "4F${randomSerial}E64657269643D313632393134G721H665"
 }
 
-fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName {
-  return LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
-}
+fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName = LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
 
-fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel {
-  return RiskOfSeriousHarmLevel.entries.shuffled().first()
-}
+fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel = RiskOfSeriousHarmLevel.entries.shuffled().first()
 
-fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory {
-  return DocumentCategory.entries.shuffled().first { it != exclude }
-}
+fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory = DocumentCategory.entries.shuffled().first { it != exclude }
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateCreateOffenderRequest(): CreateOffenderRequest {
-  return CreateOffenderRequest(
-    address = generateOffenderAddress(),
-    croNumber = randomCroNumber(),
-    custodyType = randomString("custodyType"),
-    dateOfBirth = randomDate(),
-    dateOfSentence = randomDate(),
-    ethnicity = randomString("ethnicity"),
-    firstNames = randomString("firstNames"),
-    familyName = randomString("familyName"),
-    gender = randomString("gender"),
-    indexOffence = randomString("indexOffence"),
-    isInCustody = Random.nextBoolean(),
-    mappaLevel = randomString("mappaLevel"),
-    nomsId = randomNomsId(),
-    prisonNumber = randomPrisonNumber(),
-  )
-}
+fun generateCreateOffenderRequest(): CreateOffenderRequest = CreateOffenderRequest(
+  address = generateOffenderAddress(),
+  croNumber = randomCroNumber(),
+  custodyType = randomString("custodyType"),
+  dateOfBirth = randomDate(),
+  dateOfSentence = randomDate(),
+  ethnicity = randomString("ethnicity"),
+  firstNames = randomString("firstNames"),
+  familyName = randomString("familyName"),
+  gender = randomString("gender"),
+  indexOffence = randomString("indexOffence"),
+  isInCustody = Random.nextBoolean(),
+  mappaLevel = randomString("mappaLevel"),
+  nomsId = randomNomsId(),
+  prisonNumber = randomPrisonNumber(),
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateUpdateOffenderRequest(): UpdateOffenderRequest {
-  return UpdateOffenderRequest(
-    croNumber = randomCroNumber(),
-    dateOfBirth = randomDate(),
-    ethnicity = randomString("ethnicity"),
-    familyName = randomString("familyName"),
-    firstNames = randomString("firstNames"),
-    gender = randomString("gender"),
-    isInCustody = Random.nextBoolean(),
-    prisonNumber = randomPrisonNumber(),
-  )
-}
+fun generateUpdateOffenderRequest(): UpdateOffenderRequest = UpdateOffenderRequest(
+  croNumber = randomCroNumber(),
+  dateOfBirth = randomDate(),
+  ethnicity = randomString("ethnicity"),
+  familyName = randomString("familyName"),
+  firstNames = randomString("firstNames"),
+  gender = randomString("gender"),
+  isInCustody = Random.nextBoolean(),
+  prisonNumber = randomPrisonNumber(),
+)
 
 fun generateOffender(id: String = randomPpudId()): Offender {
   val croOtherNumber = randomCroNumber()
@@ -253,15 +237,13 @@ fun generateSearchResultOffender(
   )
 }
 
-fun generateOffenderAddress(): OffenderAddress {
-  return OffenderAddress(
-    premises = randomString("premises"),
-    line1 = randomString("line1"),
-    line2 = randomString("line2"),
-    postcode = randomString("postcode"),
-    phoneNumber = randomString("phoneNumber"),
-  )
-}
+fun generateOffenderAddress(): OffenderAddress = OffenderAddress(
+  premises = randomString("premises"),
+  line1 = randomString("line1"),
+  line2 = randomString("line2"),
+  postcode = randomString("postcode"),
+  phoneNumber = randomString("phoneNumber"),
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -272,31 +254,27 @@ fun generateCreateOrUpdateSentenceRequest(
   dateOfSentence: LocalDate = randomDate(),
   mappaLevel: String = randomString("mappaLevel"),
   sentencingCourt: String = randomString("sentencingCourt"),
-): CreateOrUpdateSentenceRequest {
-  return CreateOrUpdateSentenceRequest(
-    custodyType = custodyType,
-    dateOfSentence = dateOfSentence,
-    espCustodialPeriod = null,
-    espExtendedPeriod = null,
-    licenceExpiryDate = null,
-    mappaLevel = mappaLevel,
-    releaseDate = randomDate(),
-    sentenceExpiryDate = null,
-    sentenceLength = null,
-    sentencingCourt = sentencingCourt,
-  )
-}
+): CreateOrUpdateSentenceRequest = CreateOrUpdateSentenceRequest(
+  custodyType = custodyType,
+  dateOfSentence = dateOfSentence,
+  espCustodialPeriod = null,
+  espExtendedPeriod = null,
+  licenceExpiryDate = null,
+  mappaLevel = mappaLevel,
+  releaseDate = randomDate(),
+  sentenceExpiryDate = null,
+  sentenceLength = null,
+  sentencingCourt = sentencingCourt,
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateUpdateOffenceRequest(): UpdateOffenceRequest {
-  return UpdateOffenceRequest(
-    indexOffence = randomString("indexOffence"),
-    dateOfIndexOffence = randomDate(),
-  )
-}
+fun generateUpdateOffenceRequest(): UpdateOffenceRequest = UpdateOffenceRequest(
+  indexOffence = randomString("indexOffence"),
+  dateOfIndexOffence = randomDate(),
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -306,13 +284,11 @@ fun generateCreateOrUpdateReleaseRequest(
   dateOfRelease: LocalDate = randomDate(),
   releasedFrom: String = randomString("releasedFrom"),
   releasedUnder: String = randomString("releasedUnder"),
-): CreateOrUpdateReleaseRequest {
-  return CreateOrUpdateReleaseRequest(
-    dateOfRelease = dateOfRelease,
-    releasedFrom = releasedFrom,
-    releasedUnder = releasedUnder,
-  )
-}
+): CreateOrUpdateReleaseRequest = CreateOrUpdateReleaseRequest(
+  dateOfRelease = dateOfRelease,
+  releasedFrom = releasedFrom,
+  releasedUnder = releasedUnder,
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -325,20 +301,18 @@ fun generateCreateRecallRequest(
   recommendedTo: PpudUser = generatePpudUser(),
   riskOfContrabandDetails: String? = null,
   riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
-): CreateRecallRequest {
-  return CreateRecallRequest(
-    decisionDateTime = randomTimeToday(),
-    isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),
-    isInCustody = isInCustody ?: Random.nextBoolean(),
-    mappaLevel = randomString("mappaLevel"),
-    policeForce = randomString("policeForce"),
-    probationArea = randomString("probationArea"),
-    receivedDateTime = receivedDateTime,
-    recommendedTo = recommendedTo,
-    riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
-    riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
-  )
-}
+): CreateRecallRequest = CreateRecallRequest(
+  decisionDateTime = randomTimeToday(),
+  isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),
+  isInCustody = isInCustody ?: Random.nextBoolean(),
+  mappaLevel = randomString("mappaLevel"),
+  policeForce = randomString("policeForce"),
+  probationArea = randomString("probationArea"),
+  receivedDateTime = receivedDateTime,
+  recommendedTo = recommendedTo,
+  riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
+  riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -347,13 +321,11 @@ fun generateCreateRecallRequest(
 fun generateUploadMandatoryDocumentRequest(
   documentId: UUID = UUID.randomUUID(),
   owningCaseworker: PpudUser = generatePpudUser(),
-): UploadMandatoryDocumentRequest {
-  return UploadMandatoryDocumentRequest(
-    documentId = documentId,
-    category = randomDocumentCategory(),
-    owningCaseworker = owningCaseworker,
-  )
-}
+): UploadMandatoryDocumentRequest = UploadMandatoryDocumentRequest(
+  documentId = documentId,
+  category = randomDocumentCategory(),
+  owningCaseworker = owningCaseworker,
+)
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -362,53 +334,43 @@ fun generateUploadMandatoryDocumentRequest(
 fun generateUploadAdditionalDocumentRequest(
   documentId: UUID = UUID.randomUUID(),
   owningCaseworker: PpudUser = generatePpudUser(),
-): UploadAdditionalDocumentRequest {
-  return UploadAdditionalDocumentRequest(
-    documentId = documentId,
-    title = randomString("title"),
-    owningCaseworker = owningCaseworker,
-  )
-}
+): UploadAdditionalDocumentRequest = UploadAdditionalDocumentRequest(
+  documentId = documentId,
+  title = randomString("title"),
+  owningCaseworker = owningCaseworker,
+)
 
 fun generateAddMinuteRequest(
   subject: String = randomString("subject"),
   text: String = randomString("text"),
-): AddMinuteRequest {
-  return AddMinuteRequest(
-    subject = subject,
-    text = text,
-  )
-}
+): AddMinuteRequest = AddMinuteRequest(
+  subject = subject,
+  text = text,
+)
 
-fun generateRecall(id: String = randomPpudId()): Recall {
-  return Recall(
-    id = id,
-    allMandatoryDocumentsReceived = "No",
-    decisionDateTime = randomTimeToday(),
-    documents = emptyList(),
-    isInCustody = Random.nextBoolean(),
-    minutes = emptyList(),
-    missingMandatoryDocuments = emptyList(),
-    owningTeam = randomString("owningTeam"),
-    policeForce = randomString("policeForce"),
-    probationArea = randomString("probationArea"),
-    recallType = randomString("recallType"),
-    receivedDateTime = randomTimeToday(),
-    mappaLevel = randomString("mappaLevel"),
-    recommendedToOwner = randomString("recommendedToOwner"),
-    recommendedToDateTime = randomTimeToday(),
-    revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
-    returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
-  )
-}
+fun generateRecall(id: String = randomPpudId()): Recall = Recall(
+  id = id,
+  allMandatoryDocumentsReceived = "No",
+  decisionDateTime = randomTimeToday(),
+  documents = emptyList(),
+  isInCustody = Random.nextBoolean(),
+  minutes = emptyList(),
+  missingMandatoryDocuments = emptyList(),
+  owningTeam = randomString("owningTeam"),
+  policeForce = randomString("policeForce"),
+  probationArea = randomString("probationArea"),
+  recallType = randomString("recallType"),
+  receivedDateTime = randomTimeToday(),
+  mappaLevel = randomString("mappaLevel"),
+  recommendedToOwner = randomString("recommendedToOwner"),
+  recommendedToDateTime = randomTimeToday(),
+  revocationIssuedByOwner = randomString("revocationIssuedByOwner"),
+  returnToCustodyNotificationMethod = randomString("returnToCustodyNotificationMethod"),
+)
 
-fun generatePpudUser(): PpudUser {
-  return PpudUser(
-    fullName = randomString("fullName"),
-    teamName = randomString("teamName"),
-  )
-}
+fun generatePpudUser(): PpudUser = PpudUser(
+  fullName = randomString("fullName"),
+  teamName = randomString("teamName"),
+)
 
-fun generateUserSearchRequest(fullName: String?, userName: String?): UserSearchRequest {
-  return UserSearchRequest(fullName, userName)
-}
+fun generateUserSearchRequest(fullName: String?, userName: String?): UserSearchRequest = UserSearchRequest(fullName, userName)

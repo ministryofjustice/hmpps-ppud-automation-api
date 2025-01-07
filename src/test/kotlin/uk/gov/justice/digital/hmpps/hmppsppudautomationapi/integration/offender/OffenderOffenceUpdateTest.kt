@@ -29,23 +29,19 @@ class OffenderOffenceUpdateTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("indexOffence", updateOffenceRequestBody(indexOffence = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("indexOffence", updateOffenceRequestBody(indexOffence = "")),
+    )
 
     private fun updateOffenceRequestBody(
       indexOffence: String = PPUD_VALID_INDEX_OFFENCE,
       dateOfIndexOffence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
-    ): String {
-      return """ 
+    ): String = """ 
         {
           "indexOffence":"$indexOffence",
           "dateOfIndexOffence":"$dateOfIndexOffence" 
         }
-      """.trimIndent()
-    }
+    """.trimIndent()
   }
 
   @BeforeAll
@@ -136,14 +132,12 @@ class OffenderOffenceUpdateTest : IntegrationTestBase() {
       .isEmpty
   }
 
-  private fun putOffence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri(constructUpdateOffenceUri(offenderId, sentenceId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun putOffence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
+    .uri(constructUpdateOffenceUri(offenderId, sentenceId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  private fun constructUpdateOffenceUri(offenderId: String, sentenceId: String) =
-    "/offender/$offenderId/sentence/$sentenceId/offence"
+  private fun constructUpdateOffenceUri(offenderId: String, sentenceId: String) = "/offender/$offenderId/sentence/$sentenceId/offence"
 }

@@ -32,11 +32,9 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+    )
   }
 
   @BeforeAll
@@ -177,14 +175,12 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .isEmpty
   }
 
-  private fun putSentence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri(constructUpdateSentenceUri(offenderId, sentenceId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun putSentence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
+    .uri(constructUpdateSentenceUri(offenderId, sentenceId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  private fun constructUpdateSentenceUri(offenderId: String, sentenceId: String) =
-    "/offender/$offenderId/sentence/$sentenceId"
+  private fun constructUpdateSentenceUri(offenderId: String, sentenceId: String) = "/offender/$offenderId/sentence/$sentenceId"
 }

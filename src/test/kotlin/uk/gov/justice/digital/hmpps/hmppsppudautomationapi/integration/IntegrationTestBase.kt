@@ -83,25 +83,23 @@ abstract class IntegrationTestBase {
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
-    ): String {
-      return "{" +
-        "\"address\":$address, " +
-        "\"additionalAddresses\":[$additionalAddresses], " +
-        "\"croNumber\":\"$croNumber\", " +
-        "\"custodyType\":\"$custodyType\", " +
-        "\"dateOfBirth\":\"$dateOfBirth\", " +
-        "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"ethnicity\":\"$ethnicity\", " +
-        "\"familyName\":\"$familyName\", " +
-        "\"firstNames\":\"$firstNames\", " +
-        "\"gender\":\"$gender\", " +
-        "\"indexOffence\":\"$indexOffence\", " +
-        "\"isInCustody\":\"$isInCustody\", " +
-        "\"mappaLevel\":\"$mappaLevel\", " +
-        "\"nomsId\":\"$nomsId\", " +
-        "\"prisonNumber\":\"$prisonNumber\" " +
-        "}"
-    }
+    ): String = "{" +
+      "\"address\":$address, " +
+      "\"additionalAddresses\":[$additionalAddresses], " +
+      "\"croNumber\":\"$croNumber\", " +
+      "\"custodyType\":\"$custodyType\", " +
+      "\"dateOfBirth\":\"$dateOfBirth\", " +
+      "\"dateOfSentence\":\"$dateOfSentence\", " +
+      "\"ethnicity\":\"$ethnicity\", " +
+      "\"familyName\":\"$familyName\", " +
+      "\"firstNames\":\"$firstNames\", " +
+      "\"gender\":\"$gender\", " +
+      "\"indexOffence\":\"$indexOffence\", " +
+      "\"isInCustody\":\"$isInCustody\", " +
+      "\"mappaLevel\":\"$mappaLevel\", " +
+      "\"nomsId\":\"$nomsId\", " +
+      "\"prisonNumber\":\"$prisonNumber\" " +
+      "}"
 
     fun updateOffenderRequestBody(
       address: String = addressRequestBody(),
@@ -115,21 +113,19 @@ abstract class IntegrationTestBase {
       isInCustody: String = "false",
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
-    ): String {
-      return "{" +
-        "\"address\":$address, " +
-        "\"additionalAddresses\":[$additionalAddresses], " +
-        "\"croNumber\":\"$croNumber\", " +
-        "\"dateOfBirth\":\"$dateOfBirth\", " +
-        "\"ethnicity\":\"$ethnicity\", " +
-        "\"familyName\":\"$familyName\", " +
-        "\"firstNames\":\"$firstNames\", " +
-        "\"gender\":\"$gender\", " +
-        "\"isInCustody\":\"$isInCustody\", " +
-        "\"nomsId\":\"$nomsId\", " +
-        "\"prisonNumber\":\"$prisonNumber\" " +
-        "}"
-    }
+    ): String = "{" +
+      "\"address\":$address, " +
+      "\"additionalAddresses\":[$additionalAddresses], " +
+      "\"croNumber\":\"$croNumber\", " +
+      "\"dateOfBirth\":\"$dateOfBirth\", " +
+      "\"ethnicity\":\"$ethnicity\", " +
+      "\"familyName\":\"$familyName\", " +
+      "\"firstNames\":\"$firstNames\", " +
+      "\"gender\":\"$gender\", " +
+      "\"isInCustody\":\"$isInCustody\", " +
+      "\"nomsId\":\"$nomsId\", " +
+      "\"prisonNumber\":\"$prisonNumber\" " +
+      "}"
 
     fun createOrUpdateSentenceRequestBody(
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
@@ -146,44 +142,40 @@ abstract class IntegrationTestBase {
       sentenceLengthPartMonths: Int = Random.nextInt(0, 20),
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
-    ): String {
-      return "{" +
-        "\"custodyType\":\"$custodyType\", " +
-        "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"espCustodialPeriod\":{" +
-        "  \"years\":\"$espCustodialPeriodYears\", " +
-        "  \"months\":\"$espCustodialPeriodMonths\" " +
-        "}," +
-        "\"espExtendedPeriod\":{" +
-        "  \"years\":\"$espExtendedPeriodYears\", " +
-        "  \"months\":\"$espExtendedPeriodMonths\" " +
-        "}," +
-        "\"licenceExpiryDate\":\"$licenceExpiryDate\", " +
-        "\"mappaLevel\":\"$mappaLevel\", " +
-        "\"releaseDate\":\"$releaseDate\", " +
-        "\"sentenceExpiryDate\":\"$sentenceExpiryDate\", " +
-        "\"sentenceLength\":{" +
-        "  \"partYears\":\"$sentenceLengthPartYears\", " +
-        "  \"partMonths\":\"$sentenceLengthPartMonths\", " +
-        "  \"partDays\":\"$sentenceLengthPartDays\" " +
-        "}," +
-        "\"sentencingCourt\":\"$sentencingCourt\" " +
-        "}"
-    }
+    ): String = "{" +
+      "\"custodyType\":\"$custodyType\", " +
+      "\"dateOfSentence\":\"$dateOfSentence\", " +
+      "\"espCustodialPeriod\":{" +
+      "  \"years\":\"$espCustodialPeriodYears\", " +
+      "  \"months\":\"$espCustodialPeriodMonths\" " +
+      "}," +
+      "\"espExtendedPeriod\":{" +
+      "  \"years\":\"$espExtendedPeriodYears\", " +
+      "  \"months\":\"$espExtendedPeriodMonths\" " +
+      "}," +
+      "\"licenceExpiryDate\":\"$licenceExpiryDate\", " +
+      "\"mappaLevel\":\"$mappaLevel\", " +
+      "\"releaseDate\":\"$releaseDate\", " +
+      "\"sentenceExpiryDate\":\"$sentenceExpiryDate\", " +
+      "\"sentenceLength\":{" +
+      "  \"partYears\":\"$sentenceLengthPartYears\", " +
+      "  \"partMonths\":\"$sentenceLengthPartMonths\", " +
+      "  \"partDays\":\"$sentenceLengthPartDays\" " +
+      "}," +
+      "\"sentencingCourt\":\"$sentencingCourt\" " +
+      "}"
 
     fun releaseRequestBody(
       dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       postRelease: String = postReleaseRequestBody(),
       releasedFrom: String = PPUD_VALID_RELEASED_FROM,
       releasedUnder: String = PPUD_VALID_RELEASED_UNDER,
-    ): String {
-      return "{" +
-        "\"dateOfRelease\":\"$dateOfRelease\", " +
-        "\"postRelease\":$postRelease, " +
-        "\"releasedFrom\":\"$releasedFrom\", " +
-        "\"releasedUnder\":\"$releasedUnder\" " +
-        "}"
-    }
+    ): String = "{" +
+      "\"dateOfRelease\":\"$dateOfRelease\", " +
+      "\"postRelease\":$postRelease, " +
+      "\"releasedFrom\":\"$releasedFrom\", " +
+      "\"releasedUnder\":\"$releasedUnder\" " +
+      "}"
 
     fun postReleaseRequestBody(
       assistantChiefOfficerName: String = randomString("acoName"),
@@ -194,24 +186,22 @@ abstract class IntegrationTestBase {
       probationService: String = PPUD_VALID_PROBATION_SERVICE,
       spocName: String = randomString("spocName"),
       spocFaxEmail: String = randomString("spocFaxEmail"),
-    ): String {
-      return "{" +
-        "\"assistantChiefOfficer\":{" +
-        "  \"name\":\"$assistantChiefOfficerName\", " +
-        "  \"faxEmail\":\"$assistantChiefOfficerFaxEmail\" " +
-        "}," +
-        "\"offenderManager\":{" +
-        "  \"name\":\"$offenderManagerName\", " +
-        "  \"faxEmail\":\"$offenderManagerFaxEmail\", " +
-        "  \"telephone\":\"$offenderManagerTelephone\" " +
-        "}," +
-        "\"probationService\":\"$probationService\", " +
-        "\"spoc\":{" +
-        "  \"name\":\"$spocName\", " +
-        "  \"faxEmail\":\"$spocFaxEmail\" " +
-        "}" +
-        "}"
-    }
+    ): String = "{" +
+      "\"assistantChiefOfficer\":{" +
+      "  \"name\":\"$assistantChiefOfficerName\", " +
+      "  \"faxEmail\":\"$assistantChiefOfficerFaxEmail\" " +
+      "}," +
+      "\"offenderManager\":{" +
+      "  \"name\":\"$offenderManagerName\", " +
+      "  \"faxEmail\":\"$offenderManagerFaxEmail\", " +
+      "  \"telephone\":\"$offenderManagerTelephone\" " +
+      "}," +
+      "\"probationService\":\"$probationService\", " +
+      "\"spoc\":{" +
+      "  \"name\":\"$spocName\", " +
+      "  \"faxEmail\":\"$spocFaxEmail\" " +
+      "}" +
+      "}"
 
     fun createRecallRequestBody(
       decisionDateTime: String = randomDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
@@ -224,8 +214,7 @@ abstract class IntegrationTestBase {
       recommendedTo: String? = ppudUserRequestBody(),
       riskOfContrabandDetails: String = "",
       riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
-    ): String {
-      return """
+    ): String = """
         {
           "decisionDateTime":"$decisionDateTime",
           "isInCustody":"$isInCustody",
@@ -238,20 +227,17 @@ abstract class IntegrationTestBase {
           "riskOfContrabandDetails":"$riskOfContrabandDetails",
           "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
         }
-      """.trimIndent()
-    }
+    """.trimIndent()
 
     fun ppudUserRequestBody(
       fullName: String = PPUD_VALID_USER_FULL_NAME,
       teamName: String = PPUD_VALID_USER_TEAM,
-    ): String {
-      return """
+    ): String = """
         {
           "fullName":"$fullName",
           "teamName":"$teamName"
         }
-      """.trimIndent()
-    }
+    """.trimIndent()
 
     fun addressRequestBody(
       premises: String = randomString("premises"),
@@ -259,15 +245,13 @@ abstract class IntegrationTestBase {
       line2: String = randomString("line2"),
       postcode: String = randomString("postcode"),
       phoneNumber: String = randomString("phoneNumber"),
-    ): String {
-      return "{" +
-        "\"premises\":\"$premises\", " +
-        "\"line1\":\"$line1\", " +
-        "\"line2\":\"$line2\", " +
-        "\"postcode\":\"$postcode\", " +
-        "\"phoneNumber\":\"$phoneNumber\" " +
-        "}"
-    }
+    ): String = "{" +
+      "\"premises\":\"$premises\", " +
+      "\"line1\":\"$line1\", " +
+      "\"line2\":\"$line2\", " +
+      "\"postcode\":\"$postcode\", " +
+      "\"phoneNumber\":\"$phoneNumber\" " +
+      "}"
   }
 
   @BeforeAll
@@ -384,41 +368,34 @@ abstract class IntegrationTestBase {
       .isOk
   }
 
-  protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri("/offender/$offenderId")
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  protected fun putOffender(offenderId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
+    .uri("/offender/$offenderId")
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  protected fun retrieveOffender(id: String): WebTestClient.BodyContentSpec {
-    return webTestClient.get()
-      .uri("/offender/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-  }
+  protected fun retrieveOffender(id: String): WebTestClient.BodyContentSpec = webTestClient.get()
+    .uri("/offender/$id")
+    .headers { it.authToken() }
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus().isOk
+    .expectBody()
 
-  protected fun retrieveOffenderWhenNotOk(id: String): WebTestClient.ResponseSpec {
-    return webTestClient.get()
-      .uri("/offender/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-  }
+  protected fun retrieveOffenderWhenNotOk(id: String): WebTestClient.ResponseSpec = webTestClient.get()
+    .uri("/offender/$id")
+    .headers { it.authToken() }
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
 
-  protected fun retrieveRecall(id: String): WebTestClient.BodyContentSpec {
-    return webTestClient.get()
-      .uri("/recall/$id")
-      .headers { it.authToken() }
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-  }
+  protected fun retrieveRecall(id: String): WebTestClient.BodyContentSpec = webTestClient.get()
+    .uri("/recall/$id")
+    .headers { it.authToken() }
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus().isOk
+    .expectBody()
 
   protected fun givenMissingTokenWhenCalledThenUnauthorizedReturned(method: HttpMethod, uri: String) {
     webTestClient.method(method)

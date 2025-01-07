@@ -115,11 +115,9 @@ internal class SentenceDeterminatePage(
     saveButton.click()
   }
 
-  override fun extractCreatedSentenceDetails(): CreatedSentence {
-    return CreatedSentence(
-      id = pageHelper.extractId(pageDescription),
-    )
-  }
+  override fun extractCreatedSentenceDetails(): CreatedSentence = CreatedSentence(
+    id = pageHelper.extractId(pageDescription),
+  )
 
   override fun extractSentenceDetails(
     offenceExtractor: (String) -> Offence,

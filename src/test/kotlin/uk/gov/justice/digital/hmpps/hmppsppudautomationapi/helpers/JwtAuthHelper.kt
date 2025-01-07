@@ -32,20 +32,19 @@ class JwtAuthHelper {
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString(),
     clientId: String = "hmpps-ppud-automation-api",
-  ): String =
-    mutableMapOf<String, Any>()
-      .also { subject?.let { subject -> it["user_name"] = subject } }
-      .also { it["client_id"] = clientId }
-      .also { subject?.let { subject -> it["name"] = subject.lowercase() } }
-      .also { roles?.let { roles -> it["authorities"] = roles } }
-      .also { scope?.let { scope -> it["scope"] = scope } }
-      .let {
-        Jwts.builder()
-          .id(jwtId)
-          .subject(subject)
-          .claims(it.toMap())
-          .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
-          .signWith(keyPair.private, Jwts.SIG.RS256)
-          .compact()
-      }
+  ): String = mutableMapOf<String, Any>()
+    .also { subject?.let { subject -> it["user_name"] = subject } }
+    .also { it["client_id"] = clientId }
+    .also { subject?.let { subject -> it["name"] = subject.lowercase() } }
+    .also { roles?.let { roles -> it["authorities"] = roles } }
+    .also { scope?.let { scope -> it["scope"] = scope } }
+    .let {
+      Jwts.builder()
+        .id(jwtId)
+        .subject(subject)
+        .claims(it.toMap())
+        .expiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+        .signWith(keyPair.private, Jwts.SIG.RS256)
+        .compact()
+    }
 }

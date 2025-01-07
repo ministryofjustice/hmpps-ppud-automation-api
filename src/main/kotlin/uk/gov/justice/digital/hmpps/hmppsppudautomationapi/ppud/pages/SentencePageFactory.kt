@@ -10,11 +10,9 @@ internal class SentencePageFactory(
   private val sentenceIndeterminatePage: SentenceIndeterminatePage,
 ) {
 
-  fun sentencePage(): SentencePage {
-    return if (driver.currentUrl.contains("SentenceIndeterminateDetails.aspx", ignoreCase = true)) {
-      sentenceIndeterminatePage
-    } else {
-      sentenceDeterminatePage
-    }
+  fun sentencePage(): SentencePage = if (driver.currentUrl.orEmpty().contains("SentenceIndeterminateDetails.aspx", ignoreCase = true)) {
+    sentenceIndeterminatePage
+  } else {
+    sentenceDeterminatePage
   }
 }

@@ -8,14 +8,10 @@ class TreeView(rootElement: WebElement) {
   private val nodes =
     rootElement.findElements(By.xpath("./div"))
       .filter {
-        it.getAttribute("id").startsWith("M_").not()
+        it.getAttribute("id").orEmpty().startsWith("M_").not()
       }
 
-  fun expandNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(nodes.first { it.text.trim() == text }).expandNode()
-  }
+  fun expandNodeWithText(text: String): TreeViewNode = TreeViewNode(nodes.first { it.text.trim() == text }).expandNode()
 
-  fun children(): List<TreeViewNode> {
-    return nodes.map { TreeViewNode(it) }
-  }
+  fun children(): List<TreeViewNode> = nodes.map { TreeViewNode(it) }
 }

@@ -52,12 +52,10 @@ internal class ReleasePage(
     PageFactory.initElements(driver, this)
   }
 
-  fun isMatching(releasedFrom: String, releasedUnder: String): Boolean {
-    return (
-      releasedFrom == releasedFromInput.getValue() &&
-        releasedUnder == Select(releasedUnderDropdown).firstSelectedOption.text
-      )
-  }
+  fun isMatching(releasedFrom: String, releasedUnder: String): Boolean = (
+    releasedFrom == releasedFromInput.getValue() &&
+      releasedUnder == Select(releasedUnderDropdown).firstSelectedOption.text
+    )
 
   fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
     with(createdOrUpdatedRelease) {
@@ -83,9 +81,7 @@ internal class ReleasePage(
     saveButton.click()
   }
 
-  fun extractReleaseId(): String {
-    return pageHelper.extractId(pageDescription)
-  }
+  fun extractReleaseId(): String = pageHelper.extractId(pageDescription)
 
   fun throwIfInvalid() {
     if (validationSummary?.text?.isNotBlank() == true) {

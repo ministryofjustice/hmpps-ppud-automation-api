@@ -25,13 +25,11 @@ class OffenderReleaseTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("dateOfRelease", releaseRequestBody(dateOfRelease = "")),
-        MandatoryFieldTestData("releasedFrom", releaseRequestBody(releasedFrom = "")),
-        MandatoryFieldTestData("releasedUnder", releaseRequestBody(releasedUnder = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("dateOfRelease", releaseRequestBody(dateOfRelease = "")),
+      MandatoryFieldTestData("releasedFrom", releaseRequestBody(releasedFrom = "")),
+      MandatoryFieldTestData("releasedUnder", releaseRequestBody(releasedUnder = "")),
+    )
   }
 
   @AfterAll
@@ -141,14 +139,12 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
   }
 
-  private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.post()
-      .uri(constructUri(offenderId, sentenceId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.post()
+    .uri(constructUri(offenderId, sentenceId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  private fun constructUri(offenderId: String, sentenceId: String) =
-    "/offender/$offenderId/sentence/$sentenceId/release"
+  private fun constructUri(offenderId: String, sentenceId: String) = "/offender/$offenderId/sentence/$sentenceId/release"
 }

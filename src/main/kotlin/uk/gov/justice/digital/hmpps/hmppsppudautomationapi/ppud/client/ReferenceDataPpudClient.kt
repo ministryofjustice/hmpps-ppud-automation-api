@@ -49,17 +49,13 @@ internal class ReferenceDataPpudClient(
     }
   }
 
-  private suspend fun extractLookupValues(lookupName: LookupName): List<String> {
-    return if (lookupName == LookupName.Genders) {
-      extractGenderLookupValues()
-    } else {
-      extractAdminPageLookupValues(lookupName)
-    }
+  private suspend fun extractLookupValues(lookupName: LookupName): List<String> = if (lookupName == LookupName.Genders) {
+    extractGenderLookupValues()
+  } else {
+    extractAdminPageLookupValues(lookupName)
   }
 
-  private fun extractGenderLookupValues(): List<String> {
-    return searchPage.genderValues()
-  }
+  private fun extractGenderLookupValues(): List<String> = searchPage.genderValues()
 
   private fun extractAdminPageLookupValues(lookupName: LookupName): List<String> {
     driver.navigate().to("$ppudUrl${adminPage.urlPath}")

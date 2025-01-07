@@ -25,19 +25,17 @@ internal class SentenceComparatorTest {
      *  These are the key fields on which we base a match.
      */
     @JvmStatic
-    fun keyFieldsSource(): Stream<String> {
-      return Stream.of(
-        "custodyType",
-        "dateOfSentence",
-        "licenceExpiryDate",
-        "mappaLevel",
-        "sentenceExpiryDate",
-        "sentenceLength.partYears",
-        "sentenceLength.partMonths",
-        "sentenceLength.partDays",
-        "sentencingCourt",
-      )
-    }
+    fun keyFieldsSource(): Stream<String> = Stream.of(
+      "custodyType",
+      "dateOfSentence",
+      "licenceExpiryDate",
+      "mappaLevel",
+      "sentenceExpiryDate",
+      "sentenceLength.partYears",
+      "sentenceLength.partMonths",
+      "sentenceLength.partDays",
+      "sentencingCourt",
+    )
   }
 
   @BeforeEach
@@ -152,12 +150,9 @@ internal class SentenceComparatorTest {
     assertFalse(result)
   }
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String =
-    if (keyFieldToBeDifferent == fieldName) "differs" else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String = if (keyFieldToBeDifferent == fieldName) "differs" else value
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate =
-    if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate = if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int =
-    if (keyFieldToBeDifferent == fieldName) value - 1 else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int = if (keyFieldToBeDifferent == fieldName) value - 1 else value
 }

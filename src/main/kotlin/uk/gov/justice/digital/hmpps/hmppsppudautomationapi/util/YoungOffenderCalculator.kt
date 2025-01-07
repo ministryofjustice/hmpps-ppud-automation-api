@@ -8,7 +8,5 @@ internal class YoungOffenderCalculator(private val currentDate: CurrentDate) {
 
   private val youngOffenderAgeLimit: Long = 21
 
-  fun isYoungOffender(dateOfBirth: LocalDate): Boolean {
-    return currentDate.now() < dateOfBirth.plusYears(youngOffenderAgeLimit)
-  }
+  fun isYoungOffender(dateOfBirth: LocalDate): Boolean = currentDate.now() < dateOfBirth.plusYears(youngOffenderAgeLimit)
 }
