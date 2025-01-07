@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.9"
-  kotlin("plugin.spring") version "2.0.21"
-  id("org.sonarqube") version "6.0.0.5145"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
+  kotlin("plugin.spring") version "2.1.0"
+  id("org.sonarqube") version "6.0.1.5171"
   id("jacoco")
 }
 
@@ -20,13 +20,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.26.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.27.0")
   implementation("io.github.bonigarcia:webdrivermanager:5.9.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("commons-io:commons-io:2.17.0") // Address CVE-2021-29425
+  implementation("commons-io:commons-io:2.18.0") // Address CVE-2021-29425
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -34,7 +34,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1")
 
   implementation("org.bouncycastle:bcprov-jdk18on:1.79") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
 
@@ -65,4 +65,8 @@ tasks.jacocoTestReport {
   reports {
     xml.required.set(true)
   }
+}
+
+ktlint {
+  version = "1.5.0"
 }
