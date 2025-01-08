@@ -41,7 +41,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.io.File
 import java.time.format.DateTimeFormatter
-import java.util.UUID
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.random.Random
@@ -147,8 +147,8 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-    ): String {
-      return """ 
+    ) =
+      """ 
         {
           "custodyType":"$custodyType",
           "dateOfSentence":"$dateOfSentence",
@@ -172,8 +172,7 @@ abstract class IntegrationTestBase {
           "sentencingCourt":"$sentencingCourt",
           "sentencedUnder":"$sentencedUnder"
         }
-        """.trimIndent()
-    }
+      """.trimIndent()
 
     fun releaseRequestBody(
       dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
