@@ -22,5 +22,6 @@ data class CreateOrUpdateSentenceRequest(
   val sentenceExpiryDate: LocalDate?,
   @field:Size(min = 0, max = 50)
   val sentencingCourt: String = "",
-  val sentencedUnder: String = "",
+  @field:NotBlank
+  val sentencedUnder: String,
 )
