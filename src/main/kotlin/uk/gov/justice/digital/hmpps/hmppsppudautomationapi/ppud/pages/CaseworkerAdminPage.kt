@@ -46,8 +46,8 @@ internal class CaseworkerAdminPage(
 
   fun extractActiveUsersByCriteria(fullName: String?, userName: String?): List<PpudUser> {
     resetPage()
-    fullName.isNullOrBlank().not().let { pageHelper.enterText(fullNameInput, fullName!!) }
-    userName.isNullOrBlank().not().let { pageHelper.enterText(userNameInput, userName!!) }
+    fullName?.let { pageHelper.enterText(fullNameInput, it) }
+    userName?.let { pageHelper.enterText(userNameInput, it) }
     searchButton.click()
     return extractActiveUsersFromResultsTable()
   }
