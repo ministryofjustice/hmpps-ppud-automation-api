@@ -65,12 +65,12 @@ internal class CaseworkerAdminPage(
     var nextPageNumber = 2
     do {
       verifyOn()
-      //XPath: extract table rows containing 8 table cells, that are not within a table header, and are not deleted ("Delete" hyperlink present)
+      // XPath: extract table rows containing 8 table cells, that are not within a table header, and are not deleted ("Delete" hyperlink present)
       usersTableRows = resultsTable?.findElements(By.xpath("tbody/tr[count(.//td) = 8 and not(.//th) and .//td[7]/a[text() = 'Delete']]"))
       usersTableRows?.forEach { userTableRow ->
         users.add(
           PpudUser(
-            //XPath: extract specific table cells
+            // XPath: extract specific table cells
             userTableRow.findElements(By.xpath("td[2]"))[0].text,
             userTableRow.findElements(By.xpath("td[4]"))[0].text,
           ),
@@ -85,12 +85,12 @@ internal class CaseworkerAdminPage(
   }
 
   private fun getPageLink(nextPageNum: Number): WebElement? {
-    //XPath: find the last table row and from its inner table extract the hyperlink that contains the text $nextPageNum from the body->row->cell
+    // XPath: find the last table row and from its inner table extract the hyperlink that contains the text $nextPageNum from the body->row->cell
     return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td/a[text()='$nextPageNum']"))?.firstOrNull()
   }
 
   private fun getForwardEllipsisLink(): WebElement? {
-    //XPath: find the last table row and from its inner table extract the hyperlink that contains the text "..." from the body->row->last cell
+    // XPath: find the last table row and from its inner table extract the hyperlink that contains the text "..." from the body->row->last cell
     return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td[last()]/a[text()='...']"))?.firstOrNull()
   }
 

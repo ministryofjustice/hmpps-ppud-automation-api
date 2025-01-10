@@ -155,10 +155,10 @@ class CaseworkerAdminPageTest {
       val users = listOf<PpudUser>(PpudUser("FullName", "TeamName"))
 
       given(driver.title).willReturn("Caseworker Admin")
-      //XPath: extract table rows containing 8 table cells, that are not within a table header, and are not deleted ("Delete" hyperlink present)
+      // XPath: extract table rows containing 8 table cells, that are not within a table header, and are not deleted ("Delete" hyperlink present)
       given(resultsTable.findElements(By.xpath("tbody/tr[count(.//td) = 8 and not(.//th) and .//td[7]/a[text() = 'Delete']]")))
         .willReturn(listOf(tableRow))
-      //XPath: extract specific table cells
+      // XPath: extract specific table cells
       given(tableRow.findElements(By.xpath("td[2]"))).willReturn(listOf(fullNameTableCell))
       given(tableRow.findElements(By.xpath("td[4]"))).willReturn(listOf(teamNameTableCell))
       given(fullNameTableCell.text).willReturn("FullName")
