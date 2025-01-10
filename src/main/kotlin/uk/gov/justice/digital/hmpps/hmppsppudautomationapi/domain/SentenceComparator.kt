@@ -15,6 +15,7 @@ class SentenceComparator {
       existing.sentenceLength?.partMonths == request.sentenceLength?.partMonths &&
       existing.sentenceLength?.partDays == request.sentenceLength?.partDays &&
       existing.licenceExpiryDate == request.licenceExpiryDate &&
-      existing.sentenceExpiryDate == request.sentenceExpiryDate
+      existing.sentenceExpiryDate == request.sentenceExpiryDate &&
+      existing.sentencedUnder == request.sentencedUnder
   }
 }

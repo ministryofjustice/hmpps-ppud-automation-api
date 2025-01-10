@@ -274,6 +274,7 @@ fun generateCreateOrUpdateSentenceRequest(
   dateOfSentence: LocalDate = randomDate(),
   mappaLevel: String = randomString("mappaLevel"),
   sentencingCourt: String = randomString("sentencingCourt"),
+  sentencedUnder: String = randomString("sentencedUnder"),
 ): CreateOrUpdateSentenceRequest {
   return CreateOrUpdateSentenceRequest(
     custodyType = custodyType,
@@ -286,6 +287,7 @@ fun generateCreateOrUpdateSentenceRequest(
     sentenceExpiryDate = null,
     sentenceLength = null,
     sentencingCourt = sentencingCourt,
+    sentencedUnder = sentencedUnder,
   )
 }
 

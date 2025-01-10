@@ -73,11 +73,15 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
     val offenderId = createTestOffenderInPpud()
-    val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
-      "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\" " +
-      "}"
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType":"$PPUD_VALID_CUSTODY_TYPE",
+          "dateOfSentence":"${randomDate()}",
+          "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
+          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
+        }
+      """.trimIndent()
 
     postSentence(offenderId, requestBodyWithOnlyMandatoryFields)
       .expectStatus()

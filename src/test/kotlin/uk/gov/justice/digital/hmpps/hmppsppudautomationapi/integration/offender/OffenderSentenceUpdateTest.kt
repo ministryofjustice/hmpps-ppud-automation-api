@@ -80,11 +80,15 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update sentence called then 200 OK is returned`() {
-    val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
-      "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\" " +
-      "}"
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType":"$PPUD_VALID_CUSTODY_TYPE",
+          "dateOfSentence":"${randomDate()}",
+          "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
+          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
+        }
+      """.trimIndent()
 
     putSentence(offenderId, sentenceId, requestBodyWithOnlyMandatoryFields)
       .expectStatus()
