@@ -8,12 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.springframework.test.util.ReflectionTestUtils
@@ -40,6 +40,18 @@ class CaseworkerAdminPageTest {
   private lateinit var searchButton: WebElement
 
   @Mock
+  private lateinit var resultsTable: WebElement
+
+  @Mock
+  private lateinit var tableRow: WebElement
+
+  @Mock
+  private lateinit var fullNameTableCell: WebElement
+
+  @Mock
+  private lateinit var teamNameTableCell: WebElement
+
+  @Mock
   private lateinit var driver: WebDriver
 
   @Mock
@@ -47,12 +59,7 @@ class CaseworkerAdminPageTest {
 
   @BeforeEach
   fun beforeEach() {
-    driver = mock(WebDriver::class.java)
-    pageHelper = mock(PageHelper::class.java)
-    roleDropdown = mock(WebElement::class.java)
-    userNameInput = mock(WebElement::class.java)
-    fullNameInput = mock(WebElement::class.java)
-    searchButton = mock(WebElement::class.java)
+    given(driver.findElements(By.id("grdCaseworker"))).willReturn(mutableListOf(resultsTable))
 
     caseworkerAdminPage = CaseworkerAdminPage(driver, pageHelper)
 
@@ -145,9 +152,17 @@ class CaseworkerAdminPageTest {
   @Test
   fun `extract active users should return list of users`() {
     runBlocking {
-      val users = emptyList<PpudUser>()
+      val users = listOf<PpudUser>(PpudUser("FullName", "TeamName"))
 
       given(driver.title).willReturn("Caseworker Admin")
+      //XPath: extract table rows containing 8 table cells, that are not within a table header, and are not deleted ("Delete" hyperlink present)
+      given(resultsTable.findElements(By.xpath("tbody/tr[count(.//td) = 8 and not(.//th) and .//td[7]/a[text() = 'Delete']]")))
+        .willReturn(listOf(tableRow))
+      //XPath: extract specific table cells
+      given(tableRow.findElements(By.xpath("td[2]"))).willReturn(listOf(fullNameTableCell))
+      given(tableRow.findElements(By.xpath("td[4]"))).willReturn(listOf(teamNameTableCell))
+      given(fullNameTableCell.text).willReturn("FullName")
+      given(teamNameTableCell.text).willReturn("TeamName")
 
       val result = caseworkerAdminPage.extractActiveUsers()
 
