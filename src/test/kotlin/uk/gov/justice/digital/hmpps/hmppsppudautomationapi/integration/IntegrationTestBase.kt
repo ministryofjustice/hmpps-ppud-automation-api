@@ -167,7 +167,7 @@ abstract class IntegrationTestBase {
           "sentencingCourt":"$sentencingCourt",
           "sentencedUnder":"$sentencedUnder"
         }
-      """.trimIndent()
+    """.trimIndent()
 
     fun releaseRequestBody(
       dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
