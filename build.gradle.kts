@@ -36,7 +36,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 
   implementation("org.bouncycastle:bcprov-jdk18on:1.79") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
 
