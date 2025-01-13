@@ -85,8 +85,6 @@ ppud:
     status: "Recalled [*]"
     youngOffenderYes: "Yes - Named"
     youngOffenderNo: "No"
-  sentence:
-    sentencedUnder: "Not Specified"
   release:
     category: "Not Applicable"
     releaseType: "On Licence"
