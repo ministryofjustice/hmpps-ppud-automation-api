@@ -98,12 +98,10 @@ internal class SearchPage(private val driver: WebDriver) {
 
   fun searchResultsLinks(): List<String> {
     val resultsElements = resultsTable?.findElements(By.linkText("Select")) ?: emptyList<WebElement>()
-    return resultsElements.map { it.getAttribute("href") }
+    return resultsElements.map { it.getAttribute("href").orEmpty() }
   }
 
-  fun genderValues(): List<String> {
-    return Select(genderDropdown).options
-      .map { it.getValue() }
-      .filter { it.isNotBlank() }
-  }
+  fun genderValues(): List<String> = Select(genderDropdown).options
+    .map { it.getValue() }
+    .filter { it.isNotBlank() }
 }

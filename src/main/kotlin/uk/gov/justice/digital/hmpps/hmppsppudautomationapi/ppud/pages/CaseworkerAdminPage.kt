@@ -84,15 +84,11 @@ internal class CaseworkerAdminPage(
     return users
   }
 
-  private fun getPageLink(nextPageNum: Number): WebElement? {
-    // XPath: find the last table row and from its inner table extract the hyperlink that contains the text $nextPageNum from the body->row->cell
-    return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td/a[text()='$nextPageNum']"))?.firstOrNull()
-  }
+  // XPath: find the last table row and from its inner table extract the hyperlink that contains the text $nextPageNum from the body->row->cell
+  private fun getPageLink(nextPageNum: Number): WebElement? = resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td/a[text()='$nextPageNum']"))?.firstOrNull()
 
-  private fun getForwardEllipsisLink(): WebElement? {
-    // XPath: find the last table row and from its inner table extract the hyperlink that contains the text "..." from the body->row->last cell
-    return resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td[last()]/a[text()='...']"))?.firstOrNull()
-  }
+  // XPath: find the last table row and from its inner table extract the hyperlink that contains the text "..." from the body->row->last cell
+  private fun getForwardEllipsisLink(): WebElement? = resultsTable?.findElements(By.xpath("tbody/tr[last()]/td/table/tbody/tr/td[last()]/a[text()='...']"))?.firstOrNull()
 
   private fun resetPage() {
     pageHelper.selectDropdownOptionIfNotBlank(roleDropdown, "Level 1", "role")

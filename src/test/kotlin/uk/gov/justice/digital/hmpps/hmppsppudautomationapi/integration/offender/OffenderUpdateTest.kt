@@ -44,16 +44,14 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val familyNameToDeleteUuids = mutableSetOf<UUID>()
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("dateOfBirth", updateOffenderRequestBody(dateOfBirth = "")),
-        MandatoryFieldTestData("ethnicity", updateOffenderRequestBody(ethnicity = "")),
-        MandatoryFieldTestData("familyName", updateOffenderRequestBody(familyName = "")),
-        MandatoryFieldTestData("firstNames", updateOffenderRequestBody(firstNames = "")),
-        MandatoryFieldTestData("gender", updateOffenderRequestBody(gender = "")),
-        MandatoryFieldTestData("prisonNumber", updateOffenderRequestBody(prisonNumber = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("dateOfBirth", updateOffenderRequestBody(dateOfBirth = "")),
+      MandatoryFieldTestData("ethnicity", updateOffenderRequestBody(ethnicity = "")),
+      MandatoryFieldTestData("familyName", updateOffenderRequestBody(familyName = "")),
+      MandatoryFieldTestData("firstNames", updateOffenderRequestBody(firstNames = "")),
+      MandatoryFieldTestData("gender", updateOffenderRequestBody(gender = "")),
+      MandatoryFieldTestData("prisonNumber", updateOffenderRequestBody(prisonNumber = "")),
+    )
   }
 
   @BeforeAll

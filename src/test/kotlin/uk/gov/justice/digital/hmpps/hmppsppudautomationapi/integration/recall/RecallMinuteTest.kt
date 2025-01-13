@@ -27,24 +27,20 @@ class RecallMinuteTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("subject", addMinuteRequestBody(subject = "")),
-        MandatoryFieldTestData("text", addMinuteRequestBody(text = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("subject", addMinuteRequestBody(subject = "")),
+      MandatoryFieldTestData("text", addMinuteRequestBody(text = "")),
+    )
 
     fun addMinuteRequestBody(
       subject: String = randomString("subject"),
       text: String = randomString("text"),
-    ): String {
-      return """
+    ): String = """
         { 
           "subject":"$subject", 
           "text":"$text"
         }
-      """.trimIndent()
-    }
+    """.trimIndent()
   }
 
   @BeforeAll
@@ -153,13 +149,12 @@ class RecallMinuteTest : IntegrationTestBase() {
       .jsonPath("recall.minutes[1].text").isEqualTo("123${System.lineSeparator()}456")
   }
 
-  private fun putMinute(recallId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri(constructUri(recallId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun putMinute(recallId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
+    .uri(constructUri(recallId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
   private fun constructUri(recallId: String) = "/recall/$recallId/minutes"
 }

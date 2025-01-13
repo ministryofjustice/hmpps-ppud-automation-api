@@ -31,42 +31,38 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("documentId", uploadAdditionalDocumentRequestBody(documentId = "")),
-        MandatoryFieldTestData("title", uploadAdditionalDocumentRequestBody(title = ""), "title"),
-        MandatoryFieldTestData("owningCaseworker", uploadAdditionalDocumentRequestBody(owningCaseworker = null)),
-        MandatoryFieldTestData(
-          "owningCaseworker",
-          uploadAdditionalDocumentRequestBody(owningCaseworker = "{}"),
-          errorFragment = "fullName",
-        ),
-        MandatoryFieldTestData(
-          "owningCaseworker",
-          uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(fullName = "")),
-          errorFragment = "fullName",
-        ),
-        MandatoryFieldTestData(
-          "owningCaseworker",
-          uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(teamName = "")),
-          errorFragment = "team",
-        ),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("documentId", uploadAdditionalDocumentRequestBody(documentId = "")),
+      MandatoryFieldTestData("title", uploadAdditionalDocumentRequestBody(title = ""), "title"),
+      MandatoryFieldTestData("owningCaseworker", uploadAdditionalDocumentRequestBody(owningCaseworker = null)),
+      MandatoryFieldTestData(
+        "owningCaseworker",
+        uploadAdditionalDocumentRequestBody(owningCaseworker = "{}"),
+        errorFragment = "fullName",
+      ),
+      MandatoryFieldTestData(
+        "owningCaseworker",
+        uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(fullName = "")),
+        errorFragment = "fullName",
+      ),
+      MandatoryFieldTestData(
+        "owningCaseworker",
+        uploadAdditionalDocumentRequestBody(owningCaseworker = ppudUserRequestBody(teamName = "")),
+        errorFragment = "team",
+      ),
+    )
 
     fun uploadAdditionalDocumentRequestBody(
       documentId: String = UUID.randomUUID().toString(),
       title: String? = randomString("title"),
       owningCaseworker: String? = ppudUserRequestBody(),
-    ): String {
-      return """
+    ): String = """
         { 
           "documentId":"$documentId", 
           "title":"$title",
           "owningCaseworker":${owningCaseworker ?: "null"}
         }
-      """.trimIndent()
-    }
+    """.trimIndent()
   }
 
   @BeforeAll
@@ -154,13 +150,12 @@ class RecallAdditionalDocumentUploadTest : IntegrationTestBase() {
       .jsonPath("recall.documents[0].owningCaseworker").isEqualTo(PPUD_VALID_USER_FULL_NAME)
   }
 
-  private fun putAdditionalDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.put()
-      .uri(constructUri(recallId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun putAdditionalDocument(recallId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
+    .uri(constructUri(recallId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
   private fun constructUri(recallId: String) = "/recall/$recallId/additional-document"
 }

@@ -34,17 +34,12 @@ abstract class PingHealthCheck(
     return result
   }
 
-  private fun upWithStatus(it: ResponseEntity<String>): Mono<Health> =
-    Mono.just(Health.up().withHttpStatus(it.statusCode).build())
+  private fun upWithStatus(it: ResponseEntity<String>): Mono<Health> = Mono.just(Health.up().withHttpStatus(it.statusCode).build())
 
-  private fun downWithException(it: Exception): Health {
-    return Health.down().withException(it).build()
-  }
+  private fun downWithException(it: Exception): Health = Health.down().withException(it).build()
 
-  private fun downWithResponseBody(it: WebClientResponseException): Health {
-    return Health.down().withException(it).withBody(it.responseBodyAsString).withHttpStatus(it.statusCode)
-      .build()
-  }
+  private fun downWithResponseBody(it: WebClientResponseException): Health = Health.down().withException(it).withBody(it.responseBodyAsString).withHttpStatus(it.statusCode)
+    .build()
 
   private fun Health.Builder.withHttpStatus(status: HttpStatusCode) = this.withDetail("status", status)
 

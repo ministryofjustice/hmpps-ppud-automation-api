@@ -12,6 +12,4 @@ class ValueDoesNotContainConsumer(private val element: String) : Consumer<JSONAr
   }
 }
 
-fun doesNotContain(element: String): Consumer<JSONArray> {
-  return ValueDoesNotContainConsumer(element)
-}
+fun doesNotContain(element: String): Consumer<JSONArray> = ValueDoesNotContainConsumer(element)

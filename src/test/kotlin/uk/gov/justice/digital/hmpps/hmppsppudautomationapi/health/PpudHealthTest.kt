@@ -98,9 +98,7 @@ class PpudHealthTest {
       .build()
   }
 
-  private fun createResponseBody(responsePageTitle: String, text: String): String {
-    return "<html><head><title>$responsePageTitle</title></head><body>$text</body></html>"
-  }
+  private fun createResponseBody(responsePageTitle: String, text: String): String = "<html><head><title>$responsePageTitle</title></head><body>$text</body></html>"
 
   private fun setupMockToRespondWith(statusCode: HttpStatusCode, responseBody: String) {
     ppudMock

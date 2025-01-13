@@ -11,6 +11,4 @@ class ValueIsNullConsumer<T> : Consumer<T> {
   }
 }
 
-fun isNull(): Consumer<String> {
-  return ValueIsNullConsumer()
-}
+fun isNull(): Consumer<String> = ValueIsNullConsumer()

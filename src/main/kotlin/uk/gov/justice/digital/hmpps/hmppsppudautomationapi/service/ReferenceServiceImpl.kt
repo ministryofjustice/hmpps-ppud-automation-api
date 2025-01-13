@@ -41,49 +41,31 @@ internal class ReferenceServiceImpl(
   }
 
   @Cacheable(CUSTODY_TYPES_CACHE_NAME)
-  override suspend fun retrieveCustodyTypes(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.CustodyTypes)
-  }
+  override suspend fun retrieveCustodyTypes(): List<String> = ppudClient.retrieveLookupValues(LookupName.CustodyTypes)
 
   @Cacheable(ESTABLISHMENTS_CACHE_NAME)
-  override suspend fun retrieveEstablishments(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.Establishments)
-  }
+  override suspend fun retrieveEstablishments(): List<String> = ppudClient.retrieveLookupValues(LookupName.Establishments)
 
   @Cacheable(ETHNICITIES_CACHE_NAME)
-  override suspend fun retrieveEthnicities(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.Ethnicities)
-  }
+  override suspend fun retrieveEthnicities(): List<String> = ppudClient.retrieveLookupValues(LookupName.Ethnicities)
 
   @Cacheable(GENDERS_CACHE_NAME)
-  override suspend fun retrieveGenders(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.Genders)
-  }
+  override suspend fun retrieveGenders(): List<String> = ppudClient.retrieveLookupValues(LookupName.Genders)
 
   @Cacheable(INDEX_OFFENCES_CACHE_NAME)
-  override suspend fun retrieveIndexOffences(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.IndexOffences)
-  }
+  override suspend fun retrieveIndexOffences(): List<String> = ppudClient.retrieveLookupValues(LookupName.IndexOffences)
 
   @Cacheable(MAPPA_LEVELS_CACHE_NAME)
-  override suspend fun retrieveMappaLevels(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.MappaLevels)
-  }
+  override suspend fun retrieveMappaLevels(): List<String> = ppudClient.retrieveLookupValues(LookupName.MappaLevels)
 
   @Cacheable(POLICE_FORCES_CACHE_NAME)
-  override suspend fun retrievePoliceForces(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.PoliceForces)
-  }
+  override suspend fun retrievePoliceForces(): List<String> = ppudClient.retrieveLookupValues(LookupName.PoliceForces)
 
   @Cacheable(PROBATION_SERVICES_CACHE_NAME)
-  override suspend fun retrieveProbationServices(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.ProbationServices)
-  }
+  override suspend fun retrieveProbationServices(): List<String> = ppudClient.retrieveLookupValues(LookupName.ProbationServices)
 
   @Cacheable(RELEASED_UNDERS_CACHE_NAME)
-  override suspend fun retrieveReleasedUnders(): List<String> {
-    return ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
-  }
+  override suspend fun retrieveReleasedUnders(): List<String> = ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
 
   override fun quit() {
     ppudClient.quit()

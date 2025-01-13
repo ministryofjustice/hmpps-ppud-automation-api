@@ -50,36 +50,34 @@ class OffenderRecallTest : IntegrationTestBase() {
     private const val PPUD_EXPECTED_RETURN_TO_CUSTODY_NOTIFICATION_METHOD = "Not Applicable"
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
-        MandatoryFieldTestData("mappaLevel", createRecallRequestBody(mappaLevel = "")),
-        MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
-        MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
-        MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
-        MandatoryFieldTestData("recommendedTo", createRecallRequestBody(recommendedTo = null)),
-        MandatoryFieldTestData(
-          "recommendedTo",
-          createRecallRequestBody(recommendedTo = "{}"),
-          errorFragment = "fullName",
-        ),
-        MandatoryFieldTestData(
-          "recommendedTo",
-          createRecallRequestBody(recommendedTo = ppudUserRequestBody(fullName = "")),
-          errorFragment = "fullName",
-        ),
-        MandatoryFieldTestData(
-          "recommendedTo",
-          createRecallRequestBody(recommendedTo = ppudUserRequestBody(teamName = "")),
-          errorFragment = "team",
-        ),
-        MandatoryFieldTestData(
-          "riskOfSeriousHarmLevel",
-          createRecallRequestBody(riskOfSeriousHarmLevel = ""),
-          errorFragment = "RiskOfSeriousHarmLevel",
-        ),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
+      MandatoryFieldTestData("mappaLevel", createRecallRequestBody(mappaLevel = "")),
+      MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
+      MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
+      MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
+      MandatoryFieldTestData("recommendedTo", createRecallRequestBody(recommendedTo = null)),
+      MandatoryFieldTestData(
+        "recommendedTo",
+        createRecallRequestBody(recommendedTo = "{}"),
+        errorFragment = "fullName",
+      ),
+      MandatoryFieldTestData(
+        "recommendedTo",
+        createRecallRequestBody(recommendedTo = ppudUserRequestBody(fullName = "")),
+        errorFragment = "fullName",
+      ),
+      MandatoryFieldTestData(
+        "recommendedTo",
+        createRecallRequestBody(recommendedTo = ppudUserRequestBody(teamName = "")),
+        errorFragment = "team",
+      ),
+      MandatoryFieldTestData(
+        "riskOfSeriousHarmLevel",
+        createRecallRequestBody(riskOfSeriousHarmLevel = ""),
+        errorFragment = "RiskOfSeriousHarmLevel",
+      ),
+    )
   }
 
   @BeforeAll
@@ -237,6 +235,5 @@ class OffenderRecallTest : IntegrationTestBase() {
     return id
   }
 
-  private fun constructUri(offenderId: String, releaseId: String) =
-    "/offender/$offenderId/release/$releaseId/recall"
+  private fun constructUri(offenderId: String, releaseId: String) = "/offender/$offenderId/release/$releaseId/recall"
 }

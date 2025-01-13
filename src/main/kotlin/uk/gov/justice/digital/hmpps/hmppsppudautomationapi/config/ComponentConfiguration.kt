@@ -45,18 +45,14 @@ internal class ComponentConfiguration {
   fun referenceService(
     referenceDataPpudClient: ReferenceDataPpudClient,
     cacheManager: CacheManager,
-  ): ReferenceService {
-    return ReferenceServiceImpl(referenceDataPpudClient, cacheManager)
-  }
+  ): ReferenceService = ReferenceServiceImpl(referenceDataPpudClient, cacheManager)
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   fun scheduledReferenceService(
     @Qualifier("scheduledReferenceDataPpudClient") scheduledReferenceDataPpudClient: ReferenceDataPpudClient,
     cacheManager: CacheManager,
-  ): ReferenceService {
-    return ReferenceServiceImpl(scheduledReferenceDataPpudClient, cacheManager)
-  }
+  ): ReferenceService = ReferenceServiceImpl(scheduledReferenceDataPpudClient, cacheManager)
 
   @Bean
   @Primary
@@ -73,22 +69,20 @@ internal class ComponentConfiguration {
     @Value("\${ppud.reference.valueToExclude}") valueToExclude: String,
     adminPage: AdminPage,
     editLookupsPage: EditLookupsPage,
-  ): ReferenceDataPpudClient {
-    return ReferenceDataPpudClient(
-      ppudUrl,
-      ppudUsername,
-      ppudPassword,
-      ppudAdminUsername,
-      ppudAdminPassword,
-      driver,
-      errorPage,
-      loginPage,
-      searchPage,
-      valueToExclude,
-      adminPage,
-      editLookupsPage,
-    )
-  }
+  ): ReferenceDataPpudClient = ReferenceDataPpudClient(
+    ppudUrl,
+    ppudUsername,
+    ppudPassword,
+    ppudAdminUsername,
+    ppudAdminPassword,
+    driver,
+    errorPage,
+    loginPage,
+    searchPage,
+    valueToExclude,
+    adminPage,
+    editLookupsPage,
+  )
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -101,22 +95,20 @@ internal class ComponentConfiguration {
     @Qualifier("scheduledWebDriver") driver: WebDriver,
     @Value("\${ppud.reference.valueToExclude}") valueToExclude: String,
     dateFormatter: DateTimeFormatter,
-  ): ReferenceDataPpudClient {
-    return ReferenceDataPpudClient(
-      ppudUrl,
-      ppudUsername,
-      ppudPassword,
-      ppudAdminUsername,
-      ppudAdminPassword,
-      driver,
-      ErrorPage(driver, PageHelper(driver, dateFormatter)),
-      LoginPage(driver),
-      SearchPage(driver),
-      valueToExclude,
-      AdminPage(driver),
-      EditLookupsPage(driver),
-    )
-  }
+  ): ReferenceDataPpudClient = ReferenceDataPpudClient(
+    ppudUrl,
+    ppudUsername,
+    ppudPassword,
+    ppudAdminUsername,
+    ppudAdminPassword,
+    driver,
+    ErrorPage(driver, PageHelper(driver, dateFormatter)),
+    LoginPage(driver),
+    SearchPage(driver),
+    valueToExclude,
+    AdminPage(driver),
+    EditLookupsPage(driver),
+  )
 
   @Bean(destroyMethod = "quit")
   @Primary
@@ -124,18 +116,14 @@ internal class ComponentConfiguration {
   fun webDriver(
     @Value("\${automation.headless}") headless: Boolean,
     @Value("\${automation.firefox.binary}") binary: String?,
-  ): WebDriver {
-    return createWebDriver(binary, headless)
-  }
+  ): WebDriver = createWebDriver(binary, headless)
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   fun scheduledWebDriver(
     @Value("\${automation.headless}") headless: Boolean,
     @Value("\${automation.firefox.binary}") binary: String?,
-  ): WebDriver {
-    return createWebDriver(binary, headless)
-  }
+  ): WebDriver = createWebDriver(binary, headless)
 
   @Bean
   fun dateFormatter(): DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -167,7 +155,5 @@ internal class ComponentConfiguration {
   }
 
   @Bean
-  fun uuidProvider(): () -> UUID {
-    return { UUID.randomUUID() }
-  }
+  fun uuidProvider(): () -> UUID = { UUID.randomUUID() }
 }

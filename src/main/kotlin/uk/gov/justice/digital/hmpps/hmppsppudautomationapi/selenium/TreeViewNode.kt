@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement
 
 private val WebElement.isExpansionElement: Boolean
   get() {
-    return this.getAttribute("id").startsWith("M_")
+    return this.getAttribute("id").orEmpty().startsWith("M_")
   }
 
 open class TreeViewNode(private val element: WebElement) : WebElement {
@@ -20,11 +20,9 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
 
   private val nodeTextElement by lazy { findElement(By.xpath("./span[@igtxt='1']")) }
 
-  fun children(): List<TreeViewNode> {
-    return expansionElement.findElements(By.xpath("./div"))
-      .filter { !it.isExpansionElement }
-      .map { TreeViewNode(it) }
-  }
+  fun children(): List<TreeViewNode> = expansionElement.findElements(By.xpath("./div"))
+    .filter { !it.isExpansionElement }
+    .map { TreeViewNode(it) }
 
   fun expandNode(): TreeViewNode {
     if (expansionElement.isDisplayed.not()) {
@@ -33,48 +31,30 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     return this
   }
 
-  fun expandNodeWithText(text: String): TreeViewNode {
-    return findNodeWithText(text).expandNode()
-  }
+  fun expandNodeWithText(text: String): TreeViewNode = findNodeWithText(text).expandNode()
 
-  fun expandNodeWithTextContaining(text: String): TreeViewNode {
-    return findNodeWithTextContaining(text).expandNode()
-  }
+  fun expandNodeWithTextContaining(text: String): TreeViewNode = findNodeWithTextContaining(text).expandNode()
 
-  fun expandNodeWithLinkContaining(value: String): TreeViewNode {
-    return findNodeWithLinkContaining(value).expandNode()
-  }
+  fun expandNodeWithLinkContaining(value: String): TreeViewNode = findNodeWithLinkContaining(value).expandNode()
 
-  fun findNodeWithTextContaining(text: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(xpathForNodeWithTextContaining(text))))
-  }
+  fun findNodeWithTextContaining(text: String): TreeViewNode = TreeViewNode(expansionElement.findElement(By.xpath(xpathForNodeWithTextContaining(text))))
 
-  fun findNodeWithText(text: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
-  }
+  fun findNodeWithText(text: String): TreeViewNode = TreeViewNode(expansionElement.findElement(By.xpath(".//*[text()='$text']/parent::div")))
 
   fun tryFindNodeWithTextContaining(text: String): TreeViewNode? {
     val matches = expansionElement.findElements(By.xpath(xpathForNodeWithTextContaining(text)))
     return if (matches.any()) TreeViewNode(matches.first()) else null
   }
 
-  private fun findNodeWithLinkContaining(value: String): TreeViewNode {
-    return TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
-  }
+  private fun findNodeWithLinkContaining(value: String): TreeViewNode = TreeViewNode(expansionElement.findElement(By.xpath(".//div[contains(@igurl, '$value')]")))
 
   private fun xpathForNodeWithTextContaining(text: String) = ".//*[contains(text(), '$text')]/parent::div"
 
-  override fun findElements(by: By?): MutableList<WebElement> {
-    return element.findElements(by)
-  }
+  override fun findElements(by: By): MutableList<WebElement> = element.findElements(by)
 
-  override fun findElement(by: By?): WebElement {
-    return element.findElement(by)
-  }
+  override fun findElement(by: By): WebElement = element.findElement(by)
 
-  override fun <X : Any?> getScreenshotAs(target: OutputType<X>?): X {
-    return element.getScreenshotAs(target)
-  }
+  override fun <X : Any> getScreenshotAs(target: OutputType<X>): X = element.getScreenshotAs(target)
 
   override fun click() {
     nodeTextElement.click()
@@ -84,7 +64,7 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     element.submit()
   }
 
-  override fun sendKeys(vararg keysToSend: CharSequence?) {
+  override fun sendKeys(vararg keysToSend: CharSequence) {
     element.sendKeys()
   }
 
@@ -92,43 +72,23 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     element.clear()
   }
 
-  override fun getTagName(): String {
-    return element.tagName
-  }
+  override fun getTagName(): String = element.tagName
 
-  override fun getAttribute(name: String?): String {
-    return element.getAttribute(name)
-  }
+  override fun getAttribute(name: String): String = element.getAttribute(name).orEmpty()
 
-  override fun isSelected(): Boolean {
-    return element.isSelected
-  }
+  override fun isSelected(): Boolean = element.isSelected
 
-  override fun isEnabled(): Boolean {
-    return element.isEnabled
-  }
+  override fun isEnabled(): Boolean = element.isEnabled
 
-  override fun getText(): String {
-    return element.text
-  }
+  override fun getText(): String = element.text
 
-  override fun isDisplayed(): Boolean {
-    return element.isDisplayed
-  }
+  override fun isDisplayed(): Boolean = element.isDisplayed
 
-  override fun getLocation(): Point {
-    return element.location
-  }
+  override fun getLocation(): Point = element.location
 
-  override fun getSize(): Dimension {
-    return element.size
-  }
+  override fun getSize(): Dimension = element.size
 
-  override fun getRect(): Rectangle {
-    return element.rect
-  }
+  override fun getRect(): Rectangle = element.rect
 
-  override fun getCssValue(propertyName: String?): String {
-    return element.getCssValue(propertyName)
-  }
+  override fun getCssValue(propertyName: String): String = element.getCssValue(propertyName).orEmpty()
 }

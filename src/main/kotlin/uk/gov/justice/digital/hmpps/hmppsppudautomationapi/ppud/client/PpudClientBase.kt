@@ -80,27 +80,23 @@ internal abstract class PpudClientBase(
     }
   }
 
-  private suspend fun <T> (suspend () -> T).invokeWithRetry(): T {
-    return try {
-      this()
-    } catch (ex: WebDriverException) {
-      val exceptionToLog = wrapWebDriverException(ex)
-      log.error("Exception occurred but operation will be retried.", exceptionToLog)
-      this()
-    }
+  private suspend fun <T> (suspend () -> T).invokeWithRetry(): T = try {
+    this()
+  } catch (ex: WebDriverException) {
+    val exceptionToLog = wrapWebDriverException(ex)
+    log.error("Exception occurred but operation will be retried.", exceptionToLog)
+    this()
   }
 
-  private fun wrapWebDriverException(ex: WebDriverException): AutomationException {
-    return if (errorPage.isShown()) {
-      PpudErrorException(
-        "PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'",
-        ex,
-      )
-    } else {
-      AutomationException(
-        "Exception occurred when performing PPUD operation. Current URL is '${driver.currentUrl}'",
-        ex,
-      )
-    }
+  private fun wrapWebDriverException(ex: WebDriverException): AutomationException = if (errorPage.isShown()) {
+    PpudErrorException(
+      "PPUD has displayed an error. Details are: '${errorPage.extractErrorDetails()}'",
+      ex,
+    )
+  } else {
+    AutomationException(
+      "Exception occurred when performing PPUD operation. Current URL is '${driver.currentUrl}'",
+      ex,
+    )
   }
 }

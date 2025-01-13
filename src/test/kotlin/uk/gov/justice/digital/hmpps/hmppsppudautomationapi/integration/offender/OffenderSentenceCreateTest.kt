@@ -30,13 +30,11 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   companion object {
 
     @JvmStatic
-    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> {
-      return Stream.of(
-        MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
-        MandatoryFieldTestData("dateOfSentence", createOrUpdateSentenceRequestBody(dateOfSentence = "")),
-        MandatoryFieldTestData("mappaLevel", createOrUpdateSentenceRequestBody(mappaLevel = "")),
-      )
-    }
+    private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
+      MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+      MandatoryFieldTestData("dateOfSentence", createOrUpdateSentenceRequestBody(dateOfSentence = "")),
+      MandatoryFieldTestData("mappaLevel", createOrUpdateSentenceRequestBody(mappaLevel = "")),
+    )
   }
 
   @AfterAll
@@ -253,14 +251,12 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     return id
   }
 
-  private fun postSentence(offenderId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.post()
-      .uri(constructCreateSentenceUri(offenderId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun postSentence(offenderId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.post()
+    .uri(constructCreateSentenceUri(offenderId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  private fun constructCreateSentenceUri(offenderId: String) =
-    "/offender/$offenderId/sentence"
+  private fun constructCreateSentenceUri(offenderId: String) = "/offender/$offenderId/sentence"
 }

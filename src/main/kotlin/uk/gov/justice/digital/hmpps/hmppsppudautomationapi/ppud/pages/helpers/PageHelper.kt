@@ -18,9 +18,7 @@ class PageHelper(
 ) {
 
   companion object {
-    fun WebElement.getValue(): String {
-      return this.getAttribute("value")?.trim() ?: ""
-    }
+    fun WebElement.getValue(): String = this.getAttribute("value")?.trim() ?: ""
   }
 
   fun dismissConfirmDeleteAlert() {
@@ -73,21 +71,17 @@ class PageHelper(
   }
 
   fun extractId(pageDescription: String): String {
-    val url = driver.currentUrl
+    val url = driver.currentUrl.orEmpty()
     val idMatch = Regex(".+?data=(.+)").find(url)
       ?: throw AutomationException("Expected the $pageDescription but URL was '$url'")
     val (id) = idMatch.destructured
     return id
   }
 
-  fun isCustomErrorUrl(): Boolean {
-    return driver.currentUrl.contains("CustomErrors/Error.aspx", ignoreCase = true)
-  }
+  fun isCustomErrorUrl(): Boolean = driver.currentUrl.orEmpty().contains("CustomErrors/Error.aspx", ignoreCase = true)
 
-  fun readDate(input: WebElement): LocalDate {
-    return readDateOrNull(input)
-      ?: throw AutomationException("Expected valid date in element but value was '${input.getValue()}'")
-  }
+  fun readDate(input: WebElement): LocalDate = readDateOrNull(input)
+    ?: throw AutomationException("Expected valid date in element but value was '${input.getValue()}'")
 
   fun readDateOrNull(input: WebElement): LocalDate? {
     val inputValue = input.getValue()
@@ -103,9 +97,7 @@ class PageHelper(
     return inputValue.toIntOrNull() ?: default
   }
 
-  fun readSelectedOption(dropdown: WebElement): String {
-    return Select(dropdown).firstSelectedOption.text
-  }
+  fun readSelectedOption(dropdown: WebElement): String = Select(dropdown).firstSelectedOption.text
 
   fun selectDropdownOptionIfNotBlank(dropdown: WebElement, option: String?, description: String) {
     if (option?.isNotBlank() == true) {

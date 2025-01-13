@@ -222,13 +222,11 @@ internal class OffenderPage(
     pageHelper.dismissConfirmDeleteAlert()
   }
 
-  fun extractCreatedOffenderDetails(sentenceExtractor: (String) -> CreatedSentence): CreatedOffender {
-    return CreatedOffender(
-      id = extractOffenderId(),
-      // Do sentence last because it navigates away
-      sentence = sentenceExtractor(determineSentenceLinks().first()),
-    )
-  }
+  fun extractCreatedOffenderDetails(sentenceExtractor: (String) -> CreatedSentence): CreatedOffender = CreatedOffender(
+    id = extractOffenderId(),
+    // Do sentence last because it navigates away
+    sentence = sentenceExtractor(determineSentenceLinks().first()),
+  )
 
   fun extractSearchResultOffenderDetails(): SearchResultOffender? {
     val offenderId = extractOffenderId()
@@ -250,29 +248,27 @@ internal class OffenderPage(
     }
   }
 
-  fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender {
-    return Offender(
-      id = extractOffenderId(),
-      address = extractAddress(),
-      caseworker = caseworkerInput.getValue(),
-      comments = commentsTextArea.getValue(),
-      croOtherNumber = croOtherNumberInput.getValue(),
-      dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-      ethnicity = Select(ethnicityDropdown).firstSelectedOption.text,
-      familyName = familyNameInput.getValue(),
-      firstNames = firstNamesInput.getValue(),
-      gender = Select(genderDropdown).firstSelectedOption.text,
-      immigrationStatus = Select(immigrationStatusDropdown).firstSelectedOption.text,
-      isInCustody = ualCheckbox.isSelected.not(),
-      nomsId = nomsIdInput.getValue(),
-      prisonerCategory = Select(prisonerCategoryDropdown).firstSelectedOption.text,
-      prisonNumber = prisonNumberInput.getValue(),
-      youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
-      status = Select(statusDropdown).firstSelectedOption.text,
-      // Do sentences last because it navigates away
-      sentences = sentenceExtractor(determineSentenceLinks()),
-    )
-  }
+  fun extractOffenderDetails(sentenceExtractor: (List<String>) -> List<Sentence>): Offender = Offender(
+    id = extractOffenderId(),
+    address = extractAddress(),
+    caseworker = caseworkerInput.getValue(),
+    comments = commentsTextArea.getValue(),
+    croOtherNumber = croOtherNumberInput.getValue(),
+    dateOfBirth = LocalDate.parse(dateOfBirthInput.getValue(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+    ethnicity = Select(ethnicityDropdown).firstSelectedOption.text,
+    familyName = familyNameInput.getValue(),
+    firstNames = firstNamesInput.getValue(),
+    gender = Select(genderDropdown).firstSelectedOption.text,
+    immigrationStatus = Select(immigrationStatusDropdown).firstSelectedOption.text,
+    isInCustody = ualCheckbox.isSelected.not(),
+    nomsId = nomsIdInput.getValue(),
+    prisonerCategory = Select(prisonerCategoryDropdown).firstSelectedOption.text,
+    prisonNumber = prisonNumberInput.getValue(),
+    youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
+    status = Select(statusDropdown).firstSelectedOption.text,
+    // Do sentences last because it navigates away
+    sentences = sentenceExtractor(determineSentenceLinks()),
+  )
 
   fun throwIfInvalid() {
     if (validationSummary?.text?.isNotBlank() == true) {
@@ -292,13 +288,11 @@ internal class OffenderPage(
     }
   }
 
-  private fun determineSentenceLinks(): List<String> {
-    return TreeView(navigationTreeViewRoot)
-      .expandNodeWithText("Sentences")
-      .children()
-      .filter { it.text.startsWith("New").not() }
-      .map { it.getAttribute("igurl") }
-  }
+  private fun determineSentenceLinks(): List<String> = TreeView(navigationTreeViewRoot)
+    .expandNodeWithText("Sentences")
+    .children()
+    .filter { it.text.startsWith("New").not() }
+    .map { it.getAttribute("igurl").orEmpty() }
 
   private fun extractOffenderId() = pageHelper.extractId("existing offender page")
 
@@ -335,14 +329,13 @@ internal class OffenderPage(
     return address
   }
 
-  private fun lastAddressRow(): WebElement =
-    if (addressHistoryLastPageLink != null) {
-      addressHistoryLastPageLink?.click()
-      viewAddressHistoryButton.click()
-      addressHistoryPagedLastRow
-    } else {
-      addressHistoryLastRow
-    }
+  private fun lastAddressRow(): WebElement = if (addressHistoryLastPageLink != null) {
+    addressHistoryLastPageLink?.click()
+    viewAddressHistoryButton.click()
+    addressHistoryPagedLastRow
+  } else {
+    addressHistoryLastRow
+  }
 
   private fun extractAddressFromRow(tableRow: WebElement): OffenderAddress {
     val cells = tableRow.findElements(By.xpath(addressHistoryTableCellsXpath))

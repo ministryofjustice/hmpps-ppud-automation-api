@@ -92,25 +92,23 @@ internal class PostReleasePage(
     saveButton.click()
   }
 
-  fun extractPostReleaseDetails(): PostRelease {
-    return PostRelease(
-      assistantChiefOfficer = Contact(
-        name = assistantChiefOfficerInput.getValue(),
-        faxEmail = assistantChiefOfficerFaxEmailInput.getValue(),
-      ),
-      licenceType = Select(licenceTypeDropdown).firstSelectedOption.text,
-      offenderManager = ContactWithTelephone(
-        name = offenderManagerInput.getValue(),
-        faxEmail = offenderManagerFaxEmailInput.getValue(),
-        telephone = offenderManagerTelephoneInput.getValue(),
-      ),
-      probationService = Select(probationServiceDropdown).firstSelectedOption.text,
-      spoc = Contact(
-        name = spocInput.getValue(),
-        faxEmail = spocFaxEmailInput.getValue(),
-      ),
-    )
-  }
+  fun extractPostReleaseDetails(): PostRelease = PostRelease(
+    assistantChiefOfficer = Contact(
+      name = assistantChiefOfficerInput.getValue(),
+      faxEmail = assistantChiefOfficerFaxEmailInput.getValue(),
+    ),
+    licenceType = Select(licenceTypeDropdown).firstSelectedOption.text,
+    offenderManager = ContactWithTelephone(
+      name = offenderManagerInput.getValue(),
+      faxEmail = offenderManagerFaxEmailInput.getValue(),
+      telephone = offenderManagerTelephoneInput.getValue(),
+    ),
+    probationService = Select(probationServiceDropdown).firstSelectedOption.text,
+    spoc = Contact(
+      name = spocInput.getValue(),
+      faxEmail = spocFaxEmailInput.getValue(),
+    ),
+  )
 
   fun throwIfInvalid() {
     if (validationSummary?.text?.isNotBlank() == true) {
