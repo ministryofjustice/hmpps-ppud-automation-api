@@ -41,7 +41,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.io.File
 import java.time.format.DateTimeFormatter
-import java.util.UUID
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.random.Random
@@ -146,30 +146,33 @@ abstract class IntegrationTestBase {
       sentenceLengthPartMonths: Int = Random.nextInt(0, 20),
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
-    ): String {
-      return "{" +
-        "\"custodyType\":\"$custodyType\", " +
-        "\"dateOfSentence\":\"$dateOfSentence\", " +
-        "\"espCustodialPeriod\":{" +
-        "  \"years\":\"$espCustodialPeriodYears\", " +
-        "  \"months\":\"$espCustodialPeriodMonths\" " +
-        "}," +
-        "\"espExtendedPeriod\":{" +
-        "  \"years\":\"$espExtendedPeriodYears\", " +
-        "  \"months\":\"$espExtendedPeriodMonths\" " +
-        "}," +
-        "\"licenceExpiryDate\":\"$licenceExpiryDate\", " +
-        "\"mappaLevel\":\"$mappaLevel\", " +
-        "\"releaseDate\":\"$releaseDate\", " +
-        "\"sentenceExpiryDate\":\"$sentenceExpiryDate\", " +
-        "\"sentenceLength\":{" +
-        "  \"partYears\":\"$sentenceLengthPartYears\", " +
-        "  \"partMonths\":\"$sentenceLengthPartMonths\", " +
-        "  \"partDays\":\"$sentenceLengthPartDays\" " +
-        "}," +
-        "\"sentencingCourt\":\"$sentencingCourt\" " +
-        "}"
-    }
+      sentencedUnder: String = randomString(),
+    ) =
+      """ 
+        {
+          "custodyType":"$custodyType",
+          "dateOfSentence":"$dateOfSentence",
+          "espCustodialPeriod": {
+            "years":"$espCustodialPeriodYears",
+            "months":"$espCustodialPeriodMonths"
+          },
+          "espExtendedPeriod": {
+            "years":"$espExtendedPeriodYears",
+            "months":"$espExtendedPeriodMonths"
+          },
+          "licenceExpiryDate":"$licenceExpiryDate",
+          "mappaLevel":"$mappaLevel",
+          "releaseDate":"$releaseDate",
+          "sentenceExpiryDate":"$sentenceExpiryDate",
+          "sentenceLength": {
+            "partYears":"$sentenceLengthPartYears",
+            "partMonths":"$sentenceLengthPartMonths",
+            "partDays":"$sentenceLengthPartDays"
+          },
+          "sentencingCourt":"$sentencingCourt",
+          "sentencedUnder":"$sentencedUnder"
+        }
+      """.trimIndent()
 
     fun releaseRequestBody(
       dateOfRelease: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),

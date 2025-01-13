@@ -36,6 +36,7 @@ internal class SentenceComparatorTest {
         "sentenceLength.partMonths",
         "sentenceLength.partDays",
         "sentencingCourt",
+        "sentencedUnder",
       )
     }
   }
@@ -46,7 +47,7 @@ internal class SentenceComparatorTest {
   }
 
   @Test
-  fun `given all key values are populated with matching vales when areMatching is called then true is returned`() {
+  fun `given all key values are populated with matching values when areMatching is called then true is returned`() {
     val existing = Sentence(
       id = "",
       custodyType = randomString("custodyType"),
@@ -56,6 +57,7 @@ internal class SentenceComparatorTest {
       sentenceExpiryDate = randomDate(),
       sentenceLength = SentenceLength(Random.nextInt(), Random.nextInt(), Random.nextInt()),
       sentencingCourt = randomString("sentencingCourt"),
+      sentencedUnder = randomString("sentencedUnder"),
     )
     val request = CreateOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
@@ -72,6 +74,7 @@ internal class SentenceComparatorTest {
       espCustodialPeriod = null,
       espExtendedPeriod = null,
       releaseDate = null,
+      sentencedUnder = existing.sentencedUnder!!,
     )
     val result = comparator.areMatching(existing, request)
     assertTrue(result)
@@ -88,6 +91,7 @@ internal class SentenceComparatorTest {
       sentenceExpiryDate = null,
       sentenceLength = null,
       sentencingCourt = randomString("sentencingCourt"),
+      sentencedUnder = randomString("sentencedUnder"),
     )
     val request = CreateOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
@@ -100,9 +104,43 @@ internal class SentenceComparatorTest {
       espCustodialPeriod = null,
       espExtendedPeriod = null,
       releaseDate = null,
+      sentencedUnder = existing.sentencedUnder!!,
     )
     val result = comparator.areMatching(existing, request)
     assertTrue(result)
+  }
+
+  @Test
+  fun `given all fields but sentencedUnder are populated with matching values when areMatching is called then false is returned`() {
+    // We have this test because Sentence allows a null sentencedUnder (indeterminate sentences have a null value here)
+    // but CreateOrUpdateSentenceRequest doesn't (only determinate sentences are ever created or updated, and they
+    // always have a value for sentencedUnder). We want to make sure null vs !null is covered.
+    val existing = Sentence(
+      id = "",
+      custodyType = randomString("custodyType"),
+      dateOfSentence = randomDate(),
+      mappaLevel = randomString("mappaLevel"),
+      licenceExpiryDate = null,
+      sentenceExpiryDate = null,
+      sentenceLength = null,
+      sentencingCourt = randomString("sentencingCourt"),
+      sentencedUnder = null,
+    )
+    val request = CreateOrUpdateSentenceRequest(
+      custodyType = existing.custodyType,
+      dateOfSentence = existing.dateOfSentence,
+      mappaLevel = existing.mappaLevel,
+      licenceExpiryDate = null,
+      sentenceExpiryDate = null,
+      sentenceLength = null,
+      sentencingCourt = existing.sentencingCourt,
+      espCustodialPeriod = null,
+      espExtendedPeriod = null,
+      releaseDate = null,
+      sentencedUnder = randomString("sentencedUnder"),
+    )
+    val result = comparator.areMatching(existing, request)
+    assertFalse(result)
   }
 
   @ParameterizedTest
@@ -119,6 +157,7 @@ internal class SentenceComparatorTest {
       sentenceExpiryDate = randomDate(),
       sentenceLength = SentenceLength(Random.nextInt(), Random.nextInt(), Random.nextInt()),
       sentencingCourt = randomString("sentencingCourt"),
+      sentencedUnder = randomString("sentencedUnder"),
     )
     val request = CreateOrUpdateSentenceRequest(
       custodyType = differsOrTheSame(keyFieldToBeDifferent, "custodyType", existing.custodyType),
@@ -147,6 +186,7 @@ internal class SentenceComparatorTest {
       espCustodialPeriod = null,
       espExtendedPeriod = null,
       releaseDate = null,
+      sentencedUnder = differsOrTheSame(keyFieldToBeDifferent, "sentencedUnder", existing.sentencedUnder!!),
     )
     val result = comparator.areMatching(existing, request)
     assertFalse(result)

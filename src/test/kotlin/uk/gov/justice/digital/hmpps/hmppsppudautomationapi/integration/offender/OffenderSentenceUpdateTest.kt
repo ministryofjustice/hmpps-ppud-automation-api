@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Mandatory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_UNDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
@@ -79,11 +80,15 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update sentence called then 200 OK is returned`() {
-    val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
-      "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\" " +
-      "}"
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType":"$PPUD_VALID_CUSTODY_TYPE",
+          "dateOfSentence":"${randomDate()}",
+          "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
+          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
+        }
+      """.trimIndent()
 
     putSentence(offenderId, sentenceId, requestBodyWithOnlyMandatoryFields)
       .expectStatus()
@@ -124,6 +129,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     val espExtendedPeriodMonths = Random.nextInt(0, 1000)
     val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentencingCourt = randomString("sentCourt")
+    val sentencedUnder = PPUD_VALID_SENTENCED_UNDER
     val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceLengthPartYears = Random.nextInt(0, 1000)
@@ -141,6 +147,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       releaseDate = releaseDate,
       sentenceExpiryDate = sentenceExpiryDate,
       sentencingCourt = sentencingCourt,
+      sentencedUnder = sentencedUnder,
       sentenceLengthPartYears = sentenceLengthPartYears,
       sentenceLengthPartMonths = sentenceLengthPartMonths,
       sentenceLengthPartDays = sentenceLengthPartDays,
@@ -161,7 +168,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].licenceExpiryDate").isEqualTo(licenceExpiryDate)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
       .jsonPath("offender.sentences[0].releaseDate").isEqualTo(releaseDate)
-      .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo("Not Specified")
+      .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo(sentencedUnder)
       .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo(sentenceExpiryDate)
       .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo(sentenceLengthPartYears)
       .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)
