@@ -143,8 +143,7 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-    ) =
-      """ 
+    ) = """ 
         {
           "custodyType":"$custodyType",
           "dateOfSentence":"$dateOfSentence",
