@@ -60,6 +60,7 @@ tasks.test {
   }
 }
 
+
 tasks.jacocoTestReport {
   dependsOn(tasks.test)
   reports {
@@ -67,6 +68,7 @@ tasks.jacocoTestReport {
   }
 }
 
+// this is to address JLLeitschuh/ktlint-gradle#809
 ktlint {
   version = "1.5.0"
 }
