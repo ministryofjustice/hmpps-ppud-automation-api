@@ -22,7 +22,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.27.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.28.0")
   implementation("io.github.bonigarcia:webdrivermanager:5.9.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
@@ -38,7 +38,7 @@ dependencies {
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 
-  implementation("org.bouncycastle:bcprov-jdk18on:1.79") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
+  implementation("org.bouncycastle:bcprov-jdk18on:1.80") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.12.6")
