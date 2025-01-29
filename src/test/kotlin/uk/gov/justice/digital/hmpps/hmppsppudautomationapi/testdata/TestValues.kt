@@ -315,7 +315,6 @@ fun generateCreateRecallRequest(
   receivedDateTime = receivedDateTime,
   recommendedTo = recommendedTo,
   riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
-  riskOfSeriousHarmLevel = riskOfSeriousHarmLevel ?: randomRiskOfSeriousHarmLevel(),
 )
 
 /**

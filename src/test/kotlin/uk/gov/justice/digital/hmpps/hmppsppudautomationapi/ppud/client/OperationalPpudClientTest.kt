@@ -949,7 +949,6 @@ class OperationalPpudClientTest {
       then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
       then(navigationTreeViewComponent).should(never()).navigateToNewRecallFor(any())
       then(recallPage).should(never()).createRecall(any())
-      then(recallPage).should(never()).addDetailsMinute(any())
       then(recallPage).should(never()).addContrabandMinuteIfNeeded(createRecallRequest)
       assertEquals(recallId, returnedRecall.id)
     }
@@ -986,7 +985,6 @@ class OperationalPpudClientTest {
       then(navigationTreeViewComponent).should(inOrder).navigateToNewRecallFor(releaseId)
       then(recallPage).should(inOrder).createRecall(any())
       then(recallPage).should(inOrder).throwIfInvalid()
-      then(recallPage).should(inOrder).addDetailsMinute(any())
       then(recallPage).should(inOrder).addContrabandMinuteIfNeeded(createRecallRequest)
     }
   }
@@ -1040,7 +1038,6 @@ class OperationalPpudClientTest {
       client.createRecall(offenderId, releaseId, createRecallRequest)
 
       val inOrder = inOrder(recallPage)
-      then(recallPage).should(inOrder).addDetailsMinute(createRecallRequest)
       then(recallPage).should(inOrder).addContrabandMinuteIfNeeded(createRecallRequest)
     }
   }

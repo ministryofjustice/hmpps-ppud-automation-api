@@ -368,7 +368,6 @@ internal class OperationalPpudClient(
       navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
       recallPage.createRecall(recallRequest)
       recallPage.throwIfInvalid()
-      recallPage.addDetailsMinute(recallRequest)
       recallPage.addContrabandMinuteIfNeeded(recallRequest)
 
       // ID in URL after creating a new one is not the correct ID for the persisted recall.

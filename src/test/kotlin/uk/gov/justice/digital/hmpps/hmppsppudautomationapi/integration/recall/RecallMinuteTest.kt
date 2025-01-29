@@ -108,9 +108,9 @@ class RecallMinuteTest : IntegrationTestBase() {
     val retrievedRecall = retrieveRecall(recallId)
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
-      .jsonPath("recall.minutes.size()").isEqualTo(2)
-      .jsonPath("recall.minutes[1].subject").isEqualTo(subject)
-      .jsonPath("recall.minutes[1].text").isEqualTo(text)
+      .jsonPath("recall.minutes.size()").isEqualTo(1)
+      .jsonPath("recall.minutes[0].subject").isEqualTo(subject)
+      .jsonPath("recall.minutes[0].text").isEqualTo(text)
   }
 
   @Test
@@ -126,7 +126,7 @@ class RecallMinuteTest : IntegrationTestBase() {
     val retrievedRecall = retrieveRecall(recallId)
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
-      .jsonPath("recall.minutes.size()").isEqualTo(2)
+      .jsonPath("recall.minutes.size()").isEqualTo(1)
   }
 
   @ParameterizedTest
@@ -145,8 +145,8 @@ class RecallMinuteTest : IntegrationTestBase() {
     val retrievedRecall = retrieveRecall(recallId)
     retrievedRecall
       .jsonPath("recall.id").isEqualTo(recallId)
-      .jsonPath("recall.minutes.size()").isEqualTo(2)
-      .jsonPath("recall.minutes[1].text").isEqualTo("123${System.lineSeparator()}456")
+      .jsonPath("recall.minutes.size()").isEqualTo(1)
+      .jsonPath("recall.minutes[0].text").isEqualTo("123${System.lineSeparator()}456")
   }
 
   private fun putMinute(recallId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()

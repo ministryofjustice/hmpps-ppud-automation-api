@@ -19,7 +19,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
@@ -217,7 +216,6 @@ abstract class IntegrationTestBase {
       receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
       recommendedTo: String? = ppudUserRequestBody(),
       riskOfContrabandDetails: String = "",
-      riskOfSeriousHarmLevel: String = RiskOfSeriousHarmLevel.VeryHigh.name,
     ): String = """
         {
           "decisionDateTime":"$decisionDateTime",
@@ -228,8 +226,7 @@ abstract class IntegrationTestBase {
           "probationArea":"$probationArea",
           "receivedDateTime":"$receivedDateTime",
           "recommendedTo":${recommendedTo ?: "null"},
-          "riskOfContrabandDetails":"$riskOfContrabandDetails",
-          "riskOfSeriousHarmLevel":"$riskOfSeriousHarmLevel"
+          "riskOfContrabandDetails":"$riskOfContrabandDetails"
         }
     """.trimIndent()
 
