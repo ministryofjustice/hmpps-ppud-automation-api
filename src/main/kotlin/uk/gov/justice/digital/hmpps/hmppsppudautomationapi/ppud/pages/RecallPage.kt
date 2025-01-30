@@ -185,6 +185,9 @@ internal class RecallPage(
   @FindBy(id = "M_ctl00cntDetailsPageFooter1Minutes1UltraWebTree1")
   private lateinit var minutesTreeViewRoot: WebElement
 
+  @FindBy(xpath = ".//*[@id='ctl00cntDetailsPageFooter1Minutes1UltraWebTree1_1']/span[text() = 'Minutes']")
+  private lateinit var minutesNode: WebElement
+
   @FindBy(id = "cntDetails_PageFooter1_Minutes1_txtEditSubject")
   private lateinit var minuteSubjectInput: WebElement
 
@@ -423,7 +426,7 @@ internal class RecallPage(
   private fun addMinuteInternal(text: String, subject: String = "") {
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until(ExpectedConditions.elementToBeClickable(addMinuteButton))
-    TreeView(minutesTreeViewRoot).children().firstOrNull()?.click()
+    minutesNode.click()
     addMinuteButton.click()
     pageHelper.enterTextIfNotBlank(addMinuteSubjectInput, subject)
     addMinuteEditor.click()
