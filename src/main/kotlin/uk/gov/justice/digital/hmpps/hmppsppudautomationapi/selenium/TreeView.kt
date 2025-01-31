@@ -5,13 +5,11 @@ import org.openqa.selenium.WebElement
 
 class TreeView(rootElement: WebElement) {
 
-  private val nodes =
-    rootElement.findElements(By.xpath("./div"))
-      .filter {
-        it.getAttribute("id").orEmpty().startsWith("M_").not()
-      }
+  // XPath: all child divs that have an img tag div with attribute 'imgtype' of value 'exp'
+  private val expandableNodes =
+    rootElement.findElements(By.xpath("//div[./img[@imgtype='exp']]"))
 
-  fun expandNodeWithText(text: String): TreeViewNode = TreeViewNode(nodes.first { it.text.trim() == text }).expandNode()
+  fun expandNodeWithText(text: String): TreeViewNode = TreeViewNode(expandableNodes.first { it.text.trim() == text }).expandNode()
 
-  fun children(): List<TreeViewNode> = nodes.map { TreeViewNode(it) }
+  fun nodeWithTextIsExpandable(text: String): Boolean = expandableNodes.indexOfFirst { it.text.trim() == text } > -1
 }

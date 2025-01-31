@@ -185,6 +185,9 @@ internal class RecallPage(
   @FindBy(id = "M_ctl00cntDetailsPageFooter1Minutes1UltraWebTree1")
   private lateinit var minutesTreeViewRoot: WebElement
 
+  @FindBy(xpath = ".//*[@id='ctl00cntDetailsPageFooter1Minutes1UltraWebTree1_1']/span[text() = 'Minutes']")
+  private lateinit var minutesNode: WebElement
+
   @FindBy(id = "cntDetails_PageFooter1_Minutes1_txtEditSubject")
   private lateinit var minuteSubjectInput: WebElement
 
@@ -298,10 +301,6 @@ internal class RecallPage(
     uploadDocument(DocumentType.Document, request.title, request.owningCaseworker, filepath)
   }
 
-  fun addDetailsMinute(createRecallRequest: CreateRecallRequest) {
-    addMinuteInternal(contentCreator.generateRecallMinuteBackgroundInfoText(createRecallRequest))
-  }
-
   fun hasMatchingMinute(subject: String, text: String): Boolean = extractMinutes().stream().anyMatch { it.subject == subject && it.text == text }
 
   fun addMinute(subject: String, text: String) {
@@ -385,7 +384,7 @@ internal class RecallPage(
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until(ExpectedConditions.textToBePresentInElement(minutesTreeContainer, MINUTES_TEXT))
     val treeView = TreeView(minutesTreeViewRoot)
-    val minuteEntryNodes = treeView.expandNodeWithText(MINUTES_TEXT).children()
+    val minuteEntryNodes = if (treeView.nodeWithTextIsExpandable(MINUTES_TEXT)) treeView.expandNodeWithText(MINUTES_TEXT).children() else emptyList()
     return minuteEntryNodes.map {
       it.click()
       Minute(
@@ -427,7 +426,7 @@ internal class RecallPage(
   private fun addMinuteInternal(text: String, subject: String = "") {
     WebDriverWait(driver, Duration.ofSeconds(2))
       .until(ExpectedConditions.elementToBeClickable(addMinuteButton))
-    TreeView(minutesTreeViewRoot).children().first().click()
+    minutesNode.click()
     addMinuteButton.click()
     pageHelper.enterTextIfNotBlank(addMinuteSubjectInput, subject)
     addMinuteEditor.click()

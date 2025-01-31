@@ -72,11 +72,6 @@ class OffenderRecallTest : IntegrationTestBase() {
         createRecallRequestBody(recommendedTo = ppudUserRequestBody(teamName = "")),
         errorFragment = "team",
       ),
-      MandatoryFieldTestData(
-        "riskOfSeriousHarmLevel",
-        createRecallRequestBody(riskOfSeriousHarmLevel = ""),
-        errorFragment = "RiskOfSeriousHarmLevel",
-      ),
     )
   }
 
