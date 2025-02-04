@@ -20,6 +20,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRA
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_PRISONER_CATEGORY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_STATUS
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
@@ -103,18 +105,22 @@ class OffenderCreateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
-    val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
-      "\"dateOfBirth\":\"${randomDate()}\", " +
-      "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
-      "\"familyName\":\"$FAMILY_NAME_PREFIX-$testRunId\", " +
-      "\"firstNames\":\"${randomString("firstNames")}\", " +
-      "\"gender\":\"$PPUD_VALID_GENDER\", " +
-      "\"indexOffence\":\"$PPUD_VALID_INDEX_OFFENCE\", " +
-      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\", " +
-      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
-      "}"
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType" : "$PPUD_VALID_CUSTODY_TYPE",
+          "dateOfBirth" : "${randomDate()}",
+          "dateOfSentence" : "${randomDate()}",
+          "ethnicity" : "$PPUD_VALID_ETHNICITY",
+          "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
+          "firstNames" : "${randomString("firstNames")}",
+          "gender" : "$PPUD_VALID_GENDER",
+          "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
+          "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
+          "prisonNumber" : "${randomPrisonNumber()}",
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+        }
+      """.trimIndent()
 
     postOffender(requestBodyWithOnlyMandatoryFields)
       .expectStatus()
@@ -123,27 +129,31 @@ class OffenderCreateTest : IntegrationTestBase() {
 
   @Test
   fun `given null optional string fields in request body when create offender called then nulls are treated as empty strings`() {
-    val requestBodyWithNullOptionalFields = "{" +
-      "\"address\": {" +
-      "\"premises\":null, " +
-      "\"line1\":null, " +
-      "\"line2\":null, " +
-      "\"postcode\":null, " +
-      "\"phoneNumber\":null " +
-      "}, " +
-      "\"custodyType\":\"$PPUD_VALID_CUSTODY_TYPE\", " +
-      "\"croNumber\":null, " +
-      "\"dateOfBirth\":\"${randomDate()}\", " +
-      "\"dateOfSentence\":\"${randomDate()}\", " +
-      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
-      "\"familyName\":\"$FAMILY_NAME_PREFIX-$testRunId\", " +
-      "\"firstNames\":\"${randomString("firstNames")}\", " +
-      "\"gender\":\"$PPUD_VALID_GENDER\", " +
-      "\"indexOffence\":\"$PPUD_VALID_INDEX_OFFENCE\", " +
-      "\"mappaLevel\":\"$PPUD_VALID_MAPPA_LEVEL\", " +
-      "\"nomsId\":null, " +
-      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
-      "}"
+    val requestBodyWithNullOptionalFields =
+      """ 
+      {
+        "address" : {
+          "premises" : null,
+          "line1" : null,
+          "line2" : null,
+          "postcode" : null,
+          "phoneNumber" : null
+        },
+        "custodyType" : "$PPUD_VALID_CUSTODY_TYPE",
+        "croNumber" : null,
+        "dateOfBirth" : "${randomDate()}",
+        "dateOfSentence" : "${randomDate()}",
+        "ethnicity" : "$PPUD_VALID_ETHNICITY",
+        "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
+        "firstNames" : "${randomString("firstNames")}",
+        "gender" : "$PPUD_VALID_GENDER",
+        "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
+        "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
+        "nomsId" : null,
+        "prisonNumber" : "${randomPrisonNumber()}",
+        "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+      }
+      """.trimIndent()
 
     val createdOffender = testPostOffender(requestBodyWithNullOptionalFields)
 
@@ -186,9 +196,10 @@ class OffenderCreateTest : IntegrationTestBase() {
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val familyName = "$FAMILY_NAME_PREFIX-$testRunId"
     val firstNames = randomString("firstNames")
-    val isInCustody = Random.nextBoolean().toString()
+    val isInCustody = Random.nextBoolean()
     val nomsId = randomNomsId()
     val prisonNumber = randomPrisonNumber()
+    val establishment = if (isInCustody) PPUD_VALID_ESTABLISHMENT else PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
     val requestBody = createOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
       additionalAddresses = addressRequestBody(
@@ -207,10 +218,11 @@ class OffenderCreateTest : IntegrationTestBase() {
       firstNames = firstNames,
       gender = PPUD_VALID_GENDER,
       indexOffence = PPUD_VALID_INDEX_OFFENCE,
-      isInCustody = isInCustody,
+      isInCustody = isInCustody.toString(),
       mappaLevel = PPUD_VALID_MAPPA_LEVEL,
       nomsId = nomsId,
       prisonNumber = prisonNumber,
+      establishment = establishment,
     )
 
     val createdOffender = testPostOffender(requestBody)
@@ -233,7 +245,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.firstNames").isEqualTo(firstNames)
       .jsonPath("offender.gender").isEqualTo(PPUD_VALID_GENDER)
       .jsonPath("offender.immigrationStatus").isEqualTo(PPUD_IMMIGRATION_STATUS)
-      .jsonPath("offender.isInCustody").isEqualTo(isInCustody)
+      .jsonPath("offender.isInCustody").isEqualTo(isInCustody.toString())
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
@@ -244,6 +256,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
       .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo(PPUD_VALID_INDEX_OFFENCE)
+      .jsonPath("offender.establishment").isEqualTo(establishment)
   }
 
   @ParameterizedTest

@@ -14,6 +14,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Mandatory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_PRISONER_CATEGORY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_STATUS
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
@@ -105,14 +108,18 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given missing optional fields in request body when update offender called then 200 ok is returned`() {
-    val requestBodyWithOnlyMandatoryFields = "{" +
-      "\"dateOfBirth\":\"${randomDate()}\", " +
-      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
-      "\"familyName\":\"${FAMILY_NAME_PREFIX}-${testRunId}\", " +
-      "\"firstNames\":\"${randomString("firstNames")}\", " +
-      "\"gender\":\"$PPUD_VALID_GENDER\", " +
-      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
-      "}"
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "dateOfBirth" : "${randomDate()}",
+          "ethnicity" : "$PPUD_VALID_ETHNICITY",
+          "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
+          "firstNames" : "${randomString("firstNames")}",
+          "gender" : "$PPUD_VALID_GENDER",
+          "prisonNumber" : "${randomPrisonNumber()}",
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+        }
+      """.trimIndent()
 
     putOffender(testOffenderId, requestBodyWithOnlyMandatoryFields)
       .expectStatus()
@@ -121,16 +128,20 @@ class OffenderUpdateTest : IntegrationTestBase() {
 
   @Test
   fun `given null optional string fields in request body when update offender called then nulls are treated as empty string`() {
-    val requestBodyWithNullOptionalFields = "{" +
-      "\"croNumber\":null, " +
-      "\"dateOfBirth\":\"${randomDate()}\", " +
-      "\"ethnicity\":\"$PPUD_VALID_ETHNICITY\", " +
-      "\"familyName\":\"${FAMILY_NAME_PREFIX}-${testRunId}\", " +
-      "\"firstNames\":\"${randomString("firstNames")}\", " +
-      "\"gender\":\"$PPUD_VALID_GENDER\", " +
-      "\"nomsId\":null, " +
-      "\"prisonNumber\":\"${randomPrisonNumber()}\" " +
-      "}"
+    val requestBodyWithNullOptionalFields =
+      """
+        {
+          "croNumber" : null,
+          "dateOfBirth" : "${randomDate()}",
+          "ethnicity" : "$PPUD_VALID_ETHNICITY",
+          "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
+          "firstNames" : "${randomString("firstNames")}",
+          "gender" : "$PPUD_VALID_GENDER",
+          "nomsId" : null,
+          "prisonNumber" : "${randomPrisonNumber()}",
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+        }
+      """.trimIndent()
 
     putOffender(testOffenderId, requestBodyWithNullOptionalFields)
       .expectStatus()
@@ -167,6 +178,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       createOffenderRequestBody(
         additionalAddresses = addressRequestBody(originalAdditionalAddressPremises, "", "", "", ""),
         isInCustody = originalIsInCustody.toString(),
+        establishment = if (originalIsInCustody) PPUD_VALID_ESTABLISHMENT else PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE,
       ),
     )
     val amendUuid = UUID.randomUUID()
@@ -189,6 +201,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
     val gender = PPUD_VALID_GENDER_2
     val nomsId = randomNomsId()
     val prisonNumber = randomPrisonNumber()
+    val establishment = if (newIsInCustody) PPUD_VALID_ESTABLISHMENT_2 else PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
     val requestBody = updateOffenderRequestBody(
       address = addressRequestBody(addressPremises, addressLine1, addressLine2, addressPostcode, addressPhoneNumber),
       additionalAddresses = addressRequestBody(
@@ -207,6 +220,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       isInCustody = newIsInCustody.toString(),
       nomsId = nomsId,
       prisonNumber = prisonNumber,
+      establishment = establishment,
     )
 
     putOffender(localTestOffenderId, requestBody)
@@ -237,6 +251,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.nomsId").isEqualTo(nomsId)
       .jsonPath("offender.prisonerCategory").isEqualTo(PPUD_PRISONER_CATEGORY)
       .jsonPath("offender.prisonNumber").isEqualTo(prisonNumber)
+      .jsonPath("offender.establishment").isEqualTo(establishment)
       .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
   }
 

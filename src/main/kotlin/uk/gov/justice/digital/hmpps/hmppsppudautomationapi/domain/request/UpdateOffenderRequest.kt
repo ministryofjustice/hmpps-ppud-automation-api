@@ -21,6 +21,7 @@ class UpdateOffenderRequest(
   nomsId: String? = null,
   @field:NotBlank
   val prisonNumber: String,
+  val establishment: String,
 ) {
   val croNumber: String = croNumber ?: ""
   val nomsId: String = nomsId ?: ""
