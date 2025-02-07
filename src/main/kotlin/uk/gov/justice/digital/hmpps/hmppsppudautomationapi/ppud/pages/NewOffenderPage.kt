@@ -83,11 +83,9 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddlIMMIGRATION_STATUS")
   private lateinit var immigrationStatusDropdown: WebElement
 
-  @FindBy(id = "content_aceINDEX_OFFENCE_AutoSelect")
-  private lateinit var indexOffenceDropdown: WebElement
+  private val indexOffenceDropdown: WebElement by lazy { driver.findElement(By.id("content_aceINDEX_OFFENCE_AutoSelect")) }
 
-  @FindBy(id = "content_aceINDEX_OFFENCE_AutoCompleteTextBox")
-  private lateinit var indexOffenceInput: WebElement
+  private val indexOffenceInput: WebElement by lazy { driver.findElement(By.id("content_aceINDEX_OFFENCE_AutoCompleteTextBox")) }
 
   @FindBy(id = "content_ddlMappaLevel")
   private lateinit var mappaLevelDropdown: WebElement
