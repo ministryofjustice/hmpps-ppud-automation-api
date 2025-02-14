@@ -86,6 +86,8 @@ class OffencePageTest {
 
       val offence = offencePage.extractOffenceDetails()
 
+      // TODO Mock LocalDate's parse function (currently not functioning) and check offence contents
+
       verify(dateOfIndexOffenceInput).getValue()
       verify(indexOffenceInput).getValue()
     }
