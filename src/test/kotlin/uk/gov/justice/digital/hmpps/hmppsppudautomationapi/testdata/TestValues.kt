@@ -277,6 +277,7 @@ fun generateCreateOrUpdateSentenceRequest(
  */
 fun generateUpdateOffenceRequest(): UpdateOffenceRequest = UpdateOffenceRequest(
   indexOffence = randomString("indexOffence"),
+  indexOffenceComment = randomString("indexOffenceComment"),
   dateOfIndexOffence = randomDate(),
 )
 

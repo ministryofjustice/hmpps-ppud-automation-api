@@ -30,6 +30,9 @@ internal class OffencePage(
   @FindBy(id = "cntDetails_aceiINDEX_OFFENCE_ID_AutoCompleteTextBox")
   private lateinit var indexOffenceInput: WebElement
 
+  @FindBy(id = "cntDetails_txtOFFENCE_COMMENTS")
+  private lateinit var indexOffenceCommentInput: WebElement
+
   @FindBy(id = "cntDetails_aceiINDEX_OFFENCE_ID_AutoSelect")
   private lateinit var indexOffenceDropdown: WebElement
 
@@ -49,6 +52,7 @@ internal class OffencePage(
 
   fun updateOffence(request: UpdateOffenceRequest) {
     pageHelper.enterText(indexOffenceInput, request.indexOffence)
+    pageHelper.enterTextIfNotBlank(indexOffenceCommentInput, request.indexOffenceComment)
     pageHelper.enterDate(dateOfIndexOffenceInput, request.dateOfIndexOffence)
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, request.indexOffence, "index offence")
 
