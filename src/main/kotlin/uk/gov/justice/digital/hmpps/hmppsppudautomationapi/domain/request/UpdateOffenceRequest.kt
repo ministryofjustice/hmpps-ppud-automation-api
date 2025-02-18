@@ -6,5 +6,6 @@ import java.time.LocalDate
 data class UpdateOffenceRequest(
   @field:NotBlank
   val indexOffence: String,
+  val indexOffenceComment: String? = null,
   val dateOfIndexOffence: LocalDate?,
 )
