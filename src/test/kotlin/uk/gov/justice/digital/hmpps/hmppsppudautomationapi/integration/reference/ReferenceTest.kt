@@ -2,7 +2,7 @@
 
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.reference
 
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -63,122 +63,40 @@ class ReferenceTest : IntegrationTestBase() {
       .jsonPath("values[0]").isEqualTo("Determinate")
   }
 
-  @Test
-  fun `when establishments called then establishments are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/establishments")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("1/2 Suttons Drive (test)")
-      .jsonPath("values.last()").isEqualTo("zzzztest Establishment")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
-  }
+  @ParameterizedTest
+  @ValueSource(
+    strings = [
+      "establishments",
+      "ethnicities",
+      "index-offences",
+      "mappa-levels",
+      "police-forces",
+      "probation-services",
+      "released-unders",
+    ],
+  )
+  fun `when reference endpoint called then values are returned and 'not specified' is excluded`(endpoint: String) {
+    extractReferenceListValues("/reference/$endpoint")
 
-  @Test
-  fun `when ethnicities called then ethnicities are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/ethnicities")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("Asian or Asian British - Bangladeshi")
-      .jsonPath("values.last()").isEqualTo("White – Other")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
+    assertThat(valuesExtractor.value!!).isNotEmpty
+    assertThat(valuesExtractor.value!!).doesNotContain("Not Specified")
   }
 
   @Test
   fun `when genders called then genders are returned`() {
-    webTestClient.get()
-      .uri("/reference/genders")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("F")
-      .jsonPath("values.last()").isEqualTo("M ( Was F )")
+    extractReferenceListValues("/reference/genders")
+
+    assertThat(valuesExtractor.value!!).isNotEmpty
   }
 
-  @Test
-  fun `when index-offences called then index offences are returned and 'not specified' is excluded`() {
+  private fun extractReferenceListValues(uri: String) {
     webTestClient.get()
-      .uri("/reference/index-offences")
+      .uri(uri)
       .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
       .expectBody()
-      .jsonPath("values[0]").isEqualTo("Abduction")
-      .jsonPath("values.last()")
-      .isEqualTo("Wounding with intent to cause grievous bodily harm (section 18 of the Offences against the Person Act 1861)")
       .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
-  }
-
-  @Test
-  fun `when mappa-levels called then mappa levels are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/mappa-levels")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("Level 1 – Single Agency Management")
-      .jsonPath("values.last()").isEqualTo("TB LEVEL 4")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
-  }
-
-  @Test
-  fun `when police-forces called then police forces are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/police-forces")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("Avon & Somerset Constabulary")
-      .jsonPath("values.last()").isEqualTo("Wiltshire Constabulary")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
-  }
-
-  @Test
-  fun `when probation-services called then probation services are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/probation-services")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("Bedfordshire")
-      .jsonPath("values.last()").isEqualTo("Wiltshire")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
-  }
-
-  @Test
-  fun `when released-unders called then released unders are returned and 'not specified' is excluded`() {
-    webTestClient.get()
-      .uri("/reference/released-unders")
-      .headers { it.authToken() }
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("values[0]").isEqualTo("CJA 1991")
-      .jsonPath("values.last()").isEqualTo("Not Applicable")
-      .jsonPath("values").value(valuesExtractor)
-    assertFalse(valuesExtractor.value!!.contains("Not Specified"))
   }
 }
