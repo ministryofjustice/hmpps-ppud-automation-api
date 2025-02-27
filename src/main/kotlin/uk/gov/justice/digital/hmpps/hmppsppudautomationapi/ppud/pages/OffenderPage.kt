@@ -129,6 +129,12 @@ internal class OffenderPage(
   @FindBy(id = "cntDetails_ddliIMMIGRATION_STATUS")
   private lateinit var immigrationStatusDropdown: WebElement
 
+  @FindBy(id = "cntDetails_aceiCURRENT_ESTABLISHMENT_AutoCompleteTextBox")
+  private lateinit var currentEstablishmentInput: WebElement
+
+  @FindBy(id = "cntDetails_aceiCURRENT_ESTABLISHMENT_AutoSelect")
+  private lateinit var currentEstablishmentDropdown: WebElement
+
   @FindBy(id = "M_ctl00treetvOffender")
   private lateinit var navigationTreeViewRoot: WebElement
 
@@ -177,7 +183,16 @@ internal class OffenderPage(
   fun updateOffender(updateOffenderRequest: UpdateOffenderRequest) {
     // Complete first as additional processing is triggered
     pageHelper.selectCheckboxValue(ualCheckbox, updateOffenderRequest.isInCustody.not())
+
+    // The caseworker and establishment fields are autocomplete fields. After inputting
+    // values, a dropdown is loaded with the options that satisfy the input text, from which
+    // the final value must be selected. The dropdown can take a bit of time to show up, so
+    // we input the values at the start of the process and select the options from the dropdowns
+    // later on, to minimise the chance of the dropdown not being loaded by the time the code
+    // tries to pick the option
     enterCaseworkerText(updateOffenderRequest.isInCustody)
+    currentEstablishmentInput.click()
+    currentEstablishmentInput.sendKeys(updateOffenderRequest.establishment)
 
     // Complete standalone fields
     enterAddress(updateOffenderRequest.address)
@@ -206,8 +221,13 @@ internal class OffenderPage(
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderNo, "young offender")
     }
 
-    // Complete fields that have been updated/refreshed.
+    // See comment further up regarding these two fields
     selectCaseworkerMatch(updateOffenderRequest.isInCustody)
+    pageHelper.selectDropdownOptionIfNotBlank(
+      currentEstablishmentDropdown,
+      updateOffenderRequest.establishment,
+      "establishment",
+    )
 
     saveButton.click()
   }
@@ -266,6 +286,7 @@ internal class OffenderPage(
     prisonNumber = prisonNumberInput.getValue(),
     youngOffender = Select(youngOffenderDropdown).firstSelectedOption.text,
     status = Select(statusDropdown).firstSelectedOption.text,
+    establishment = currentEstablishmentInput.getValue(),
     // Do sentences last because it navigates away
     sentences = sentenceExtractor(determineSentenceLinks()),
   )
@@ -292,7 +313,7 @@ internal class OffenderPage(
     .expandNodeWithText("Sentences")
     .children()
     .filter { it.text.startsWith("New").not() }
-    .map { it.getAttribute("igurl").orEmpty() }
+    .map { it.getAttribute("igurl") }
 
   private fun extractOffenderId() = pageHelper.extractId("existing offender page")
 

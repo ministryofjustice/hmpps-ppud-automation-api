@@ -110,6 +110,12 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
 
+  @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoCompleteTextBox")
+  private lateinit var currentEstablishmentInput: WebElement
+
+  @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoSelect")
+  private lateinit var currentEstablishmentDropdown: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -121,9 +127,20 @@ internal class NewOffenderPage(
   }
 
   suspend fun createOffender(createOffenderRequest: CreateOffenderRequest) {
-    // Complete these first as they trigger additional processing
+    // The index offence and establishment fields are autocomplete fields. After inputting
+    // values, a dropdown is loaded with the options that satisfy the input text, from which
+    // the final value must be selected. The dropdown can take a bit of time to show up, so
+    // we input the values at the start of the process and select the options from the dropdowns
+    // later on, to minimise the chance of the dropdown not being loaded by the time the code
+    // tries to pick the option
     indexOffenceInput.click()
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
+    currentEstablishmentInput.click()
+    currentEstablishmentInput.sendKeys(createOffenderRequest.establishment)
+
+    // The MAPPA level field is reset every time the custody type one has its value changes (or
+    // at least when setting it to Determinate; I didn't test every option), so we make sure we
+    // set this early on before setting the MAPPA level
     pageHelper.selectDropdownOptionIfNotBlank(custodyTypeDropdown, createOffenderRequest.custodyType, "custody type")
 
     // Complete standalone fields
@@ -147,9 +164,14 @@ internal class NewOffenderPage(
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
 
-    // Complete fields that have been updated/refreshed.
+    // See comments further up regarding these three fields
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
     pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
+    pageHelper.selectDropdownOptionIfNotBlank(
+      currentEstablishmentDropdown,
+      createOffenderRequest.establishment,
+      "establishment",
+    )
 
     saveButton.click()
   }

@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.RiskOfSeriousHarmLevel
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
@@ -64,6 +63,12 @@ const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test Admin"
 const val PPUD_VALID_USER_TEAM = "Performance Management"
 
 const val PPUD_IMMIGRATION_STATUS = "Not Applicable"
+
+const val PPUD_VALID_ESTABLISHMENT = "Hartington Wing"
+
+const val PPUD_VALID_ESTABLISHMENT_2 = "Winterbourne View"
+
+const val PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE = "Not Applicable"
 
 const val PPUD_LICENCE_TYPE = "Standard"
 
@@ -157,8 +162,6 @@ fun randomPpudId(): String {
 
 fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName = LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
 
-fun randomRiskOfSeriousHarmLevel(): RiskOfSeriousHarmLevel = RiskOfSeriousHarmLevel.entries.shuffled().first()
-
 fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory = DocumentCategory.entries.shuffled().first { it != exclude }
 
 /**
@@ -180,6 +183,7 @@ fun generateCreateOffenderRequest(): CreateOffenderRequest = CreateOffenderReque
   mappaLevel = randomString("mappaLevel"),
   nomsId = randomNomsId(),
   prisonNumber = randomPrisonNumber(),
+  establishment = randomString("establishment"),
 )
 
 /**
@@ -195,6 +199,7 @@ fun generateUpdateOffenderRequest(): UpdateOffenderRequest = UpdateOffenderReque
   gender = randomString("gender"),
   isInCustody = Random.nextBoolean(),
   prisonNumber = randomPrisonNumber(),
+  establishment = randomString("establishment"),
 )
 
 fun generateOffender(id: String = randomPpudId()): Offender {
@@ -211,6 +216,7 @@ fun generateOffender(id: String = randomPpudId()): Offender {
     firstNames = randomString("firstNames"),
     gender = randomString("gender"),
     immigrationStatus = randomString("immigrationStatus"),
+    establishment = randomString("establishment"),
     isInCustody = Random.nextBoolean(),
     nomsId = randomNomsId(),
     prisonerCategory = randomString("prisonerCategory"),
@@ -305,7 +311,6 @@ fun generateCreateRecallRequest(
   receivedDateTime: LocalDateTime = randomTimeToday(),
   recommendedTo: PpudUser = generatePpudUser(),
   riskOfContrabandDetails: String? = null,
-  riskOfSeriousHarmLevel: RiskOfSeriousHarmLevel? = null,
 ): CreateRecallRequest = CreateRecallRequest(
   decisionDateTime = randomTimeToday(),
   isExtendedSentence = isExtendedSentence ?: Random.nextBoolean(),

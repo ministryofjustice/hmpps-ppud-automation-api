@@ -22,6 +22,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
@@ -82,23 +84,27 @@ abstract class IntegrationTestBase {
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
-    ): String = "{" +
-      "\"address\":$address, " +
-      "\"additionalAddresses\":[$additionalAddresses], " +
-      "\"croNumber\":\"$croNumber\", " +
-      "\"custodyType\":\"$custodyType\", " +
-      "\"dateOfBirth\":\"$dateOfBirth\", " +
-      "\"dateOfSentence\":\"$dateOfSentence\", " +
-      "\"ethnicity\":\"$ethnicity\", " +
-      "\"familyName\":\"$familyName\", " +
-      "\"firstNames\":\"$firstNames\", " +
-      "\"gender\":\"$gender\", " +
-      "\"indexOffence\":\"$indexOffence\", " +
-      "\"isInCustody\":\"$isInCustody\", " +
-      "\"mappaLevel\":\"$mappaLevel\", " +
-      "\"nomsId\":\"$nomsId\", " +
-      "\"prisonNumber\":\"$prisonNumber\" " +
-      "}"
+      establishment: String = PPUD_VALID_ESTABLISHMENT,
+    ): String = """  
+      {
+        "address" : $address,
+        "additionalAddresses" : [$additionalAddresses],
+        "croNumber" : "$croNumber",
+        "custodyType" : "$custodyType",
+        "dateOfBirth" : "$dateOfBirth",
+        "dateOfSentence" : "$dateOfSentence",
+        "ethnicity" : "$ethnicity",
+        "familyName" : "$familyName",
+        "firstNames" : "$firstNames",
+        "gender" : "$gender",
+        "indexOffence" : "$indexOffence",
+        "isInCustody" : "$isInCustody",
+        "mappaLevel" : "$mappaLevel",
+        "nomsId" : "$nomsId",
+        "prisonNumber" : "$prisonNumber",
+        "establishment" : "$establishment"
+      }
+    """.trimIndent()
 
     fun updateOffenderRequestBody(
       address: String = addressRequestBody(),
@@ -112,19 +118,24 @@ abstract class IntegrationTestBase {
       isInCustody: String = "false",
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
-    ): String = "{" +
-      "\"address\":$address, " +
-      "\"additionalAddresses\":[$additionalAddresses], " +
-      "\"croNumber\":\"$croNumber\", " +
-      "\"dateOfBirth\":\"$dateOfBirth\", " +
-      "\"ethnicity\":\"$ethnicity\", " +
-      "\"familyName\":\"$familyName\", " +
-      "\"firstNames\":\"$firstNames\", " +
-      "\"gender\":\"$gender\", " +
-      "\"isInCustody\":\"$isInCustody\", " +
-      "\"nomsId\":\"$nomsId\", " +
-      "\"prisonNumber\":\"$prisonNumber\" " +
-      "}"
+      establishment: String = PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE,
+    ): String =
+      """
+        {
+          "address" : $address,
+          "additionalAddresses" : [$additionalAddresses],
+          "croNumber" : "$croNumber",
+          "dateOfBirth" : "$dateOfBirth",
+          "ethnicity" : "$ethnicity",
+          "familyName" : "$familyName",
+          "firstNames" : "$firstNames",
+          "gender" : "$gender",
+          "isInCustody" : "$isInCustody",
+          "nomsId" : "$nomsId",
+          "prisonNumber" : "$prisonNumber",
+          "establishment" : "$establishment"
+        }
+      """.trimIndent()
 
     fun createOrUpdateSentenceRequestBody(
       custodyType: String = PPUD_VALID_CUSTODY_TYPE,
@@ -233,12 +244,13 @@ abstract class IntegrationTestBase {
     fun ppudUserRequestBody(
       fullName: String = PPUD_VALID_USER_FULL_NAME,
       teamName: String = PPUD_VALID_USER_TEAM,
-    ): String = """
+    ): String =
+      """
         {
           "fullName":"$fullName",
           "teamName":"$teamName"
         }
-    """.trimIndent()
+      """.trimIndent()
 
     fun addressRequestBody(
       premises: String = randomString("premises"),
@@ -246,13 +258,16 @@ abstract class IntegrationTestBase {
       line2: String = randomString("line2"),
       postcode: String = randomString("postcode"),
       phoneNumber: String = randomString("phoneNumber"),
-    ): String = "{" +
-      "\"premises\":\"$premises\", " +
-      "\"line1\":\"$line1\", " +
-      "\"line2\":\"$line2\", " +
-      "\"postcode\":\"$postcode\", " +
-      "\"phoneNumber\":\"$phoneNumber\" " +
-      "}"
+    ): String =
+      """
+        {
+          "premises" : "$premises",
+          "line1" : "$line1",
+          "line2" : "$line2",
+          "postcode" : "$postcode",
+          "phoneNumber" : "$phoneNumber"
+        }
+      """.trimIndent()
   }
 
   @BeforeAll
