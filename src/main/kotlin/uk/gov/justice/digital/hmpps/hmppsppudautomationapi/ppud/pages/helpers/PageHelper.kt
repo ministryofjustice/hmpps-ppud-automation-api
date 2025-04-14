@@ -85,16 +85,31 @@ class PageHelper(
 
   fun readDateOrNull(input: WebElement): LocalDate? {
     val inputValue = input.getValue()
-    return if (inputValue.isNotBlank()) {
-      LocalDate.parse(inputValue, dateFormatter)
+    return readDateStringOrNull(inputValue)
+  }
+
+  fun readDateFromTextOrNull(input: WebElement): LocalDate? {
+    val inputText = input.text
+    return readDateStringOrNull(inputText)
+  }
+
+  private fun readDateStringOrNull(value: String): LocalDate? {
+    return if (value.isNotBlank()) {
+      LocalDate.parse(value, dateFormatter)
     } else {
       null
     }
+
   }
 
   fun readIntegerOrDefault(input: WebElement, default: Int): Int {
     val inputValue = input.getValue()
     return inputValue.toIntOrNull() ?: default
+  }
+
+  fun readTextAsIntegerOrDefault(input: WebElement, default: Int = 0): Int {
+    val inputText = input.text
+    return inputText.toIntOrNull() ?: default
   }
 
   fun readSelectedOption(dropdown: WebElement): String = Select(dropdown).firstSelectedOption.text

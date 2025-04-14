@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences
 
 import org.openqa.selenium.WebDriver
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent.Companion.url
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 
-internal abstract class SentencePage(
+internal abstract class BaseSentencePage(
   protected val driver: WebDriver,
   protected val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
@@ -20,11 +20,6 @@ internal abstract class SentencePage(
   protected abstract val pageDescription: String
 
   abstract fun selectCustodyType(custodyType: String)
-
-  fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
-    val existing = extractSentenceDetails(::Offence)
-    return sentenceComparator.areMatching(existing, request)
-  }
 
   abstract fun createSentence(request: CreateOrUpdateSentenceRequest)
 
@@ -37,6 +32,11 @@ internal abstract class SentencePage(
   ): Sentence
 
   abstract fun throwIfInvalid()
+
+  fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
+    val existing = extractSentenceDetails(::Offence)
+    return sentenceComparator.areMatching(existing, request)
+  }
 
   protected fun determineOffenceLink(): String {
     val sentenceId = pageHelper.extractId(pageDescription)

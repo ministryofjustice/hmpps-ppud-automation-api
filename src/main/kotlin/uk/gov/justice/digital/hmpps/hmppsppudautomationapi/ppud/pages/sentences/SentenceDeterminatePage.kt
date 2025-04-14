@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences
 
 import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
@@ -24,63 +24,13 @@ internal class SentenceDeterminatePage(
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
   sentenceComparator: SentenceComparator,
-) : SentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
-
-  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
-  private lateinit var saveButton: WebElement
-
-  @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
-  private lateinit var custodyTypeDropdown: WebElement
-
-  @FindBy(id = "igtxtcntDetails_dteDOS")
-  private lateinit var dateOfSentenceInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_YRS")
-  private lateinit var espCustodialPeriodYearsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_MNTHS")
-  private lateinit var espCustodialPeriodMonthsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_YRS")
-  private lateinit var espExtendedPeriodYearsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_MNTHS")
-  private lateinit var espExtendedPeriodMonthsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_dteLICENCE_END")
-  private lateinit var licenceExpiryDateInput: WebElement
-
-  @FindBy(id = "cntDetails_ddliMAPPA_Level")
-  private lateinit var mappaLevelDropdown: WebElement
-
-  @FindBy(id = "igtxtcntDetails_dteLICENCE_START")
-  private lateinit var releaseDateInput: WebElement
-
-  @FindBy(id = "cntDetails_ddliSENTENCED_UNDER")
-  private lateinit var sentencedUnderDropdown: WebElement
-
-  @FindBy(id = "igtxtcntDetails_dteSED")
-  private lateinit var sentenceExpiryDateInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtPART_YRS")
-  private lateinit var sentenceLengthPartYearsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtPART_MNTHS")
-  private lateinit var sentenceLengthPartMonthsInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_txtPART_DAYS")
-  private lateinit var sentenceLengthPartDaysInput: WebElement
-
-  @FindBy(id = "cntDetails_txtSENTENCING_COURT")
-  private lateinit var sentencingCourtInput: WebElement
-
-  private val validationSummary: WebElement?
-    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
-
+) : BaseSentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
+  // Initialize
   init {
     PageFactory.initElements(driver, this)
   }
 
+  // Implement abstract
   override val pageDescription: String
     get() = "determinate sentence page"
 
@@ -156,4 +106,56 @@ internal class SentenceDeterminatePage(
       throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
     }
   }
+
+  // Page Elements
+  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
+  private lateinit var saveButton: WebElement
+
+  @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
+  private lateinit var custodyTypeDropdown: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteDOS")
+  private lateinit var dateOfSentenceInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_YRS")
+  private lateinit var espCustodialPeriodYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_CUSTODIAL_MNTHS")
+  private lateinit var espCustodialPeriodMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_YRS")
+  private lateinit var espExtendedPeriodYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtESP_EXTENSION_MNTHS")
+  private lateinit var espExtendedPeriodMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteLICENCE_END")
+  private lateinit var licenceExpiryDateInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliMAPPA_Level")
+  private lateinit var mappaLevelDropdown: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteLICENCE_START")
+  private lateinit var releaseDateInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliSENTENCED_UNDER")
+  private lateinit var sentencedUnderDropdown: WebElement
+
+  @FindBy(id = "igtxtcntDetails_dteSED")
+  private lateinit var sentenceExpiryDateInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_YRS")
+  private lateinit var sentenceLengthPartYearsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_MNTHS")
+  private lateinit var sentenceLengthPartMonthsInput: WebElement
+
+  @FindBy(id = "igtxtcntDetails_txtPART_DAYS")
+  private lateinit var sentenceLengthPartDaysInput: WebElement
+
+  @FindBy(id = "cntDetails_txtSENTENCING_COURT")
+  private lateinit var sentencingCourtInput: WebElement
+
+  private val validationSummary: WebElement?
+    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 }
