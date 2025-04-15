@@ -62,7 +62,7 @@ internal class SentenceIndeterminatePage(
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
-          readTextAsIntegerOrDefault(fullPunishmentDaysInput, 0)
+          readTextAsIntegerOrDefault(fullPunishmentDaysInput, 0),
         ),
         sentencingCourt = sentencingCourtInput.getValue(),
         // Do offence last because it navigates away

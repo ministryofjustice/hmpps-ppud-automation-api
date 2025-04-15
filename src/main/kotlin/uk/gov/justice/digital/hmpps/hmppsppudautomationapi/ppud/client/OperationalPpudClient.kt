@@ -35,33 +35,33 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleas
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Component
 @RequestScope
 internal class OperationalPpudClient(
-    @Value("\${ppud.url}") ppudUrl: String,
-    @Value("\${ppud.username}") ppudUsername: String,
-    @Value("\${ppud.password}") ppudPassword: String,
-    @Value("\${ppud.admin.username}") ppudAdminUsername: String,
-    @Value("\${ppud.admin.password}") ppudAdminPassword: String,
-    driver: WebDriver,
-    errorPage: ErrorPage,
-    loginPage: LoginPage,
-    searchPage: SearchPage,
-    private val navigationTreeViewComponent: NavigationTreeViewComponent,
-    private val newOffenderPage: NewOffenderPage,
-    private val offenderPage: OffenderPage,
-    private val offencePage: OffencePage,
-    private val postReleasePage: PostReleasePage,
-    private val recallPage: RecallPage,
-    private val releasePage: ReleasePage,
-    private val sentencePageFactory: SentencePageFactory,
-    private val adminPage: AdminPage,
-    private val caseworkerAdminPage: CaseworkerAdminPage,
+  @Value("\${ppud.url}") ppudUrl: String,
+  @Value("\${ppud.username}") ppudUsername: String,
+  @Value("\${ppud.password}") ppudPassword: String,
+  @Value("\${ppud.admin.username}") ppudAdminUsername: String,
+  @Value("\${ppud.admin.password}") ppudAdminPassword: String,
+  driver: WebDriver,
+  errorPage: ErrorPage,
+  loginPage: LoginPage,
+  searchPage: SearchPage,
+  private val navigationTreeViewComponent: NavigationTreeViewComponent,
+  private val newOffenderPage: NewOffenderPage,
+  private val offenderPage: OffenderPage,
+  private val offencePage: OffencePage,
+  private val postReleasePage: PostReleasePage,
+  private val recallPage: RecallPage,
+  private val releasePage: ReleasePage,
+  private val sentencePageFactory: SentencePageFactory,
+  private val adminPage: AdminPage,
+  private val caseworkerAdminPage: CaseworkerAdminPage,
 ) : PpudClientBase(
   ppudUrl,
   ppudUsername,

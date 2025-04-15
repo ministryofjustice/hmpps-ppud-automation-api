@@ -93,13 +93,10 @@ class PageHelper(
     return readDateStringOrNull(inputText)
   }
 
-  private fun readDateStringOrNull(value: String): LocalDate? {
-    return if (value.isNotBlank()) {
-      LocalDate.parse(value, dateFormatter)
-    } else {
-      null
-    }
-
+  private fun readDateStringOrNull(value: String): LocalDate? = if (value.isNotBlank()) {
+    LocalDate.parse(value, dateFormatter)
+  } else {
+    null
   }
 
   fun readIntegerOrDefault(input: WebElement, default: Int): Int {

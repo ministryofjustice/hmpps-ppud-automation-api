@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component
 
 @Component
 internal class SentencePageFactory(
-    private val driver: WebDriver,
-    private val sentenceDeterminatePage: SentenceDeterminatePage,
-    private val sentenceIndeterminatePage: SentenceIndeterminatePage,
+  private val driver: WebDriver,
+  private val sentenceDeterminatePage: SentenceDeterminatePage,
+  private val sentenceIndeterminatePage: SentenceIndeterminatePage,
 ) {
 
   fun sentencePage(): BaseSentencePage = if (driver.currentUrl.orEmpty().contains("SentenceIndeterminateDetails.aspx", ignoreCase = true)) {
