@@ -2,9 +2,11 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.DocumentCategory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -91,8 +93,32 @@ internal val ppudKnownExistingOffender: TestOffender
     familyName = "Mitchell",
     firstNames = "Mandy Car Test",
     prisonNumber = "XX4321",
-    releaseDate = "2013-02-02",
-    sentenceDate = "2003-06-12",
+    determinateSentence = DeterminateTestSentence(
+      custodyType = "Determinate",
+      expiryDate = "2014-01-01",
+      releaseDate = "2013-02-15",
+      sentenceDate = "2003-06-12",
+      sentenceLength = SentenceLength(4, 5, 6),
+      sentencingCourt = "Leeds",
+      espCustodialPeriod = EspPeriod(1, 2),
+      espExtendedPeriod = EspPeriod(7, 8),
+      licenseExpiryDate = "2020-06-30",
+      mappaLevel = "Level 2 – Local Inter-Agency Management",
+      sentencedUnder = "CJA 1991",
+      offence = TestOffence(
+        "ATTEMPTED MURDER",
+        "2001-02-12",
+      ),
+    ),
+    indeterminateSentence = IndeterminateTestSentence(
+      custodyType = "Indeterminate (life)",
+      expiryDate = "2015-01-01",
+      releaseDate = "2013-02-02",
+      sentenceDate = "2010-09-01",
+      sentenceLength = SentenceLength(1, 2, 3),
+      sentencingCourt = "Sheffield",
+      offence = TestOffence("Not Specified"),
+    ),
   )
 
 internal const val PPUD_OFFENDER_ID_WITH_EMPTY_RELEASE = "4F6666656E64657249643D313732323738G687H671"

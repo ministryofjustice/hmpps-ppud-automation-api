@@ -9,7 +9,7 @@ data class Sentence(
   val espCustodialPeriod: EspPeriod? = null,
   val espExtendedPeriod: EspPeriod? = null,
   val licenceExpiryDate: LocalDate? = null,
-  val mappaLevel: String,
+  val mappaLevel: String? = null,
   val offence: Offence = Offence(),
   val releaseDate: LocalDate? = null,
   val sentenceExpiryDate: LocalDate? = null,

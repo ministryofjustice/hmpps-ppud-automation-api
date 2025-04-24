@@ -40,9 +40,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleas
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
@@ -101,7 +101,7 @@ class OperationalPpudClientTest {
   private lateinit var recallPage: RecallPage
 
   @Mock
-  private lateinit var sentencePage: SentencePage
+  private lateinit var sentencePage: BaseSentencePage
 
   @Mock
   private lateinit var offenderPage: OffenderPage

@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences
 
 import org.openqa.selenium.WebDriver
 import org.springframework.stereotype.Component
@@ -10,7 +10,7 @@ internal class SentencePageFactory(
   private val sentenceIndeterminatePage: SentenceIndeterminatePage,
 ) {
 
-  fun sentencePage(): SentencePage = if (driver.currentUrl.orEmpty().contains("SentenceIndeterminateDetails.aspx", ignoreCase = true)) {
+  fun sentencePage(): BaseSentencePage = if (driver.currentUrl.orEmpty().contains("SentenceIndeterminateDetails.aspx", ignoreCase = true)) {
     sentenceIndeterminatePage
   } else {
     sentenceDeterminatePage

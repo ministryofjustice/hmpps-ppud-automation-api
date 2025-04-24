@@ -45,47 +45,55 @@ class OffenderGetTest : IntegrationTestBase() {
 
   @Test
   fun `given Offender with determinate sentence when get offender called then sentence is returned`() {
-    retrieveOffender(ppudKnownExistingOffender.id)
-      .jsonPath("offender.sentences[0].custodyType").isEqualTo("Determinate")
-      .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo("2003-06-12")
-      .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo(1)
-      .jsonPath("offender.sentences[0].espCustodialPeriod.months").isEqualTo(2)
-      .jsonPath("offender.sentences[0].espExtendedPeriod.years").isEqualTo(7)
-      .jsonPath("offender.sentences[0].espExtendedPeriod.months").isEqualTo(8)
-      .jsonPath("offender.sentences[0].licenceExpiryDate").isEqualTo("2020-06-30")
-      .jsonPath("offender.sentences[0].mappaLevel").isEqualTo("Level 2 – Local Inter-Agency Management")
-      .jsonPath("offender.sentences[0].releaseDate").isEqualTo("2013-02-15")
-      .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo("CJA 1991")
-      .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo("2014-01-01")
-      .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo(4)
-      .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(5)
-      .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo(6)
-      .jsonPath("offender.sentences[0].sentencingCourt").isEqualTo("Leeds")
+    with(ppudKnownExistingOffender) {
+      retrieveOffender(id)
+        .jsonPath("offender.sentences[0].custodyType").isEqualTo(determinateSentence.custodyType)
+        .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(determinateSentence.sentenceDate)
+        .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo(determinateSentence.espCustodialPeriod.years)
+        .jsonPath("offender.sentences[0].espCustodialPeriod.months").isEqualTo(determinateSentence.espCustodialPeriod.months)
+        .jsonPath("offender.sentences[0].espExtendedPeriod.years").isEqualTo(determinateSentence.espExtendedPeriod.years)
+        .jsonPath("offender.sentences[0].espExtendedPeriod.months").isEqualTo(determinateSentence.espExtendedPeriod.months)
+        .jsonPath("offender.sentences[0].licenceExpiryDate").isEqualTo(determinateSentence.licenseExpiryDate)
+        .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(determinateSentence.mappaLevel)
+        .jsonPath("offender.sentences[0].releaseDate").isEqualTo(determinateSentence.releaseDate)
+        .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo(determinateSentence.sentencedUnder)
+        .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo(determinateSentence.expiryDate)
+        .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo(determinateSentence.sentenceLength.partYears)
+        .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(determinateSentence.sentenceLength.partMonths)
+        .jsonPath("offender.sentences[0].sentenceLength.partDays").isEqualTo(determinateSentence.sentenceLength.partDays)
+        .jsonPath("offender.sentences[0].sentencingCourt").isEqualTo(determinateSentence.sentencingCourt)
+    }
   }
 
   @Test
   fun `given Offender with indeterminate sentence when get offender called then sentence is returned`() {
-    retrieveOffender(ppudKnownExistingOffender.id)
-      .jsonPath("offender.sentences[1].custodyType").isEqualTo("Indeterminate (life)")
-      .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo("2010-09-01")
-      .jsonPath("offender.sentences[1].espCustodialPeriod").isEmpty
-      .jsonPath("offender.sentences[1].espExtendedPeriod").isEmpty
-      .jsonPath("offender.sentences[1].licenceExpiryDate").isEmpty
-      .jsonPath("offender.sentences[1].mappaLevel").isEqualTo("")
-      .jsonPath("offender.sentences[1].releaseDate").isEmpty
-      .jsonPath("offender.sentences[1].sentencedUnder").isEmpty
-      .jsonPath("offender.sentences[1].sentenceExpiryDate").isEmpty
-      .jsonPath("offender.sentences[1].sentenceLength").isEmpty
-      .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo("Sheffield")
+    with(ppudKnownExistingOffender) {
+      retrieveOffender(id)
+        .jsonPath("offender.sentences[1].custodyType").isEqualTo(indeterminateSentence.custodyType)
+        .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(indeterminateSentence.sentenceDate)
+        .jsonPath("offender.sentences[1].espCustodialPeriod").isEmpty
+        .jsonPath("offender.sentences[1].espExtendedPeriod").isEmpty
+        .jsonPath("offender.sentences[1].licenceExpiryDate").isEmpty
+        .jsonPath("offender.sentences[1].mappaLevel").isEmpty
+        .jsonPath("offender.sentences[1].releaseDate").isEqualTo(indeterminateSentence.releaseDate)
+        .jsonPath("offender.sentences[1].sentencedUnder").isEmpty
+        .jsonPath("offender.sentences[1].sentenceExpiryDate").isEqualTo(indeterminateSentence.expiryDate)
+        .jsonPath("offender.sentences[1].sentenceLength.partYears").isEqualTo(indeterminateSentence.sentenceLength.partYears)
+        .jsonPath("offender.sentences[1].sentenceLength.partMonths").isEqualTo(indeterminateSentence.sentenceLength.partMonths)
+        .jsonPath("offender.sentences[1].sentenceLength.partDays").isEqualTo(indeterminateSentence.sentenceLength.partDays)
+        .jsonPath("offender.sentences[1].sentencingCourt").isEqualTo(indeterminateSentence.sentencingCourt)
+    }
   }
 
   @Test
   fun `given Offender with sentence when get offender called then offence is returned`() {
-    retrieveOffender(ppudKnownExistingOffender.id)
-      .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo("ATTEMPTED MURDER")
-      .jsonPath("offender.sentences[0].offence.dateOfIndexOffence").isEqualTo("2001-02-12")
-      .jsonPath("offender.sentences[1].offence.indexOffence").isEqualTo("Not Specified")
-      .jsonPath("offender.sentences[1].offence.dateOfIndexOffence").isEmpty
+    with(ppudKnownExistingOffender) {
+      retrieveOffender(id)
+        .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo(determinateSentence.offence.indexOffence)
+        .jsonPath("offender.sentences[0].offence.dateOfIndexOffence").isEqualTo(determinateSentence.offence.dateOfIndexOffence.orEmpty())
+        .jsonPath("offender.sentences[1].offence.indexOffence").isEqualTo(indeterminateSentence.offence.indexOffence)
+        .jsonPath("offender.sentences[1].offence.dateOfIndexOffence").isEmpty
+    }
   }
 
   @ParameterizedTest

@@ -60,7 +60,7 @@ internal class SentenceComparatorTest {
     val request = CreateOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
-      mappaLevel = existing.mappaLevel,
+      mappaLevel = existing.mappaLevel.orEmpty(),
       licenceExpiryDate = existing.licenceExpiryDate,
       sentenceExpiryDate = existing.sentenceExpiryDate,
       sentenceLength = SentenceLength(
@@ -94,7 +94,7 @@ internal class SentenceComparatorTest {
     val request = CreateOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
-      mappaLevel = existing.mappaLevel,
+      mappaLevel = existing.mappaLevel.orEmpty(),
       licenceExpiryDate = null,
       sentenceExpiryDate = null,
       sentenceLength = null,
@@ -127,7 +127,7 @@ internal class SentenceComparatorTest {
     val request = CreateOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
-      mappaLevel = existing.mappaLevel,
+      mappaLevel = existing.mappaLevel.orEmpty(),
       licenceExpiryDate = null,
       sentenceExpiryDate = null,
       sentenceLength = null,
@@ -160,7 +160,7 @@ internal class SentenceComparatorTest {
     val request = CreateOrUpdateSentenceRequest(
       custodyType = differsOrTheSame(keyFieldToBeDifferent, "custodyType", existing.custodyType),
       dateOfSentence = differsOrTheSame(keyFieldToBeDifferent, "dateOfSentence", existing.dateOfSentence),
-      mappaLevel = differsOrTheSame(keyFieldToBeDifferent, "mappaLevel", existing.mappaLevel),
+      mappaLevel = differsOrTheSame(keyFieldToBeDifferent, "mappaLevel", existing.mappaLevel.orEmpty()),
       licenceExpiryDate = differsOrTheSame(keyFieldToBeDifferent, "licenceExpiryDate", existing.licenceExpiryDate!!),
       sentenceExpiryDate = differsOrTheSame(keyFieldToBeDifferent, "sentenceExpiryDate", existing.sentenceExpiryDate!!),
       sentenceLength = SentenceLength(
