@@ -23,7 +23,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.seleniumhq.selenium:selenium-java:4.29.0")
-  implementation("io.github.bonigarcia:webdrivermanager:5.9.3")
+  implementation("io.github.bonigarcia:webdrivermanager:6.1.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
