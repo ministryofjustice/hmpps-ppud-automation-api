@@ -14,6 +14,7 @@ data class Sentence(
   val offence: Offence = Offence(),
   val releaseDate: LocalDate? = null,
   val sentenceExpiryDate: LocalDate? = null,
+  val tariffExpiryDate: LocalDate? = null,
   val sentencedUnder: String? = null,
   val sentenceLength: SentenceLength? = null,
   val sentencingCourt: String,

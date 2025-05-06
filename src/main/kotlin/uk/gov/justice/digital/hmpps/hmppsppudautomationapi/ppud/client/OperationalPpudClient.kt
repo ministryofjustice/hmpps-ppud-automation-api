@@ -290,7 +290,11 @@ internal class OperationalPpudClient(
     if (!matched) {
       navigationTreeViewComponent.navigateToNewSentence()
       val newSentencePage = sentencePageFactory.sentencePage()
+      // custody type needs to be selected first, as it changes the page layout
       newSentencePage.selectCustodyType(request.custodyType)
+      // the page factory needs to be called again, as the New Sentence button in
+      // PPUD always takes us first to the indeterminate page, but switches to the
+      // determinate one if such a custody type is selected
       val sentencePage = sentencePageFactory.sentencePage()
       sentencePage.createSentence(request)
       sentencePage.throwIfInvalid()

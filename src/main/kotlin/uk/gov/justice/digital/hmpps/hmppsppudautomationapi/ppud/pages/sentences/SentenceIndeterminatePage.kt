@@ -63,7 +63,7 @@ internal class SentenceIndeterminatePage(
         custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
         dateOfSentence = readDate(dateOfSentenceInput),
         releaseDate = latestReleaseDate(releaseNodes),
-        sentenceExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
+        tariffExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
