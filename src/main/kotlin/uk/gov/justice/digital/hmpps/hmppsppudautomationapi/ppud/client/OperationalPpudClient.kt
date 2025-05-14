@@ -118,20 +118,6 @@ internal class OperationalPpudClient(
     }
   }
 
-  suspend fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
-    log.info("Creating sentence in PPUD Client")
-    return performLoggedInOperation {
-      createSentenceInternal(offenderId, request)
-    }
-  }
-
-  suspend fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
-    log.info("Updating sentence in PPUD Client")
-    performLoggedInOperation {
-      updateSentenceInternal(offenderId, sentenceId, request)
-    }
-  }
-
   suspend fun updateOffence(offenderId: String, sentenceId: String, request: UpdateOffenceRequest) {
     log.info("Updating offence in PPUD Client")
     performLoggedInOperation {
@@ -280,41 +266,6 @@ internal class OperationalPpudClient(
     return offenderPage.extractCreatedOffenderDetails(::extractCreatedSentence)
   }
 
-  private fun createSentenceInternal(
-    offenderId: String,
-    request: CreateOrUpdateSentenceRequest,
-  ): CreatedSentence {
-    offenderPage.viewOffenderWithId(offenderId)
-    val matched = navigateToMatchingSentence(request)
-
-    if (!matched) {
-      navigationTreeViewComponent.navigateToNewSentence()
-      val newSentencePage = sentencePageFactory.sentencePage()
-      // custody type needs to be selected first, as it changes the page layout
-      newSentencePage.selectCustodyType(request.custodyType)
-      // the page factory needs to be called again, as the New Sentence button in
-      // PPUD always takes us first to the indeterminate page, but switches to the
-      // determinate one if such a custody type is selected
-      val sentencePage = sentencePageFactory.sentencePage()
-      sentencePage.createSentence(request)
-      sentencePage.throwIfInvalid()
-    }
-
-    return sentencePageFactory.sentencePage().extractCreatedSentenceDetails()
-  }
-
-  private fun updateSentenceInternal(
-    offenderId: String,
-    sentenceId: String,
-    request: CreateOrUpdateSentenceRequest,
-  ) {
-    offenderPage.viewOffenderWithId(offenderId)
-    navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
-    val sentencePage = sentencePageFactory.sentencePage()
-    sentencePage.updateSentence(request)
-    sentencePage.throwIfInvalid()
-  }
-
   private fun updateOffenceInternal(
     offenderId: String,
     sentenceId: String,
@@ -420,14 +371,6 @@ internal class OperationalPpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.navigate().to("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
-  }
-
-  private fun navigateToMatchingSentence(request: CreateOrUpdateSentenceRequest): Boolean {
-    val sentenceLinks = navigationTreeViewComponent.extractSentenceLinks(request.dateOfSentence, request.custodyType)
-    return sentenceLinks.any {
-      driver.navigate().to("$ppudUrl$it")
-      sentencePageFactory.sentencePage().isMatching(request)
-    }
   }
 
   private fun navigateToMatchingRelease(

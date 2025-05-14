@@ -36,6 +36,7 @@ dependencies {
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.13.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 }
 
 java {
