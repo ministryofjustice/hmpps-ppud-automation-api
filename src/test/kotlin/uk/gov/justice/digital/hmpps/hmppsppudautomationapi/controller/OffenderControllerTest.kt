@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.given
@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.SentenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
@@ -30,18 +31,17 @@ import java.util.UUID
 @ExtendWith(MockitoExtension::class)
 internal class OffenderControllerTest {
 
-  @Mock
-  lateinit var ppudClient: OperationalPpudClient
-
-  @Mock
-  lateinit var createdOffender: CreatedOffender
-
+  @InjectMocks
   private lateinit var controller: OffenderController
 
-  @BeforeEach
-  fun beforeEach() {
-    controller = OffenderController(ppudClient)
-  }
+  @Mock
+  private lateinit var ppudClient: OperationalPpudClient
+
+  @Mock
+  private lateinit var sentenceService: SentenceService
+
+  @Mock
+  private lateinit var createdOffender: CreatedOffender
 
   @Test
   fun `given search criteria when search is called then criteria are passed to PPUD client`() {
@@ -116,27 +116,16 @@ internal class OffenderControllerTest {
   }
 
   @Test
-  fun `given offender ID and sentence data when createSentence is called then data is passed to PPUD client`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(ppudClient.createSentence(offenderId, request)).willReturn(CreatedSentence(""))
-
-      controller.createSentence(offenderId, request)
-
-      then(ppudClient).should().createSentence(offenderId, request)
-    }
-  }
-
-  @Test
-  fun `given sentence creation succeeds when createSentence is called then sentence Id is returned`() {
+  fun `given sentence creation succeeds when createSentence is called then sentence service is called and created sentence is returned`() {
     runBlocking {
       val offenderId = randomPpudId()
       val request = generateCreateOrUpdateSentenceRequest()
       val sentenceId = randomPpudId()
-      given(ppudClient.createSentence(offenderId, request)).willReturn(CreatedSentence(sentenceId))
+      given(sentenceService.createSentence(offenderId, request)).willReturn(CreatedSentence(sentenceId))
 
       val result = controller.createSentence(offenderId, request)
+
+      then(sentenceService).should().createSentence(offenderId, request)
 
       assertEquals(HttpStatus.CREATED, result.statusCode)
       assertEquals(sentenceId, result.body?.sentence?.id)
@@ -152,7 +141,7 @@ internal class OffenderControllerTest {
 
       controller.updateSentence(offenderId, sentenceId, request)
 
-      then(ppudClient).should().updateSentence(offenderId, sentenceId, request)
+      then(sentenceService).should().updateSentence(offenderId, sentenceId, request)
     }
   }
 
