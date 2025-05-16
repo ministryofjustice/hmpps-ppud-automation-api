@@ -18,12 +18,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -31,7 +31,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
@@ -56,7 +55,7 @@ internal class OperationalPpudClient(
   private val newOffenderPage: NewOffenderPage,
   private val offenderPage: OffenderPage,
   private val offencePage: OffencePage,
-  private val postReleasePage: PostReleasePage,
+  private val postReleaseClient: PostReleaseClient,
   private val recallPage: RecallPage,
   private val releasePage: ReleasePage,
   private val sentencePageFactory: SentencePageFactory,
@@ -144,7 +143,7 @@ internal class OperationalPpudClient(
         createOrUpdateReleaseRequest.releasedUnder,
       )
       val releaseId = releasePage.extractReleaseId()
-      updatePostRelease(releaseId, createOrUpdateReleaseRequest)
+      postReleaseClient.updatePostRelease(releaseId, createOrUpdateReleaseRequest.postRelease)
       CreatedOrUpdatedRelease(releaseId)
     }
   }
@@ -296,15 +295,6 @@ internal class OperationalPpudClient(
       releasePage.createRelease(createOrUpdateReleaseRequest)
     }
     releasePage.throwIfInvalid()
-  }
-
-  private fun updatePostRelease(
-    releaseId: String,
-    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
-  ) {
-    postReleasePage.navigateToPostReleaseFor(releaseId)
-    postReleasePage.updatePostRelease(createOrUpdateReleaseRequest.postRelease)
-    postReleasePage.throwIfInvalid()
   }
 
   private suspend fun createRecallInternal(
