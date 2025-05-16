@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.release.ReleaseService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.SentenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
@@ -39,6 +40,9 @@ internal class OffenderControllerTest {
 
   @Mock
   private lateinit var sentenceService: SentenceService
+
+  @Mock
+  private lateinit var releaseService: ReleaseService
 
   @Mock
   private lateinit var createdOffender: CreatedOffender
@@ -164,11 +168,17 @@ internal class OffenderControllerTest {
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
       val request = generateCreateOrUpdateReleaseRequest()
-      given(ppudClient.createOrUpdateRelease(offenderId, sentenceId, request)).willReturn(CreatedOrUpdatedRelease(""))
+      given(
+        releaseService.createOrUpdateRelease(
+          offenderId,
+          sentenceId,
+          request,
+        ),
+      ).willReturn(CreatedOrUpdatedRelease(""))
 
       controller.createOrUpdateRelease(offenderId, sentenceId, request)
 
-      then(ppudClient).should().createOrUpdateRelease(offenderId, sentenceId, request)
+      then(releaseService).should().createOrUpdateRelease(offenderId, sentenceId, request)
     }
   }
 
@@ -179,7 +189,7 @@ internal class OffenderControllerTest {
       val sentenceId = randomPpudId()
       val releaseId = randomPpudId()
       val request = generateCreateOrUpdateReleaseRequest()
-      given(ppudClient.createOrUpdateRelease(offenderId, sentenceId, request)).willReturn(
+      given(releaseService.createOrUpdateRelease(offenderId, sentenceId, request)).willReturn(
         CreatedOrUpdatedRelease(
           releaseId,
         ),

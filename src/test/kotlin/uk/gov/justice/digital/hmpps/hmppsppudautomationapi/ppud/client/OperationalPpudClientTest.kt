@@ -29,7 +29,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -38,14 +37,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffende
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
@@ -89,12 +86,6 @@ class OperationalPpudClientTest {
 
   @Mock
   private lateinit var offencePage: OffencePage
-
-  @Mock
-  private lateinit var postReleaseClient: PostReleaseClient
-
-  @Mock
-  private lateinit var releasePage: ReleasePage
 
   @Mock
   private lateinit var recallPage: RecallPage
@@ -151,9 +142,7 @@ class OperationalPpudClientTest {
       newOffenderPage,
       offenderPage,
       offencePage,
-      postReleaseClient,
       recallPage,
-      releasePage,
       sentencePageFactory,
       adminPage,
       caseworkerAdminPage,
@@ -636,121 +625,6 @@ class OperationalPpudClientTest {
       then(navigationTreeViewComponent).should(inOrder).navigateToOffenceFor(sentenceId)
       then(offencePage).should(inOrder).verifyOn()
       then(offencePage).should(inOrder).updateOffence(request)
-    }
-  }
-
-  @Test
-  fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data when create or update release is called then log out once done`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(releasePage, webDriverNavigation)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for matching release when create or update release is called then update matching release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val matchingReleaseLink = "/link/to/matching/release"
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(
-        listOf(
-          matchingReleaseLink,
-        ),
-      )
-      given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true)
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingReleaseLink")
-      then(releasePage).should(inOrder).updateRelease()
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for new release when create or update release is called then create new release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf())
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(releasePage).should(inOrder).createRelease(request)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(releasePage).should(never()).isMatching(any(), any())
-      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for new release when create or update release is called then return ID from persisted release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease))
-        .willReturn(listOf()) // Before creation
-        .willReturn(listOf("/link/to/persisted/release")) // After creation
-      given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true) // After creation
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/link/to/persisted/release")
-      then(releasePage).should(inOrder).isMatching(releasedFrom, releasedUnder)
-      then(releasePage).should(inOrder).extractReleaseId()
-      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
-      assertEquals(releaseId, updatedRelease.id)
     }
   }
 
