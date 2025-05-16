@@ -206,7 +206,6 @@ class PpudAuthClientTest {
     mockForSuccessfulLogin(navigation, urlPath)
     val exceptionMessage: String = mockForUnsuccessfulLogout(navigation)
 
-
     val exception = RuntimeException()
     given(operationClient.invoke(retryOnFailure, operation)).willThrow(exception)
 
@@ -238,9 +237,7 @@ class PpudAuthClientTest {
     return exceptionMessage
   }
 
-  private fun verifySuccessfulLogin(
-    inOrder: InOrder, navigation: Navigation, urlPath: String, asAdmin: Boolean,
-  ) {
+  private fun verifySuccessfulLogin(inOrder: InOrder, navigation: Navigation, urlPath: String, asAdmin: Boolean) {
     inOrder.verify(navigation).to("${ppudClientConfig.url}$urlPath")
     inOrder.verify(loginPage).verifyOn()
     val username = if (asAdmin) ppudAuthConfig.adminUsername else ppudAuthConfig.username
@@ -270,5 +267,4 @@ class PpudAuthClientTest {
       }
     }
   }
-
 }

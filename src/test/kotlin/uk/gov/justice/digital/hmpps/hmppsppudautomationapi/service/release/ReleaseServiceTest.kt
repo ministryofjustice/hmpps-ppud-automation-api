@@ -50,8 +50,8 @@ internal class ReleaseServiceTest {
         authClient.performLoggedInOperation(
           eq(false),
           eq(true),
-          any<Supplier<CreatedOrUpdatedRelease>>()
-        )
+          any<Supplier<CreatedOrUpdatedRelease>>(),
+        ),
       ).willReturn(
         expectedCreatedOrUpdatedRelease,
       )
@@ -81,5 +81,4 @@ internal class ReleaseServiceTest {
       }
     }
   }
-
 }
