@@ -44,7 +44,6 @@ class PpudErrorHandlerClientTest {
 
     // then
     assertThat(actualException).usingRecursiveComparison().isEqualTo(expectedException)
-
   }
 
   @Test
