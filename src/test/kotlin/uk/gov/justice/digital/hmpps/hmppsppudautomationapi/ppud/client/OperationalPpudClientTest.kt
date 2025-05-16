@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -36,7 +37,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
@@ -46,7 +46,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
@@ -92,7 +91,7 @@ class OperationalPpudClientTest {
   private lateinit var offencePage: OffencePage
 
   @Mock
-  private lateinit var postReleasePage: PostReleasePage
+  private lateinit var postReleaseClient: PostReleaseClient
 
   @Mock
   private lateinit var releasePage: ReleasePage
@@ -152,7 +151,7 @@ class OperationalPpudClientTest {
       newOffenderPage,
       offenderPage,
       offencePage,
-      postReleasePage,
+      postReleaseClient,
       recallPage,
       releasePage,
       sentencePageFactory,
@@ -697,6 +696,7 @@ class OperationalPpudClientTest {
       then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingReleaseLink")
       then(releasePage).should(inOrder).updateRelease()
       then(releasePage).should(inOrder).throwIfInvalid()
+      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
     }
   }
 
@@ -721,6 +721,7 @@ class OperationalPpudClientTest {
       then(releasePage).should(inOrder).createRelease(request)
       then(releasePage).should(inOrder).throwIfInvalid()
       then(releasePage).should(never()).isMatching(any(), any())
+      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
     }
   }
 
@@ -748,6 +749,7 @@ class OperationalPpudClientTest {
       then(webDriverNavigation).should(inOrder).to("$ppudUrl/link/to/persisted/release")
       then(releasePage).should(inOrder).isMatching(releasedFrom, releasedUnder)
       then(releasePage).should(inOrder).extractReleaseId()
+      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
       assertEquals(releaseId, updatedRelease.id)
     }
   }
