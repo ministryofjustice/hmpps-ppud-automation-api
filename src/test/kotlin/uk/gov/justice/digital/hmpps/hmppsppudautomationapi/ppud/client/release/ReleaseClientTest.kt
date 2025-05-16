@@ -128,5 +128,4 @@ internal class ReleaseClientTest {
       assertEquals(releaseId, updatedRelease?.id)
     }
   }
-
 }

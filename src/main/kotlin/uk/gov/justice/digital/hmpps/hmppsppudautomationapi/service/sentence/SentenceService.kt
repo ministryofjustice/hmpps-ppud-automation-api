@@ -23,23 +23,15 @@ class SentenceService {
 
   suspend fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
     log.info("Creating sentence in PPUD Client")
-    return authClient.performLoggedInOperation(
-      retryOnFailure = true,
-    ) {
-      sentenceClient.createSentence(
-        offenderId, request,
-      )
+    return authClient.performLoggedInOperation(retryOnFailure = true) {
+      sentenceClient.createSentence(offenderId, request)
     }
   }
 
   suspend fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
     log.info("Updating sentence in PPUD Client")
-    return authClient.performLoggedInOperation(
-      retryOnFailure = true,
-    ) {
-      sentenceClient.updateSentence(
-        offenderId, sentenceId, request,
-      )
+    return authClient.performLoggedInOperation(retryOnFailure = true) {
+      sentenceClient.updateSentence(offenderId, sentenceId, request)
     }
   }
 }

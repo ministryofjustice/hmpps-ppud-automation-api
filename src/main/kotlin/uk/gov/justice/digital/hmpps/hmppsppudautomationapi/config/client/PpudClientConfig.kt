@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration
 
 // TODO re-organise properties, putting below ones under 'client' (e.g. ppud.client.url)
 @Configuration
-internal data class PpudClientConfig (
+internal data class PpudClientConfig(
   @Value("\${ppud.url}") val url: String,
 )
