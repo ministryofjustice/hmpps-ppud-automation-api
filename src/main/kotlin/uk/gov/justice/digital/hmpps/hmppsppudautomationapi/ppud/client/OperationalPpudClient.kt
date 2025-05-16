@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
@@ -17,13 +16,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Created
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -32,7 +29,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffende
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
@@ -55,9 +51,7 @@ internal class OperationalPpudClient(
   private val newOffenderPage: NewOffenderPage,
   private val offenderPage: OffenderPage,
   private val offencePage: OffencePage,
-  private val postReleaseClient: PostReleaseClient,
   private val recallPage: RecallPage,
-  private val releasePage: ReleasePage,
   private val sentencePageFactory: SentencePageFactory,
   private val adminPage: AdminPage,
   private val caseworkerAdminPage: CaseworkerAdminPage,
@@ -121,30 +115,6 @@ internal class OperationalPpudClient(
     log.info("Updating offence in PPUD Client")
     performLoggedInOperation {
       updateOffenceInternal(offenderId, sentenceId, request)
-    }
-  }
-
-  suspend fun createOrUpdateRelease(
-    offenderId: String,
-    sentenceId: String,
-    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
-  ): CreatedOrUpdatedRelease {
-    log.info("Creating/updating release in PPUD Client")
-
-    return performLoggedInOperation {
-      createOrUpdateReleaseInternal(offenderId, sentenceId, createOrUpdateReleaseRequest)
-
-      // ID in URL after creating a new one is not the correct ID for the persisted release.
-      // Find the matching release and extract the release ID from that
-      navigateToMatchingRelease(
-        sentenceId,
-        createOrUpdateReleaseRequest.dateOfRelease,
-        createOrUpdateReleaseRequest.releasedFrom,
-        createOrUpdateReleaseRequest.releasedUnder,
-      )
-      val releaseId = releasePage.extractReleaseId()
-      postReleaseClient.updatePostRelease(releaseId, createOrUpdateReleaseRequest.postRelease)
-      CreatedOrUpdatedRelease(releaseId)
     }
   }
 
@@ -276,27 +246,6 @@ internal class OperationalPpudClient(
     offencePage.updateOffence(request)
   }
 
-  private fun createOrUpdateReleaseInternal(
-    offenderId: String,
-    sentenceId: String,
-    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
-  ) {
-    offenderPage.viewOffenderWithId(offenderId)
-    val foundMatch = navigateToMatchingRelease(
-      sentenceId,
-      createOrUpdateReleaseRequest.dateOfRelease,
-      createOrUpdateReleaseRequest.releasedFrom,
-      createOrUpdateReleaseRequest.releasedUnder,
-    )
-    if (foundMatch) {
-      releasePage.updateRelease()
-    } else {
-      navigationTreeViewComponent.navigateToNewOrEmptyReleaseFor(sentenceId)
-      releasePage.createRelease(createOrUpdateReleaseRequest)
-    }
-    releasePage.throwIfInvalid()
-  }
-
   private suspend fun createRecallInternal(
     offenderId: String,
     releaseId: String,
@@ -361,19 +310,6 @@ internal class OperationalPpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.navigate().to("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
-  }
-
-  private fun navigateToMatchingRelease(
-    sentenceId: String,
-    dateOfRelease: LocalDate,
-    releasedFrom: String,
-    releasedUnder: String,
-  ): Boolean {
-    val releaseLinks = navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)
-    return releaseLinks.any {
-      driver.navigate().to("$ppudUrl$it")
-      releasePage.isMatching(releasedFrom, releasedUnder)
-    }
   }
 
   private fun navigateToMatchingRecall(

@@ -12,6 +12,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
+import org.mockito.kotlin.then
 import org.mockito.kotlin.verify
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.createdSentence
@@ -23,7 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.findLogAppender
 import java.util.function.Supplier
 
 @ExtendWith(MockitoExtension::class)
-class SentenceServiceTest {
+internal class SentenceServiceTest {
 
   @InjectMocks
   private lateinit var sentenceService: SentenceService
@@ -40,25 +41,29 @@ class SentenceServiceTest {
   fun `creates a sentence`() {
     runTest {
       // given
-      val methodCaptor = argumentCaptor<Supplier<CreatedSentence>>()
       val offenderId = randomString()
       val sentenceRequest = createOrUpdateSentenceRequest()
-      val createdSentence = createdSentence()
+      val methodCaptor = argumentCaptor<Supplier<CreatedSentence>>()
 
+      val expectedCreatedSentence = createdSentence()
       given(authClient.performLoggedInOperation(eq(false), eq(true), any<Supplier<CreatedSentence>>())).willReturn(
-        createdSentence,
+        expectedCreatedSentence,
       )
 
       // when
-      sentenceService.createSentence(offenderId, sentenceRequest)
+      val actualCreatedSentence = sentenceService.createSentence(offenderId, sentenceRequest)
 
       // then
-      verify(authClient).performLoggedInOperation(eq(false), eq(true), methodCaptor.capture())
+      assertThat(actualCreatedSentence).isEqualTo(expectedCreatedSentence)
+
+      then(authClient).should().performLoggedInOperation(eq(false), eq(true), methodCaptor.capture())
+
+      then(sentenceClient).shouldHaveNoInteractions()
+      given(sentenceClient.createSentence(offenderId, sentenceRequest)).willReturn(expectedCreatedSentence)
       val method: Supplier<CreatedSentence> = methodCaptor.firstValue
-      // we only mock this call now to ensure the verify call doesn't correspond to some earlier unexpected call
-      given(sentenceClient.createSentence(offenderId, sentenceRequest)).willReturn(createdSentence)
       method.get()
-      verify(sentenceClient).createSentence(offenderId, sentenceRequest)
+      then(sentenceClient).should().createSentence(offenderId, sentenceRequest)
+
       with(logAppender.list) {
         assertThat(size).isEqualTo(1)
         with(get(0)) {

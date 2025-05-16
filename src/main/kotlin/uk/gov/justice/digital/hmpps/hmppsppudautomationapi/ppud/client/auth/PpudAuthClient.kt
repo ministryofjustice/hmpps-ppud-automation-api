@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.auth
 import org.openqa.selenium.WebDriver
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.auth.PpudAuthConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.PpudOperationClient
@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import java.util.function.Supplier
 
-@Component
+@Service
 internal class PpudAuthClient {
 
   @Autowired
