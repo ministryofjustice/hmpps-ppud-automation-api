@@ -33,5 +33,4 @@ internal class PostReleaseClientTest {
     then(postReleasePage).should().updatePostRelease(updatePostReleaseRequest)
     then(postReleasePage).should().throwIfInvalid()
   }
-
 }

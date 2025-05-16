@@ -17,21 +17,17 @@ class PpudOperationClient {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  suspend fun <T> invoke(retryOnFailure: Boolean, operation: Supplier<T>): T {
-    return if (!retryOnFailure) {
-      operation.get()
-    } else {
-      invokeWithRetry(operation)
-    }
+  suspend fun <T> invoke(retryOnFailure: Boolean, operation: Supplier<T>): T = if (!retryOnFailure) {
+    operation.get()
+  } else {
+    invokeWithRetry(operation)
   }
 
-  private suspend fun <T> invokeWithRetry(operation: Supplier<T>): T {
-    return try {
-      operation.get()
-    } catch (webDriverException: WebDriverException) {
-      val exceptionToLog = errorHandler.handleException(webDriverException)
-      log.error("Exception occurred but operation will be retried", exceptionToLog)
-      operation.get()
-    }
+  private suspend fun <T> invokeWithRetry(operation: Supplier<T>): T = try {
+    operation.get()
+  } catch (webDriverException: WebDriverException) {
+    val exceptionToLog = errorHandler.handleException(webDriverException)
+    log.error("Exception occurred but operation will be retried", exceptionToLog)
+    operation.get()
   }
 }

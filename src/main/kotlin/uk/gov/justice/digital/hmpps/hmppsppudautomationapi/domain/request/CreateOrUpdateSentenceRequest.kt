@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 data class CreateOrUpdateSentenceRequest(
   @field:NotBlank
-  @field:Pattern(regexp = "Determinate") // TODO update to support more custody types
+  @field:Pattern(regexp = "Determinate")
   val custodyType: String,
   val dateOfSentence: LocalDate,
   val licenceExpiryDate: LocalDate?,

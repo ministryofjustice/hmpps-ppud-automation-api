@@ -78,5 +78,4 @@ internal class PpudAuthClient {
       log.error("Error attempting to log out of PPUD", ex)
     }
   }
-
 }
