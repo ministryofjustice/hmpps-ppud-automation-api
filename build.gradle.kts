@@ -22,6 +22,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
+  implementation("org.springframework:spring-context:6.2.7") // Address CVE-2025-22233 until dependencies pulling it in are updated
   implementation("org.seleniumhq.selenium:selenium-java:4.29.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.1.0")
 
