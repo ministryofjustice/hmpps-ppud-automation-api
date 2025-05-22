@@ -38,7 +38,7 @@ internal class RecallPage(
   private val dateTimeFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
-  @Value("\${ppud.recall.recallType}") private val recallType: String,
+  @Value("\${ppud.recall.recallType}") private val recallType: String, // remove from here, have it passed in as parameter where relevant (the caller deciding whether to take the config value or a fixed value based on the custody type)
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
   @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,

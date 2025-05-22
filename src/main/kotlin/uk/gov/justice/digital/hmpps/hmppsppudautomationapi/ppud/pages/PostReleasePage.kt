@@ -22,7 +22,7 @@ internal class PostReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
-  @Value("\${ppud.release.postRelease.licenceType}") private val licenceType: String,
+  @Value("\${ppud.release.postRelease.licenceType}") private val licenceType: String, // remove from here, have it passed in as parameter where relevant (the caller deciding whether to take the config value or a fixed value based on the custody type)
 ) {
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement

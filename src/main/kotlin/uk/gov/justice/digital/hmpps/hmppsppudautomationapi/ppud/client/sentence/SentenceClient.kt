@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
@@ -27,6 +29,9 @@ internal class SentenceClient {
 
   @Autowired
   private lateinit var sentencePageFactory: SentencePageFactory
+
+  @Autowired
+  private lateinit var offenceClient: OffenceClient
 
   fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
     offenderPage.viewOffenderWithId(offenderId)
@@ -54,6 +59,13 @@ internal class SentenceClient {
     val sentencePage = sentencePageFactory.sentencePage()
     sentencePage.updateSentence(request)
     sentencePage.throwIfInvalid()
+  }
+
+  fun getSentence(offenderId: String, sentenceId: String): Sentence {
+    offenderPage.viewOffenderWithId(offenderId)
+    navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
+    val sentencePage = sentencePageFactory.sentencePage()
+    return sentencePage.extractSentenceDetails(offenceClient::getOffence)
   }
 
   private fun navigateToMatchingSentence(request: CreateOrUpdateSentenceRequest): Boolean {
