@@ -1264,7 +1264,7 @@ class OperationalPpudClientTest {
   @Test
   fun `given search criteria when search user is called then log in to PPUD and verify success`() {
     runBlocking {
-      client.searchActiveUsers("John Smith", null)
+      client.searchActiveUsers("Joe Bloggs", null)
 
       assertThatLogsOnAndVerifiesSuccess(asAdmin = true)
     }
@@ -1273,7 +1273,7 @@ class OperationalPpudClientTest {
   @Test
   fun `given search criteria when search user is called then logout once done`() {
     runBlocking {
-      client.searchActiveUsers("John Smith", null)
+      client.searchActiveUsers("Joe Bloggs", null)
 
       val inOrder = inOrder(adminPage, webDriverNavigation)
       then(adminPage).should(inOrder).goToEditCaseworker()
