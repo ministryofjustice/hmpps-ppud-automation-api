@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -103,6 +104,9 @@ class OperationalPpudClientTest {
   private lateinit var caseworkerAdminPage: CaseworkerAdminPage
 
   @Mock
+  private lateinit var offenceClient: OffenceClient
+
+  @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
 
   @Mock
@@ -143,6 +147,7 @@ class OperationalPpudClientTest {
       offenderPage,
       offencePage,
       recallPage,
+      offenceClient,
       sentencePageFactory,
       adminPage,
       caseworkerAdminPage,
