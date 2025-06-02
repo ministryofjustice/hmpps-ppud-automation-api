@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Update
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadMandatoryDocumentRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -52,6 +53,7 @@ internal class OperationalPpudClient(
   private val offenderPage: OffenderPage,
   private val offencePage: OffencePage,
   private val recallPage: RecallPage,
+  private val offenceClient: OffenceClient,
   private val sentencePageFactory: SentencePageFactory,
   private val adminPage: AdminPage,
   private val caseworkerAdminPage: CaseworkerAdminPage,
@@ -298,13 +300,8 @@ internal class OperationalPpudClient(
     urls.map {
       driver.navigate().to("$ppudUrl$it")
       val sentencePage = sentencePageFactory.sentencePage()
-      sentencePage.extractSentenceDetails(::extractOffenceDetails)
+      sentencePage.extractSentenceDetails(offenceClient::getOffence)
     }
-  }
-
-  private fun extractOffenceDetails(link: String): Offence {
-    driver.navigate().to("$ppudUrl$link")
-    return offencePage.extractOffenceDetails()
   }
 
   private suspend fun extractRecallDetails(id: String): Recall {
