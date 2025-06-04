@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 
 @Service
@@ -27,6 +30,9 @@ internal class SentenceClient {
 
   @Autowired
   private lateinit var sentencePageFactory: SentencePageFactory
+
+  @Autowired
+  private lateinit var offenceClient: OffenceClient
 
   fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
     offenderPage.viewOffenderWithId(offenderId)
@@ -49,11 +55,14 @@ internal class SentenceClient {
   }
 
   fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
-    offenderPage.viewOffenderWithId(offenderId)
-    navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
-    val sentencePage = sentencePageFactory.sentencePage()
+    val sentencePage = getSentencePage(offenderId, sentenceId)
     sentencePage.updateSentence(request)
     sentencePage.throwIfInvalid()
+  }
+
+  fun getSentence(offenderId: String, sentenceId: String): Sentence {
+    val sentencePage = getSentencePage(offenderId, sentenceId)
+    return sentencePage.extractSentenceDetails(offenceClient::getOffence)
   }
 
   private fun navigateToMatchingSentence(request: CreateOrUpdateSentenceRequest): Boolean {
@@ -62,5 +71,14 @@ internal class SentenceClient {
       driver.navigate().to("${ppudClientConfig.url}$it")
       sentencePageFactory.sentencePage().isMatching(request)
     }
+  }
+
+  private fun getSentencePage(
+    offenderId: String,
+    sentenceId: String,
+  ): BaseSentencePage {
+    offenderPage.viewOffenderWithId(offenderId)
+    navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
+    return sentencePageFactory.sentencePage()
   }
 }

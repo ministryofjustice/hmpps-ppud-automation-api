@@ -52,6 +52,8 @@ internal class ReleasePage(
     PageFactory.initElements(driver, this)
   }
 
+  // The date of release isn't checked here because it was already implicitly used for filtering
+  // when checking the release links, as the node name includes the date in it
   fun isMatching(releasedFrom: String, releasedUnder: String): Boolean = (
     releasedFrom == releasedFromInput.getValue() &&
       releasedUnder == Select(releasedUnderDropdown).firstSelectedOption.text
@@ -89,6 +91,10 @@ internal class ReleasePage(
     }
   }
 
+  // Three fields are left untouched here: date of release, released from and released under. This is
+  // because they are part of the key:
+  //  * For new releases, they are set separately (see createRelease)
+  //  * For existing releases, they were used during the release matching phase, and so don't need changing
   private fun completeNonKeyFields() {
     pageHelper.selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
     pageHelper.selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")

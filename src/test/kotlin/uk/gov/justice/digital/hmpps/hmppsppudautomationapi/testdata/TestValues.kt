@@ -28,6 +28,8 @@ import kotlin.random.Random
 
 const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
 
+const val PPUD_UNSUPPORTED_CUSTODY_TYPE = "DCR (Deportation)"
+
 const val PPUD_VALID_ETHNICITY = "Chinese"
 
 const val PPUD_VALID_ETHNICITY_2 = "Other Ethnic Group"
@@ -160,6 +162,11 @@ fun randomDateTime(): LocalDateTime {
 }
 
 fun randomTimeToday(): LocalDateTime = LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
+
+inline fun <reified E : Enum<E>> randomEnum(exclude: List<E> = emptyList()): E {
+  val validValues = enumValues<E>().filter { !exclude.contains(it) }
+  return validValues[Random.Default.nextInt(0, validValues.size)]
+}
 
 fun randomPhoneNumber(): String {
   val number = Random.nextInt(100000000, 999999999)

@@ -1,12 +1,16 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence
 
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.given
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
@@ -14,7 +18,11 @@ import org.mockito.kotlin.then
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.ppudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
@@ -30,8 +38,8 @@ internal class SentenceClientTest {
   @InjectMocks
   private lateinit var sentenceClient: SentenceClient
 
-  @Mock
-  private lateinit var ppudClientConfig: PpudClientConfig
+  @Spy
+  private val ppudClientConfig: PpudClientConfig = ppudClientConfig()
 
   @Mock
   private lateinit var offenderPage: OffenderPage
@@ -47,6 +55,9 @@ internal class SentenceClientTest {
 
   @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
+
+  @Mock
+  private lateinit var offenceClient: OffenceClient
 
   @Mock
   private lateinit var sentencePage: BaseSentencePage
@@ -128,6 +139,38 @@ internal class SentenceClientTest {
       then(sentencePageFactory).should(inOrder).sentencePage()
       then(sentencePage).should(inOrder).updateSentence(request)
       then(sentencePage).should(inOrder).throwIfInvalid()
+    }
+  }
+
+  @Test
+  fun `given offender ID and sentence ID return the sentence details`() {
+    runBlocking {
+      // when
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
+
+      val expectedSentence = sentence()
+      given(sentencePage.extractSentenceDetails(any<(String) -> Offence>())).willReturn(expectedSentence)
+
+      // given
+      val actualSentence = sentenceClient.getSentence(offenderId, sentenceId)
+
+      // then
+      assertThat(actualSentence).isEqualTo(expectedSentence)
+
+      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
+      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      then(navigationTreeViewComponent).should(inOrder).navigateToSentenceFor(sentenceId)
+      then(sentencePageFactory).should(inOrder).sentencePage()
+      val methodCaptor = argumentCaptor<(String) -> Offence>()
+      then(sentencePage).should(inOrder).extractSentenceDetails(methodCaptor.capture())
+      then(offenceClient).shouldHaveNoInteractions()
+
+      val method = methodCaptor.firstValue
+      val offenceUrl = randomString()
+      method.invoke(offenceUrl)
+      then(offenceClient).should().getOffence(offenceUrl)
     }
   }
 }

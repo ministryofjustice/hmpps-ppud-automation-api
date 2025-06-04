@@ -13,7 +13,6 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.then
-import org.mockito.kotlin.verify
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.createdSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.createOrUpdateSentenceRequest
@@ -91,10 +90,13 @@ internal class SentenceServiceTest {
       sentenceService.updateSentence(offenderId, sentenceId, sentenceRequest)
 
       // then
-      verify(authClient).performLoggedInOperation(eq(false), eq(true), methodCaptor.capture())
+      then(authClient).should().performLoggedInOperation(eq(false), eq(true), methodCaptor.capture())
+
+      then(sentenceClient).shouldHaveNoInteractions()
       val method: Supplier<Unit> = methodCaptor.firstValue
       method.get()
-      verify(sentenceClient).updateSentence(offenderId, sentenceId, sentenceRequest)
+      then(sentenceClient).should().updateSentence(offenderId, sentenceId, sentenceRequest)
+
       with(logAppender.list) {
         assertThat(size).isEqualTo(1)
         with(get(0)) {
