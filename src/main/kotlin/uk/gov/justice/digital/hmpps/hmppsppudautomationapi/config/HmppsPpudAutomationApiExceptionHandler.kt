@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.PRECONDITION_FAILED
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.DocumentNot
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ReleaseNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.SentenceNotFoundException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
 
 @RestControllerAdvice
 class HmppsPpudAutomationApiExceptionHandler {
@@ -135,6 +137,20 @@ class HmppsPpudAutomationApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Document was not found",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(UnsupportedCustodyTypeException::class)
+  fun handleUnsupportedCustodyTypeException(e: UnsupportedCustodyTypeException): ResponseEntity<ErrorResponse> {
+    log.info("Unsupported custody type exception: {}", e.message)
+    return ResponseEntity
+      .status(PRECONDITION_FAILED)
+      .body(
+        ErrorResponse(
+          status = PRECONDITION_FAILED,
+          userMessage = "Unsupported custody type found",
           developerMessage = e.message,
         ),
       )
