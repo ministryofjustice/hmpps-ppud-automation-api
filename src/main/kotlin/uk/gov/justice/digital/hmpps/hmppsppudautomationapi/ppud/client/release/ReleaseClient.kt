@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.SentenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
@@ -31,6 +34,9 @@ internal class ReleaseClient {
   private lateinit var offenderPage: OffenderPage
 
   @Autowired
+  private lateinit var sentenceClient: SentenceClient
+
+  @Autowired
   private lateinit var postReleaseClient: PostReleaseClient
 
   fun createOrUpdateRelease(
@@ -38,17 +44,25 @@ internal class ReleaseClient {
     sentenceId: String,
     createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
   ): CreatedOrUpdatedRelease {
+    val sentence = sentenceClient.getSentence(offenderId, sentenceId)
+    val custodyType = try {
+      SupportedCustodyType.forFullName(sentence.custodyType)
+    } catch (ex: NoSuchElementException) {
+      throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
+    }
+    val releasedUnder = custodyType.releasedUnder?.fullName ?: createOrUpdateReleaseRequest.releasedUnder
     offenderPage.viewOffenderWithId(offenderId)
     val foundMatch = navigateToMatchingRelease(
       sentenceId,
       createOrUpdateReleaseRequest.dateOfRelease,
       createOrUpdateReleaseRequest.releasedFrom,
-      createOrUpdateReleaseRequest.releasedUnder,
+      releasedUnder,
     )
     if (foundMatch) {
       releasePage.updateRelease()
     } else {
       navigationTreeViewComponent.navigateToNewOrEmptyReleaseFor(sentenceId)
+      // TODO pass in releasedUnder whenever support for creating new Indeterminate sentences is added
       releasePage.createRelease(createOrUpdateReleaseRequest)
     }
     releasePage.throwIfInvalid()
@@ -59,7 +73,7 @@ internal class ReleaseClient {
       sentenceId,
       createOrUpdateReleaseRequest.dateOfRelease,
       createOrUpdateReleaseRequest.releasedFrom,
-      createOrUpdateReleaseRequest.releasedUnder,
+      releasedUnder,
     )
     val releaseId = releasePage.extractReleaseId()
     postReleaseClient.updatePostRelease(releaseId, createOrUpdateReleaseRequest.postRelease)
