@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.ReleasedUnder.IPP_LICENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.ReleasedUnder.LIFE_LICENCE
 import java.time.LocalDate
 
 data class Sentence(
@@ -28,16 +30,17 @@ data class Sentence(
 enum class SupportedCustodyType(
   val fullName: String,
   val custodyGroup: CustodyGroup,
+  val releasedUnder: ReleasedUnder?,
 ) {
-  DETERMINATE("Determinate", CustodyGroup.DETERMINATE),
-  EDS("EDS", CustodyGroup.DETERMINATE),
-  EDS_NON_PAROLE("EDS (non parole)", CustodyGroup.DETERMINATE),
-  DPP("DPP", INDETERMINATE),
-  DISCRETIONARY("Discretionary", INDETERMINATE),
-  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", INDETERMINATE),
-  IPP("IPP", INDETERMINATE),
-  MANDATORY_MLP("Mandatory (MLP)", INDETERMINATE),
-  AUTOMATIC("Automatic", INDETERMINATE),
+  DETERMINATE("Determinate", CustodyGroup.DETERMINATE, null),
+  EDS("EDS", CustodyGroup.DETERMINATE, null),
+  EDS_NON_PAROLE("EDS (non parole)", CustodyGroup.DETERMINATE, null),
+  IPP("IPP", INDETERMINATE, IPP_LICENCE),
+  DPP("DPP", INDETERMINATE, IPP_LICENCE),
+  MANDATORY_MLP("Mandatory (MLP)", INDETERMINATE, LIFE_LICENCE),
+  DISCRETIONARY("Discretionary", INDETERMINATE, LIFE_LICENCE),
+  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", INDETERMINATE, LIFE_LICENCE),
+  AUTOMATIC("Automatic", INDETERMINATE, LIFE_LICENCE),
   ;
 
   override fun toString(): String = fullName

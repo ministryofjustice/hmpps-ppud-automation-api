@@ -54,5 +54,4 @@ internal class OffenceClientTest {
     then(navigation).should(inOrder).to("${ppudClientConfig.url}$offenceUrl")
     then(offencePage).should(inOrder).extractOffenceDetails()
   }
-
 }
