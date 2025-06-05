@@ -38,6 +38,11 @@ internal class SentenceClient {
     offenderPage.viewOffenderWithId(offenderId)
     val matched = navigateToMatchingSentence(request)
 
+    // It is intentional that on matching on an existing sentence we don't create
+    // another one, nor do we modify the existing one (see MRD-2272). Although most
+    // of the fields we set when creating a new sentence are part of the matching
+    // comparison, there are some (espCustodialPeriod and espExtendedPeriod) which
+    // are not. I don't know why this is.
     if (!matched) {
       navigationTreeViewComponent.navigateToNewSentence()
       val newSentencePage = sentencePageFactory.sentencePage()

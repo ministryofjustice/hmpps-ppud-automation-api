@@ -58,6 +58,11 @@ internal class ReleaseClient {
       createOrUpdateReleaseRequest.releasedFrom,
       releasedUnder,
     )
+    // It is possible the Release already exists in the system, either because of a failed
+    // booking attempt from CaR (in which case finding a match is part of the reattempt) or
+    // because a user has put it into the system in the past (e.g. a recall was initiated
+    // but then cancelled, but the corresponding Release was added to the system before the
+    // cancellation). In both cases it's OK to update/overwrite the existing Release
     if (foundMatch) {
       releasePage.updateRelease()
     } else {
