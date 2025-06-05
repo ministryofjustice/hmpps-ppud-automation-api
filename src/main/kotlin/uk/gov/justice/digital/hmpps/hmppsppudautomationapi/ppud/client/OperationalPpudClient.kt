@@ -259,6 +259,11 @@ internal class OperationalPpudClient(
       recallPage.isMatching(recallRequest.receivedDateTime, recallRequest.recommendedTo)
     }
 
+    // We only make changes if we don't find a matching Recall. If we do find one, it means the
+    // recall has already been processed in PPUD. The likely reason we are encountering a matching
+    // one is that something in the booking process failed after the Recall was added to PPUD and
+    // a reattempt has been triggered (i.e. we're matching on the Recall created by CaR in a
+    // previous attempt)
     if (foundMatch.not()) {
       navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
       recallPage.createRecall(recallRequest)
