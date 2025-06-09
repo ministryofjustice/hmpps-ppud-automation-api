@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.recall.RecallService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.release.ReleaseService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.SentenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
@@ -43,6 +45,9 @@ internal class OffenderControllerTest {
 
   @Mock
   private lateinit var releaseService: ReleaseService
+
+  @Mock
+  private lateinit var recallService: RecallService
 
   @Mock
   private lateinit var createdOffender: CreatedOffender
@@ -203,34 +208,20 @@ internal class OffenderControllerTest {
   }
 
   @Test
-  fun `given recall data when createRecall is called then data is passed to PPUD client`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val recallRequest = generateCreateRecallRequest()
-      given(ppudClient.createRecall(offenderId, releaseId, recallRequest)).willReturn(CreatedRecall(""))
-
-      controller.createRecall(offenderId, releaseId, recallRequest)
-
-      then(ppudClient).should().createRecall(offenderId, releaseId, recallRequest)
-    }
-  }
-
-  @Test
-  fun `given recall creation succeeds when createRecall is called then recall Id is returned`() {
+  fun `delegates recall creation to recall service`() {
     runBlocking {
       val offenderId = randomPpudId()
       val releaseId = randomPpudId()
       val recallId = randomPpudId()
       val recallRequest = generateCreateRecallRequest()
       given(
-        ppudClient.createRecall(offenderId, releaseId, recallRequest),
+        recallService.createRecall(offenderId, releaseId, recallRequest),
       ).willReturn(CreatedRecall(recallId))
 
       val result = controller.createRecall(offenderId, releaseId, recallRequest)
 
-      assertEquals(HttpStatus.CREATED, result.statusCode)
-      assertEquals(recallId, result.body?.recall?.id)
+      assertThat(result.statusCode).isEqualTo(HttpStatus.CREATED)
+      assertThat(result.body?.recall?.id).isEqualTo(recallId)
     }
   }
 
