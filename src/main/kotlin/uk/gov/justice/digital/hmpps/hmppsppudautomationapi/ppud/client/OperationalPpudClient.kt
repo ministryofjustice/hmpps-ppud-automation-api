@@ -119,18 +119,6 @@ internal class OperationalPpudClient(
     }
   }
 
-  suspend fun createRecall(
-    offenderId: String,
-    releaseId: String,
-    recallRequest: CreateRecallRequest,
-  ): CreatedRecall {
-    log.info("Creating new recall in PPUD Client")
-
-    return performLoggedInOperation {
-      createRecallInternal(offenderId, releaseId, recallRequest)
-    }
-  }
-
   suspend fun uploadMandatoryDocument(
     recallId: String,
     uploadMandatoryDocumentRequest: UploadMandatoryDocumentRequest,
@@ -247,37 +235,6 @@ internal class OperationalPpudClient(
     offencePage.updateOffence(request)
   }
 
-  private suspend fun createRecallInternal(
-    offenderId: String,
-    releaseId: String,
-    recallRequest: CreateRecallRequest,
-  ): CreatedRecall {
-    offenderPage.viewOffenderWithId(offenderId)
-    val recallLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
-    val foundMatch = recallLinks.any {
-      driver.navigate().to("$ppudUrl$it")
-      recallPage.isMatching(recallRequest.receivedDateTime, recallRequest.recommendedTo)
-    }
-
-    // We only make changes if we don't find a matching Recall. If we do find one, it means the
-    // recall has already been processed in PPUD. The likely reason we are encountering a matching
-    // one is that something in the booking process failed after the Recall was added to PPUD and
-    // a reattempt has been triggered (i.e. we're matching on the Recall created by CaR in a
-    // previous attempt)
-    if (foundMatch.not()) {
-      navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
-      recallPage.createRecall(recallRequest)
-      recallPage.throwIfInvalid()
-      recallPage.addContrabandMinuteIfNeeded(recallRequest)
-
-      // ID in URL after creating a new one is not the correct ID for the persisted recall.
-      // Find the matching recall to extract the release ID from that
-      navigateToMatchingRecall(releaseId, recallRequest.receivedDateTime, recallRequest.recommendedTo)
-    }
-
-    return recallPage.extractCreatedRecallDetails()
-  }
-
   private suspend fun deleteOffenders(absoluteLinks: List<String>) {
     var index = 1
     for (link in absoluteLinks) {
@@ -311,18 +268,6 @@ internal class OperationalPpudClient(
   private suspend fun extractRecallDetails(id: String): Recall {
     driver.navigate().to("$ppudUrl${recallPage.urlFor(id)}")
     return recallPage.extractRecallDetails()
-  }
-
-  private fun navigateToMatchingRecall(
-    releaseId: String,
-    receivedDateTime: LocalDateTime,
-    recommendedTo: PpudUser,
-  ): Boolean {
-    val releaseLinks = navigationTreeViewComponent.extractRecallLinks(releaseId)
-    return releaseLinks.any {
-      driver.navigate().to("$ppudUrl$it")
-      recallPage.isMatching(receivedDateTime, recommendedTo)
-    }
   }
 
   private suspend fun extractActiveUsersByCriteria(fullName: String?, userName: String?): List<PpudUser> {

@@ -216,7 +216,7 @@ internal class RecallPage(
   fun isMatching(receivedDateTime: LocalDateTime, recommendedTo: PpudUser): Boolean = reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
     recommendedToOwnerInput.getValue() == recommendedTo.fullName
 
-  suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
+  fun createRecall(createRecallRequest: CreateRecallRequest) {
     // Complete these first as they trigger additional processing
     // Autocomplete box doesn't work with brackets
     pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, createRecallRequest.recommendedTo.fullName)
