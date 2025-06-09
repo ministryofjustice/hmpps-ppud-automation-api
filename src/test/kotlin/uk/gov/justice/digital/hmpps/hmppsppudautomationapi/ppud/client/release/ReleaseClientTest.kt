@@ -67,10 +67,6 @@ internal class ReleaseClientTest {
   private val custodyTypesWithFixedReleasedUnder =
     enumValues<SupportedCustodyType>().filter { !custodyTypesWithUserSetReleasedUnder.contains(it) }
 
-  fun setUpDriverNavigation() {
-    given(driver.navigate()).willReturn(webDriverNavigation)
-  }
-
   @Test
   fun `update matching release using provided releasedUnder when not predetermined by sentence custodyType`() {
     val custodyTypeWithUserSetReleasedUnder =
@@ -219,5 +215,9 @@ internal class ReleaseClientTest {
       then(releasePage).should(inOrder).extractReleaseId()
       then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
     }
+  }
+
+  private fun setUpDriverNavigation() {
+    given(driver.navigate()).willReturn(webDriverNavigation)
   }
 }
