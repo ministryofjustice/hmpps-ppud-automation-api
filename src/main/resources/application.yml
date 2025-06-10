@@ -90,6 +90,9 @@ ppud:
     releaseType: "On Licence"
     postRelease:
       licenceType: "Standard"
+    releasedUnder:
+      ippLicence: "IPP Licence [*]"
+      lifeLicence: "Life Licence [*]"
   recall:
     documentType:
       document: "301 - Post Release Recall"
