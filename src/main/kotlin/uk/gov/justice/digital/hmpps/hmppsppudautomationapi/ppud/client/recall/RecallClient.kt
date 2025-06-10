@@ -58,8 +58,8 @@ internal class RecallClient {
     // a reattempt has been triggered (i.e. we're matching on the Recall created by CaR in a
     // previous attempt)
     if (foundMatch.not()) {
-      val sentenceId = releaseClient.getSentenceIdForRelease(offenderId, releaseId)
-      val sentence = sentenceClient.getSentence(offenderId, sentenceId)
+      val sentenceId = releaseClient.getSentenceIdForRelease(releaseId)
+      val sentence = sentenceClient.getSentence(sentenceId)
       val custodyType = try {
         SupportedCustodyType.forFullName(sentence.custodyType)
       } catch (ex: NoSuchElementException) {

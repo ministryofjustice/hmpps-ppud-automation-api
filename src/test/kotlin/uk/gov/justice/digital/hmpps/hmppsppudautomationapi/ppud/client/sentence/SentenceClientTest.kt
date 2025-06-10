@@ -146,7 +146,6 @@ internal class SentenceClientTest {
   fun `given offender ID and sentence ID return the sentence details`() {
     runBlocking {
       // when
-      val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
       given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
@@ -154,13 +153,12 @@ internal class SentenceClientTest {
       given(sentencePage.extractSentenceDetails(any<(String) -> Offence>())).willReturn(expectedSentence)
 
       // given
-      val actualSentence = sentenceClient.getSentence(offenderId, sentenceId)
+      val actualSentence = sentenceClient.getSentence(sentenceId)
 
       // then
       assertThat(actualSentence).isEqualTo(expectedSentence)
 
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
+      val inOrder = inOrder(navigationTreeViewComponent, sentencePageFactory, sentencePage)
       then(navigationTreeViewComponent).should(inOrder).navigateToSentenceFor(sentenceId)
       then(sentencePageFactory).should(inOrder).sentencePage()
       val methodCaptor = argumentCaptor<(String) -> Offence>()

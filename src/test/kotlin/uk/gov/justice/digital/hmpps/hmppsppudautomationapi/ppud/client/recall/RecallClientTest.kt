@@ -154,14 +154,9 @@ internal class RecallClientTest {
     )
 
     val sentenceId = randomString()
-    given(releaseClient.getSentenceIdForRelease(offenderId, releaseId)).willReturn(sentenceId)
+    given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
 
-    given(
-      sentenceClient.getSentence(
-        offenderId,
-        sentenceId,
-      ),
-    ).willReturn(sentence(custodyType = custodyType.fullName))
+    given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType.fullName))
 
     val nonMatchingRecallLink = "/link/to/non-matching/recall"
     val persistedRecallLink = "/link/to/persisted/recall"
@@ -213,14 +208,9 @@ internal class RecallClientTest {
       val createRecallRequest = generateCreateRecallRequest()
 
       val sentenceId = randomString()
-      given(releaseClient.getSentenceIdForRelease(offenderId, releaseId)).willReturn(sentenceId)
+      given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
       val custodyType = randomString()
-      given(
-        sentenceClient.getSentence(
-          offenderId,
-          sentenceId,
-        ),
-      ).willReturn(sentence(custodyType = custodyType))
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
 
       val expectedException =
         UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: $custodyType")
@@ -243,13 +233,8 @@ internal class RecallClientTest {
       val exception = RuntimeException(exceptionMessage)
 
       val sentenceId = randomString()
-      given(releaseClient.getSentenceIdForRelease(offenderId, releaseId)).willReturn(sentenceId)
-      given(
-        sentenceClient.getSentence(
-          offenderId,
-          sentenceId,
-        ),
-      ).willReturn(sentence(custodyType = randomEnum<SupportedCustodyType>().fullName))
+      given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = randomEnum<SupportedCustodyType>().fullName))
       given(recallPage.throwIfInvalid()).willThrow(exception)
 
       // when then

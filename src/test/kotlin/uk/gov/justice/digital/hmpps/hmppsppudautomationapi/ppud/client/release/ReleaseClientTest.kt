@@ -114,12 +114,7 @@ internal class ReleaseClientTest {
       val requestReleasedUnder = randomString("releasedUnder")
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
       val custodyType = randomString()
-      given(
-        sentenceClient.getSentence(
-          offenderId,
-          sentenceId,
-        ),
-      ).willReturn(sentence(custodyType = custodyType))
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
 
       val expectedException =
         UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: $custodyType")
@@ -134,7 +129,6 @@ internal class ReleaseClientTest {
   @Test
   fun `returns ID of the sentence the given release belongs to`() {
     // given
-    val offenderId = randomPpudId()
     val releaseId = randomPpudId()
 
     val sentenceNode: TreeViewNode = mock()
@@ -145,7 +139,7 @@ internal class ReleaseClientTest {
     given(sentenceNode.url).willReturn(sentenceNodeUrl)
 
     // when
-    val actualSentenceId = client.getSentenceIdForRelease(offenderId, releaseId)
+    val actualSentenceId = client.getSentenceIdForRelease(releaseId)
 
     // then
     assertThat(actualSentenceId).isEqualTo(expectedSentenceId)
@@ -163,12 +157,7 @@ internal class ReleaseClientTest {
       val requestReleasedUnder = randomString("releasedUnder")
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
       val expectedReleasedUnder = custodyType.releasedUnder?.getFullName(releaseConfig) ?: requestReleasedUnder
-      given(
-        sentenceClient.getSentence(
-          offenderId,
-          sentenceId,
-        ),
-      ).willReturn(sentence(custodyType = custodyType.fullName))
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType.fullName))
 
       val matchingReleaseLink = "/link/to/matching/release"
       val releaseId = randomPpudId()
@@ -213,12 +202,7 @@ internal class ReleaseClientTest {
       val requestReleasedUnder = randomString("releasedUnder")
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
       val expectedReleasedUnder = custodyType.releasedUnder?.getFullName(releaseConfig) ?: requestReleasedUnder
-      given(
-        sentenceClient.getSentence(
-          offenderId,
-          sentenceId,
-        ),
-      ).willReturn(sentence(custodyType = custodyType.fullName))
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType.fullName))
       val releaseId = randomPpudId()
       val linkToPersistedRelease = randomString()
       given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease))

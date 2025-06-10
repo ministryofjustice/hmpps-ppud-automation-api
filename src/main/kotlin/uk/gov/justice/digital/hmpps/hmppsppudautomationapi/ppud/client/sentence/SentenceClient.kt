@@ -60,13 +60,14 @@ internal class SentenceClient {
   }
 
   fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
-    val sentencePage = getSentencePage(offenderId, sentenceId)
+    offenderPage.viewOffenderWithId(offenderId)
+    val sentencePage = getSentencePage(sentenceId)
     sentencePage.updateSentence(request)
     sentencePage.throwIfInvalid()
   }
 
-  fun getSentence(offenderId: String, sentenceId: String): Sentence {
-    val sentencePage = getSentencePage(offenderId, sentenceId)
+  fun getSentence(sentenceId: String): Sentence {
+    val sentencePage = getSentencePage(sentenceId)
     return sentencePage.extractSentenceDetails(offenceClient::getOffence)
   }
 
@@ -79,10 +80,8 @@ internal class SentenceClient {
   }
 
   private fun getSentencePage(
-    offenderId: String,
     sentenceId: String,
   ): BaseSentencePage {
-    offenderPage.viewOffenderWithId(offenderId)
     navigationTreeViewComponent.navigateToSentenceFor(sentenceId)
     return sentencePageFactory.sentencePage()
   }
