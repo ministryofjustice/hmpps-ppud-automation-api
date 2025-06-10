@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.ReleasedUnder.IPP_LICENCE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.ReleasedUnder.LIFE_LICENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.IPP_LICENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.LIFE_LICENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.DETERMINATE_RECALL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.INDETERMINATE_RECALL
 import java.time.LocalDate
 
 data class Sentence(
@@ -30,17 +33,18 @@ data class Sentence(
 enum class SupportedCustodyType(
   val fullName: String,
   val custodyGroup: CustodyGroup,
-  val releasedUnder: ReleasedUnder?,
+  val releasedUnder: SupportedReleasedUnder?,
+  val recallType: SupportedRecallType,
 ) {
-  DETERMINATE("Determinate", CustodyGroup.DETERMINATE, null),
-  EDS("EDS", CustodyGroup.DETERMINATE, null),
-  EDS_NON_PAROLE("EDS (non parole)", CustodyGroup.DETERMINATE, null),
-  IPP("IPP", INDETERMINATE, IPP_LICENCE),
-  DPP("DPP", INDETERMINATE, IPP_LICENCE),
-  MANDATORY_MLP("Mandatory (MLP)", INDETERMINATE, LIFE_LICENCE),
-  DISCRETIONARY("Discretionary", INDETERMINATE, LIFE_LICENCE),
-  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", INDETERMINATE, LIFE_LICENCE),
-  AUTOMATIC("Automatic", INDETERMINATE, LIFE_LICENCE),
+  DETERMINATE("Determinate", CustodyGroup.DETERMINATE, null, DETERMINATE_RECALL),
+  EDS("EDS", CustodyGroup.DETERMINATE, null, DETERMINATE_RECALL),
+  EDS_NON_PAROLE("EDS (non parole)", CustodyGroup.DETERMINATE, null, DETERMINATE_RECALL),
+  IPP("IPP", INDETERMINATE, IPP_LICENCE, INDETERMINATE_RECALL),
+  DPP("DPP", INDETERMINATE, IPP_LICENCE, INDETERMINATE_RECALL),
+  MANDATORY_MLP("Mandatory (MLP)", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL),
+  DISCRETIONARY("Discretionary", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL),
+  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL),
+  AUTOMATIC("Automatic", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL),
   ;
 
   override fun toString(): String = fullName

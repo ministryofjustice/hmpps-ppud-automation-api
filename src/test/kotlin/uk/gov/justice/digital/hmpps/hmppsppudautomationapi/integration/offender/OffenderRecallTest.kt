@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -41,7 +42,9 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
-    private const val PPUD_EXPECTED_RECALL_TYPE = "Standard"
+    private const val PPUD_EXPECTED_DETERMINATE_RECALL_TYPE = "Standard"
+
+    private const val PPUD_EXPECTED_INDETERMINATE_RECALL_TYPE = "Indeterminate Recall"
 
     private const val PPUD_EXPECTED_OWNING_TEAM = "Recall 1"
 
@@ -153,7 +156,41 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_SERVICE)
       .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
-      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_RECALL_TYPE)
+      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_DETERMINATE_RECALL_TYPE)
+      .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
+      .jsonPath("recall.recommendedToDateTime")
+      .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))
+  }
+
+  @Disabled(
+    "disabled until we can create indeterminate sentences through the service. Can be run on " +
+      "an existing offender and indeterminate sentence if needed by setting offenderId and releaseId manually",
+  )
+  @Test
+  fun `creates indeterminate recall`() {
+    val offenderId = "1" // set to existing offender in PPUD
+    val releaseId = "2" // set to existing release for indeterminate sentence in PPUD
+    val decisionDateTime = randomTimeToday()
+    val receivedDateTime = randomTimeToday()
+    val requestBody = createRecallRequestBody(
+      decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      recommendedTo = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
+    )
+
+    val id = postRecall(offenderId, releaseId, requestBody)
+
+    val retrieved = retrieveRecall(id)
+    retrieved.jsonPath("recall.id").isEqualTo(id)
+      .jsonPath("recall.allMandatoryDocumentsReceived").isEqualTo("No")
+      .jsonPath("recall.decisionDateTime").isEqualTo(decisionDateTime.withoutSeconds())
+      .jsonPath("recall.mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
+      .jsonPath("recall.owningTeam").isEqualTo(PPUD_EXPECTED_OWNING_TEAM)
+      .jsonPath("recall.policeForce").isEqualTo(PPUD_VALID_POLICE_FORCE)
+      .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_SERVICE)
+      .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
+      .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
+      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_INDETERMINATE_RECALL_TYPE)
       .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
       .jsonPath("recall.recommendedToDateTime")
       .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))

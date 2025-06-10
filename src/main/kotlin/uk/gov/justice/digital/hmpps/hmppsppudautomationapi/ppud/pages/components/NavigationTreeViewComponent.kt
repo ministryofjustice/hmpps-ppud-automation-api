@@ -100,6 +100,7 @@ class NavigationTreeViewComponent(
     .children()
 
   fun findRecallsNodeFor(releaseId: String): TreeViewNode = findReleaseNodeFor(releaseId)
+    .expandNode()
     .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
 
   fun navigateToNewSentence() {
@@ -112,6 +113,13 @@ class NavigationTreeViewComponent(
   fun navigateToSentenceFor(sentenceId: String) {
     findSentenceNodeFor(sentenceId)
       .click()
+  }
+
+  fun findSentenceNodeForRelease(releaseId: String): TreeViewNode {
+    return findReleaseNodeFor(releaseId)
+      .parent() // expanded container with all releases
+      .parent() // expanded container with all the sentence data
+      .previousSibling() // sentence node
   }
 
   fun navigateToOffenceFor(sentenceId: String) {
