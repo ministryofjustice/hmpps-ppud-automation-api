@@ -4,6 +4,7 @@ import org.openqa.selenium.WebDriver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.release.ReleaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
@@ -23,6 +24,9 @@ internal class ReleaseClient {
 
   @Autowired
   private lateinit var ppudClientConfig: PpudClientConfig
+
+  @Autowired
+  private lateinit var releaseConfig: ReleaseConfig
 
   @Autowired
   private lateinit var driver: WebDriver
@@ -53,7 +57,8 @@ internal class ReleaseClient {
     } catch (ex: NoSuchElementException) {
       throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
     }
-    val releasedUnder = custodyType.releasedUnder?.fullName ?: createOrUpdateReleaseRequest.releasedUnder
+    val releasedUnder =
+      custodyType.releasedUnder?.getFullName(releaseConfig) ?: createOrUpdateReleaseRequest.releasedUnder
     offenderPage.viewOffenderWithId(offenderId)
     val foundMatch = navigateToMatchingRelease(
       sentenceId,
