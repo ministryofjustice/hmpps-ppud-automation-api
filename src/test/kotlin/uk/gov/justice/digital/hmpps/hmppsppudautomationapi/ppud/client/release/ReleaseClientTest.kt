@@ -17,6 +17,8 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.ppudClientConfig
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.release.ReleaseConfig
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.release.releaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOrUpdatedRelease
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentence
@@ -42,6 +44,9 @@ internal class ReleaseClientTest {
 
   @Spy
   private val ppudClientConfig: PpudClientConfig = ppudClientConfig()
+
+  @Spy
+  private val releaseConfig: ReleaseConfig = releaseConfig()
 
   @Mock
   private lateinit var driver: WebDriver
@@ -157,7 +162,7 @@ internal class ReleaseClientTest {
       val releasedFrom = randomString("releasedFrom")
       val requestReleasedUnder = randomString("releasedUnder")
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
-      val expectedReleasedUnder = custodyType.releasedUnder?.fullName ?: requestReleasedUnder
+      val expectedReleasedUnder = custodyType.releasedUnder?.getFullName(releaseConfig) ?: requestReleasedUnder
       given(
         sentenceClient.getSentence(
           offenderId,
@@ -207,7 +212,7 @@ internal class ReleaseClientTest {
       val releasedFrom = randomString("releasedFrom")
       val requestReleasedUnder = randomString("releasedUnder")
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
-      val expectedReleasedUnder = custodyType.releasedUnder?.fullName ?: requestReleasedUnder
+      val expectedReleasedUnder = custodyType.releasedUnder?.getFullName(releaseConfig) ?: requestReleasedUnder
       given(
         sentenceClient.getSentence(
           offenderId,

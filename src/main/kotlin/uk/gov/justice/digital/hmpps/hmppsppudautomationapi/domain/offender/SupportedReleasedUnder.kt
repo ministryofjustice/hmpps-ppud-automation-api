@@ -1,14 +1,20 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
-// TODO - are these names the same in both dev and pre-prod? If not, we'll need to define app variables
-//        for them (as we already do with e.g. PPUD_OFFENDER_CASEWORKER_UAL) and link them to the enum
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.release.ReleaseConfig
+
 /**
  * This enum refers to the "Released Under" values supported by CaR in terms of
  * creating and updating releases. There are more values in PPUD which are
- * ignored/exclude  in one way or another (if not directly in this service, in
+ * ignored/excluded in one way or another (if not directly in this service, in
  * the API or UI services).
  */
-enum class SupportedReleasedUnder(val fullName: String) {
-  IPP_LICENCE("IPP Licence [*]"),
-  LIFE_LICENCE("Life Licence [*]"),
+enum class SupportedReleasedUnder {
+  IPP_LICENCE {
+    override fun getFullName(releaseConfig: ReleaseConfig): String = releaseConfig.ippLicence
+  },
+  LIFE_LICENCE {
+    override fun getFullName(releaseConfig: ReleaseConfig): String = releaseConfig.lifeLicence
+  }, ;
+
+  abstract fun getFullName(releaseConfig: ReleaseConfig): String
 }
