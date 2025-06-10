@@ -13,7 +13,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent.Companion.url
 import java.time.LocalDate
+
+private const val URL_ID_TAG = "?data="
 
 @Service
 internal class ReleaseClient {
@@ -83,6 +86,16 @@ internal class ReleaseClient {
     val releaseId = releasePage.extractReleaseId()
     postReleaseClient.updatePostRelease(releaseId, createOrUpdateReleaseRequest.postRelease)
     return CreatedOrUpdatedRelease(releaseId)
+  }
+
+  fun getSentenceIdForRelease(
+    offenderId: String,
+    releaseId: String,
+  ): String {
+    offenderPage.viewOffenderWithId(offenderId)
+    val sentenceNode = navigationTreeViewComponent.findSentenceNodeForRelease(releaseId)
+    val sentenceUrl = sentenceNode.url
+    return sentenceUrl.substringAfter(URL_ID_TAG)
   }
 
   private fun navigateToMatchingRelease(
