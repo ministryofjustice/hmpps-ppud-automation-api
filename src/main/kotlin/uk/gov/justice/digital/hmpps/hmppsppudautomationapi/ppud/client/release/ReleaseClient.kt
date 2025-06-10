@@ -51,7 +51,8 @@ internal class ReleaseClient {
     sentenceId: String,
     createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
   ): CreatedOrUpdatedRelease {
-    val sentence = sentenceClient.getSentence(offenderId, sentenceId)
+    offenderPage.viewOffenderWithId(offenderId)
+    val sentence = sentenceClient.getSentence(sentenceId)
     val custodyType = try {
       SupportedCustodyType.forFullName(sentence.custodyType)
     } catch (ex: NoSuchElementException) {
@@ -59,7 +60,6 @@ internal class ReleaseClient {
     }
     val releasedUnder =
       custodyType.releasedUnder?.getFullName(releaseConfig) ?: createOrUpdateReleaseRequest.releasedUnder
-    offenderPage.viewOffenderWithId(offenderId)
     val foundMatch = navigateToMatchingRelease(
       sentenceId,
       createOrUpdateReleaseRequest.dateOfRelease,
@@ -93,11 +93,12 @@ internal class ReleaseClient {
     return CreatedOrUpdatedRelease(releaseId)
   }
 
+  /**
+   * Get the sentence ID for the given release of the currently selected offender.
+   */
   fun getSentenceIdForRelease(
-    offenderId: String,
     releaseId: String,
   ): String {
-    offenderPage.viewOffenderWithId(offenderId)
     val sentenceNode = navigationTreeViewComponent.findSentenceNodeForRelease(releaseId)
     val sentenceUrl = sentenceNode.url
     return sentenceUrl.substringAfter(URL_ID_TAG)
