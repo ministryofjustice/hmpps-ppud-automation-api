@@ -21,14 +21,13 @@ import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.PpudErrorException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.offence.OffenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.CaseworkerAdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ErrorPage
@@ -36,18 +35,13 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.LoginPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.NewOffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.ReleasePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateReleaseRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
@@ -62,7 +56,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
 class OperationalPpudClientTest {
@@ -92,12 +85,6 @@ class OperationalPpudClientTest {
   private lateinit var offencePage: OffencePage
 
   @Mock
-  private lateinit var postReleasePage: PostReleasePage
-
-  @Mock
-  private lateinit var releasePage: ReleasePage
-
-  @Mock
   private lateinit var recallPage: RecallPage
 
   @Mock
@@ -111,6 +98,9 @@ class OperationalPpudClientTest {
 
   @Mock
   private lateinit var caseworkerAdminPage: CaseworkerAdminPage
+
+  @Mock
+  private lateinit var offenceClient: OffenceClient
 
   @Mock
   private lateinit var sentencePageFactory: SentencePageFactory
@@ -152,9 +142,8 @@ class OperationalPpudClientTest {
       newOffenderPage,
       offenderPage,
       offencePage,
-      postReleasePage,
       recallPage,
-      releasePage,
+      offenceClient,
       sentencePageFactory,
       adminPage,
       caseworkerAdminPage,
@@ -596,143 +585,6 @@ class OperationalPpudClientTest {
   }
 
   @Test
-  fun `given sentence data when create sentence is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-
-      client.createSentence(offenderId, request)
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given sentence data when create sentence is called then log out once done`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-
-      client.createSentence(offenderId, request)
-
-      val inOrder = inOrder(sentencePage, webDriverNavigation)
-      then(sentencePage).should(inOrder).createSentence(request)
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given sentence data when create sentence is called then create sentence and return ID`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val custodyType = randomString("custodyType")
-      val request = generateCreateOrUpdateSentenceRequest(
-        custodyType = custodyType,
-      )
-      val sentenceId = randomPpudId()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-      given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
-
-      val newSentence = client.createSentence(offenderId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).navigateToNewSentence()
-      then(sentencePageFactory).should(inOrder).sentencePage()
-      then(sentencePage).should(inOrder).selectCustodyType(custodyType)
-      then(sentencePageFactory).should(inOrder).sentencePage()
-      then(sentencePage).should(inOrder).createSentence(request)
-      then(sentencePage).should(inOrder).throwIfInvalid()
-      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
-      assertEquals(sentenceId, newSentence.id)
-    }
-  }
-
-  @Test
-  fun `given duplicate sentence data when create sentence is called then do not create sentence and return existing ID`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val dateOfSentence = randomDate()
-      val custodyType = randomString("custodyType")
-      val request = generateCreateOrUpdateSentenceRequest(
-        dateOfSentence = dateOfSentence,
-        custodyType = custodyType,
-      )
-      val sentenceId = randomPpudId()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-      given(navigationTreeViewComponent.extractSentenceLinks(dateOfSentence, custodyType)).willReturn(listOf("/link"))
-      given(sentencePage.isMatching(request)).willReturn(true)
-      given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
-
-      val returnedSentence = client.createSentence(offenderId, request)
-
-      val inOrder =
-        inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, sentencePageFactory, sentencePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractSentenceLinks(dateOfSentence, custodyType)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/link")
-      then(sentencePageFactory).should(inOrder).sentencePage()
-      then(sentencePage).should(inOrder).isMatching(request)
-      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
-      then(navigationTreeViewComponent).should(never()).navigateToNewSentence()
-      then(sentencePage).should(never()).createSentence(request)
-      then(sentencePage).should(never()).throwIfInvalid()
-      assertEquals(sentenceId, returnedSentence.id)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and sentence data when update sentence is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-
-      client.updateSentence(offenderId, sentenceId, request)
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and sentence data when update sentence is called then log out once done`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-
-      client.updateSentence(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(sentencePage, webDriverNavigation)
-      then(sentencePage).should(inOrder).updateSentence(any())
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and sentence data when update sentence is called then update sentence`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateSentenceRequest()
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-
-      client.updateSentence(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).navigateToSentenceFor(sentenceId)
-      then(sentencePageFactory).should(inOrder).sentencePage()
-      then(sentencePage).should(inOrder).updateSentence(request)
-      then(sentencePage).should(inOrder).throwIfInvalid()
-    }
-  }
-
-  @Test
   fun `given offender ID and sentence ID and offence data when update offence is called then log in to PPUD and verify success`() {
     runBlocking {
       val offenderId = randomPpudId()
@@ -774,291 +626,6 @@ class OperationalPpudClientTest {
       then(navigationTreeViewComponent).should(inOrder).navigateToOffenceFor(sentenceId)
       then(offencePage).should(inOrder).verifyOn()
       then(offencePage).should(inOrder).updateOffence(request)
-    }
-  }
-
-  @Test
-  fun `given offenderID and sentence ID and release data when create or update release is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data when create or update release is called then log out once done`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val request = generateCreateOrUpdateReleaseRequest()
-      given(releasePage.extractReleaseId()).willReturn(randomPpudId())
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(releasePage, webDriverNavigation)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for matching release when create or update release is called then update matching release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val matchingReleaseLink = "/link/to/matching/release"
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(
-        listOf(
-          matchingReleaseLink,
-        ),
-      )
-      given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true)
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingReleaseLink")
-      then(releasePage).should(inOrder).updateRelease()
-      then(releasePage).should(inOrder).throwIfInvalid()
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for new release when create or update release is called then create new release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease)).willReturn(listOf())
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(releasePage).should(inOrder).createRelease(request)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(releasePage).should(never()).isMatching(any(), any())
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release data for new release when create or update release is called then return ID from persisted release`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val dateOfRelease = randomDate()
-      val releasedFrom = randomString("releasedFrom")
-      val releasedUnder = randomString("releasedUnder")
-      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, releasedUnder)
-      val releaseId = randomPpudId()
-      given(navigationTreeViewComponent.extractReleaseLinks(sentenceId, dateOfRelease))
-        .willReturn(listOf()) // Before creation
-        .willReturn(listOf("/link/to/persisted/release")) // After creation
-      given(releasePage.isMatching(releasedFrom, releasedUnder)).willReturn(true) // After creation
-      given(releasePage.extractReleaseId()).willReturn(releaseId)
-
-      val updatedRelease = client.createOrUpdateRelease(offenderId, sentenceId, request)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, releasePage)
-      then(releasePage).should(inOrder).throwIfInvalid()
-      then(navigationTreeViewComponent).should(inOrder).extractReleaseLinks(sentenceId, dateOfRelease)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl/link/to/persisted/release")
-      then(releasePage).should(inOrder).isMatching(releasedFrom, releasedUnder)
-      then(releasePage).should(inOrder).extractReleaseId()
-      assertEquals(releaseId, updatedRelease.id)
-    }
-  }
-
-  @Test
-  fun `given recall data when create recall is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val createRecallRequest = generateCreateRecallRequest()
-      client.createRecall(
-        offenderId = randomPpudId(),
-        releaseId = randomPpudId(),
-        recallRequest = createRecallRequest,
-      )
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given recall data when create recall is called then log out once done`() {
-    runBlocking {
-      val createRecallRequest = generateCreateRecallRequest()
-      client.createRecall(
-        offenderId = randomPpudId(),
-        releaseId = randomPpudId(),
-        recallRequest = createRecallRequest,
-      )
-
-      val inOrder = inOrder(recallPage, webDriverNavigation)
-      then(recallPage).should(inOrder).createRecall(any())
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release ID and recall data for matching recall when create recall is called then just return ID`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val receivedDateTime = LocalDateTime.now()
-      val recommendedTo = PpudUser(randomString("fullName"), randomString("teamName"))
-      val createRecallRequest = generateCreateRecallRequest(
-        receivedDateTime = receivedDateTime,
-        recommendedTo = recommendedTo,
-      )
-      val matchingRecallLink = "/link/to/matching/recall"
-      val recallId = randomPpudId()
-      given(navigationTreeViewComponent.extractRecallLinks(releaseId)).willReturn(
-        listOf(
-          matchingRecallLink,
-        ),
-      )
-      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedTo)).willReturn(true)
-
-      val returnedRecall = client.createRecall(offenderId, releaseId, createRecallRequest)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, recallPage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$matchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
-      then(navigationTreeViewComponent).should(never()).navigateToNewRecallFor(any())
-      then(recallPage).should(never()).createRecall(any())
-      then(recallPage).should(never()).addContrabandMinuteIfNeeded(createRecallRequest)
-      assertEquals(recallId, returnedRecall.id)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release ID and recall data for new recall when create recall is called then create recall`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val receivedDateTime = LocalDateTime.now()
-      val recommendedTo = generatePpudUser()
-      val createRecallRequest = generateCreateRecallRequest(
-        receivedDateTime = receivedDateTime,
-        recommendedTo = recommendedTo,
-      )
-      val nonMatchingRecallLink = "/link/to/non-matching/recall"
-      val recallId = randomPpudId()
-      given(navigationTreeViewComponent.extractRecallLinks(releaseId)).willReturn(
-        listOf(
-          nonMatchingRecallLink,
-        ),
-      )
-      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedTo)).willReturn(false)
-
-      client.createRecall(offenderId, releaseId, createRecallRequest)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, recallPage)
-      then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
-      then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$nonMatchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
-      then(navigationTreeViewComponent).should(inOrder).navigateToNewRecallFor(releaseId)
-      then(recallPage).should(inOrder).createRecall(any())
-      then(recallPage).should(inOrder).throwIfInvalid()
-      then(recallPage).should(inOrder).addContrabandMinuteIfNeeded(createRecallRequest)
-    }
-  }
-
-  @Test
-  fun `given offender ID and sentence ID and release ID and recall data for new recall when create recall is called then return ID from persisted recall`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val receivedDateTime = LocalDateTime.now()
-      val recommendedTo = generatePpudUser()
-      val createRecallRequest = generateCreateRecallRequest(
-        receivedDateTime = receivedDateTime,
-        recommendedTo = recommendedTo,
-      )
-      val nonMatchingRecallLink = "/link/to/non-matching/recall"
-      val persistedRecallLink = "/link/to/persisted/recall"
-      val recallId = randomPpudId()
-      given(navigationTreeViewComponent.extractRecallLinks(releaseId))
-        .willReturn(listOf(nonMatchingRecallLink)) // Before creation
-        .willReturn(listOf(nonMatchingRecallLink, persistedRecallLink)) // After creation
-      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-      given(recallPage.isMatching(receivedDateTime, recommendedTo))
-        .willReturn(false) // Before creation
-        .willReturn(false) // After creation non-matching
-        .willReturn(true) // After creation matching
-
-      val createdRecall = client.createRecall(offenderId, releaseId, createRecallRequest)
-
-      val inOrder = inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, recallPage)
-      then(recallPage).should(inOrder).throwIfInvalid()
-      then(navigationTreeViewComponent).should(inOrder).extractRecallLinks(releaseId)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$nonMatchingRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$persistedRecallLink")
-      then(recallPage).should(inOrder).isMatching(receivedDateTime, recommendedTo)
-      then(recallPage).should(inOrder).extractCreatedRecallDetails()
-      assertEquals(recallId, createdRecall.id)
-    }
-  }
-
-  @Test
-  fun `given contraband risk detail when create recall is called then add contraband minute`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val createRecallRequest = generateCreateRecallRequest(riskOfContrabandDetails = randomString("contraband"))
-      val recallId = randomPpudId()
-      given(recallPage.extractCreatedRecallDetails()).willReturn(CreatedRecall(recallId))
-
-      client.createRecall(offenderId, releaseId, createRecallRequest)
-
-      val inOrder = inOrder(recallPage)
-      then(recallPage).should(inOrder).addContrabandMinuteIfNeeded(createRecallRequest)
-    }
-  }
-
-  @Test
-  fun `given data that PPUD considers invalid when create recall is called then bubble exception`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val createRecallRequest = generateCreateRecallRequest()
-      val exceptionMessage = randomString("test-exception")
-      val exception = RuntimeException(exceptionMessage)
-      given(recallPage.throwIfInvalid()).willThrow(exception)
-
-      val actual = assertThrows<RuntimeException> {
-        client.createRecall(offenderId, releaseId, createRecallRequest)
-      }
-      assertEquals(exceptionMessage, actual.message)
-      val inOrder = inOrder(recallPage)
-      then(recallPage).should(inOrder).createRecall(createRecallRequest)
-      then(recallPage).should(inOrder).throwIfInvalid()
     }
   }
 

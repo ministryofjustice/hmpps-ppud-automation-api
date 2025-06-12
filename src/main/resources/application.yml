@@ -89,13 +89,21 @@ ppud:
     category: "Not Applicable"
     releaseType: "On Licence"
     postRelease:
-      licenceType: "Standard"
+      licenceType:
+        determinate: "Standard"
+        ipp: "IPP Licence"
+        life: "Life Licence (LL)"
+    releasedUnder:
+      ippLicence: "IPP Licence [*]"
+      lifeLicence: "Life Licence [*]"
   recall:
     documentType:
       document: "301 - Post Release Recall"
       email: "303 - Correspondence (Post Release)"
     revocationIssuedByOwner: "EO Officer(Not Specified)"
-    recallType: "Standard"
+    recallType:
+      determinate: "Standard"
+      indeterminate: "Indeterminate Recall"
     returnToCustodyNotificationMethod: "Not Applicable"
     nextUalCheckMonths: 6
   reference:
