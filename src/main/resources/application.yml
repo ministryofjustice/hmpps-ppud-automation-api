@@ -101,8 +101,9 @@ ppud:
       document: "301 - Post Release Recall"
       email: "303 - Correspondence (Post Release)"
     revocationIssuedByOwner: "EO Officer(Not Specified)"
-    recallType: "Standard"
-    indeterminateRecallType: "Indeterminate Recall"
+    recallType:
+      determinate: "Standard"
+      indeterminate: "Indeterminate Recall"
     returnToCustodyNotificationMethod: "Not Applicable"
     nextUalCheckMonths: 6
   reference:
