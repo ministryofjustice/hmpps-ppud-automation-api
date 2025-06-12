@@ -52,14 +52,9 @@ internal class ReleaseClient {
     createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
   ): CreatedOrUpdatedRelease {
     offenderPage.viewOffenderWithId(offenderId)
-    val sentence = sentenceClient.getSentence(sentenceId)
-    val custodyType = try {
-      SupportedCustodyType.forFullName(sentence.custodyType)
-    } catch (ex: NoSuchElementException) {
-      throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
-    }
-    val releasedUnder =
-      custodyType.releasedUnder?.getFullName(releaseConfig) ?: createOrUpdateReleaseRequest.releasedUnder
+
+    val (custodyType, releasedUnder) = calculateReleasedUnder(sentenceId, createOrUpdateReleaseRequest)
+
     val foundMatch = navigateToMatchingRelease(
       sentenceId,
       createOrUpdateReleaseRequest.dateOfRelease,
@@ -91,6 +86,21 @@ internal class ReleaseClient {
     val releaseId = releasePage.extractReleaseId()
     postReleaseClient.updatePostRelease(releaseId, custodyType, createOrUpdateReleaseRequest.postRelease)
     return CreatedOrUpdatedRelease(releaseId)
+  }
+
+  private fun calculateReleasedUnder(
+    sentenceId: String,
+    createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
+  ): Pair<SupportedCustodyType, String> {
+    val sentence = sentenceClient.getSentence(sentenceId)
+    val custodyType = try {
+      SupportedCustodyType.forFullName(sentence.custodyType)
+    } catch (ex: NoSuchElementException) {
+      throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
+    }
+    val releasedUnder =
+      custodyType.releasedUnder?.getFullName(releaseConfig) ?: createOrUpdateReleaseRequest.releasedUnder
+    return Pair(custodyType, releasedUnder)
   }
 
   /**

@@ -55,17 +55,10 @@ internal class RecallClient {
     // We only make changes if we don't find a matching Recall. If we do find one, it means the
     // recall has already been processed in PPUD. The likely reason we are encountering a matching
     // one is that something in the booking process failed after the Recall was added to PPUD and
-    // a reattempt has been triggered (i.e. we're matching on the Recall created by CaR in a
+    // a re-attempt has been triggered (i.e. we're matching on the Recall created by CaR in a
     // previous attempt)
     if (foundMatch.not()) {
-      val sentenceId = releaseClient.getSentenceIdForRelease(releaseId)
-      val sentence = sentenceClient.getSentence(sentenceId)
-      val custodyType = try {
-        SupportedCustodyType.forFullName(sentence.custodyType)
-      } catch (ex: NoSuchElementException) {
-        throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
-      }
-      val recallType = custodyType.recallType.getFullName(recallConfig)
+      val recallType = calculateRecallType(releaseId)
       navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
       recallPage.createRecall(recallRequest, recallType)
       recallPage.throwIfInvalid()
@@ -77,6 +70,18 @@ internal class RecallClient {
     }
 
     return recallPage.extractCreatedRecallDetails()
+  }
+
+  private fun calculateRecallType(releaseId: String): String {
+    val sentenceId = releaseClient.getSentenceIdForRelease(releaseId)
+    val sentence = sentenceClient.getSentence(sentenceId)
+    val custodyType = try {
+      SupportedCustodyType.forFullName(sentence.custodyType)
+    } catch (ex: NoSuchElementException) {
+      throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
+    }
+    val recallType = custodyType.recallType.getFullName(recallConfig)
+    return recallType
   }
 
   private fun navigateToMatchingRecall(
