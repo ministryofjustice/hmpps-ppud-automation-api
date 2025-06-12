@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.IPP_LICENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.LIFE_LICENCE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.DETERMINATE_RECALL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.INDETERMINATE_RECALL
@@ -33,16 +34,22 @@ enum class SupportedCustodyType(
   val fullName: String,
   val releasedUnder: SupportedReleasedUnder?,
   val recallType: SupportedRecallType,
+  val licenceType: SupportedLicenceType,
 ) {
-  DETERMINATE("Determinate", null, DETERMINATE_RECALL),
-  EDS("EDS", null, DETERMINATE_RECALL),
-  EDS_NON_PAROLE("EDS (non parole)", null, DETERMINATE_RECALL),
-  IPP("IPP", IPP_LICENCE, INDETERMINATE_RECALL),
-  DPP("DPP", IPP_LICENCE, INDETERMINATE_RECALL),
-  MANDATORY_MLP("Mandatory (MLP)", LIFE_LICENCE, INDETERMINATE_RECALL),
-  DISCRETIONARY("Discretionary", LIFE_LICENCE, INDETERMINATE_RECALL),
-  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", LIFE_LICENCE, INDETERMINATE_RECALL),
-  AUTOMATIC("Automatic", LIFE_LICENCE, INDETERMINATE_RECALL),
+  DETERMINATE(
+    "Determinate",
+    null,
+    DETERMINATE_RECALL,
+    SupportedLicenceType.DETERMINATE,
+  ),
+  EDS("EDS", null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
+  EDS_NON_PAROLE("EDS (non parole)", null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
+  IPP("IPP", IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
+  DPP("DPP", IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
+  MANDATORY_MLP("Mandatory (MLP)", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  DISCRETIONARY("Discretionary", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  AUTOMATIC("Automatic", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
   ;
 
   override fun toString(): String = fullName
