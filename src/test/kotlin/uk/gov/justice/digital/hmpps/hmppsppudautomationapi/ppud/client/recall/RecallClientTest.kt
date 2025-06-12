@@ -125,7 +125,7 @@ internal class RecallClientTest {
   fun `creates new determinate Recall if no matching one found`() {
     runBlocking {
       val custodyType = randomEnum<SupportedCustodyType>(exclude = custodyTypesWithIndeterminateRecallType)
-      createRecallTest(custodyType, recallConfig.recallType)
+      testCreateRecall(custodyType, recallConfig.recallType)
     }
   }
 
@@ -133,11 +133,11 @@ internal class RecallClientTest {
   fun `creates new indeterminate Recall if no matching one found`() {
     runBlocking {
       val custodyType = randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateRecallType)
-      createRecallTest(custodyType, recallConfig.indeterminateRecallType)
+      testCreateRecall(custodyType, recallConfig.indeterminateRecallType)
     }
   }
 
-  private fun createRecallTest(
+  private fun testCreateRecall(
     custodyType: SupportedCustodyType,
     expectedRecallType: String,
   ): CreatedRecall {
