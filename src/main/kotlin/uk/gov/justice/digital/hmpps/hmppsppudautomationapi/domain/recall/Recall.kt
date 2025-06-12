@@ -33,7 +33,7 @@ data class Recall(
  */
 enum class SupportedRecallType {
   DETERMINATE_RECALL {
-    override fun getFullName(recallConfig: RecallConfig): String = recallConfig.recallType
+    override fun getFullName(recallConfig: RecallConfig): String = recallConfig.determinateRecallType
   },
   INDETERMINATE_RECALL {
     override fun getFullName(recallConfig: RecallConfig): String = recallConfig.indeterminateRecallType
