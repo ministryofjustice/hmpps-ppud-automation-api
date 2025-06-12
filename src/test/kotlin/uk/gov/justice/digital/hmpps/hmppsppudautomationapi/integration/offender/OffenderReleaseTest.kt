@@ -150,11 +150,11 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .isOk
       .expectBody()
 
-    // TODO MRD-2750 support checking the created/updated release
+    // TODO MRD-2750 support checking the created/updated release and post release
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
-      .jsonPath("offender.sentences[4].id").isEqualTo(sentenceId)
+      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
   }
 
   @Disabled(

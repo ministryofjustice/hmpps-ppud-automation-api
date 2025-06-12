@@ -79,28 +79,28 @@ internal class ReleaseClientTest {
   fun `updates matching release using provided releasedUnder when not predetermined by sentence custodyType`() {
     val custodyTypeWithUserSetReleasedUnder =
       randomEnum<SupportedCustodyType>(exclude = custodyTypesWithFixedReleasedUnder)
-    updateReleaseTest(custodyTypeWithUserSetReleasedUnder)
+    testUpdateRelease(custodyTypeWithUserSetReleasedUnder)
   }
 
   @Test
   fun `updates matching release using predetermined releasedUnder, ignoring the provided one`() {
     val custodyTypeWithFixedReleasedUnder =
       randomEnum<SupportedCustodyType>(exclude = custodyTypesWithUserSetReleasedUnder)
-    updateReleaseTest(custodyTypeWithFixedReleasedUnder)
+    testUpdateRelease(custodyTypeWithFixedReleasedUnder)
   }
 
   @Test
   fun `creates new release using provided releasedUnder when not predetermined by sentence custodyType`() {
     val custodyTypeWithUserSetReleasedUnder =
       randomEnum<SupportedCustodyType>(exclude = custodyTypesWithFixedReleasedUnder)
-    createNewReleaseTest(custodyTypeWithUserSetReleasedUnder)
+    testCreateNewRelease(custodyTypeWithUserSetReleasedUnder)
   }
 
   @Test
   fun `creates new release using predetermined releasedUnder, ignoring the provided one`() {
     val custodyTypeWithUserSetReleasedUnder =
       randomEnum<SupportedCustodyType>(exclude = custodyTypesWithUserSetReleasedUnder)
-    createNewReleaseTest(custodyTypeWithUserSetReleasedUnder)
+    testCreateNewRelease(custodyTypeWithUserSetReleasedUnder)
   }
 
   @Test
@@ -145,7 +145,7 @@ internal class ReleaseClientTest {
     assertThat(actualSentenceId).isEqualTo(expectedSentenceId)
   }
 
-  private fun updateReleaseTest(custodyType: SupportedCustodyType) {
+  private fun testUpdateRelease(custodyType: SupportedCustodyType) {
     runBlocking {
       // given
       setUpDriverNavigation()
@@ -186,11 +186,11 @@ internal class ReleaseClientTest {
       then(webDriverNavigation).should(inOrder).to("${ppudClientConfig.url}$matchingReleaseLink")
       then(releasePage).should(inOrder).updateRelease()
       then(releasePage).should(inOrder).throwIfInvalid()
-      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
+      then(postReleaseClient).should().updatePostRelease(releaseId, custodyType, request.postRelease)
     }
   }
 
-  private fun createNewReleaseTest(custodyType: SupportedCustodyType) {
+  private fun testCreateNewRelease(custodyType: SupportedCustodyType) {
     runBlocking {
       // given
       setUpDriverNavigation()
@@ -226,7 +226,7 @@ internal class ReleaseClientTest {
       then(webDriverNavigation).should(inOrder).to("${ppudClientConfig.url}$linkToPersistedRelease")
       then(releasePage).should(inOrder).isMatching(releasedFrom, expectedReleasedUnder)
       then(releasePage).should(inOrder).extractReleaseId()
-      then(postReleaseClient).should().updatePostRelease(releaseId, request.postRelease)
+      then(postReleaseClient).should().updatePostRelease(releaseId, custodyType, request.postRelease)
     }
   }
 

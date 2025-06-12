@@ -89,7 +89,10 @@ ppud:
     category: "Not Applicable"
     releaseType: "On Licence"
     postRelease:
-      licenceType: "Standard"
+      licenceType:
+        determinate: "Standard"
+        ipp: "IPP Licence"
+        life: "Life Licence (LL)"
     releasedUnder:
       ippLicence: "IPP Licence [*]"
       lifeLicence: "Life Licence [*]"

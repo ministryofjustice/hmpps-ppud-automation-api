@@ -89,7 +89,7 @@ internal class ReleaseClient {
       releasedUnder,
     )
     val releaseId = releasePage.extractReleaseId()
-    postReleaseClient.updatePostRelease(releaseId, createOrUpdateReleaseRequest.postRelease)
+    postReleaseClient.updatePostRelease(releaseId, custodyType, createOrUpdateReleaseRequest.postRelease)
     return CreatedOrUpdatedRelease(releaseId)
   }
 

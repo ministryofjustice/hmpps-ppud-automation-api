@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.Contact
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.ContactWithTelephone
@@ -22,7 +21,6 @@ internal class PostReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val navigationTreeViewComponent: NavigationTreeViewComponent,
-  @Value("\${ppud.release.postRelease.licenceType}") private val licenceType: String,
 ) {
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -67,7 +65,7 @@ internal class PostReleasePage(
       .click()
   }
 
-  fun updatePostRelease(updatePostReleaseRequest: UpdatePostReleaseRequest) {
+  fun updatePostRelease(updatePostReleaseRequest: UpdatePostReleaseRequest, licenceType: String) {
     assistantChiefOfficerInput.clear()
     assistantChiefOfficerInput.sendKeys(updatePostReleaseRequest.assistantChiefOfficer.name)
     assistantChiefOfficerFaxEmailInput.clear()
