@@ -30,6 +30,8 @@ dependencies {
 
   implementation("commons-io:commons-io:2.18.0") // Address CVE-2021-29425
 
+  implementation("org.springframework:spring-web:6.2.8 ") // Address CVE-2025-41234. Remove once hmpps-gradle-spring-boot plug-in brings in newer version of spring-boot
+
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-client")
