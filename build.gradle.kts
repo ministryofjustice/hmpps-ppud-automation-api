@@ -30,6 +30,12 @@ dependencies {
 
   implementation("commons-io:commons-io:2.18.0") // Address CVE-2021-29425
 
+  // The dependencies below address the listed CVEs until the hmpps-gradle-spring-boot plug-in
+  // brings in a newer version of spring-boot with the fixes (it's already bringing the latest
+  // version of spring-boot, 3.5.0, but that doesn't have the fixes)
+  implementation("org.springframework:spring-web:6.2.8") // Address CVE-2025-41234
+  implementation("org.apache.tomcat.embed:tomcat-embed-core:10.1.42") // Address CVE-2025-49125 & CVE-2025-48988
+
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-client")
