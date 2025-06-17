@@ -59,6 +59,7 @@ executors:
 
 jobs:
   validate:
+    circleci_ip_ranges: true
     executor: java
     steps:
       - checkout
