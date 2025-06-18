@@ -5,6 +5,7 @@ interface ReferenceService {
 
   suspend fun refreshCaches()
 
+  @Deprecated("replaced by separate determinate and indeterminate methods")
   suspend fun retrieveCustodyTypes(): List<String>
 
   suspend fun retrieveEstablishments(): List<String>
@@ -22,6 +23,10 @@ interface ReferenceService {
   suspend fun retrieveProbationServices(): List<String>
 
   suspend fun retrieveReleasedUnders(): List<String>
+
+  suspend fun retrieveDeterminateCustodyTypes(): List<String>
+
+  suspend fun retrieveIndeterminateCustodyTypes(): List<String>
 
   fun quit()
 }

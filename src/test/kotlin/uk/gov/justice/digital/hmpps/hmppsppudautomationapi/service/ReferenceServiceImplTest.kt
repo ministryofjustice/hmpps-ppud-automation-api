@@ -1,0 +1,176 @@
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
+
+import ch.qos.logback.classic.Level
+import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.willReturn
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.then
+import org.springframework.cache.Cache
+import org.springframework.cache.CacheManager
+import org.springframework.cache.interceptor.SimpleKey
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.DETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.AUTOMATIC
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.EDS
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.EDS_NON_PAROLE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.MANDATORY_MLP
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.findLogAppender
+
+@ExtendWith(MockitoExtension::class)
+class ReferenceServiceImplTest {
+
+  private lateinit var referenceService: ReferenceServiceImpl
+
+  @Mock
+  private lateinit var ppudClient: ReferenceDataPpudClient
+
+  @Mock
+  private lateinit var cacheManager: CacheManager
+
+  private val logAppender = findLogAppender(ReferenceServiceImpl::class.java)
+
+  @BeforeEach
+  fun init() {
+    // We use a spy in order to simply the cache refresh test, which would otherwise require more
+    // complex mock set-ups to account for the custody type caches. Since the two more specific
+    // custody methods are tested separately, it's OK to mock them in the refresh cache test
+    referenceService = spy(ReferenceServiceImpl(ppudClient, cacheManager))
+  }
+
+  @Test
+  fun `refreshes the caches`() {
+    runTest {
+      // given
+      val cacheNameToValuesMap = mutableMapOf<String, List<String>>()
+      LookupName.entries.map { it.name }.associateWithTo(cacheNameToValuesMap) {
+        listOf(
+          randomString(),
+          randomString(),
+          randomString(),
+        )
+      }
+      val cacheNameToCacheMap = mutableMapOf<String, Cache>()
+      LookupName.entries.map { it.name }.associateWithTo(cacheNameToCacheMap) { mock<Cache>() }
+
+      cacheNameToValuesMap.forEach {
+        given(cacheManager.getCache(it.key)).willReturn(cacheNameToCacheMap.getValue(it.key))
+        given(ppudClient.retrieveLookupValues(LookupName.valueOf(it.key))).willReturn(it.value)
+      }
+
+      val determinateValues = listOf(randomString(), randomString(), randomString())
+      val determinateCache = mock<Cache>()
+      given(cacheManager.getCache(DETERMINATE_CUSTODY_TYPES_CACHE_NAME)).willReturn(determinateCache)
+      willReturn(determinateValues).given(referenceService).retrieveDeterminateCustodyTypes()
+      cacheNameToValuesMap[DETERMINATE_CUSTODY_TYPES_CACHE_NAME] = determinateValues
+      cacheNameToCacheMap[DETERMINATE_CUSTODY_TYPES_CACHE_NAME] = determinateCache
+
+      val indeterminateValues = listOf(randomString(), randomString(), randomString())
+      val indeterminateCache = mock<Cache>()
+      given(cacheManager.getCache(INDETERMINATE_CUSTODY_TYPES_CACHE_NAME)).willReturn(indeterminateCache)
+      willReturn(indeterminateValues).given(referenceService).retrieveIndeterminateCustodyTypes()
+      cacheNameToValuesMap[INDETERMINATE_CUSTODY_TYPES_CACHE_NAME] = indeterminateValues
+      cacheNameToCacheMap[INDETERMINATE_CUSTODY_TYPES_CACHE_NAME] = indeterminateCache
+
+      // when
+      referenceService.refreshCaches()
+
+      // then
+      cacheNameToCacheMap.forEach {
+        val key = it.key
+        then(it.value).should().put(SimpleKey.EMPTY, cacheNameToValuesMap.getValue(it.key))
+        val test = key + "test"
+      }
+    }
+  }
+
+  @Test
+  fun `returns all available supported determinate custody types, logging warnings for the missing ones`() {
+    runTest {
+      testCustodyTypeRetrievalByCustodyGroup(DETERMINATE, listOf(EDS, EDS_NON_PAROLE)) {
+        referenceService.retrieveDeterminateCustodyTypes()
+      }
+    }
+  }
+
+  @Test
+  fun `returns all available supported indeterminate custody types, logging warnings for the missing ones`() {
+    runTest {
+      val custodyGroup = INDETERMINATE
+      val missingCustodyTypes = listOf(AUTOMATIC, MANDATORY_MLP)
+      // given
+      val expectedMissingCustodyTypeWarningMessages =
+        missingCustodyTypes.map { "${custodyGroup.fullName} custody type not found in PPUD: ${it.fullName}" }
+
+      val availableKnownCustodyTypes =
+        SupportedCustodyType.entries.filterNot { missingCustodyTypes.contains(it) }
+      val availableKnownIndeterminateCustodyTypes =
+        availableKnownCustodyTypes.filter { it.custodyGroup == custodyGroup }
+      val expectedIndeterminateCustodyTypeNames = availableKnownIndeterminateCustodyTypes.map { it.fullName }
+
+      val availableKnownCustodyTypeNames = availableKnownCustodyTypes.map { it.fullName }
+      val unsupportedCustodyTypeNames = listOf(randomString(), randomString())
+      val availableCustodyTypeNames = availableKnownCustodyTypeNames + unsupportedCustodyTypeNames
+      given(ppudClient.retrieveLookupValues(CustodyTypes)).willReturn(availableCustodyTypeNames)
+
+      // when
+      val actualIndeterminateCustodyTypes = referenceService.retrieveIndeterminateCustodyTypes()
+
+      // then
+      assertThat(actualIndeterminateCustodyTypes).isEqualTo(expectedIndeterminateCustodyTypeNames)
+      with(logAppender.list) {
+        this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
+        assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(
+          expectedMissingCustodyTypeWarningMessages,
+        )
+      }
+    }
+  }
+
+  private suspend fun testCustodyTypeRetrievalByCustodyGroup(
+    custodyGroup: CustodyGroup,
+    missingCustodyTypes: List<SupportedCustodyType>,
+    methodUnderTest: suspend () -> List<String>,
+  ) {
+    // given
+    val expectedMissingCustodyTypeWarningMessages =
+      missingCustodyTypes.map { "${custodyGroup.fullName} custody type not found in PPUD: ${it.fullName}" }
+
+    val availableKnownCustodyTypes =
+      SupportedCustodyType.entries.filterNot { missingCustodyTypes.contains(it) }
+    val availableKnownDeterminateCustodyTypes = availableKnownCustodyTypes.filter { it.custodyGroup == custodyGroup }
+    val expectedDeterminateCustodyTypeNames = availableKnownDeterminateCustodyTypes.map { it.fullName }
+
+    val availableKnownCustodyTypeNames = availableKnownCustodyTypes.map { it.fullName }
+    val unsupportedCustodyTypeNames = listOf(randomString(), randomString())
+    val availableCustodyTypeNames = availableKnownCustodyTypeNames + unsupportedCustodyTypeNames
+    given(ppudClient.retrieveLookupValues(CustodyTypes)).willReturn(availableCustodyTypeNames)
+
+    // when
+    val actualDeterminateCustodyTypes = methodUnderTest()
+
+    // then
+    assertThat(actualDeterminateCustodyTypes).isEqualTo(expectedDeterminateCustodyTypeNames)
+    with(logAppender.list) {
+      this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
+      assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(
+        expectedMissingCustodyTypeWarningMessages,
+      )
+    }
+  }
+}
