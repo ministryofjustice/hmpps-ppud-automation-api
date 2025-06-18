@@ -92,9 +92,7 @@ class ReferenceServiceImplTest {
 
       // then
       cacheNameToCacheMap.forEach {
-        val key = it.key
         then(it.value).should().put(SimpleKey.EMPTY, cacheNameToValuesMap.getValue(it.key))
-        val test = key + "test"
       }
     }
   }
@@ -111,33 +109,8 @@ class ReferenceServiceImplTest {
   @Test
   fun `returns all available supported indeterminate custody types, logging warnings for the missing ones`() {
     runTest {
-      val custodyGroup = INDETERMINATE
-      val missingCustodyTypes = listOf(AUTOMATIC, MANDATORY_MLP)
-      // given
-      val expectedMissingCustodyTypeWarningMessages =
-        missingCustodyTypes.map { "${custodyGroup.fullName} custody type not found in PPUD: ${it.fullName}" }
-
-      val availableKnownCustodyTypes =
-        SupportedCustodyType.entries.filterNot { missingCustodyTypes.contains(it) }
-      val availableKnownIndeterminateCustodyTypes =
-        availableKnownCustodyTypes.filter { it.custodyGroup == custodyGroup }
-      val expectedIndeterminateCustodyTypeNames = availableKnownIndeterminateCustodyTypes.map { it.fullName }
-
-      val availableKnownCustodyTypeNames = availableKnownCustodyTypes.map { it.fullName }
-      val unsupportedCustodyTypeNames = listOf(randomString(), randomString())
-      val availableCustodyTypeNames = availableKnownCustodyTypeNames + unsupportedCustodyTypeNames
-      given(ppudClient.retrieveLookupValues(CustodyTypes)).willReturn(availableCustodyTypeNames)
-
-      // when
-      val actualIndeterminateCustodyTypes = referenceService.retrieveIndeterminateCustodyTypes()
-
-      // then
-      assertThat(actualIndeterminateCustodyTypes).isEqualTo(expectedIndeterminateCustodyTypeNames)
-      with(logAppender.list) {
-        this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
-        assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(
-          expectedMissingCustodyTypeWarningMessages,
-        )
+      testCustodyTypeRetrievalByCustodyGroup(INDETERMINATE, listOf(AUTOMATIC, MANDATORY_MLP)) {
+        referenceService.retrieveIndeterminateCustodyTypes()
       }
     }
   }
