@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
 
 import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +45,7 @@ class ReferenceServiceImplTest {
   @Mock
   private lateinit var cacheManager: CacheManager
 
-  private val logAppender = findLogAppender(ReferenceServiceImpl::class.java)
+  private lateinit var logAppender: ListAppender<ILoggingEvent>
 
   @BeforeEach
   fun init() {
@@ -51,6 +53,7 @@ class ReferenceServiceImplTest {
     // complex mock set-ups to account for the custody type caches. Since the two more specific
     // custody methods are tested separately, it's OK to mock them in the refresh cache test
     referenceService = spy(ReferenceServiceImpl(ppudClient, cacheManager))
+    logAppender = findLogAppender(ReferenceServiceImpl::class.java)
   }
 
   @Test
@@ -126,8 +129,8 @@ class ReferenceServiceImplTest {
 
     val availableKnownCustodyTypes =
       SupportedCustodyType.entries.filterNot { missingCustodyTypes.contains(it) }
-    val availableKnownDeterminateCustodyTypes = availableKnownCustodyTypes.filter { it.custodyGroup == custodyGroup }
-    val expectedDeterminateCustodyTypeNames = availableKnownDeterminateCustodyTypes.map { it.fullName }
+    val availableKnownCustodyTypesOfCustodyGroup = availableKnownCustodyTypes.filter { it.custodyGroup == custodyGroup }
+    val expectedAvailableCustodyTypeNamesOfCustodyGroup = availableKnownCustodyTypesOfCustodyGroup.map { it.fullName }
 
     val availableKnownCustodyTypeNames = availableKnownCustodyTypes.map { it.fullName }
     val unsupportedCustodyTypeNames = listOf(randomString(), randomString())
@@ -135,10 +138,10 @@ class ReferenceServiceImplTest {
     given(ppudClient.retrieveLookupValues(CustodyTypes)).willReturn(availableCustodyTypeNames)
 
     // when
-    val actualDeterminateCustodyTypes = methodUnderTest()
+    val actualAvailableCustodyTypeNamesOfCustodyGroup = methodUnderTest()
 
     // then
-    assertThat(actualDeterminateCustodyTypes).isEqualTo(expectedDeterminateCustodyTypeNames)
+    assertThat(actualAvailableCustodyTypeNamesOfCustodyGroup).isEqualTo(expectedAvailableCustodyTypeNamesOfCustodyGroup)
     with(logAppender.list) {
       this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
       assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(
