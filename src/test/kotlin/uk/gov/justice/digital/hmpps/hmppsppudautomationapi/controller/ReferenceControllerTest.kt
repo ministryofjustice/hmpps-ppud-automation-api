@@ -1,30 +1,31 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.controller
 
+import ch.qos.logback.classic.Level
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.then
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.findLogAppender
 
 @ExtendWith(MockitoExtension::class)
 internal class ReferenceControllerTest {
 
-  @Mock
-  lateinit var referenceService: ReferenceService
-
+  @InjectMocks
   private lateinit var controller: ReferenceController
 
-  @BeforeEach
-  fun beforeEach() {
-    controller = ReferenceController(referenceService)
-  }
+  @Mock
+  private lateinit var referenceService: ReferenceService
+
+  private val logAppender = findLogAppender(ReferenceController::class.java)
 
   @Test
   fun `when clearCaches is called then reference service is invoked to clear caches`() {
@@ -32,6 +33,7 @@ internal class ReferenceControllerTest {
       controller.clearCaches()
 
       then(referenceService).should().clearCaches()
+      assertInfoMessageForEndpointWasLogged("clear-caches")
     }
   }
 
@@ -41,6 +43,7 @@ internal class ReferenceControllerTest {
       controller.refreshCaches()
 
       then(referenceService).should().refreshCaches()
+      assertInfoMessageForEndpointWasLogged("refresh-caches")
     }
   }
 
@@ -53,9 +56,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.custodyTypes()
 
-      then(referenceService).should().retrieveCustodyTypes()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(listOf("Determinate"), result.body?.values)
+      assertInfoMessageForEndpointWasLogged("custody-types")
     }
   }
 
@@ -67,9 +70,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.establishments()
 
-      then(referenceService).should().retrieveEstablishments()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("establishments")
     }
   }
 
@@ -81,9 +84,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.ethnicities()
 
-      then(referenceService).should().retrieveEthnicities()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("ethnicities")
     }
   }
 
@@ -95,9 +98,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.genders()
 
-      then(referenceService).should().retrieveGenders()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("genders")
     }
   }
 
@@ -109,9 +112,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.indexOffences()
 
-      then(referenceService).should().retrieveIndexOffences()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("index offences")
     }
   }
 
@@ -123,9 +126,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.mappaLevels()
 
-      then(referenceService).should().retrieveMappaLevels()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("mappa levels")
     }
   }
 
@@ -137,9 +140,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.policeForces()
 
-      then(referenceService).should().retrievePoliceForces()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("police forces")
     }
   }
 
@@ -151,9 +154,9 @@ internal class ReferenceControllerTest {
 
       val result = controller.probationServices()
 
-      then(referenceService).should().retrieveProbationServices()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("probation services")
     }
   }
 
@@ -165,9 +168,47 @@ internal class ReferenceControllerTest {
 
       val result = controller.releaseUnders()
 
-      then(referenceService).should().retrieveReleasedUnders()
       assertEquals(HttpStatus.OK.value(), result.statusCode.value())
       assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("released unders")
+    }
+  }
+
+  @Test
+  fun `when determinateCustodyTypes is called then reference service is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveDeterminateCustodyTypes()).willReturn(values)
+
+      val result = controller.determinateCustodyTypes()
+
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("determinate custody types")
+    }
+  }
+
+  @Test
+  fun `when indeterminateCustodyTypes is called then reference service is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveIndeterminateCustodyTypes()).willReturn(values)
+
+      val result = controller.indeterminateCustodyTypes()
+
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("indeterminate custody types")
+    }
+  }
+
+  private fun assertInfoMessageForEndpointWasLogged(endpoint: String) {
+    with(logAppender.list) {
+      assertThat(size).isEqualTo(1)
+      with(get(0)) {
+        assertThat(level).isEqualTo(Level.INFO)
+        assertThat(message).isEqualTo("Reference data $endpoint endpoint hit")
+      }
     }
   }
 }

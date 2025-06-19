@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.willReturn
 import org.mockito.kotlin.any
 import org.mockito.kotlin.given
 import org.mockito.kotlin.then
@@ -19,8 +20,21 @@ import org.springframework.cache.interceptor.SimpleKey
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.ESTABLISHMENTS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.ETHNICITIES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.GENDERS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDEX_OFFENCES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.MAPPA_LEVELS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.POLICE_FORCES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.PROBATION_SERVICES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.RELEASED_UNDERS_CACHE_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(SpringExtension::class)
@@ -38,15 +52,17 @@ class ReferenceServiceTest {
 
   companion object {
     val cacheNames = arrayOf(
-      "CustodyTypes",
-      "Establishments",
-      "Ethnicities",
-      "Genders",
-      "IndexOffences",
-      "MappaLevels",
-      "PoliceForces",
-      "ProbationServices",
-      "ReleasedUnders",
+      CUSTODY_TYPES_CACHE_NAME,
+      ESTABLISHMENTS_CACHE_NAME,
+      ETHNICITIES_CACHE_NAME,
+      GENDERS_CACHE_NAME,
+      INDEX_OFFENCES_CACHE_NAME,
+      MAPPA_LEVELS_CACHE_NAME,
+      POLICE_FORCES_CACHE_NAME,
+      PROBATION_SERVICES_CACHE_NAME,
+      RELEASED_UNDERS_CACHE_NAME,
+      DETERMINATE_CUSTODY_TYPES_CACHE_NAME,
+      INDETERMINATE_CUSTODY_TYPES_CACHE_NAME,
     )
   }
 
@@ -77,21 +93,17 @@ class ReferenceServiceTest {
   fun `given caching and populated caches when refreshCaches called then all caches are updated with freshly retrieved values`() {
     runBlocking {
       for (cacheName in cacheNames) {
-        cache.getCache(cacheName)?.put(SimpleKey.EMPTY, listOf(randomString()))
+        // We need to separate the custody type cases, as they filter out unrecognised values (such as random strings)
+        val values = if (cacheName === DETERMINATE_CUSTODY_TYPES_CACHE_NAME) {
+          listOf(SupportedCustodyType.EDS.fullName)
+        } else if (cacheName === INDETERMINATE_CUSTODY_TYPES_CACHE_NAME) {
+          listOf(SupportedCustodyType.AUTOMATIC.fullName)
+        } else {
+          listOf(randomString())
+        }
+        cache.getCache(cacheName)?.put(SimpleKey.EMPTY, values)
       }
-      given(ppudClient.retrieveLookupValues(any())).will { listOf(randomString(it.getArgument<LookupName>(0).name)) }
-
-      service.refreshCaches()
-
-      for (cacheName in cacheNames) {
-        val refreshedCacheValues = cache.getCache(cacheName)?.get(SimpleKey.EMPTY)?.get()
-        Assertions.assertNotNull(refreshedCacheValues, "$cacheName cache is empty")
-        val firstRefreshedCacheValue = (refreshedCacheValues as List<*>).first().toString()
-        Assertions.assertTrue(
-          firstRefreshedCacheValue.startsWith(cacheName),
-          "Expected retrieved value to start with $cacheName but value is $firstRefreshedCacheValue",
-        )
-      }
+      testCacheRefresh()
     }
   }
 
@@ -99,14 +111,45 @@ class ReferenceServiceTest {
   fun `given caching and empty caches when refreshCaches called then all caches are updated with freshly retrieved values`() {
     runBlocking {
       clearMockCaches()
-      given(ppudClient.retrieveLookupValues(any())).will { listOf(randomString(it.getArgument<LookupName>(0).name)) }
+      testCacheRefresh()
+    }
+  }
 
-      service.refreshCaches()
+  private suspend fun testCacheRefresh() {
+    // We need to separate the custody type cases, as they filter out unrecognised values (such as random strings)
+    val cachedDeterminateCustodyType = SupportedCustodyType.DETERMINATE.fullName
+    val cachedIndeterminateCustodyType = SupportedCustodyType.DPP.fullName
+    willReturn(
+      listOf(
+        cachedDeterminateCustodyType,
+        cachedIndeterminateCustodyType,
+      ),
+    ).given(ppudClient).retrieveLookupValues(CustodyTypes)
+    willReturn(listOf(randomString())).given(ppudClient).retrieveLookupValues(any())
+    given(ppudClient.retrieveLookupValues(any())).willAnswer {
+      val cacheLookupName = it.getArgument<LookupName>(0)
+      return@willAnswer if (cacheLookupName === CustodyTypes) {
+        listOf(
+          cachedDeterminateCustodyType,
+          cachedIndeterminateCustodyType,
+        )
+      } else {
+        listOf(randomString(cacheLookupName.name))
+      }
+    }
 
-      for (cacheName in cacheNames) {
-        val refreshedCacheValues = cache.getCache(cacheName)?.get(SimpleKey.EMPTY)?.get()
-        Assertions.assertNotNull(refreshedCacheValues, "$cacheName cache is empty")
-        val firstRefreshedCacheValue = (refreshedCacheValues as List<*>).first().toString()
+    service.refreshCaches()
+
+    for (cacheName in cacheNames) {
+      val refreshedCacheValues = cache.getCache(cacheName)?.get(SimpleKey.EMPTY)?.get()
+      Assertions.assertNotNull(refreshedCacheValues, "$cacheName cache is empty")
+      val firstRefreshedCacheValue = (refreshedCacheValues as List<*>).first().toString()
+
+      if (cacheName in listOf(DETERMINATE_CUSTODY_TYPES_CACHE_NAME, CUSTODY_TYPES_CACHE_NAME)) {
+        org.assertj.core.api.Assertions.assertThat(firstRefreshedCacheValue).isEqualTo(cachedDeterminateCustodyType)
+      } else if (cacheName === INDETERMINATE_CUSTODY_TYPES_CACHE_NAME) {
+        org.assertj.core.api.Assertions.assertThat(firstRefreshedCacheValue).isEqualTo(cachedIndeterminateCustodyType)
+      } else {
         Assertions.assertTrue(
           firstRefreshedCacheValue.startsWith(cacheName),
           "Expected retrieved value to start with $cacheName but value is $firstRefreshedCacheValue",
