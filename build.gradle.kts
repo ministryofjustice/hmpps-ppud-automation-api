@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.2.0"
-  kotlin("plugin.spring") version "2.1.10"
-  id("org.sonarqube") version "6.0.1.5171"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
+  kotlin("plugin.spring") version "2.2.0"
+  id("org.sonarqube") version "6.2.0.5505"
   id("jacoco")
 }
 
@@ -22,13 +22,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.29.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.33.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.1.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("commons-io:commons-io:2.18.0") // Address CVE-2021-29425
+  implementation("commons-io:commons-io:2.19.0") // Address CVE-2021-29425
 
   // The dependencies below address the listed CVEs until the hmpps-gradle-spring-boot plug-in
   // brings in a newer version of spring-boot with the fixes (it's already bringing the latest
@@ -42,9 +42,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
-  implementation("org.bouncycastle:bcprov-jdk18on:1.80") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
+  implementation("org.bouncycastle:bcprov-jdk18on:1.81") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.12.6")
