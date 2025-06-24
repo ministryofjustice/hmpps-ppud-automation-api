@@ -5,15 +5,15 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.willReturn
+import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
 import org.mockito.kotlin.then
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
@@ -37,6 +37,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.findLogAppender
 @ExtendWith(MockitoExtension::class)
 class ReferenceServiceImplTest {
 
+  // We use a spy in order to simply the cache refresh test, which would otherwise require more
+  // complex mock set-ups to account for the custody type caches. Since the two more specific
+  // custody methods are tested separately, it's OK to mock them in the refresh cache test
+  @Spy
+  @InjectMocks
   private lateinit var referenceService: ReferenceServiceImpl
 
   @Mock
@@ -45,16 +50,7 @@ class ReferenceServiceImplTest {
   @Mock
   private lateinit var cacheManager: CacheManager
 
-  private lateinit var logAppender: ListAppender<ILoggingEvent>
-
-  @BeforeEach
-  fun init() {
-    // We use a spy in order to simply the cache refresh test, which would otherwise require more
-    // complex mock set-ups to account for the custody type caches. Since the two more specific
-    // custody methods are tested separately, it's OK to mock them in the refresh cache test
-    referenceService = spy(ReferenceServiceImpl(ppudClient, cacheManager))
-    logAppender = findLogAppender(ReferenceServiceImpl::class.java)
-  }
+  private val logAppender: ListAppender<ILoggingEvent> = findLogAppender(ReferenceServiceImpl::class.java)
 
   @Test
   fun `refreshes the caches`() {
