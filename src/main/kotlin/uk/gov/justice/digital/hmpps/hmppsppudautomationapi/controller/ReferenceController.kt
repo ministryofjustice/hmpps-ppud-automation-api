@@ -43,6 +43,7 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     referenceService.refreshCaches()
   }
 
+  @Deprecated("replaced by separate determinate and indeterminate endpoints")
   @GetMapping("/reference/custody-types")
   suspend fun custodyTypes(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data custody-types endpoint hit")
@@ -104,6 +105,20 @@ internal class ReferenceController(private val referenceService: ReferenceServic
   suspend fun releaseUnders(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data released unders endpoint hit")
     val values = referenceService.retrieveReleasedUnders()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
+  @GetMapping("/reference/determinate-custody-types")
+  suspend fun determinateCustodyTypes(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data determinate custody types endpoint hit")
+    val values = referenceService.retrieveDeterminateCustodyTypes()
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
+  @GetMapping("/reference/indeterminate-custody-types")
+  suspend fun indeterminateCustodyTypes(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data indeterminate custody types endpoint hit")
+    val values = referenceService.retrieveIndeterminateCustodyTypes()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
 }
