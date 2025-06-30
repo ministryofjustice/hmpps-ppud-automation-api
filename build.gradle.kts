@@ -38,8 +38,6 @@ dependencies {
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
-  implementation("org.bouncycastle:bcprov-jdk18on:1.80") // Address CVE-2024-29857, CVE-2024-30172, CVE-2024-30171 present in 1.76
-
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.12.6")
 }
