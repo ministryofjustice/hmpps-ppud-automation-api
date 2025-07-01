@@ -27,6 +27,8 @@ class ReferenceTest : IntegrationTestBase() {
       "police-forces",
       "probation-services",
       "released-unders",
+      "determinate-custody-types",
+      "indeterminate-custody-types",
     ],
   )
   fun `given missing token when reference endpoints called then unauthorized is returned`(endpoint: String) {
@@ -73,6 +75,8 @@ class ReferenceTest : IntegrationTestBase() {
       "police-forces",
       "probation-services",
       "released-unders",
+      "determinate-custody-types",
+      "indeterminate-custody-types",
     ],
   )
   fun `when reference endpoint called then values are returned and 'not specified' is excluded`(endpoint: String) {
