@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.IPP_LICENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedReleasedUnder.LIFE_LICENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType
@@ -32,29 +33,42 @@ data class Sentence(
  */
 enum class SupportedCustodyType(
   val fullName: String,
+  val custodyGroup: CustodyGroup,
   val releasedUnder: SupportedReleasedUnder?,
   val recallType: SupportedRecallType,
   val licenceType: SupportedLicenceType,
 ) {
   DETERMINATE(
     "Determinate",
+    CustodyGroup.DETERMINATE,
     null,
     DETERMINATE_RECALL,
     SupportedLicenceType.DETERMINATE,
   ),
-  EDS("EDS", null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
-  EDS_NON_PAROLE("EDS (non parole)", null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
-  IPP("IPP", IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
-  DPP("DPP", IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
-  MANDATORY_MLP("Mandatory (MLP)", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
-  DISCRETIONARY("Discretionary", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
-  DISCRETIONARY_TARIFF_EXPIRED("Discretionary (Tariff Expired)", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
-  AUTOMATIC("Automatic", LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  EDS("EDS", CustodyGroup.DETERMINATE, null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
+  EDS_NON_PAROLE("EDS (non parole)", INDETERMINATE, null, DETERMINATE_RECALL, SupportedLicenceType.DETERMINATE),
+  DPP("DPP", INDETERMINATE, IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
+  DISCRETIONARY("Discretionary", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  DISCRETIONARY_TARIFF_EXPIRED(
+    "Discretionary (Tariff Expired)",
+    INDETERMINATE,
+    LIFE_LICENCE,
+    INDETERMINATE_RECALL,
+    SupportedLicenceType.LIFE,
+  ),
+  IPP("IPP", INDETERMINATE, IPP_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.IPP),
+  MANDATORY_MLP("Mandatory (MLP)", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
+  AUTOMATIC("Automatic", INDETERMINATE, LIFE_LICENCE, INDETERMINATE_RECALL, SupportedLicenceType.LIFE),
   ;
 
   override fun toString(): String = fullName
 
   companion object {
-    fun forFullName(fullName: String): SupportedCustodyType = values().first { it.fullName == fullName }
+    fun forFullName(fullName: String): SupportedCustodyType = entries.first { it.fullName == fullName }
   }
+}
+
+enum class CustodyGroup(val fullName: String) {
+  DETERMINATE("Determinate"),
+  INDETERMINATE("Indeterminate"),
 }
