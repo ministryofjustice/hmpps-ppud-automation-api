@@ -8,20 +8,15 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sente
 import java.time.LocalDate
 
 data class CreateOrUpdateSentenceRequest(
-  @field:NotBlank
-  @field:Pattern(regexp = "Determinate")
   val custodyType: String,
   val dateOfSentence: LocalDate,
   val licenceExpiryDate: LocalDate?,
-  @field:NotBlank
-  val mappaLevel: String,
+  val mappaLevel: String?,
   val releaseDate: LocalDate?,
   val sentenceLength: SentenceLength?,
-  val espCustodialPeriod: EspPeriod?,
-  val espExtendedPeriod: EspPeriod?,
+  val espCustodialPeriod: EspPeriod?, // never set in UI - should we remove it and all associated code?
+  val espExtendedPeriod: EspPeriod?, // never set in UI - should we remove it and all associated code?
   val sentenceExpiryDate: LocalDate?,
-  @field:Size(min = 0, max = 50)
   val sentencingCourt: String = "",
-  @field:NotBlank
-  val sentencedUnder: String,
+  val sentencedUnder: String?,
 )
