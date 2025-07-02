@@ -25,7 +25,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.Unsupported
 @RestControllerAdvice
 class HmppsPpudAutomationApiExceptionHandler {
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
-  fun handleAccessDeniedException(e: Exception): ResponseEntity<ErrorResponse> {
+  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
     log.info("Access denied exception: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
@@ -39,7 +39,7 @@ class HmppsPpudAutomationApiExceptionHandler {
   }
 
   @ExceptionHandler(ValidationException::class)
-  fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
+  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -73,7 +73,7 @@ class HmppsPpudAutomationApiExceptionHandler {
   }
 
   @ExceptionHandler(HttpMessageNotReadableException::class)
-  fun handleHttpMessageNotReadableException(e: Exception): ResponseEntity<ErrorResponse> {
+  fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
     log.info("HttpMessageNotReadable exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -87,7 +87,7 @@ class HmppsPpudAutomationApiExceptionHandler {
   }
 
   @ExceptionHandler(InvalidOffenderIdException::class)
-  fun handleInvalidOffenderIdException(e: Exception): ResponseEntity<ErrorResponse> {
+  fun handleInvalidOffenderIdException(e: InvalidOffenderIdException): ResponseEntity<ErrorResponse> {
     log.info("Invalid offender ID exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
