@@ -116,13 +116,12 @@ internal class ReleaseClientTest {
       val custodyType = randomString()
       given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
 
-      val expectedException =
-        UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: $custodyType")
+      val expectedExceptionMessage = "Sentence $sentenceId has an unsupported custody type: $custodyType"
 
       // when then
       assertThatThrownBy { client.createOrUpdateRelease(offenderId, sentenceId, request) }
-        .usingRecursiveComparison()
-        .isEqualTo(expectedException)
+        .isInstanceOf(UnsupportedCustodyTypeException::class.java)
+        .hasMessage(expectedExceptionMessage)
     }
   }
 
