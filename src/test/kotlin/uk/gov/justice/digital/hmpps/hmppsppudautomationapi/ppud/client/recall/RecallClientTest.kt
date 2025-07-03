@@ -212,13 +212,12 @@ internal class RecallClientTest {
       val custodyType = randomString()
       given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
 
-      val expectedException =
-        UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: $custodyType")
+      val expectedExceptionMessage = "Sentence $sentenceId has an unsupported custody type: $custodyType"
 
       // when then
       assertThatThrownBy { recallClient.createRecall(offenderId, releaseId, createRecallRequest) }
-        .usingRecursiveComparison()
-        .isEqualTo(expectedException)
+        .isInstanceOf(UnsupportedCustodyTypeException::class.java)
+        .hasMessage(expectedExceptionMessage)
     }
   }
 
@@ -239,8 +238,7 @@ internal class RecallClientTest {
 
       // when then
       assertThatThrownBy { recallClient.createRecall(offenderId, releaseId, createRecallRequest) }
-        .usingRecursiveComparison()
-        .isEqualTo(exception)
+        .isSameAs(exception)
 
       val inOrder = inOrder(recallPage)
       then(recallPage).should(inOrder).createRecall(eq(createRecallRequest), any())
