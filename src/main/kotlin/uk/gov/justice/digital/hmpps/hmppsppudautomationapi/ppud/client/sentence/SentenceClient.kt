@@ -12,12 +12,16 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPa
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.validation.SentenceValidator
 
 @Service
 internal class SentenceClient {
 
   @Autowired
   private lateinit var ppudClientConfig: PpudClientConfig
+
+  @Autowired
+  private lateinit var sentenceValidator: SentenceValidator
 
   @Autowired
   private lateinit var offenderPage: OffenderPage
@@ -35,6 +39,8 @@ internal class SentenceClient {
   private lateinit var offenceClient: OffenceClient
 
   fun createSentence(offenderId: String, request: CreateOrUpdateSentenceRequest): CreatedSentence {
+    sentenceValidator.validateSentenceCreationRequest(request)
+
     offenderPage.viewOffenderWithId(offenderId)
     val matched = navigateToMatchingSentence(request)
 
@@ -60,6 +66,8 @@ internal class SentenceClient {
   }
 
   fun updateSentence(offenderId: String, sentenceId: String, request: CreateOrUpdateSentenceRequest) {
+    sentenceValidator.validateSentenceUpdateRequest(request)
+
     offenderPage.viewOffenderWithId(offenderId)
     val sentencePage = getSentencePage(sentenceId)
     sentencePage.updateSentence(request)
