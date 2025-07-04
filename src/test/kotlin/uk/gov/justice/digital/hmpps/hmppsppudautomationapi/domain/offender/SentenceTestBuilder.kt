@@ -43,8 +43,6 @@ fun randomDeterminateCustodyType(): String = custodyType(INDETERMINATE)
 
 fun randomIndeterminateCustodyType(): String = custodyType(DETERMINATE)
 
-fun custodyType(custodyGroupToExclude: CustodyGroup) =
-  randomEnum(exclude = SupportedCustodyType.entries.filter { it.custodyGroup === custodyGroupToExclude }).fullName
+fun custodyType(custodyGroupToExclude: CustodyGroup) = randomEnum(exclude = SupportedCustodyType.entries.filter { it.custodyGroup === custodyGroupToExclude }).fullName
 
-fun custodyType(custodyTypeToExclude: String) =
-  randomEnum(exclude = listOf(SupportedCustodyType.forFullName(custodyTypeToExclude))).fullName
+fun custodyType(custodyTypeToExclude: String) = randomEnum(exclude = listOf(SupportedCustodyType.forFullName(custodyTypeToExclude))).fullName

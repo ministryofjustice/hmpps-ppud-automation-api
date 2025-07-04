@@ -220,15 +220,11 @@ internal class SentenceComparatorTest {
     assertFalse(result)
   }
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String =
-    if (keyFieldToBeDifferent == fieldName) "differs" else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String = if (keyFieldToBeDifferent == fieldName) "differs" else value
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate =
-    if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate = if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int =
-    if (keyFieldToBeDifferent == fieldName) value - 1 else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int = if (keyFieldToBeDifferent == fieldName) value - 1 else value
 
-  private fun differsOrTheSameCustodyType(keyFieldToBeDifferent: String, value: String): String =
-    if (keyFieldToBeDifferent == "custodyType") custodyType(value) else value
+  private fun differsOrTheSameCustodyType(keyFieldToBeDifferent: String, value: String): String = if (keyFieldToBeDifferent == "custodyType") custodyType(value) else value
 }

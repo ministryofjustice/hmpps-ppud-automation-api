@@ -14,9 +14,9 @@ class SentenceValidatorTest {
 
   private val validator = SentenceValidator()
 
-  /////////////////////////////////
+  // ///////////////////////////////
   // CREATION REQUEST VALIDATION //
-  /////////////////////////////////
+  // ///////////////////////////////
 
   @Test
   fun `validates correct determinate sentence creation request with all relevant fields set`() {
@@ -143,9 +143,9 @@ class SentenceValidatorTest {
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
 
-  ///////////////////////////////
+  // /////////////////////////////
   // UPDATE REQUEST VALIDATION //
-  ///////////////////////////////
+  // /////////////////////////////
 
   @Test
   fun `validates correct determinate sentence update request with all relevant fields set`() {
@@ -314,11 +314,9 @@ class SentenceValidatorTest {
     expectedExceptionMessage: String,
     validationCall: () -> Unit,
   ) {
-
     // when then
     assertThatThrownBy(validationCall)
       .isInstanceOf(ValidationException::class.java)
       .hasMessage(expectedExceptionMessage)
   }
-
 }

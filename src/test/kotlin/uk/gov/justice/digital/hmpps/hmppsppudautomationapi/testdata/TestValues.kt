@@ -135,7 +135,7 @@ private const val SECONDS_IN_A_DAY: Long = 86400
 
 fun randomString(prefix: String = "random"): String = "$prefix-${UUID.randomUUID()}"
 
-fun randomStringOfLength(length: Int) : String {
+fun randomStringOfLength(length: Int): String {
   val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
   return (1..length)
     .map { allowedChars.random() }
