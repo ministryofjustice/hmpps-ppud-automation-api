@@ -181,14 +181,12 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .value(Consumer<String> { assertThat(it).contains("Unsupported custody type found") })
   }
 
-  private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =
-    webTestClient.post()
-      .uri(constructUri(offenderId, sentenceId))
-      .headers { it.authToken() }
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestBody))
-      .exchange()
+  private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.post()
+    .uri(constructUri(offenderId, sentenceId))
+    .headers { it.authToken() }
+    .contentType(MediaType.APPLICATION_JSON)
+    .body(BodyInserters.fromValue(requestBody))
+    .exchange()
 
-  private fun constructUri(offenderId: String, sentenceId: String) =
-    "/offender/$offenderId/sentence/$sentenceId/release"
+  private fun constructUri(offenderId: String, sentenceId: String) = "/offender/$offenderId/sentence/$sentenceId/release"
 }
