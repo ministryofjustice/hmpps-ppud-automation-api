@@ -3,14 +3,11 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.val
 import jakarta.validation.ValidationException
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.DETERMINATE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.randomDeterminateCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.randomIndeterminateCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.createOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomStringOfLength
 
 class SentenceValidatorTest {
@@ -298,13 +295,6 @@ class SentenceValidatorTest {
     // when then
     testInvalidUpdateRequest(creationRequest, expectedExceptionMessage)
   }
-
-  private fun randomDeterminateCustodyType(): String = randomCustodyType(INDETERMINATE)
-
-  private fun randomIndeterminateCustodyType(): String = randomCustodyType(DETERMINATE)
-
-  private fun randomCustodyType(custodyGroupToExclude: CustodyGroup) =
-    randomEnum(exclude = SupportedCustodyType.entries.filter { it.custodyGroup === custodyGroupToExclude }).fullName
 
   private fun testInvalidCreationRequest(
     creationRequest: CreateOrUpdateSentenceRequest,

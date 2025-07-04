@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender
 
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.DETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
 
@@ -35,3 +38,13 @@ fun sentence(
   sentenceLength,
   sentencingCourt,
 )
+
+fun randomDeterminateCustodyType(): String = custodyType(INDETERMINATE)
+
+fun randomIndeterminateCustodyType(): String = custodyType(DETERMINATE)
+
+fun custodyType(custodyGroupToExclude: CustodyGroup) =
+  randomEnum(exclude = SupportedCustodyType.entries.filter { it.custodyGroup === custodyGroupToExclude }).fullName
+
+fun custodyType(custodyTypeToExclude: String) =
+  randomEnum(exclude = listOf(SupportedCustodyType.forFullName(custodyTypeToExclude))).fullName

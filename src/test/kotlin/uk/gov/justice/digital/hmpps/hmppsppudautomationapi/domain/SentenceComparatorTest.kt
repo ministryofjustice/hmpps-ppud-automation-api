@@ -8,7 +8,11 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.custodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.randomDeterminateCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.randomIndeterminateCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.createOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDate
@@ -22,10 +26,10 @@ internal class SentenceComparatorTest {
   companion object {
 
     /**
-     *  These are the key fields on which we base a match.
+     *  These are the key fields on which we base a match for determinate sentences.
      */
     @JvmStatic
-    fun keyFieldsSource(): Stream<String> = Stream.of(
+    fun keyDeterminateFieldsSource(): Stream<String> = Stream.of(
       "custodyType",
       "dateOfSentence",
       "licenceExpiryDate",
@@ -37,6 +41,16 @@ internal class SentenceComparatorTest {
       "sentencingCourt",
       "sentencedUnder",
     )
+
+    /**
+     *  These are the key fields on which we base a match for indeterminate sentences.
+     */
+    @JvmStatic
+    fun keyIndeterminateFieldsSource(): Stream<String> = Stream.of(
+      "custodyType",
+      "dateOfSentence",
+      "sentencingCourt",
+    )
   }
 
   @BeforeEach
@@ -45,10 +59,10 @@ internal class SentenceComparatorTest {
   }
 
   @Test
-  fun `given all key values are populated with matching values when areMatching is called then true is returned`() {
-    val existing = Sentence(
+  fun `matching key determinate values result in matching objects`() {
+    val existing = sentence(
       id = "",
-      custodyType = randomString("custodyType"),
+      custodyType = randomDeterminateCustodyType(),
       dateOfSentence = randomDate(),
       mappaLevel = randomString("mappaLevel"),
       licenceExpiryDate = randomDate(),
@@ -57,7 +71,7 @@ internal class SentenceComparatorTest {
       sentencingCourt = randomString("sentencingCourt"),
       sentencedUnder = randomString("sentencedUnder"),
     )
-    val request = CreateOrUpdateSentenceRequest(
+    val request = createOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
       mappaLevel = existing.mappaLevel.orEmpty(),
@@ -69,9 +83,6 @@ internal class SentenceComparatorTest {
         existing.sentenceLength!!.partDays,
       ),
       sentencingCourt = existing.sentencingCourt,
-      espCustodialPeriod = null,
-      espExtendedPeriod = null,
-      releaseDate = null,
       sentencedUnder = existing.sentencedUnder!!,
     )
     val result = comparator.areMatching(existing, request)
@@ -79,76 +90,58 @@ internal class SentenceComparatorTest {
   }
 
   @Test
-  fun `given nullable values are null and other key values are populated with matching values when areMatching is called then true is returned`() {
-    val existing = Sentence(
+  fun `matching key indeterminate values result in matching objects`() {
+    val existing = sentence(
       id = "",
-      custodyType = randomString("custodyType"),
+      custodyType = randomIndeterminateCustodyType(),
       dateOfSentence = randomDate(),
-      mappaLevel = randomString("mappaLevel"),
-      licenceExpiryDate = null,
-      sentenceExpiryDate = null,
-      sentenceLength = null,
       sentencingCourt = randomString("sentencingCourt"),
-      sentencedUnder = randomString("sentencedUnder"),
     )
-    val request = CreateOrUpdateSentenceRequest(
+    val request = createOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
-      mappaLevel = existing.mappaLevel.orEmpty(),
-      licenceExpiryDate = null,
-      sentenceExpiryDate = null,
-      sentenceLength = null,
       sentencingCourt = existing.sentencingCourt,
-      espCustodialPeriod = null,
-      espExtendedPeriod = null,
-      releaseDate = null,
-      sentencedUnder = existing.sentencedUnder!!,
     )
     val result = comparator.areMatching(existing, request)
     assertTrue(result)
   }
 
   @Test
-  fun `given all fields but sentencedUnder are populated with matching values when areMatching is called then false is returned`() {
-    // We have this test because Sentence allows a null sentencedUnder (indeterminate sentences have a null value here)
-    // but CreateOrUpdateSentenceRequest doesn't (only determinate sentences are ever created or updated, and they
-    // always have a value for sentencedUnder). We want to make sure null vs !null is covered.
+  fun `considers null key determinate values (where allowed) as equal`() {
     val existing = Sentence(
       id = "",
-      custodyType = randomString("custodyType"),
+      custodyType = randomDeterminateCustodyType(),
       dateOfSentence = randomDate(),
-      mappaLevel = randomString("mappaLevel"),
+      mappaLevel = null,
       licenceExpiryDate = null,
       sentenceExpiryDate = null,
       sentenceLength = null,
       sentencingCourt = randomString("sentencingCourt"),
       sentencedUnder = null,
     )
-    val request = CreateOrUpdateSentenceRequest(
+    val request = createOrUpdateSentenceRequest(
       custodyType = existing.custodyType,
       dateOfSentence = existing.dateOfSentence,
-      mappaLevel = existing.mappaLevel.orEmpty(),
+      mappaLevel = null,
       licenceExpiryDate = null,
       sentenceExpiryDate = null,
       sentenceLength = null,
       sentencingCourt = existing.sentencingCourt,
-      espCustodialPeriod = null,
-      espExtendedPeriod = null,
-      releaseDate = null,
-      sentencedUnder = randomString("sentencedUnder"),
+      sentencedUnder = null,
     )
     val result = comparator.areMatching(existing, request)
-    assertFalse(result)
+    assertTrue(result)
   }
 
+  // All key comparison values for indeterminate sentences are non-nullable, so we don't need a null comparison test
+
   @ParameterizedTest
-  @MethodSource("keyFieldsSource")
-  fun `given any key value differs when areMatching is called then false is returned`(
-    keyFieldToBeDifferent: String,
+  @MethodSource("keyDeterminateFieldsSource")
+  fun `differing key determinate values result in non-matching objects`(
+    keyDeterminateFieldToBeDifferent: String,
   ) {
-    val existing = Sentence(
-      id = "",
-      custodyType = randomString("custodyType"),
+    val existing = sentence(
+      custodyType = randomDeterminateCustodyType(),
       dateOfSentence = randomDate(),
       mappaLevel = randomString("mappaLevel"),
       licenceExpiryDate = randomDate(),
@@ -157,42 +150,85 @@ internal class SentenceComparatorTest {
       sentencingCourt = randomString("sentencingCourt"),
       sentencedUnder = randomString("sentencedUnder"),
     )
-    val request = CreateOrUpdateSentenceRequest(
-      custodyType = differsOrTheSame(keyFieldToBeDifferent, "custodyType", existing.custodyType),
-      dateOfSentence = differsOrTheSame(keyFieldToBeDifferent, "dateOfSentence", existing.dateOfSentence),
-      mappaLevel = differsOrTheSame(keyFieldToBeDifferent, "mappaLevel", existing.mappaLevel.orEmpty()),
-      licenceExpiryDate = differsOrTheSame(keyFieldToBeDifferent, "licenceExpiryDate", existing.licenceExpiryDate!!),
-      sentenceExpiryDate = differsOrTheSame(keyFieldToBeDifferent, "sentenceExpiryDate", existing.sentenceExpiryDate!!),
+    val request = createOrUpdateSentenceRequest(
+      custodyType = differsOrTheSameCustodyType(keyDeterminateFieldToBeDifferent, existing.custodyType),
+      dateOfSentence = differsOrTheSame(keyDeterminateFieldToBeDifferent, "dateOfSentence", existing.dateOfSentence),
+      mappaLevel = differsOrTheSame(keyDeterminateFieldToBeDifferent, "mappaLevel", existing.mappaLevel.orEmpty()),
+      licenceExpiryDate = differsOrTheSame(
+        keyDeterminateFieldToBeDifferent,
+        "licenceExpiryDate",
+        existing.licenceExpiryDate!!,
+      ),
+      sentenceExpiryDate = differsOrTheSame(
+        keyDeterminateFieldToBeDifferent,
+        "sentenceExpiryDate",
+        existing.sentenceExpiryDate!!,
+      ),
       sentenceLength = SentenceLength(
         partYears = differsOrTheSame(
-          keyFieldToBeDifferent,
+          keyDeterminateFieldToBeDifferent,
           "sentenceLength.partYears",
           existing.sentenceLength!!.partYears,
         ),
         partMonths = differsOrTheSame(
-          keyFieldToBeDifferent,
+          keyDeterminateFieldToBeDifferent,
           "sentenceLength.partMonths",
           existing.sentenceLength!!.partMonths,
         ),
         partDays = differsOrTheSame(
-          keyFieldToBeDifferent,
+          keyDeterminateFieldToBeDifferent,
           "sentenceLength.partDays",
           existing.sentenceLength!!.partDays,
         ),
       ),
-      sentencingCourt = differsOrTheSame(keyFieldToBeDifferent, "sentencingCourt", existing.sentencingCourt),
-      espCustodialPeriod = null,
-      espExtendedPeriod = null,
-      releaseDate = null,
-      sentencedUnder = differsOrTheSame(keyFieldToBeDifferent, "sentencedUnder", existing.sentencedUnder!!),
+      sentencingCourt = differsOrTheSame(keyDeterminateFieldToBeDifferent, "sentencingCourt", existing.sentencingCourt),
+      sentencedUnder = differsOrTheSame(keyDeterminateFieldToBeDifferent, "sentencedUnder", existing.sentencedUnder!!),
+      // non-key fields - made the same to ensure they don't influence the comparison result
+      releaseDate = existing.releaseDate,
+      espCustodialPeriod = existing.espCustodialPeriod,
+      espExtendedPeriod = existing.espExtendedPeriod,
     )
     val result = comparator.areMatching(existing, request)
     assertFalse(result)
   }
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String = if (keyFieldToBeDifferent == fieldName) "differs" else value
+  @ParameterizedTest
+  @MethodSource("keyIndeterminateFieldsSource")
+  fun `differing key indeterminate values result in non-matching objects`(
+    keyIndeterminateFieldToBeDifferent: String,
+  ) {
+    val existing = sentence(custodyType = randomIndeterminateCustodyType())
+    val request = createOrUpdateSentenceRequest(
+      custodyType = differsOrTheSameCustodyType(keyIndeterminateFieldToBeDifferent, existing.custodyType),
+      dateOfSentence = differsOrTheSame(keyIndeterminateFieldToBeDifferent, "dateOfSentence", existing.dateOfSentence),
+      sentencingCourt = differsOrTheSame(
+        keyIndeterminateFieldToBeDifferent,
+        "sentencingCourt",
+        existing.sentencingCourt,
+      ),
+      // non-key fields - made the same to ensure they don't influence the comparison result
+      licenceExpiryDate = existing.licenceExpiryDate,
+      mappaLevel = existing.mappaLevel,
+      releaseDate = existing.releaseDate,
+      sentenceLength = existing.sentenceLength,
+      espCustodialPeriod = existing.espCustodialPeriod,
+      espExtendedPeriod = existing.espExtendedPeriod,
+      sentenceExpiryDate = existing.sentenceExpiryDate,
+      sentencedUnder = existing.sentencedUnder,
+    )
+    val result = comparator.areMatching(existing, request)
+    assertFalse(result)
+  }
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate = if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: String): String =
+    if (keyFieldToBeDifferent == fieldName) "differs" else value
 
-  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int = if (keyFieldToBeDifferent == fieldName) value - 1 else value
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: LocalDate): LocalDate =
+    if (keyFieldToBeDifferent == fieldName) value.plusDays(1) else value
+
+  private fun differsOrTheSame(keyFieldToBeDifferent: String, fieldName: String, value: Int): Int =
+    if (keyFieldToBeDifferent == fieldName) value - 1 else value
+
+  private fun differsOrTheSameCustodyType(keyFieldToBeDifferent: String, value: String): String =
+    if (keyFieldToBeDifferent == "custodyType") custodyType(value) else value
 }
