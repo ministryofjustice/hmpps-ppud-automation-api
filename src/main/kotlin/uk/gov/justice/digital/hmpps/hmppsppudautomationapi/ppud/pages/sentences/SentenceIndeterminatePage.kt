@@ -44,7 +44,12 @@ internal class SentenceIndeterminatePage(
   }
 
   override fun updateSentence(request: CreateOrUpdateSentenceRequest) {
-    TODO("Indeterminate sentences not yet supported")
+    with(pageHelper) {
+      enterDate(dateOfSentenceInput, request.dateOfSentence)
+      enterText(sentencingCourtInput, request.sentencingCourt)
+    }
+
+    saveButton.click()
   }
 
   override fun extractCreatedSentenceDetails(): CreatedSentence {
@@ -74,10 +79,6 @@ internal class SentenceIndeterminatePage(
         offence = offenceExtractor(offenceLink),
       )
     }
-  }
-
-  override fun throwIfInvalid() {
-    TODO("Indeterminate sentences not yet supported")
   }
 
   private fun latestReleaseDate(releaseNodes: List<TreeViewNode>): LocalDate? {
@@ -115,4 +116,7 @@ internal class SentenceIndeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
+  private lateinit var saveButton: WebElement
 }

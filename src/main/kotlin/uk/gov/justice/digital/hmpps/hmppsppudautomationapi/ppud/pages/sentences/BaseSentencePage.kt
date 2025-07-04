@@ -1,11 +1,14 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences
 
+import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebElement
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.SentenceComparator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent.Companion.url
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
@@ -31,7 +34,11 @@ internal abstract class BaseSentencePage(
     offenceExtractor: (String) -> Offence,
   ): Sentence
 
-  abstract fun throwIfInvalid()
+  fun throwIfInvalid() {
+    if (validationSummary?.text?.isNotBlank() == true) {
+      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
+    }
+  }
 
   fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
     val existing = extractSentenceDetails(::Offence)
@@ -45,8 +52,6 @@ internal abstract class BaseSentencePage(
       .url
   }
 
-  protected fun determineReleaseLinks(includeEmptyReleases: Boolean): List<String> {
-    val sentenceId = pageHelper.extractId(pageDescription)
-    return navigationTreeViewComponent.extractReleaseLinks(sentenceId, includeEmptyReleases)
-  }
+  private val validationSummary: WebElement?
+    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 }

@@ -19,7 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Mandatory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_IMMIGRATION_STATUS
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_PRISONER_CATEGORY
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_STATUS
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_DETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
@@ -108,7 +108,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val requestBodyWithOnlyMandatoryFields =
       """
         {
-          "custodyType" : "$PPUD_VALID_CUSTODY_TYPE",
+          "custodyType" : "$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
           "dateOfBirth" : "${randomDate()}",
           "dateOfSentence" : "${randomDate()}",
           "ethnicity" : "$PPUD_VALID_ETHNICITY",
@@ -139,7 +139,7 @@ class OffenderCreateTest : IntegrationTestBase() {
           "postcode" : null,
           "phoneNumber" : null
         },
-        "custodyType" : "$PPUD_VALID_CUSTODY_TYPE",
+        "custodyType" : "$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
         "croNumber" : null,
         "dateOfBirth" : "${randomDate()}",
         "dateOfSentence" : "${randomDate()}",
@@ -210,7 +210,7 @@ class OffenderCreateTest : IntegrationTestBase() {
         additionalAddressPhoneNumber,
       ),
       croNumber = croNumber,
-      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      custodyType = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfBirth = dateOfBirth,
       dateOfSentence = dateOfSentence,
       ethnicity = PPUD_VALID_ETHNICITY,
@@ -252,7 +252,7 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.status").isEqualTo(PPUD_STATUS)
       .jsonPath("offender.sentences.size()").isEqualTo(1)
       .jsonPath("offender.sentences[0].id").isEqualTo(createdOffender.sentence.id)
-      .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_DETERMINATE_CUSTODY_TYPE)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
       .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo(PPUD_VALID_INDEX_OFFENCE)
