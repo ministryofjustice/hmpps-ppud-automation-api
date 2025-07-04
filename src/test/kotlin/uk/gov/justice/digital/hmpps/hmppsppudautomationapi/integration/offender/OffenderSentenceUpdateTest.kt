@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -12,7 +13,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_DETERMINATE_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_UNDER
@@ -34,7 +36,11 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
-      MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+      MandatoryFieldTestData(
+        "custodyType",
+        createOrUpdateSentenceRequestBody(custodyType = ""),
+        "Request to update a sentence was missing a Custody Type value",
+      ),
     )
   }
 
@@ -77,11 +83,11 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given missing optional fields in request body when update sentence called then 200 OK is returned`() {
+  fun `given missing optional fields in request body when update determinate sentence called then 200 OK is returned`() {
     val requestBodyWithOnlyMandatoryFields =
       """
         {
-          "custodyType":"$PPUD_VALID_CUSTODY_TYPE",
+          "custodyType":"$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
           "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
@@ -93,16 +99,39 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .isOk
   }
 
+  @Disabled("requires a way of creating an indeterminate sentence to update. For now, can be tested by manually creating one and setting offenderId and sentenceId below")
   @Test
-  fun `given custody type is not determinate in request body when update sentence called then bad request is returned`() {
-    // This is a temporary restriction until we handle indeterminate recalls
+  fun `given missing optional fields in request body when update indeterminate sentence called then 200 OK is returned`() {
+    val offenderId = randomPpudId()
+    val sentenceId = randomPpudId()
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType":"$PPUD_VALID_INDETERMINATE_CUSTODY_TYPE",
+          "dateOfSentence":"${randomDate()}",
+          "releaseDate":"${randomDate()}",
+          "sentencingCourt":"${randomString()}"
+        }
+      """.trimIndent()
+
+    putSentence(offenderId, sentenceId, requestBodyWithOnlyMandatoryFields)
+      .expectStatus()
+      .isOk
+  }
+
+  @Test
+  fun `given custody type is not a valid custody type in request body when update sentence called then bad request is returned`() {
     val requestBody = createOrUpdateSentenceRequestBody(custodyType = randomString("custodyType"))
     putSentence(randomPpudId(), randomPpudId(), requestBody)
       .expectStatus()
       .isBadRequest
       .expectBody()
       .jsonPath("userMessage")
-      .value(Consumer<String> { Assertions.assertThat(it).contains("custodyType") })
+      .value(
+        Consumer<String> {
+          Assertions.assertThat(it).contains("Request to update a sentence had an invalid Custody Type value")
+        },
+      )
   }
 
   @Test
@@ -134,7 +163,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     val sentenceLengthPartMonths = Random.nextInt(0, 1000)
     val sentenceLengthPartDays = Random.nextInt(0, 1000)
     val requestBody = createOrUpdateSentenceRequestBody(
-      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      custodyType = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfSentence = dateOfSentence,
       espCustodialPeriodYears = espCustodialPeriodYears,
       espCustodialPeriodMonths = espCustodialPeriodMonths,
@@ -157,7 +186,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.sentences.size()").isEqualTo(1)
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[0].custodyType").isEqualTo(PPUD_VALID_DETERMINATE_CUSTODY_TYPE)
       .jsonPath("offender.sentences[0].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[0].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)
       .jsonPath("offender.sentences[0].espCustodialPeriod.months").isEqualTo(espCustodialPeriodMonths)
@@ -182,12 +211,14 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .isEmpty
   }
 
-  private fun putSentence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()
-    .uri(constructUpdateSentenceUri(offenderId, sentenceId))
-    .headers { it.authToken() }
-    .contentType(MediaType.APPLICATION_JSON)
-    .body(BodyInserters.fromValue(requestBody))
-    .exchange()
+  private fun putSentence(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec =
+    webTestClient.put()
+      .uri(constructUpdateSentenceUri(offenderId, sentenceId))
+      .headers { it.authToken() }
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(BodyInserters.fromValue(requestBody))
+      .exchange()
 
-  private fun constructUpdateSentenceUri(offenderId: String, sentenceId: String) = "/offender/$offenderId/sentence/$sentenceId"
+  private fun constructUpdateSentenceUri(offenderId: String, sentenceId: String) =
+    "/offender/$offenderId/sentence/$sentenceId"
 }

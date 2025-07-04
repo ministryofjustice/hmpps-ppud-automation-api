@@ -101,12 +101,6 @@ internal class SentenceDeterminatePage(
     }
   }
 
-  override fun throwIfInvalid() {
-    if (validationSummary?.text?.isNotBlank() == true) {
-      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
-    }
-  }
-
   // Page Elements
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -155,7 +149,4 @@ internal class SentenceDeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
-
-  private val validationSummary: WebElement?
-    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 }

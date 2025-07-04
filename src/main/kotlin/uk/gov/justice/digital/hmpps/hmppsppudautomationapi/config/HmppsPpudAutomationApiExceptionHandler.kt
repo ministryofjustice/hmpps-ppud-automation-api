@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
-import org.springframework.http.HttpStatus.PRECONDITION_FAILED
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
@@ -146,11 +145,11 @@ class HmppsPpudAutomationApiExceptionHandler {
   fun handleUnsupportedCustodyTypeException(e: UnsupportedCustodyTypeException): ResponseEntity<ErrorResponse> {
     log.info("Unsupported custody type exception: {}", e.message)
     return ResponseEntity
-      .status(PRECONDITION_FAILED)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse(
-          status = PRECONDITION_FAILED,
-          userMessage = "Unsupported custody type found",
+          status = BAD_REQUEST,
+          userMessage = "Unsupported custody type found: ${e.message}",
           developerMessage = e.message,
         ),
       )
