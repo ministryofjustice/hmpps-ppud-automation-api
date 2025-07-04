@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPa
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.validation.SentenceValidator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOrUpdateSentenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -40,6 +41,9 @@ internal class SentenceClientTest {
 
   @Spy
   private val ppudClientConfig: PpudClientConfig = ppudClientConfig()
+
+  @Mock
+  private lateinit var sentenceValidator: SentenceValidator
 
   @Mock
   private lateinit var offenderPage: OffenderPage
@@ -65,6 +69,7 @@ internal class SentenceClientTest {
   @Test
   fun `given sentence data when create sentence is called then create sentence and return ID`() {
     runBlocking {
+      // given
       val offenderId = randomPpudId()
       val custodyType = randomString("custodyType")
       val request = generateCreateOrUpdateSentenceRequest(
@@ -74,8 +79,11 @@ internal class SentenceClientTest {
       given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
       given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
 
+      // when
       val newSentence = sentenceClient.createSentence(offenderId, request)
 
+      // then
+      then(sentenceValidator).should().validateSentenceCreationRequest(request)
       val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).navigateToNewSentence()
@@ -92,6 +100,7 @@ internal class SentenceClientTest {
   @Test
   fun `given duplicate sentence data when create sentence is called then do not create sentence and return existing ID`() {
     runBlocking {
+      // given
       val offenderId = randomPpudId()
       val dateOfSentence = randomDate()
       val custodyType = randomString("custodyType")
@@ -106,8 +115,11 @@ internal class SentenceClientTest {
       given(sentencePage.isMatching(request)).willReturn(true)
       given(sentencePage.extractCreatedSentenceDetails()).willReturn(CreatedSentence(sentenceId))
 
+      // when
       val returnedSentence = sentenceClient.createSentence(offenderId, request)
 
+      // then
+      then(sentenceValidator).should().validateSentenceCreationRequest(request)
       val inOrder =
         inOrder(offenderPage, navigationTreeViewComponent, webDriverNavigation, sentencePageFactory, sentencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
@@ -126,13 +138,17 @@ internal class SentenceClientTest {
   @Test
   fun `given offender ID and sentence ID and sentence data when update sentence is called then update sentence`() {
     runBlocking {
+      // given
       val offenderId = randomPpudId()
       val sentenceId = randomPpudId()
       val request = generateCreateOrUpdateSentenceRequest()
       given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
+      // when
       sentenceClient.updateSentence(offenderId, sentenceId, request)
 
+      // then
+      then(sentenceValidator).should().validateSentenceUpdateRequest(request)
       val inOrder = inOrder(offenderPage, navigationTreeViewComponent, sentencePageFactory, sentencePage)
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(navigationTreeViewComponent).should(inOrder).navigateToSentenceFor(sentenceId)
@@ -145,14 +161,14 @@ internal class SentenceClientTest {
   @Test
   fun `given offender ID and sentence ID return the sentence details`() {
     runBlocking {
-      // when
+      // given
       val sentenceId = randomPpudId()
       given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
 
       val expectedSentence = sentence()
       given(sentencePage.extractSentenceDetails(any<(String) -> Offence>())).willReturn(expectedSentence)
 
-      // given
+      // when
       val actualSentence = sentenceClient.getSentence(sentenceId)
 
       // then
