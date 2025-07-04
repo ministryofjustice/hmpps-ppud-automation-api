@@ -10,9 +10,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 @Component
 class SentenceComparator {
 
-  fun areMatching(existing: Sentence, request: CreateOrUpdateSentenceRequest): Boolean =
-    areMatchingDeterminateSentences(existing, request) ||
-      areMatchingIndeterminateSentences(existing, request)
+  fun areMatching(existing: Sentence, request: CreateOrUpdateSentenceRequest): Boolean = areMatchingDeterminateSentences(existing, request) ||
+    areMatchingIndeterminateSentences(existing, request)
 
   private fun areMatchingDeterminateSentences(existing: Sentence, request: CreateOrUpdateSentenceRequest): Boolean {
     try {
