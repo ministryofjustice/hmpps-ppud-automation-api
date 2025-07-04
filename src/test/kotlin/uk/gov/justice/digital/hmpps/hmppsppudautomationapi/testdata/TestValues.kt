@@ -26,7 +26,9 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.random.Random
 
-const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
+const val PPUD_VALID_DETERMINATE_CUSTODY_TYPE = "Determinate"
+
+const val PPUD_VALID_INDETERMINATE_CUSTODY_TYPE = "Automatic"
 
 const val PPUD_UNSUPPORTED_CUSTODY_TYPE = "DCR (Deportation)"
 
