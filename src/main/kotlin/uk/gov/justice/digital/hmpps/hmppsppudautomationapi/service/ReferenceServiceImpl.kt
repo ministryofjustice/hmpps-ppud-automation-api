@@ -5,6 +5,10 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.interceptor.SimpleKey
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.DETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CustodyGroup.INDETERMINATE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
 
@@ -26,6 +30,8 @@ internal class ReferenceServiceImpl(
     const val POLICE_FORCES_CACHE_NAME: String = "PoliceForces"
     const val PROBATION_SERVICES_CACHE_NAME: String = "ProbationServices"
     const val RELEASED_UNDERS_CACHE_NAME: String = "ReleasedUnders"
+    const val DETERMINATE_CUSTODY_TYPES_CACHE_NAME: String = "DeterminateCustodyTypes"
+    const val INDETERMINATE_CUSTODY_TYPES_CACHE_NAME: String = "IndeterminateCustodyTypes"
   }
 
   override fun clearCaches() {
@@ -38,6 +44,14 @@ internal class ReferenceServiceImpl(
     LookupName.entries.forEach {
       refreshReferenceData(it)
     }
+
+    // We need to do these separately, as they don't have one-to-one
+    // relationships to lookup names, so aren't covered by the code above
+    cacheManager.getCache(DETERMINATE_CUSTODY_TYPES_CACHE_NAME)?.put(SimpleKey.EMPTY, retrieveDeterminateCustodyTypes())
+      ?: throw RuntimeException("Cache '$DETERMINATE_CUSTODY_TYPES_CACHE_NAME' not found")
+    cacheManager.getCache(INDETERMINATE_CUSTODY_TYPES_CACHE_NAME)
+      ?.put(SimpleKey.EMPTY, retrieveIndeterminateCustodyTypes())
+      ?: throw RuntimeException("Cache '$INDETERMINATE_CUSTODY_TYPES_CACHE_NAME' not found")
   }
 
   @Cacheable(CUSTODY_TYPES_CACHE_NAME)
@@ -67,6 +81,12 @@ internal class ReferenceServiceImpl(
   @Cacheable(RELEASED_UNDERS_CACHE_NAME)
   override suspend fun retrieveReleasedUnders(): List<String> = ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
 
+  @Cacheable(DETERMINATE_CUSTODY_TYPES_CACHE_NAME)
+  override suspend fun retrieveDeterminateCustodyTypes(): List<String> = retrieveCustodyTypesByCustodyGroup(DETERMINATE)
+
+  @Cacheable(INDETERMINATE_CUSTODY_TYPES_CACHE_NAME)
+  override suspend fun retrieveIndeterminateCustodyTypes(): List<String> = retrieveCustodyTypesByCustodyGroup(INDETERMINATE)
+
   override fun quit() {
     ppudClient.quit()
   }
@@ -74,6 +94,34 @@ internal class ReferenceServiceImpl(
   private suspend fun refreshReferenceData(lookupName: LookupName) {
     log.info("Refreshing cache '$lookupName'")
     val values = ppudClient.retrieveLookupValues(lookupName)
-    cacheManager.getCache(lookupName.name)?.put(SimpleKey.EMPTY, values) ?: throw RuntimeException("Cache '${lookupName.name}' not found")
+    cacheManager.getCache(lookupName.name)?.put(SimpleKey.EMPTY, values)
+      ?: throw RuntimeException("Cache '${lookupName.name}' not found")
+  }
+
+  private suspend fun retrieveCustodyTypesByCustodyGroup(
+    custodyGroup: CustodyGroup,
+  ): List<String> {
+    // This call bypasses the cache. We could fix this by having this service get an Autowired reference
+    // to itself (which would give us the cache-wrapped version of itself), but given the consumers of this
+    // method are also caching, it'll have very little impact on overall performance, so we don't fix it
+    val allCustodyTypes = retrieveCustodyTypes()
+
+    val availableDeterminateCustodyTypes: List<SupportedCustodyType> = allCustodyTypes.mapNotNull {
+      try {
+        SupportedCustodyType.forFullName(it)
+      } catch (ex: NoSuchElementException) {
+        // do nothing - we have encountered a type we don't recognise/support, so we leave it out
+        null
+      }
+    }.filter { it.custodyGroup == custodyGroup }
+
+    val supportedDeterminateCustodyTypes = SupportedCustodyType.entries.filter { it.custodyGroup == custodyGroup }
+    supportedDeterminateCustodyTypes
+      .filterNot { availableDeterminateCustodyTypes.contains(it) }
+      .forEach {
+        log.warn("${custodyGroup.fullName} custody type not found in PPUD: ${it.fullName}")
+      }
+
+    return availableDeterminateCustodyTypes.map { it.fullName }
   }
 }
