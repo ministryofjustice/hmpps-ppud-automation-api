@@ -31,9 +31,17 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
-      MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+      MandatoryFieldTestData(
+        "custodyType",
+        createOrUpdateSentenceRequestBody(custodyType = ""),
+        "Request to create a sentence was missing a Custody Type value",
+      ),
       MandatoryFieldTestData("dateOfSentence", createOrUpdateSentenceRequestBody(dateOfSentence = "")),
-      MandatoryFieldTestData("mappaLevel", createOrUpdateSentenceRequestBody(mappaLevel = "")),
+      MandatoryFieldTestData(
+        "mappaLevel",
+        createOrUpdateSentenceRequestBody(mappaLevel = ""),
+        "Request to create a determinate sentence was missing a MAPPA Level",
+      ),
     )
   }
 
@@ -108,7 +116,12 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
       .isBadRequest
       .expectBody()
       .jsonPath("userMessage")
-      .value(Consumer<String> { Assertions.assertThat(it).contains("sentencingCourt") })
+      .value(
+        Consumer<String> {
+          Assertions.assertThat(it)
+            .contains("Request to create a determinate sentence had a Sentencing Court exceeding 50 characters")
+        },
+      )
   }
 
   @Test
