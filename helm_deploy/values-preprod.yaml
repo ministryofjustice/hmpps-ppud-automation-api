@@ -14,7 +14,7 @@ generic-service:
     DOCUMENT_MANAGEMENT_API_URL: https://document-api-preprod.hmpps.service.justice.gov.uk
     PPUD_RECALL_REVOCATIONISSUEDBYOWNER: "EO Recall(Recall Team)"
     PPUD_RECALL_RECALLTYPE_DETERMINATE: "To be determined"
-    # TODO set PPUD_RECALL_RECALLTYPE_INDETERMINATE
+    PPUD_RECALL_RECALLTYPE_INDETERMINATE: "Indeterminate recall"
     PPUD_RECALL_RETURNTOCUSTODYNOTIFICATIONMETHOD: "Already in custody"
     PPUD_OFFENDER_CASEWORKER_INCUSTODY: "Recall Reps Pack(Recall Team)"
     PPUD_OFFENDER_CASEWORKER_UAL: "Recall UAL checks(Recall Team)"
