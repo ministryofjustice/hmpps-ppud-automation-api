@@ -43,7 +43,6 @@ internal class SentenceIndeterminatePage(
   override fun updateSentence(request: CreateOrUpdateSentenceRequest) {
     with(pageHelper) {
       enterDate(dateOfSentenceInput, request.dateOfSentence)
-      enterDate(releaseDateInput, request.releaseDate)
       enterText(sentencingCourtInput, request.sentencingCourt)
     }
 
@@ -63,7 +62,7 @@ internal class SentenceIndeterminatePage(
         id = extractId(pageDescription),
         custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
         dateOfSentence = readDate(dateOfSentenceInput),
-        releaseDate = readDateOrNull(releaseDateInput),
+        releaseDate = readDateOrNull(dateOfRemandInput), // TODO MRD-2778 replace with search for latest release record
         tariffExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
@@ -85,7 +84,7 @@ internal class SentenceIndeterminatePage(
   private lateinit var dateOfSentenceInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteDOR")
-  private lateinit var releaseDateInput: WebElement
+  private lateinit var dateOfRemandInput: WebElement
 
   @FindBy(id = "cntDetails_lbliTARIFF_FP_YRS")
   private lateinit var fullPunishmentYearsInput: WebElement
