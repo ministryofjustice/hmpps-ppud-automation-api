@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
-  kotlin("plugin.spring") version "2.1.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
+  kotlin("plugin.spring") version "2.2.0"
   id("org.sonarqube") version "6.2.0.5505"
   id("jacoco")
 }
@@ -23,7 +23,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.seleniumhq.selenium:selenium-java:4.34.0")
-  implementation("io.github.bonigarcia:webdrivermanager:6.1.0")
+  implementation("io.github.bonigarcia:webdrivermanager:6.1.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
