@@ -41,7 +41,12 @@ internal class SentenceIndeterminatePage(
   }
 
   override fun updateSentence(request: CreateOrUpdateSentenceRequest) {
-    TODO("Indeterminate sentences not yet supported")
+    with(pageHelper) {
+      enterDate(dateOfSentenceInput, request.dateOfSentence)
+      enterText(sentencingCourtInput, request.sentencingCourt)
+    }
+
+    saveButton.click()
   }
 
   override fun extractCreatedSentenceDetails(): CreatedSentence {
@@ -57,8 +62,8 @@ internal class SentenceIndeterminatePage(
         id = extractId(pageDescription),
         custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
         dateOfSentence = readDate(dateOfSentenceInput),
-        releaseDate = readDateOrNull(releaseDateInput),
-        sentenceExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
+        releaseDate = readDateOrNull(dateOfRemandInput), // TODO MRD-2778 replace with search for latest release record
+        tariffExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
@@ -71,10 +76,6 @@ internal class SentenceIndeterminatePage(
     }
   }
 
-  override fun throwIfInvalid() {
-    TODO("Indeterminate sentences not yet supported")
-  }
-
   // Page Elements
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
@@ -83,7 +84,7 @@ internal class SentenceIndeterminatePage(
   private lateinit var dateOfSentenceInput: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteDOR")
-  private lateinit var releaseDateInput: WebElement
+  private lateinit var dateOfRemandInput: WebElement
 
   @FindBy(id = "cntDetails_lbliTARIFF_FP_YRS")
   private lateinit var fullPunishmentYearsInput: WebElement
@@ -99,4 +100,7 @@ internal class SentenceIndeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_cmdSave")
+  private lateinit var saveButton: WebElement
 }
