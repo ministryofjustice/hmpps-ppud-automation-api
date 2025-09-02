@@ -68,11 +68,8 @@ class OpenApiDocsTest {
       .expectBody().jsonPath("info.version").isEqualTo(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
   }
 
-  /* TODO: figure out if this is something we need to add or not
   @Test
   fun `the security scheme is setup for bearer tokens`() {
-    val bearerJwts = JSONArray()
-    bearerJwts.addAll(listOf("read", "write"))
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
@@ -82,8 +79,6 @@ class OpenApiDocsTest {
       .jsonPath("$.components.securitySchemes.bearer-jwt.type").isEqualTo("http")
       .jsonPath("$.components.securitySchemes.bearer-jwt.scheme").isEqualTo("bearer")
       .jsonPath("$.components.securitySchemes.bearer-jwt.bearerFormat").isEqualTo("JWT")
-      .jsonPath("$.security[0].bearer-jwt")
-      .isEqualTo(bearerJwts)
+      .jsonPath("$.security[0].bearer-jwt").isEmpty
   }
-   */
 }
