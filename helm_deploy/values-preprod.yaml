@@ -17,6 +17,7 @@ generic-service:
     PPUD_RECALL_RETURNTOCUSTODYNOTIFICATIONMETHOD: "Already in custody"
     PPUD_OFFENDER_CASEWORKER_INCUSTODY: "Recall Reps Pack(Recall Team)"
     PPUD_OFFENDER_CASEWORKER_UAL: "Recall UAL checks(Recall Team)"
+    ENVIRONMENT_NAME: preprod
 
   scheduledDowntime:
     enabled: true

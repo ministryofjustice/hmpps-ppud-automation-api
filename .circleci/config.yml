@@ -154,43 +154,6 @@ workflows:
             - request-prod-approval
           helm_timeout: 5m
           <<: *slack-fail-post-step
-  security:
-    triggers:
-      - schedule:
-          cron: "41 9 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/gradle_owasp_dependency_check:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-          jdk_tag: "21.0"
-      - hmpps/trivy_latest_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-      - hmpps/veracode_pipeline_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
-  security-weekly:
-    triggers:
-      - schedule:
-          cron: "43 9 * * 1"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/veracode_policy_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
   test-daily:
     triggers:
       - schedule:
