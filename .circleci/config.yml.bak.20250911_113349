@@ -1,10 +1,51 @@
-# TODO this file should be deleted by the end of these changes
-
 version: 2.1
+
+--------------------------------------------------------------------------------------------------------------------
+ The following is the output of running the migration script
+--------------------------------------------------------------------------------------------------------------------
+
+pablo.glenn hmpps-ppud-automation-api % /bin/bash -c ../hmpps-github-actions/migrate-repo.sh
+
+Migration script for CircleCI -> Github Actions
+===============================================
+
+This script will migrate elements of CircleCI workflows to Github Actions.
+Please pick one of the following options by typing the corresponding number and hitting Enter:
+
+1. Migrate security workflows only
+2. Migrate deployment workflows only
+3. Migrate security and deployment workflows
+4. Get information about this migration script
+Any other selection will exit
+Enter your selection: 2
+Migrating deployment workflows only
+Migrating using hmpps-template-kotlin template
+[WARNING] 11:33:50 --yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.
+Migrating deployment job for: dev .. preprod .. prod ..
+
+INFO: quay.io -> ghcr.io migration complete.
+
+Summary of deployment migration:
+===============================
+  - A pipeline.yml file has been created in .github/workflows based on build-test-deploy in .circleci/config.yml
+  - Please refer to the backup file to identify the jobs that still require migration
+  - See above for warnings about executor jobs that will require configuration/manual migration
+  - Also see above for warnings about duplicate environments in the CircleCI config
+  - Finally, please review the pipeline and modify as required to ensure that it will behave as expected
+
+Backup file: .circleci/config.yml.bak.20250911_113349
+
+Please contact the SRE team (#ask-prisons-sre) for assistance with any tasks that need to be migrateed.
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
 orbs:
   hmpps: ministryofjustice/hmpps@11
   slack: circleci/slack@4.10.1
   browser-tools: circleci/browser-tools@1.4
+
 parameters:
   alerts-slack-channel:
     type: string
@@ -12,7 +53,8 @@ parameters:
   releases-slack-channel:
     type: string
     default: make-recall-decisions-pipeline
-slack-fail-post-step:
+
+slack-fail-post-step: &slack-fail-post-step
   post-steps:
     - slack/notify:
         event: fail
@@ -41,16 +83,21 @@ slack-fail-post-step:
               }
             ]
           }
+
 executors:
   java:
     docker:
       - image: cimg/openjdk:21.0
         environment:
-          _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
+          _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
+            -XX:ParallelGCThreads=2
+            -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
+            -Dorg.gradle.daemon=false
       - image: cimg/redis:7.0.11
         environment:
           ALLOW_EMPTY_PASSWORD: yes
     working_directory: ~/app
+
 jobs:
   validate:
     circleci_ip_ranges: true
@@ -75,9 +122,9 @@ jobs:
           path: build/reports/tests
       - store_artifacts:
           path: build/reports/jacoco/test/html
+
 workflows:
   version: 2
-<<<<<<< Updated upstream
   build-test-and-deploy:
     jobs:
       - validate:
@@ -148,45 +195,6 @@ workflows:
             - request-prod-approval
           helm_timeout: 5m
           <<: *slack-fail-post-step
-  security:
-    triggers:
-      - schedule:
-          cron: "41 9 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/gradle_owasp_dependency_check:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-          jdk_tag: "21.0"
-      - hmpps/trivy_latest_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-      - hmpps/veracode_pipeline_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
-  security-weekly:
-    triggers:
-      - schedule:
-          cron: "43 9 * * 1"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/veracode_policy_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
-=======
->>>>>>> Stashed changes
   test-daily:
     triggers:
       - schedule:
@@ -202,31 +210,4 @@ workflows:
               ignore: /.*/
           context:
             - SonarCloud
-          post-steps:
-            - slack/notify:
-                event: fail
-                branch_pattern: main
-                channel: << pipeline.parameters.alerts-slack-channel >>
-                custom: |
-                  {
-                    "text": "",
-                    "blocks": [
-                      {
-                        "type": "section",
-                        "text": {
-                          "type": "mrkdwn",
-                          "text": "❌ *Failure* `${CIRCLE_PROJECT_REPONAME}` - `${CIRCLE_JOB}` (Build: #${CIRCLE_BUILD_NUM}) on `${CIRCLE_BRANCH}`"
-                        }
-                      },
-                      {
-                        "type": "actions",
-                        "elements": [
-                          {
-                            "type": "button",
-                            "text": { "type": "plain_text", "text": "View Job" },
-                            "url": "${CIRCLE_BUILD_URL}"
-                          }
-                        ]
-                      }
-                    ]
-                  }
+          <<: *slack-fail-post-step
