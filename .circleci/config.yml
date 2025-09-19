@@ -1,209 +1,232 @@
-version: 2.1
+# TODO this file should be deleted by the end of these changes
 
-orbs:
-  hmpps: ministryofjustice/hmpps@11
-  slack: circleci/slack@4.10.1
-  browser-tools: circleci/browser-tools@1.4
-
-parameters:
-  alerts-slack-channel:
-    type: string
-    default: make-recall-decisions-pipeline
-  releases-slack-channel:
-    type: string
-    default: make-recall-decisions-pipeline
-
-slack-fail-post-step: &slack-fail-post-step
-  post-steps:
-    - slack/notify:
-        event: fail
-        branch_pattern: main
-        channel: << pipeline.parameters.alerts-slack-channel >>
-        custom: |
-          {
-            "text": "",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "❌ *Failure* `${CIRCLE_PROJECT_REPONAME}` - `${CIRCLE_JOB}` (Build: #${CIRCLE_BUILD_NUM}) on `${CIRCLE_BRANCH}`"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": { "type": "plain_text", "text": "View Job" },
-                    "url": "${CIRCLE_BUILD_URL}"
-                  }
-                ]
-              }
-            ]
-          }
-
-executors:
-  java:
-    docker:
-      - image: cimg/openjdk:21.0
-        environment:
-          _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
-            -XX:ParallelGCThreads=2
-            -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
-            -Dorg.gradle.daemon=false
-      - image: cimg/redis:7.0.11
-        environment:
-          ALLOW_EMPTY_PASSWORD: yes
-    working_directory: ~/app
-
-jobs:
-  validate:
-    circleci_ip_ranges: true
-    executor: java
-    steps:
-      - checkout
-      - browser-tools/install-firefox:
-          version: 115.6.0esr
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle.kts" }}
-            - gradle-
-      - run:
-          command: ./gradlew check sonar
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: gradle-{{ checksum "build.gradle.kts" }}
-      - store_test_results:
-          path: build/test-results
-      - store_artifacts:
-          path: build/reports/tests
-      - store_artifacts:
-          path: build/reports/jacoco/test/html
-
-workflows:
-  version: 2
-  build-test-and-deploy:
-    jobs:
-      - validate:
-          filters:
-            tags:
-              ignore: /.*/
-          context:
-            - SonarCloud
-          <<: *slack-fail-post-step
-      - hmpps/helm_lint:
-          name: helm_lint
-          <<: *slack-fail-post-step
-      - hmpps/build_multiplatform_docker:
-          name: build_docker
-          filters:
-            branches:
-              only:
-                - main
-          <<: *slack-fail-post-step
-      - hmpps/deploy_env:
-          name: deploy_dev
-          env: "dev"
-          jira_update: true
-          pipeline_id: <<pipeline.id>>
-          pipeline_number: <<pipeline.number>>
-          context: hmpps-common-vars
-          filters:
-            branches:
-              only:
-                - main
-          requires:
-            - validate
-            - build_docker
-            - helm_lint
-          helm_timeout: 5m
-          <<: *slack-fail-post-step
-      - hmpps/deploy_env:
-          name: deploy_preprod
-          env: "preprod"
-          jira_update: true
-          jira_env_type: staging
-          pipeline_id: <<pipeline.id>>
-          pipeline_number: <<pipeline.number>>
-          context:
-            - hmpps-common-vars
-            - hmpps-ppud-automation-api-preprod
-          requires:
-            - deploy_dev
-          helm_timeout: 5m
-          <<: *slack-fail-post-step
-      - request-prod-approval:
-          type: approval
-          requires:
-            - deploy_preprod
-      - hmpps/deploy_env:
-          name: deploy_prod
-          env: "prod"
-          jira_update: true
-          jira_env_type: production
-          pipeline_id: <<pipeline.id>>
-          pipeline_number: <<pipeline.number>>
-          slack_notification: true
-          slack_channel_name: << pipeline.parameters.releases-slack-channel >>
-          context:
-            - hmpps-common-vars
-            - hmpps-ppud-automation-api-prod
-          requires:
-            - request-prod-approval
-          helm_timeout: 5m
-          <<: *slack-fail-post-step
-  security:
-    triggers:
-      - schedule:
-          cron: "41 9 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/gradle_owasp_dependency_check:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-          jdk_tag: "21.0"
-      - hmpps/trivy_latest_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - hmpps-common-vars
-      - hmpps/veracode_pipeline_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
-  security-weekly:
-    triggers:
-      - schedule:
-          cron: "43 9 * * 1"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/veracode_policy_scan:
-          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-          context:
-            - veracode-credentials
-            - hmpps-common-vars
-  test-daily:
-    triggers:
-      - schedule:
-          cron: "10 8 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - validate:
-          filters:
-            tags:
-              ignore: /.*/
-          context:
-            - SonarCloud
-          <<: *slack-fail-post-step
+#version: 2.1
+#orbs:
+#  hmpps: ministryofjustice/hmpps@11
+#  slack: circleci/slack@4.10.1
+#  browser-tools: circleci/browser-tools@1.4
+#parameters:
+#  alerts-slack-channel:
+#    type: string
+#    default: make-recall-decisions-pipeline
+#  releases-slack-channel:
+#    type: string
+#    default: make-recall-decisions-pipeline
+#slack-fail-post-step:
+#  post-steps:
+#    - slack/notify:
+#        event: fail
+#        branch_pattern: main
+#        channel: << pipeline.parameters.alerts-slack-channel >>
+#        custom: |
+#          {
+#            "text": "",
+#            "blocks": [
+#              {
+#                "type": "section",
+#                "text": {
+#                  "type": "mrkdwn",
+#                  "text": "❌ *Failure* `${CIRCLE_PROJECT_REPONAME}` - `${CIRCLE_JOB}` (Build: #${CIRCLE_BUILD_NUM}) on `${CIRCLE_BRANCH}`"
+#                }
+#              },
+#              {
+#                "type": "actions",
+#                "elements": [
+#                  {
+#                    "type": "button",
+#                    "text": { "type": "plain_text", "text": "View Job" },
+#                    "url": "${CIRCLE_BUILD_URL}"
+#                  }
+#                ]
+#              }
+#            ]
+#          }
+#executors:
+#  java:
+#    docker:
+#      - image: cimg/openjdk:21.0
+#        environment:
+#          _JAVA_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
+#      - image: cimg/redis:7.0.11
+#        environment:
+#          ALLOW_EMPTY_PASSWORD: yes
+#    working_directory: ~/app
+#jobs:
+#  validate:
+#    circleci_ip_ranges: true
+#    executor: java
+#    steps:
+#      - checkout
+#      - browser-tools/install-firefox:
+#          version: 115.6.0esr
+#      - restore_cache:
+#          keys:
+#            - gradle-{{ checksum "build.gradle.kts" }}
+#            - gradle-
+#      - run:
+#          command: ./gradlew check sonar
+#      - save_cache:
+#          paths:
+#            - ~/.gradle
+#          key: gradle-{{ checksum "build.gradle.kts" }}
+#      - store_test_results:
+#          path: build/test-results
+#      - store_artifacts:
+#          path: build/reports/tests
+#      - store_artifacts:
+#          path: build/reports/jacoco/test/html
+#workflows:
+#  version: 2
+#<<<<<<< Updated upstream
+#  build-test-and-deploy:
+#    jobs:
+#      - validate:
+#          filters:
+#            tags:
+#              ignore: /.*/
+#          context:
+#            - SonarCloud
+#          <<: *slack-fail-post-step
+#      - hmpps/helm_lint:
+#          name: helm_lint
+#          <<: *slack-fail-post-step
+#      - hmpps/build_multiplatform_docker:
+#          name: build_docker
+#          filters:
+#            branches:
+#              only:
+#                - main
+#          <<: *slack-fail-post-step
+#      - hmpps/deploy_env:
+#          name: deploy_dev
+#          env: "dev"
+#          jira_update: true
+#          pipeline_id: <<pipeline.id>>
+#          pipeline_number: <<pipeline.number>>
+#          context: hmpps-common-vars
+#          filters:
+#            branches:
+#              only:
+#                - main
+#          requires:
+#            - validate
+#            - build_docker
+#            - helm_lint
+#          helm_timeout: 5m
+#          <<: *slack-fail-post-step
+#      - hmpps/deploy_env:
+#          name: deploy_preprod
+#          env: "preprod"
+#          jira_update: true
+#          jira_env_type: staging
+#          pipeline_id: <<pipeline.id>>
+#          pipeline_number: <<pipeline.number>>
+#          context:
+#            - hmpps-common-vars
+#            - hmpps-ppud-automation-api-preprod
+#          requires:
+#            - deploy_dev
+#          helm_timeout: 5m
+#          <<: *slack-fail-post-step
+#      - request-prod-approval:
+#          type: approval
+#          requires:
+#            - deploy_preprod
+#      - hmpps/deploy_env:
+#          name: deploy_prod
+#          env: "prod"
+#          jira_update: true
+#          jira_env_type: production
+#          pipeline_id: <<pipeline.id>>
+#          pipeline_number: <<pipeline.number>>
+#          slack_notification: true
+#          slack_channel_name: << pipeline.parameters.releases-slack-channel >>
+#          context:
+#            - hmpps-common-vars
+#            - hmpps-ppud-automation-api-prod
+#          requires:
+#            - request-prod-approval
+#          helm_timeout: 5m
+#          <<: *slack-fail-post-step
+#  security:
+#    triggers:
+#      - schedule:
+#          cron: "41 9 * * 1-5"
+#          filters:
+#            branches:
+#              only:
+#                - main
+#    jobs:
+#      - hmpps/gradle_owasp_dependency_check:
+#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+#          context:
+#            - hmpps-common-vars
+#          jdk_tag: "21.0"
+#      - hmpps/trivy_latest_scan:
+#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+#          context:
+#            - hmpps-common-vars
+#      - hmpps/veracode_pipeline_scan:
+#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+#          context:
+#            - veracode-credentials
+#            - hmpps-common-vars
+#  security-weekly:
+#    triggers:
+#      - schedule:
+#          cron: "43 9 * * 1"
+#          filters:
+#            branches:
+#              only:
+#                - main
+#    jobs:
+#      - hmpps/veracode_policy_scan:
+#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+#          context:
+#            - veracode-credentials
+#            - hmpps-common-vars
+#=======
+#>>>>>>> Stashed changes
+#  test-daily:
+#    triggers:
+#      - schedule:
+#          cron: "10 8 * * 1-5"
+#          filters:
+#            branches:
+#              only:
+#                - main
+#    jobs:
+#      - validate:
+#          filters:
+#            tags:
+#              ignore: /.*/
+#          context:
+#            - SonarCloud
+#          post-steps:
+#            - slack/notify:
+#                event: fail
+#                branch_pattern: main
+#                channel: << pipeline.parameters.alerts-slack-channel >>
+#                custom: |
+#                  {
+#                    "text": "",
+#                    "blocks": [
+#                      {
+#                        "type": "section",
+#                        "text": {
+#                          "type": "mrkdwn",
+#                          "text": "❌ *Failure* `${CIRCLE_PROJECT_REPONAME}` - `${CIRCLE_JOB}` (Build: #${CIRCLE_BUILD_NUM}) on `${CIRCLE_BRANCH}`"
+#                        }
+#                      },
+#                      {
+#                        "type": "actions",
+#                        "elements": [
+#                          {
+#                            "type": "button",
+#                            "text": { "type": "plain_text", "text": "View Job" },
+#                            "url": "${CIRCLE_BUILD_URL}"
+#                          }
+#                        ]
+#                      }
+#                    ]
+#                  }

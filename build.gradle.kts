@@ -1,11 +1,8 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
   kotlin("plugin.spring") version "2.2.0"
-  id("org.sonarqube") version "6.2.0.5505"
-  id("jacoco")
 }
 
-jacoco.toolVersion = "0.8.11"
 // OWASP fix https://mojdt.slack.com/archives/C69NWE339/p1734943189790819
 ext["logback.version"] = "1.5.14"
 
@@ -51,17 +48,9 @@ tasks {
 }
 
 tasks.test {
-  finalizedBy(tasks.jacocoTestReport)
   this.testLogging {
     // Add this so that we get more information on test failures for integration tests, particularly in the pipeline
     this.showStandardStreams = true
-  }
-}
-
-tasks.jacocoTestReport {
-  dependsOn(tasks.test)
-  reports {
-    xml.required.set(true)
   }
 }
 
