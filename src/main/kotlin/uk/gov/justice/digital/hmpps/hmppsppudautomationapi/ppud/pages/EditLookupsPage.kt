@@ -21,9 +21,6 @@ internal class EditLookupsPage(driver: WebDriver) {
   @FindBy(id = "content_grdExtraBit")
   private lateinit var lookupsGridExtraBit: WebElement
 
-  @FindBy(id = "content_grdAddressLov")
-  private lateinit var lookupsGridAddressLov: WebElement
-
   private lateinit var configMap: Map<LookupName, LookupConfig>
 
   private data class LookupConfig(
@@ -40,7 +37,7 @@ internal class EditLookupsPage(driver: WebDriver) {
       LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsGridLov, 2),
       LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
       LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsGridLov, 2),
-      LookupName.PoliceForces to LookupConfig("Police Force", lookupsGridAddressLov, 2),
+      LookupName.PoliceForces to LookupConfig("Police Force", lookupsGridLov, 2),
       LookupName.ProbationServices to LookupConfig("Probation Service", lookupsGridExtraBit, 2),
       LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsGridLov, 2),
     )
