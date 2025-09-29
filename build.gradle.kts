@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.1"
   kotlin("plugin.spring") version "2.2.20"
-  id("org.sonarqube") version "6.2.0.5505"
+  id("org.sonarqube") version "6.3.1.5724"
   id("jacoco")
 }
 
@@ -22,8 +22,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.34.0")
-  implementation("io.github.bonigarcia:webdrivermanager:6.1.1")
+  implementation("org.seleniumhq.selenium:selenium-java:4.35.0")
+  implementation("io.github.bonigarcia:webdrivermanager:6.3.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -34,10 +34,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
-  testImplementation("io.jsonwebtoken:jjwt:0.12.6")
+  testImplementation("io.jsonwebtoken:jjwt:0.13.0")
 }
 
 java {
