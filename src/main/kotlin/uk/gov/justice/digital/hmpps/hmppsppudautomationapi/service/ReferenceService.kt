@@ -24,11 +24,11 @@ interface ReferenceService {
 
   suspend fun retrieveReleasedUnders(): List<String>
 
+  suspend fun retrieveCourts(): List<String>
+
   suspend fun retrieveDeterminateCustodyTypes(): List<String>
 
   suspend fun retrieveIndeterminateCustodyTypes(): List<String>
-
-  suspend fun retrieveCourts(): List<String>
 
   fun quit()
 }

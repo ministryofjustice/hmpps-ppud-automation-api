@@ -108,6 +108,14 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
 
+  @GetMapping("/reference/courts")
+  suspend fun courts(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data courts endpoint hit")
+    val values = referenceService.retrieveCourts()
+    log.info("Found ${values.size} courts")
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
+
   @GetMapping("/reference/determinate-custody-types")
   suspend fun determinateCustodyTypes(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data determinate custody types endpoint hit")
@@ -119,14 +127,6 @@ internal class ReferenceController(private val referenceService: ReferenceServic
   suspend fun indeterminateCustodyTypes(): ResponseEntity<ReferenceResponse> {
     log.info("Reference data indeterminate custody types endpoint hit")
     val values = referenceService.retrieveIndeterminateCustodyTypes()
-    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
-  }
-
-  @GetMapping("/reference/courts")
-  suspend fun courts(): ResponseEntity<ReferenceResponse> {
-    log.info("Reference data courts endpoint hit")
-    val values = referenceService.retrieveCourts()
-    log.info("Found ${values.size} courts")
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
 }

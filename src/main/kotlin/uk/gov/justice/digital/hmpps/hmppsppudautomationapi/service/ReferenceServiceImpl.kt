@@ -30,9 +30,9 @@ internal class ReferenceServiceImpl(
     const val POLICE_FORCES_CACHE_NAME: String = "PoliceForces"
     const val PROBATION_SERVICES_CACHE_NAME: String = "ProbationServices"
     const val RELEASED_UNDERS_CACHE_NAME: String = "ReleasedUnders"
+    const val COURTS_CACHE_NAME: String = "Courts"
     const val DETERMINATE_CUSTODY_TYPES_CACHE_NAME: String = "DeterminateCustodyTypes"
     const val INDETERMINATE_CUSTODY_TYPES_CACHE_NAME: String = "IndeterminateCustodyTypes"
-    const val COURTS_CACHE_NAME: String = "Courts"
   }
 
   override fun clearCaches() {
@@ -82,11 +82,11 @@ internal class ReferenceServiceImpl(
   @Cacheable(RELEASED_UNDERS_CACHE_NAME)
   override suspend fun retrieveReleasedUnders(): List<String> = ppudClient.retrieveLookupValues(LookupName.ReleasedUnders)
 
-  @Cacheable(DETERMINATE_CUSTODY_TYPES_CACHE_NAME)
-  override suspend fun retrieveDeterminateCustodyTypes(): List<String> = retrieveCustodyTypesByCustodyGroup(DETERMINATE)
-
   @Cacheable(COURTS_CACHE_NAME)
   override suspend fun retrieveCourts(): List<String> = ppudClient.retrieveLookupValues(LookupName.Courts)
+
+  @Cacheable(DETERMINATE_CUSTODY_TYPES_CACHE_NAME)
+  override suspend fun retrieveDeterminateCustodyTypes(): List<String> = retrieveCustodyTypesByCustodyGroup(DETERMINATE)
 
   @Cacheable(INDETERMINATE_CUSTODY_TYPES_CACHE_NAME)
   override suspend fun retrieveIndeterminateCustodyTypes(): List<String> = retrieveCustodyTypesByCustodyGroup(INDETERMINATE)

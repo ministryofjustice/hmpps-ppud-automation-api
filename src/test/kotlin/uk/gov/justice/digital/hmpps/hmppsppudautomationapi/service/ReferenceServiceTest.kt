@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Suppo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.COURTS_CACHE_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.CUSTODY_TYPES_CACHE_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.ESTABLISHMENTS_CACHE_NAME
@@ -61,6 +62,7 @@ class ReferenceServiceTest {
       POLICE_FORCES_CACHE_NAME,
       PROBATION_SERVICES_CACHE_NAME,
       RELEASED_UNDERS_CACHE_NAME,
+      COURTS_CACHE_NAME,
       DETERMINATE_CUSTODY_TYPES_CACHE_NAME,
       INDETERMINATE_CUSTODY_TYPES_CACHE_NAME,
     )
@@ -218,6 +220,13 @@ class ReferenceServiceTest {
   fun `given caching when retrieveReleasedUnders called then released unders retrieved and cached`() {
     runBlocking {
       testValuesAreRetrievedAndCached(LookupName.ReleasedUnders) { service.retrieveReleasedUnders() }
+    }
+  }
+
+  @Test
+  fun `given caching when retrieveCourts called then courts retrieved and cached`() {
+    runBlocking {
+      testValuesAreRetrievedAndCached(LookupName.Courts) { service.retrieveCourts() }
     }
   }
 
