@@ -121,4 +121,12 @@ internal class ReferenceController(private val referenceService: ReferenceServic
     val values = referenceService.retrieveIndeterminateCustodyTypes()
     return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
   }
+
+  @GetMapping("/reference/courts")
+  suspend fun courts(): ResponseEntity<ReferenceResponse> {
+    log.info("Reference data courts endpoint hit")
+    val values = referenceService.retrieveCourts()
+    log.info("Found ${values.size} courts")
+    return ResponseEntity(ReferenceResponse(values), HttpStatus.OK)
+  }
 }

@@ -28,5 +28,7 @@ interface ReferenceService {
 
   suspend fun retrieveIndeterminateCustodyTypes(): List<String>
 
+  suspend fun retrieveCourts(): List<String>
+
   fun quit()
 }
