@@ -22,7 +22,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.35.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.36.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
