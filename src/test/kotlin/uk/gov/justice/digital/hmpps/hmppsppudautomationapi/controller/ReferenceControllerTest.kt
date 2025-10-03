@@ -173,6 +173,20 @@ internal class ReferenceControllerTest {
   }
 
   @Test
+  fun `when courts is called then reference service is invoked and results returned`() {
+    runBlocking {
+      val values = listOf(randomString(), randomString(), randomString())
+      given(referenceService.retrieveCourts()).willReturn(values)
+
+      val result = controller.courts()
+
+      assertEquals(HttpStatus.OK.value(), result.statusCode.value())
+      assertEquals(values, result.body?.values)
+      assertInfoMessageForEndpointWasLogged("courts")
+    }
+  }
+
+  @Test
   fun `when determinateCustodyTypes is called then reference service is invoked and results returned`() {
     runBlocking {
       val values = listOf(randomString(), randomString(), randomString())
