@@ -9,6 +9,15 @@ import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 
+/*
+ * These refer to the IDs that appear on the tables in PPUD
+ *
+ * If you're adding a new reference data endpoint, to find the appropriate ID:
+ *   1. Login to the ppud test instance
+ *   2. Go to Admin then Lookup Edit
+ *   3. Select the required LOV (list of values) from the select at top
+ *   4. Use the web inspector to get the ID from the table
+ */
 @Component
 internal class EditLookupsPage(driver: WebDriver) {
 
@@ -16,6 +25,9 @@ internal class EditLookupsPage(driver: WebDriver) {
   private lateinit var lookupTypeDropdown: WebElement
 
   @FindBy(id = "content_grdLOV")
+  private lateinit var lookupsContentGridLov: WebElement
+
+  @FindBy(id = "grdLOV")
   private lateinit var lookupsGridLov: WebElement
 
   @FindBy(id = "content_grdExtraBit")
@@ -33,13 +45,14 @@ internal class EditLookupsPage(driver: WebDriver) {
     PageFactory.initElements(driver, this)
     configMap = mapOf(
       LookupName.CustodyTypes to LookupConfig("Custody Type", lookupsGridExtraBit, 2),
-      LookupName.Establishments to LookupConfig("Establishment", lookupsGridLov, 4),
-      LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsGridLov, 2),
+      LookupName.Establishments to LookupConfig("Establishment", lookupsContentGridLov, 4),
+      LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsContentGridLov, 2),
       LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
-      LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsGridLov, 2),
-      LookupName.PoliceForces to LookupConfig("Police Force", lookupsGridLov, 2),
+      LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsContentGridLov, 2),
+      LookupName.PoliceForces to LookupConfig("Police Force", lookupsContentGridLov, 2),
       LookupName.ProbationServices to LookupConfig("Probation Service", lookupsGridExtraBit, 2),
-      LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsGridLov, 2),
+      LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsContentGridLov, 2),
+      LookupName.Courts to LookupConfig("Court", lookupsGridLov, 2),
     )
   }
 

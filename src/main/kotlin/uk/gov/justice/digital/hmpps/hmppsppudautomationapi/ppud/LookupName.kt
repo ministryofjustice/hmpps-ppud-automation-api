@@ -10,4 +10,5 @@ enum class LookupName {
   PoliceForces,
   ProbationServices,
   ReleasedUnders,
+  Courts,
 }
