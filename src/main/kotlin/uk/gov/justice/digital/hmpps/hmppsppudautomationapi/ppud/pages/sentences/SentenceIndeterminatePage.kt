@@ -15,6 +15,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceIndeterminatePage(
@@ -53,11 +56,13 @@ internal class SentenceIndeterminatePage(
   ): Sentence {
     val offenceLink = determineOffenceLink()
     return with(pageHelper) {
+      val sentenceId = extractId(pageDescription)
+      val releaseNodes = navigationTreeViewComponent.findReleaseNodesFor(sentenceId)
       Sentence(
-        id = extractId(pageDescription),
+        id = sentenceId,
         custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
         dateOfSentence = readDate(dateOfSentenceInput),
-        releaseDate = readDateOrNull(releaseDateInput),
+        releaseDate = latestReleaseDate(releaseNodes),
         sentenceExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
@@ -75,15 +80,26 @@ internal class SentenceIndeterminatePage(
     TODO("Indeterminate sentences not yet supported")
   }
 
+  private fun latestReleaseDate(releaseNodes: List<TreeViewNode>): LocalDate? {
+    val releaseNodeTexts = releaseNodes.map { it.text }
+    return releaseNodes.subList(1, releaseNodes.size) // first node is the 'New...' node for creating release records
+      // release node text follows the format " DD/MM/YYYY - <release type>", e.g. " 17/11/2025 - On Licence" (note the
+      // whitespace before the date)
+      .map {
+        it.text.substring(
+          1,
+          "DD/MM/YYYY".length + 1,
+        )
+      }
+      .maxOfOrNull { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+  }
+
   // Page Elements
   @FindBy(id = "cntDetails_ddliCUSTODY_TYPE")
   private lateinit var custodyTypeDropdown: WebElement
 
   @FindBy(id = "igtxtcntDetails_dteDOS")
   private lateinit var dateOfSentenceInput: WebElement
-
-  @FindBy(id = "igtxtcntDetails_dteDOR")
-  private lateinit var releaseDateInput: WebElement
 
   @FindBy(id = "cntDetails_lbliTARIFF_FP_YRS")
   private lateinit var fullPunishmentYearsInput: WebElement
