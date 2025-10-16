@@ -2,21 +2,22 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.offender
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_UNSUPPORTED_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -107,36 +108,77 @@ class OffenderReleaseTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].id").isNotEmpty
       .jsonPath("offender.sentences[0].id").value(idExtractor)
     val sentenceId = idExtractor.value!!
-    val assistantChiefOfficerName = randomString("acoName")
-    val assistantChiefOfficerFaxEmail = randomString("acoFaxEmail")
-    val offenderManagerName = randomString("omName")
-    val offenderManagerFaxEmail = randomString("omFaxEmail")
-    val offenderManagerTelephone = randomPhoneNumber()
-    val probationService = PPUD_VALID_PROBATION_SERVICE
-    val spocName = randomString("spocName")
-    val spocFaxEmail = randomString("spocFaxEmail")
-    val requestBody = releaseRequestBody(
-      postRelease = postReleaseRequestBody(
-        assistantChiefOfficerName = assistantChiefOfficerName,
-        assistantChiefOfficerFaxEmail = assistantChiefOfficerFaxEmail,
-        offenderManagerName = offenderManagerName,
-        offenderManagerFaxEmail = offenderManagerFaxEmail,
-        offenderManagerTelephone = offenderManagerTelephone,
-        probationService = probationService,
-        spocName = spocName,
-        spocFaxEmail = spocFaxEmail,
-      ),
-    )
+    val requestBody = releaseRequestBody()
 
     postRelease(testOffenderId, sentenceId, requestBody)
       .expectStatus()
       .isOk
       .expectBody()
 
+    // TODO MRD-2750 support checking the created/updated release
     val retrieved = retrieveOffender(testOffenderId)
     retrieved
       .jsonPath("offender.id").isEqualTo(testOffenderId)
       .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+  }
+
+  @Disabled("Once creation of offenders with indeterminate sentences and releases for their sentences is supported, this test can be enabled.")
+  @Test
+  fun `updates a release for an indeterminate sentence`() {
+    val testOffenderId =
+      createTestOffenderInPpud(createOffenderRequestBody(custodyType = SupportedCustodyType.MANDATORY_MLP.fullName))
+    val idExtractor = ValueConsumer<String>()
+    retrieveOffender(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
+    val sentenceId = idExtractor.value!!
+    val requestBody = releaseRequestBody()
+
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isOk
+      .expectBody()
+
+    // I'm not sure this test is worth having: when updating a release, only two of its fields are updated, and they
+    // are set based on application config values, not values passed in the request, so this second POST call to update
+    // the release won't effectively make any changes, since those two fields are also set based on the same config
+    // values in the release creation case. One way of testing would be to manually change those two values for an
+    // existing release in the system, then adjust this test's values such that said release is updated and the values
+    // set back to the original config-based values
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isOk
+      .expectBody()
+
+    // TODO MRD-2750 support checking the created/updated release and post release
+    val retrieved = retrieveOffender(testOffenderId)
+    retrieved
+      .jsonPath("offender.id").isEqualTo(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isEqualTo(sentenceId)
+  }
+
+  @Disabled(
+    "To run this test, you need to comment out the @Pattern line for the custodyType field in CreateOffenderRequest;" +
+      " otherwise, the offender creation step below will fail",
+  )
+  @Test
+  fun `given unsupported custody type in sentence, release update fails with expected exception`() {
+    val testOffenderId =
+      createTestOffenderInPpud(createOffenderRequestBody(custodyType = PPUD_UNSUPPORTED_CUSTODY_TYPE))
+    val idExtractor = ValueConsumer<String>()
+    retrieveOffender(testOffenderId)
+      .jsonPath("offender.sentences[0].id").isNotEmpty
+      .jsonPath("offender.sentences[0].id").value(idExtractor)
+    val sentenceId = idExtractor.value!!
+
+    val requestBody = releaseRequestBody()
+
+    postRelease(testOffenderId, sentenceId, requestBody)
+      .expectStatus()
+      .isEqualTo(HttpStatus.BAD_REQUEST)
+      .expectBody()
+      .jsonPath("userMessage")
+      .value(Consumer<String> { assertThat(it).contains("Unsupported custody type found") })
   }
 
   private fun postRelease(offenderId: String, sentenceId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.post()
