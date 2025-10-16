@@ -6,8 +6,6 @@ plugins {
 }
 
 jacoco.toolVersion = "0.8.11"
-// OWASP fix https://mojdt.slack.com/archives/C69NWE339/p1734943189790819
-ext["logback.version"] = "1.5.14"
 
 configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
