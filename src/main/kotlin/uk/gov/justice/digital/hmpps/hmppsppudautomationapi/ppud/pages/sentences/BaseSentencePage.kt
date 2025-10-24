@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.Pa
 internal abstract class BaseSentencePage(
   protected val driver: WebDriver,
   protected val pageHelper: PageHelper,
-  private val navigationTreeViewComponent: NavigationTreeViewComponent,
+  protected val navigationTreeViewComponent: NavigationTreeViewComponent,
   private val sentenceComparator: SentenceComparator,
 ) {
 
