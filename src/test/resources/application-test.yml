@@ -5,6 +5,9 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
+flipt:
+  url: https://feature-toggles-dev.hmpps.service.justice.gov.uk
+
 hmpps:
   auth:
     url: http://localhost:9090/auth

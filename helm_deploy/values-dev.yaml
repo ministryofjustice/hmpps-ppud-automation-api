@@ -12,6 +12,7 @@ generic-service:
     HMPPS_AUTH_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
     PPUD_URL: https://internaltest.ppud.justice.gov.uk
     DOCUMENT_MANAGEMENT_API_URL: https://document-api-dev.hmpps.service.justice.gov.uk
+    FLIPT_DEFAULT_FLAG_VALUE: true
     ENVIRONMENT_NAME: dev
 
   scheduledDowntime:

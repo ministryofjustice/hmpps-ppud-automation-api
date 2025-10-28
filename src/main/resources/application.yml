@@ -126,3 +126,6 @@ document-management:
     timeout: 5
   api:
     url: http://localhost:8442
+
+flipt:
+  default-flag-value: true
