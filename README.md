@@ -40,6 +40,47 @@ The following additional environment variables can be used if required.
 * AUTOMATION_HEADLESS - set this to false if you want to view browser interactions. If not set, defaults to true.
 * AUTOMATION_FIREFOX_BINARY - set this to the path of your Firefox binary if it is not automatically detected (probably not needed locally)
 
+## Feature Flags
+
+This project uses [Flipt](https://www.flipt.io/) to control the availability of certain features.
+Feature flags allow us to turn on or off parts of a service in production, decoupling "releases" from "deployments".
+
+Feature flags are managed in the [Flipt dashboard](https://feature-toggles.hmpps.service.justice.gov.uk).
+You'll need to be in the `ministryofjustice` organisation to access it.
+
+To add a feature flag to your code:
+
+1. Create a new boolean flag in
+   the [dev](https://feature-toggles-dev.hmpps.service.justice.gov.uk), [preprod](https://feature-toggles-preprod.hmpps.service.justice.gov.uk),
+   and [prod](https://feature-toggles.hmpps.service.justice.gov.uk) dashboard, within the `consider-a-recall` environment.
+2. Update your code to inject the `FeatureFlagService` service, and call `enabled("<key>")`. Example:§
+
+```kotlin
+@Service
+class MyService(private val featureFlagsService: FeatureFlagService) {
+    fun myMethod() {
+        if (featureFlagsService.enabled("my-flag")) {
+            // Feature is enabled, do something
+        } else {
+            // Feature is disabled, do something else
+        }
+    }
+}
+```
+
+There are three configuration values for Flipt:
+* FLIPT_URL - the URL of the Flipt server
+* FLIPT_API_KEY - the API key to access Flipt
+* FLIPT_DEFAULT_FLAG_VALUE - the default value to return if Flipt is unavailable
+
+The first two are stored as secrets in each environment, and are accessed from the Helm chart. The default value is set 
+in both the Helm chart and the application.yml file. This is usually set to false to avoid accidentally enabling features
+when Flipt is unavailable, but allows us to override this for the dev environment and local development if required (in
+both of these we're more likely to want to enable features earlier than in the other environments).
+
+For more information about Flipt, check out the [documentation](https://docs.flipt.io).
+
+
 ## Running Local Instance
 
 Run the following to start Redis for caching
