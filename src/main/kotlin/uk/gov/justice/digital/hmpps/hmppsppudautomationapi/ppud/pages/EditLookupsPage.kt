@@ -8,6 +8,8 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 
 /*
  * These refer to the IDs that appear on the tables in PPUD
@@ -19,7 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
  *   4. Use the web inspector to get the ID from the table
  */
 @Component
-internal class EditLookupsPage(driver: WebDriver) {
+internal class EditLookupsPage(driver: WebDriver, featureFlagService: FeatureFlagService) {
 
   @FindBy(id = "content_ddlLOVList")
   private lateinit var lookupTypeDropdown: WebElement
@@ -33,6 +35,9 @@ internal class EditLookupsPage(driver: WebDriver) {
   @FindBy(id = "content_grdExtraBit")
   private lateinit var lookupsGridExtraBit: WebElement
 
+  @FindBy(id = "content_grdAddressLov")
+  private lateinit var lookupsGridAddressLov: WebElement
+
   private lateinit var configMap: Map<LookupName, LookupConfig>
 
   private data class LookupConfig(
@@ -43,13 +48,18 @@ internal class EditLookupsPage(driver: WebDriver) {
 
   init {
     PageFactory.initElements(driver, this)
+    val policeForcesElement = if (featureFlagService.enabled(FeatureFlag.PPUD_OCT_2025_ROLLOUT.flagId)) {
+      lookupsContentGridLov
+    } else {
+      lookupsGridAddressLov
+    }
     configMap = mapOf(
       LookupName.CustodyTypes to LookupConfig("Custody Type", lookupsGridExtraBit, 2),
       LookupName.Establishments to LookupConfig("Establishment", lookupsContentGridLov, 4),
       LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsContentGridLov, 2),
       LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
       LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsContentGridLov, 2),
-      LookupName.PoliceForces to LookupConfig("Police Force", lookupsContentGridLov, 2),
+      LookupName.PoliceForces to LookupConfig("Police Force", policeForcesElement, 2),
       LookupName.ProbationServices to LookupConfig("Probation Service", lookupsGridExtraBit, 2),
       LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsContentGridLov, 2),
       LookupName.Courts to LookupConfig("Court", lookupsGridLov, 2),
