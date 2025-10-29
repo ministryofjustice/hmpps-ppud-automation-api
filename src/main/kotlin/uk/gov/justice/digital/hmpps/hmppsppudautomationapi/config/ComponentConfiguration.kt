@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -95,6 +96,7 @@ internal class ComponentConfiguration {
     @Qualifier("scheduledWebDriver") driver: WebDriver,
     @Value("\${ppud.reference.valueToExclude}") valueToExclude: String,
     dateFormatter: DateTimeFormatter,
+    featureFlagService: FeatureFlagService,
   ): ReferenceDataPpudClient = ReferenceDataPpudClient(
     ppudUrl,
     ppudUsername,
@@ -107,7 +109,7 @@ internal class ComponentConfiguration {
     SearchPage(driver),
     valueToExclude,
     AdminPage(driver),
-    EditLookupsPage(driver),
+    EditLookupsPage(driver, featureFlagService),
   )
 
   @Bean(destroyMethod = "quit")
