@@ -24,18 +24,20 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Suppo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.COURTS_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.CUSTODY_TYPES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.ESTABLISHMENTS_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.ETHNICITIES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.GENDERS_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDEX_OFFENCES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.MAPPA_LEVELS_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.POLICE_FORCES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.PROBATION_SERVICES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.RELEASED_UNDERS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.COURTS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.ESTABLISHMENTS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.ETHNICITIES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.GENDERS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.INDEX_OFFENCES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.MAPPA_LEVELS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.POLICE_FORCES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.PROBATION_SERVICES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.RELEASED_UNDERS_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(SpringExtension::class)
@@ -75,7 +77,8 @@ class ReferenceServiceTest {
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager(*Companion.cacheNames)
 
     @Bean
-    fun referenceService(ppudClient: ReferenceDataPpudClient, cacheManager: CacheManager): ReferenceService = ReferenceServiceImpl(ppudClient, cacheManager)
+    fun referenceService(ppudClient: ReferenceDataPpudClient, cacheManager: CacheManager): ReferenceService =
+      ReferenceServiceImpl(ppudClient, cacheManager)
   }
 
   @Test

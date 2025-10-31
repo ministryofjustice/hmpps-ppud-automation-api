@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.ReferenceResponse
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceService
 
 @RestController
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")

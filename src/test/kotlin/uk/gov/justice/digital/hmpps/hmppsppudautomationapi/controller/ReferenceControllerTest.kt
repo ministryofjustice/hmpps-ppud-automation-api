@@ -10,7 +10,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.then
 import org.springframework.http.HttpStatus
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(MockitoExtension::class)
