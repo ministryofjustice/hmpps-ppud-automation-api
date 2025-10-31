@@ -8,12 +8,16 @@ import org.springframework.context.annotation.Configuration
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
+const val DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60L
+
 @Configuration
 @ConfigurationProperties(prefix = "flipt")
 class FliptConfig {
 
   lateinit var url: String
   lateinit var token: String
+  var pollingIntervalInSeconds: Long =
+    DEFAULT_POLLING_INTERVAL_IN_SECONDS // can't use lateinit with primitives, so defaulting
   var defaultFlagValue: Boolean = false // can't use lateinit with primitives, so defaulting
 
   @Bean
@@ -22,7 +26,6 @@ class FliptConfig {
       .builder()
       .namespace("consider-a-recall").url(url)
       .authentication(ClientTokenAuthentication(token))
-      // we deal with time-sensitive flags, so need a short cache duration
-      .updateInterval(Duration.of(1, ChronoUnit.SECONDS))
+      .updateInterval(Duration.of(pollingIntervalInSeconds, ChronoUnit.SECONDS))
       .build()
 }

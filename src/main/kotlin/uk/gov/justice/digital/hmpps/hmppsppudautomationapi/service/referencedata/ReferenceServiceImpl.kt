@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata
 
 import org.slf4j.LoggerFactory
 import org.springframework.cache.CacheManager
@@ -53,6 +53,8 @@ internal class ReferenceServiceImpl(
     cacheManager.getCache(INDETERMINATE_CUSTODY_TYPES_CACHE_NAME)
       ?.put(SimpleKey.EMPTY, retrieveIndeterminateCustodyTypes())
       ?: throw RuntimeException("Cache '$INDETERMINATE_CUSTODY_TYPES_CACHE_NAME' not found")
+
+    log.info("Caches refreshed")
   }
 
   @Cacheable(CUSTODY_TYPES_CACHE_NAME)

@@ -5,6 +5,8 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
+# when running the tests, we should generally be able to call the dev feature toggles endpoint, which
+# is slightly easier to use than configuring wiremock to do whatever needs testing specifically
 flipt:
   url: https://feature-toggles-dev.hmpps.service.justice.gov.uk
 
