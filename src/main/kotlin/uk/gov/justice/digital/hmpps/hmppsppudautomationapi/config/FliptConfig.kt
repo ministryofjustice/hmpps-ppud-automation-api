@@ -21,11 +21,10 @@ class FliptConfig {
   var defaultFlagValue: Boolean = false // can't use lateinit with primitives, so defaulting
 
   @Bean
-  fun fliptApiClient(): FliptClient =
-    FliptClient
-      .builder()
-      .namespace("consider-a-recall").url(url)
-      .authentication(ClientTokenAuthentication(token))
-      .updateInterval(Duration.of(pollingIntervalInSeconds, ChronoUnit.SECONDS))
-      .build()
+  fun fliptApiClient(): FliptClient = FliptClient
+    .builder()
+    .namespace("consider-a-recall").url(url)
+    .authentication(ClientTokenAuthentication(token))
+    .updateInterval(Duration.of(pollingIntervalInSeconds, ChronoUnit.SECONDS))
+    .build()
 }

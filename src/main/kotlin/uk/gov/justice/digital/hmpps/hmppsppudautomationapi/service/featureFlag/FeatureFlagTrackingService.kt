@@ -33,7 +33,7 @@ internal class FeatureFlagTrackingService {
   // know about the changes as soon as the Flipt client does (or close enough)
   @Scheduled(
     timeUnit = TimeUnit.SECONDS,
-    fixedRateString = "\${flipt.polling-interval-in-seconds:${DEFAULT_POLLING_INTERVAL_IN_SECONDS}}"
+    fixedRateString = "\${flipt.polling-interval-in-seconds:${DEFAULT_POLLING_INTERVAL_IN_SECONDS}}",
   )
   suspend fun trackFeatureFlags() {
     FeatureFlag.entries.forEach { featureFlag ->

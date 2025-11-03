@@ -27,7 +27,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-
 @ExtendWith(MockitoExtension::class)
 class FeatureFlagServiceTest {
 
@@ -86,15 +85,14 @@ class FeatureFlagServiceTest {
       )
   }
 
-  private fun flag(key: String, enabled: Boolean) =
-    BooleanEvaluationResponse
-      .builder()
-      .enabled(enabled)
-      .flagKey(key)
-      .reason("DEFAULT_EVALUATION_REASON")
-      .requestDurationMillis(100F)
-      .timestamp(LocalTime.now().toString())
-      .build()
+  private fun flag(key: String, enabled: Boolean) = BooleanEvaluationResponse
+    .builder()
+    .enabled(enabled)
+    .flagKey(key)
+    .reason("DEFAULT_EVALUATION_REASON")
+    .requestDurationMillis(100F)
+    .timestamp(LocalTime.now().toString())
+    .build()
 
   private fun assertWarningMessageWasLogged(defaultFlagValue: Boolean) {
     with(logAppender.list) {
@@ -106,17 +104,16 @@ class FeatureFlagServiceTest {
     }
   }
 
-  private fun hasRecentCurrentDateTime() =
-    object : ArgumentMatcher<Map<String, String?>> {
-      override fun matches(actualMap: Map<String, String?>): Boolean {
-        val mappedCurrentDateTime = actualMap["currentDateTime"]
-        if (mappedCurrentDateTime == null) {
-          return false
-        }
-        // Check that the map contains the currentDateTime key with the expected format within a small window
-        val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        val mappedDateTime = LocalDateTime.parse(mappedCurrentDateTime, dateTimeFormatter)
-        return LocalDateTime.now().isBefore(mappedDateTime.plusSeconds(3))
+  private fun hasRecentCurrentDateTime() = object : ArgumentMatcher<Map<String, String?>> {
+    override fun matches(actualMap: Map<String, String?>): Boolean {
+      val mappedCurrentDateTime = actualMap["currentDateTime"]
+      if (mappedCurrentDateTime == null) {
+        return false
       }
+      // Check that the map contains the currentDateTime key with the expected format within a small window
+      val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+      val mappedDateTime = LocalDateTime.parse(mappedCurrentDateTime, dateTimeFormatter)
+      return LocalDateTime.now().isBefore(mappedDateTime.plusSeconds(3))
     }
+  }
 }

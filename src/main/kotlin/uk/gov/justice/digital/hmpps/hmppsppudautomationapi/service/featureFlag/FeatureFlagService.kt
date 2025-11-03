@@ -15,10 +15,10 @@ class FeatureFlagService(
 ) {
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
     // this is the pattern recognised by Flipt
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
   }
-
 
   fun enabled(key: String) = try {
     if (client == null) {
