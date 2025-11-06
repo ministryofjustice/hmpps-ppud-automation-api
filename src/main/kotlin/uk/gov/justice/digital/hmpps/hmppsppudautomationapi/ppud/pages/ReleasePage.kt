@@ -60,27 +60,16 @@ internal class ReleasePage(
     )
 
   fun createRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest) {
-    with(createdOrUpdatedRelease) {
-      // Complete first as additional processing is triggered
-      releasedFromInput.click()
-      releasedFromInput.sendKeys(this.releasedFrom)
-
-      // Complete standalone fields
-      dateOfReleaseInput.click()
-      dateOfReleaseInput.sendKeys(this.dateOfRelease.format(dateFormatter))
-      pageHelper.selectDropdownOptionIfNotBlank(releasedUnderDropdown, this.releasedUnder, "released under")
-      completeNonKeyFields()
-
-      // Complete fields that have been updated/refreshed.
-      pageHelper.selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
-
-      saveButton.click()
-    }
+    updateAllFields(createdOrUpdatedRelease, null)
   }
 
-  fun updateRelease() {
+  fun updateDeterminateRelease() {
     completeNonKeyFields()
     saveButton.click()
+  }
+
+  fun updateIndeterminateRelease(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest, releasedUnder: String?) {
+    updateAllFields(createdOrUpdatedRelease, releasedUnder)
   }
 
   fun extractReleaseId(): String = pageHelper.extractId(pageDescription)
@@ -91,10 +80,33 @@ internal class ReleasePage(
     }
   }
 
+  private fun updateAllFields(createdOrUpdatedRelease: CreateOrUpdateReleaseRequest, releasedUnder: String?) {
+    with(createdOrUpdatedRelease) {
+      // Complete first as additional processing is triggered
+      releasedFromInput.click()
+      releasedFromInput.sendKeys(this.releasedFrom)
+
+      // Complete standalone fields
+      dateOfReleaseInput.click()
+      dateOfReleaseInput.sendKeys(this.dateOfRelease.format(dateFormatter))
+      pageHelper.selectDropdownOptionIfNotBlank(
+        releasedUnderDropdown,
+        releasedUnder ?: this.releasedUnder,
+        "released under",
+      )
+      completeNonKeyFields()
+
+      // Complete fields that have been updated/refreshed.
+      pageHelper.selectDropdownOptionIfNotBlank(releasedFromDropdown, this.releasedFrom, "released from")
+
+      saveButton.click()
+    }
+  }
+
   // Three fields are left untouched here: date of release, released from and released under. This is
   // because they are part of the key:
-  //  * For new releases, they are set separately (see createRelease)
-  //  * For existing releases, they were used during the release matching phase, and so don't need changing
+  //  * For new determinate releases and existing indeterminate ones, they are set separately
+  //  * For existing determinate releases, they were used during the release matching phase, and so don't need changing
   private fun completeNonKeyFields() {
     pageHelper.selectDropdownOptionIfNotBlank(categoryDropdown, category, "category")
     pageHelper.selectDropdownOptionIfNotBlank(releaseTypeDropdown, releaseType, "release type")

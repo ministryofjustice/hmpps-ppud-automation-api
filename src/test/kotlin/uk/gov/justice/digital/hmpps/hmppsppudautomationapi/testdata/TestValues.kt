@@ -170,7 +170,16 @@ fun randomDateTime(): LocalDateTime {
   return LocalDateTime.ofEpochSecond(randomEpochSecond, 0, ZoneOffset.UTC)
 }
 
-fun randomTimeToday(): LocalDateTime = LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
+fun randomTimeToday(): LocalDateTime =
+  LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
+
+inline fun <reified E : Enum<E>> randomEnumOrNull(exclude: List<E> = emptyList()): E? {
+  return try {
+    randomEnum(exclude)
+  } catch (e: IllegalArgumentException) {
+    null
+  }
+}
 
 inline fun <reified E : Enum<E>> randomEnum(exclude: List<E> = emptyList()): E {
   val validValues = enumValues<E>().filter { !exclude.contains(it) }
@@ -202,9 +211,11 @@ fun randomPpudId(): String {
   return "4F${randomSerial}E64657269643D313632393134G721H665"
 }
 
-fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName = LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
+fun randomLookupName(exclude: List<LookupName> = listOf()): LookupName =
+  LookupName.entries.filter { exclude.contains(it).not() }.shuffled().first()
 
-fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory = DocumentCategory.entries.shuffled().first { it != exclude }
+fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory =
+  DocumentCategory.entries.shuffled().first { it != exclude }
 
 /**
  * This will create a request that is useful for mocked testing but uses random values
@@ -424,4 +435,5 @@ fun generatePpudUser(): PpudUser = PpudUser(
   teamName = randomString("teamName"),
 )
 
-fun generateUserSearchRequest(fullName: String?, userName: String?): UserSearchRequest = UserSearchRequest(fullName, userName)
+fun generateUserSearchRequest(fullName: String?, userName: String?): UserSearchRequest =
+  UserSearchRequest(fullName, userName)

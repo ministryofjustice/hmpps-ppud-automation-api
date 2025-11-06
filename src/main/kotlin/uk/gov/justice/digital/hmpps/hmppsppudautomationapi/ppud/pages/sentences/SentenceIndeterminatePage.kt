@@ -15,9 +15,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.selenium.TreeViewNode
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Component
 internal class SentenceIndeterminatePage(
@@ -62,12 +59,11 @@ internal class SentenceIndeterminatePage(
     val offenceLink = determineOffenceLink()
     return with(pageHelper) {
       val sentenceId = extractId(pageDescription)
-      val releaseNodes = navigationTreeViewComponent.findReleaseNodesFor(sentenceId)
       Sentence(
         id = sentenceId,
         custodyType = Select(custodyTypeDropdown).firstSelectedOption.text,
         dateOfSentence = readDate(dateOfSentenceInput),
-        releaseDate = latestReleaseDate(releaseNodes),
+        releaseDate = navigationTreeViewComponent.latestReleaseDate(sentenceId),
         tariffExpiryDate = readDateFromTextOrNull(tariffExpiryDate),
         sentenceLength = SentenceLength(
           readTextAsIntegerOrDefault(fullPunishmentYearsInput, 0),
@@ -79,20 +75,6 @@ internal class SentenceIndeterminatePage(
         offence = offenceExtractor(offenceLink),
       )
     }
-  }
-
-  private fun latestReleaseDate(releaseNodes: List<TreeViewNode>): LocalDate? {
-    val releaseNodeTexts = releaseNodes.map { it.text }
-    return releaseNodes.subList(1, releaseNodes.size) // first node is the 'New...' node for creating release records
-      // release node text follows the format " DD/MM/YYYY - <release type>", e.g. " 17/11/2025 - On Licence" (note the
-      // whitespace before the date)
-      .map {
-        it.text.substring(
-          1,
-          "DD/MM/YYYY".length + 1,
-        )
-      }
-      .maxOfOrNull { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
   }
 
   // Page Elements

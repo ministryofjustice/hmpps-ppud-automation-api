@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -201,5 +202,17 @@ class PageHelperTest {
     given(element.isSelected).willReturn(toBeChecked)
     pageHelper.selectCheckboxValue(element, toBeChecked)
     then(element).should(never()).click()
+  }
+
+  @Test
+  fun `returns a null date when reading a date string that is blank`() {
+    val result = pageHelper.readDateStringOrNull("   ")
+    assertThat(result).isNull()
+  }
+
+  @Test
+  fun `returns the expected date when reading a date string that is valid`() {
+    val result = pageHelper.readDateStringOrNull("15/09/2023")
+    assertThat(result).isEqualTo(LocalDate.of(2023, 9, 15))
   }
 }

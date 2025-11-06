@@ -148,12 +148,13 @@ class NavigationTreeViewComponent(
       .map { it.url }
   }
 
-  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> = findReleaseNodesFor(sentenceId)
-    .filter {
-      it.text.startsWith(NEW_NODE_TEXT).not() &&
-        (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
-    }
-    .map { it.url }
+  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> =
+    findReleaseNodesFor(sentenceId)
+      .filter {
+        it.text.startsWith(NEW_NODE_TEXT).not() &&
+          (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
+      }
+      .map { it.url }
 
   fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> = findReleaseNodesFor(sentenceId)
     .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
@@ -162,4 +163,25 @@ class NavigationTreeViewComponent(
   fun extractRecallLinks(releaseId: String): List<String> = findRecallNodesFor(releaseId)
     .excludeNewNode()
     .map { it.url }
+
+  fun latestReleaseDate(sentenceId: String): LocalDate? {
+    val latestReleaseNode = latestReleaseNode(sentenceId) ?: return null
+    return releaseNodeDate(latestReleaseNode)
+  }
+
+  fun latestReleaseNode(sentenceId: String): TreeViewNode? {
+    val releaseNodes = findReleaseNodesFor(sentenceId)
+    return releaseNodes.subList(1, releaseNodes.size) // first node is the 'New...' node for creating release records
+      .maxByOrNull(this::releaseNodeDate)
+  }
+
+  private fun releaseNodeDate(node: TreeViewNode): LocalDate {
+    // release node text follows the format " DD/MM/YYYY - <release type>",
+    // e.g. " 17/11/2025 - On Licence" (note the whitespace before the date)
+    val dateText = node.text.substring(
+      1,
+      "DD/MM/YYYY".length + 1,
+    )
+    return LocalDate.parse(dateText, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+  }
 }
