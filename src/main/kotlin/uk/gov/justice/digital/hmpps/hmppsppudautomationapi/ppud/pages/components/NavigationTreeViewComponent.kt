@@ -148,13 +148,12 @@ class NavigationTreeViewComponent(
       .map { it.url }
   }
 
-  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> =
-    findReleaseNodesFor(sentenceId)
-      .filter {
-        it.text.startsWith(NEW_NODE_TEXT).not() &&
-          (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
-      }
-      .map { it.url }
+  fun extractReleaseLinks(sentenceId: String, includeEmptyReleases: Boolean): List<String> = findReleaseNodesFor(sentenceId)
+    .filter {
+      it.text.startsWith(NEW_NODE_TEXT).not() &&
+        (includeEmptyReleases || it.text.trim().startsWith(NOT_SPECIFIED_TEXT).not())
+    }
+    .map { it.url }
 
   fun extractReleaseLinks(sentenceId: String, dateOfRelease: LocalDate): List<String> = findReleaseNodesFor(sentenceId)
     .filter { it.text.contains(dateOfRelease.format(dateFormatter)) }
