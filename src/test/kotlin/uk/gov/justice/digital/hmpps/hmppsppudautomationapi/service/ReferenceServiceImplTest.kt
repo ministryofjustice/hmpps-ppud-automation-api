@@ -22,6 +22,10 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Suppo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.AUTOMATIC
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.EDS
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.EDS_NON_PAROLE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.EPP
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.SOPC
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.DCR
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.DPP
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType.MANDATORY_MLP
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
@@ -96,7 +100,7 @@ class ReferenceServiceImplTest {
   @Test
   fun `returns all available supported determinate custody types, logging warnings for the missing ones`() {
     runBlocking {
-      testCustodyTypeRetrievalByCustodyGroup(DETERMINATE, listOf(EDS, EDS_NON_PAROLE)) {
+      testCustodyTypeRetrievalByCustodyGroup(DETERMINATE, listOf(EDS, EDS_NON_PAROLE, EPP, SOPC, DCR, DPP)) {
         referenceService.retrieveDeterminateCustodyTypes()
       }
     }
