@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
 import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
@@ -46,10 +45,6 @@ internal class EditLookupsPage(driver: WebDriver, private val featureFlagService
     val grid: WebElement,
     val columnNumber: Int,
   )
-
-  companion object {
-    private val log = LoggerFactory.getLogger(EditLookupsPage::class.java)
-  }
 
   init {
     PageFactory.initElements(driver, this)
