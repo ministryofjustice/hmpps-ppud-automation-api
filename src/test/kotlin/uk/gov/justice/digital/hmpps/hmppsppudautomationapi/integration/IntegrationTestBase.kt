@@ -35,12 +35,12 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_R
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDateTime
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPhoneNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPrisonNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomTimeToday
 import java.io.File
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Level
@@ -217,25 +217,28 @@ abstract class IntegrationTestBase {
       "}" +
       "}"
 
+    // Note decisionDateTime should be earlier than receivedDateTime, which in turn should be earlier than the recall's
+    // "Recommended to/on" date-time. The latter is set to LocalDateTime.now() automatically, so we set a wide margin
+    // for the first two to ensure the requirement is satisfied
     fun createRecallRequestBody(
-      decisionDateTime: String = randomDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      decisionDateTime: LocalDateTime? = randomTimeToday().minusDays(1),
       isInCustody: String = "false",
       isExtendedSentence: String = "false",
       mappaLevel: String = PPUD_VALID_MAPPA_LEVEL,
       policeForce: String = PPUD_VALID_POLICE_FORCE,
       probationArea: String = PPUD_VALID_PROBATION_SERVICE,
-      receivedDateTime: String = randomTimeToday().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      receivedDateTime: LocalDateTime? = decisionDateTime?.plusHours(1) ?: randomTimeToday().minusDays(1),
       recommendedTo: String? = ppudUserRequestBody(),
       riskOfContrabandDetails: String = "",
     ): String = """
         {
-          "decisionDateTime":"$decisionDateTime",
+          "decisionDateTime":"${decisionDateTime?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) ?: ""}",
           "isInCustody":"$isInCustody",
           "isExtendedSentence":"$isExtendedSentence",
           "mappaLevel":"$mappaLevel",
           "policeForce":"$policeForce",
           "probationArea":"$probationArea",
-          "receivedDateTime":"$receivedDateTime",
+          "receivedDateTime":"${receivedDateTime?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) ?: ""}",
           "recommendedTo":${recommendedTo ?: "null"},
           "riskOfContrabandDetails":"$riskOfContrabandDetails"
         }
