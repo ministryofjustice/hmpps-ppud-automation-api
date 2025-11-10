@@ -24,6 +24,10 @@ open class TreeViewNode(private val element: WebElement) : WebElement {
     .filter { !it.isExpansionElement }
     .map { TreeViewNode(it) }
 
+  fun parent(): TreeViewNode = TreeViewNode(findElement(By.xpath("..")))
+
+  fun previousSibling(): TreeViewNode = TreeViewNode(findElement(By.xpath("preceding-sibling::div[1]")))
+
   fun expandNode(): TreeViewNode {
     if (expansionElement.isDisplayed.not()) {
       expanderImage.click()

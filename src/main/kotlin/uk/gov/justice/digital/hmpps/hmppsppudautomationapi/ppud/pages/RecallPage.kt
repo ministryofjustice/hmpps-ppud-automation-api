@@ -38,7 +38,6 @@ internal class RecallPage(
   private val dateTimeFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
-  @Value("\${ppud.recall.recallType}") private val recallType: String,
   @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
   @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
   @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
@@ -216,7 +215,7 @@ internal class RecallPage(
   fun isMatching(receivedDateTime: LocalDateTime, recommendedTo: PpudUser): Boolean = reportReceivedDateInput.getValue() == receivedDateTime.format(dateTimeFormatter) &&
     recommendedToOwnerInput.getValue() == recommendedTo.fullName
 
-  suspend fun createRecall(createRecallRequest: CreateRecallRequest) {
+  fun createRecall(createRecallRequest: CreateRecallRequest, recallType: String) {
     // Complete these first as they trigger additional processing
     // Autocomplete box doesn't work with brackets
     pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, createRecallRequest.recommendedTo.fullName)

@@ -26,7 +26,11 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.random.Random
 
-const val PPUD_VALID_CUSTODY_TYPE = "Determinate"
+const val PPUD_VALID_DETERMINATE_CUSTODY_TYPE = "Determinate"
+
+const val PPUD_VALID_INDETERMINATE_CUSTODY_TYPE = "Automatic"
+
+const val PPUD_UNSUPPORTED_CUSTODY_TYPE = "DCR (Deportation)"
 
 const val PPUD_VALID_ETHNICITY = "Chinese"
 
@@ -131,6 +135,13 @@ private const val SECONDS_IN_A_DAY: Long = 86400
 
 fun randomString(prefix: String = "random"): String = "$prefix-${UUID.randomUUID()}"
 
+fun randomStringOfLength(length: Int): String {
+  val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+  return (1..length)
+    .map { allowedChars.random() }
+    .joinToString("")
+}
+
 fun randomCroNumber(): String {
   val serial = Random.nextInt(100000, 999999)
   val year = Random.nextInt(10, 23)
@@ -160,6 +171,17 @@ fun randomDateTime(): LocalDateTime {
 }
 
 fun randomTimeToday(): LocalDateTime = LocalDate.now().atTime(LocalTime.ofSecondOfDay(Random.nextLong(SECONDS_IN_A_DAY)))
+
+inline fun <reified E : Enum<E>> randomEnumOrNull(exclude: List<E> = emptyList()): E? = try {
+  randomEnum(exclude)
+} catch (e: IllegalArgumentException) {
+  null
+}
+
+inline fun <reified E : Enum<E>> randomEnum(exclude: List<E> = emptyList()): E {
+  val validValues = enumValues<E>().filter { !exclude.contains(it) }
+  return validValues[Random.Default.nextInt(0, validValues.size)]
+}
 
 fun randomPhoneNumber(): String {
   val number = Random.nextInt(100000000, 999999999)

@@ -77,7 +77,7 @@ class OffenderGetTest : IntegrationTestBase() {
         .jsonPath("offender.sentences[1].mappaLevel").isEmpty
         .jsonPath("offender.sentences[1].releaseDate").isEqualTo(indeterminateSentence.releaseDate)
         .jsonPath("offender.sentences[1].sentencedUnder").isEmpty
-        .jsonPath("offender.sentences[1].sentenceExpiryDate").isEqualTo(indeterminateSentence.expiryDate)
+        .jsonPath("offender.sentences[1].tariffExpiryDate").isEqualTo(indeterminateSentence.expiryDate)
         .jsonPath("offender.sentences[1].sentenceLength.partYears").isEqualTo(indeterminateSentence.sentenceLength.partYears)
         .jsonPath("offender.sentences[1].sentenceLength.partMonths").isEqualTo(indeterminateSentence.sentenceLength.partMonths)
         .jsonPath("offender.sentences[1].sentenceLength.partDays").isEqualTo(indeterminateSentence.sentenceLength.partDays)

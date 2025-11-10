@@ -100,6 +100,7 @@ class NavigationTreeViewComponent(
     .children()
 
   fun findRecallsNodeFor(releaseId: String): TreeViewNode = findReleaseNodeFor(releaseId)
+    .expandNode()
     .expandNodeWithTextContaining(RECALLS_NODE_TEXT)
 
   fun navigateToNewSentence() {
@@ -112,6 +113,13 @@ class NavigationTreeViewComponent(
   fun navigateToSentenceFor(sentenceId: String) {
     findSentenceNodeFor(sentenceId)
       .click()
+  }
+
+  fun findSentenceNodeForRelease(releaseId: String): TreeViewNode {
+    return findReleaseNodeFor(releaseId)
+      .parent() // expanded container with all releases
+      .parent() // expanded container with all the sentence data
+      .previousSibling() // sentence node
   }
 
   fun navigateToOffenceFor(sentenceId: String) {
@@ -154,4 +162,25 @@ class NavigationTreeViewComponent(
   fun extractRecallLinks(releaseId: String): List<String> = findRecallNodesFor(releaseId)
     .excludeNewNode()
     .map { it.url }
+
+  fun latestReleaseDate(sentenceId: String): LocalDate? {
+    val latestReleaseNode = latestReleaseNode(sentenceId) ?: return null
+    return releaseNodeDate(latestReleaseNode)
+  }
+
+  fun latestReleaseNode(sentenceId: String): TreeViewNode? {
+    val releaseNodes = findReleaseNodesFor(sentenceId)
+    return releaseNodes.subList(1, releaseNodes.size) // first node is the 'New...' node for creating release records
+      .maxByOrNull(this::releaseNodeDate)
+  }
+
+  private fun releaseNodeDate(node: TreeViewNode): LocalDate {
+    // release node text follows the format " DD/MM/YYYY - <release type>",
+    // e.g. " 17/11/2025 - On Licence" (note the whitespace before the date)
+    val dateText = node.text.substring(
+      1,
+      "DD/MM/YYYY".length + 1,
+    )
+    return LocalDate.parse(dateText, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+  }
 }

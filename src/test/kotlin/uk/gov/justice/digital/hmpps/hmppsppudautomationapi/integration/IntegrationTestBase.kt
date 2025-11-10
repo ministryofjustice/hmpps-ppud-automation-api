@@ -21,7 +21,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_DETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_ETHNICITY
@@ -72,7 +72,7 @@ abstract class IntegrationTestBase {
       address: String? = addressRequestBody(),
       additionalAddresses: String = addressRequestBody(),
       croNumber: String = "",
-      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
+      custodyType: String = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfBirth: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       ethnicity: String = PPUD_VALID_ETHNICITY,
@@ -138,7 +138,7 @@ abstract class IntegrationTestBase {
       """.trimIndent()
 
     fun createOrUpdateSentenceRequestBody(
-      custodyType: String = PPUD_VALID_CUSTODY_TYPE,
+      custodyType: String = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfSentence: String = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
       espCustodialPeriodYears: Int = Random.nextInt(0, 20),
       espCustodialPeriodMonths: Int = Random.nextInt(0, 20),

@@ -32,12 +32,20 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.GetOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.response.OffenderSearchResponse
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.recall.RecallService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.release.ReleaseService
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.SentenceService
 import java.util.UUID
 
 @RestController
 @PreAuthorize("hasRole('ROLE_PPUD_AUTOMATION__RECALL__READWRITE')")
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class OffenderController(private val ppudClient: OperationalPpudClient) {
+internal class OffenderController(
+  private val ppudClient: OperationalPpudClient,
+  private val sentenceService: SentenceService,
+  private val releaseService: ReleaseService,
+  private val recallService: RecallService,
+) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -115,7 +123,7 @@ internal class OffenderController(private val ppudClient: OperationalPpudClient)
     createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
   ): ResponseEntity<CreateSentenceResponse> {
     log.info("Sentence create endpoint hit")
-    val sentence = ppudClient.createSentence(offenderId, createOrUpdateSentenceRequest)
+    val sentence = sentenceService.createSentence(offenderId, createOrUpdateSentenceRequest)
     return ResponseEntity(CreateSentenceResponse(sentence), HttpStatus.CREATED)
   }
 
@@ -132,7 +140,7 @@ internal class OffenderController(private val ppudClient: OperationalPpudClient)
     createOrUpdateSentenceRequest: CreateOrUpdateSentenceRequest,
   ) {
     log.info("Sentence update endpoint hit")
-    ppudClient.updateSentence(offenderId, sentenceId, createOrUpdateSentenceRequest)
+    sentenceService.updateSentence(offenderId, sentenceId, createOrUpdateSentenceRequest)
   }
 
   @Operation(
@@ -165,7 +173,8 @@ internal class OffenderController(private val ppudClient: OperationalPpudClient)
     createOrUpdateReleaseRequest: CreateOrUpdateReleaseRequest,
   ): ResponseEntity<CreateOrUpdateReleaseResponse> {
     log.info("Release create or update endpoint hit")
-    val createdOrUpdatedRelease = ppudClient.createOrUpdateRelease(offenderId, sentenceId, createOrUpdateReleaseRequest)
+    val createdOrUpdatedRelease =
+      releaseService.createOrUpdateRelease(offenderId, sentenceId, createOrUpdateReleaseRequest)
     return ResponseEntity(CreateOrUpdateReleaseResponse(createdOrUpdatedRelease), HttpStatus.OK)
   }
 
@@ -182,7 +191,7 @@ internal class OffenderController(private val ppudClient: OperationalPpudClient)
     createRecallRequest: CreateRecallRequest,
   ): ResponseEntity<CreateRecallResponse> {
     log.info("Offender recall endpoint hit")
-    val recall = ppudClient.createRecall(offenderId, releaseId, createRecallRequest)
+    val recall = recallService.createRecall(offenderId, releaseId, createRecallRequest)
     return ResponseEntity(CreateRecallResponse(recall), HttpStatus.CREATED)
   }
 
