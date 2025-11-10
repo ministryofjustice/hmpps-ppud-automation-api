@@ -22,7 +22,7 @@ internal class ReferenceControllerTest {
   @Mock
   private lateinit var referenceService: ReferenceService
 
-  // TODO MRD-2769 find out why log testing fails
+  // TODO MRD-2769 find out why log testing fails in CircleCI
 //  private val logAppender = findLogAppender(ReferenceController::class.java)
 
   @Test
@@ -215,7 +215,7 @@ internal class ReferenceControllerTest {
   }
 
   private fun assertInfoMessageForEndpointWasLogged(endpoint: String) {
-    // TODO MRD-2769 find out why log testing fails
+    // TODO MRD-2769 find out why log testing fails in CircleCI
 //    with(logAppender.list) {
 //      assertThat(size).isEqualTo(1)
 //      with(get(0)) {
