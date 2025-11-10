@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences
 
-import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -13,7 +12,6 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateSentenceRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
@@ -101,12 +99,6 @@ internal class SentenceDeterminatePage(
     }
   }
 
-  override fun throwIfInvalid() {
-    if (validationSummary?.text?.isNotBlank() == true) {
-      throw AutomationException("Validation Failed.${System.lineSeparator()}${validationSummary?.text}")
-    }
-  }
-
   // Page Elements
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement
@@ -155,7 +147,4 @@ internal class SentenceDeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
-
-  private val validationSummary: WebElement?
-    get() = driver.findElements(By.id("cntDetails_ValidationSummary1")).firstOrNull()
 }

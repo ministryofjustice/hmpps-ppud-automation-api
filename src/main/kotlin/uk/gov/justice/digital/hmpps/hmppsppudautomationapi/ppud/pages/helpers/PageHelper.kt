@@ -93,7 +93,7 @@ class PageHelper(
     return readDateStringOrNull(inputText)
   }
 
-  private fun readDateStringOrNull(value: String): LocalDate? = if (value.isNotBlank()) {
+  fun readDateStringOrNull(value: String): LocalDate? = if (value.isNotBlank()) {
     LocalDate.parse(value, dateFormatter)
   } else {
     null

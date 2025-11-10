@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_CUSTODY_TYPE
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_DETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_UNDER
@@ -31,9 +31,17 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
-      MandatoryFieldTestData("custodyType", createOrUpdateSentenceRequestBody(custodyType = "")),
+      MandatoryFieldTestData(
+        "custodyType",
+        createOrUpdateSentenceRequestBody(custodyType = ""),
+        "Request to create a sentence was missing a Custody Type value",
+      ),
       MandatoryFieldTestData("dateOfSentence", createOrUpdateSentenceRequestBody(dateOfSentence = "")),
-      MandatoryFieldTestData("mappaLevel", createOrUpdateSentenceRequestBody(mappaLevel = "")),
+      MandatoryFieldTestData(
+        "mappaLevel",
+        createOrUpdateSentenceRequestBody(mappaLevel = ""),
+        "Request to create a determinate sentence was missing a MAPPA Level",
+      ),
     )
   }
 
@@ -74,7 +82,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     val requestBodyWithOnlyMandatoryFields =
       """
         {
-          "custodyType":"$PPUD_VALID_CUSTODY_TYPE",
+          "custodyType":"$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
           "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
@@ -108,7 +116,12 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
       .isBadRequest
       .expectBody()
       .jsonPath("userMessage")
-      .value(Consumer<String> { Assertions.assertThat(it).contains("sentencingCourt") })
+      .value(
+        Consumer<String> {
+          Assertions.assertThat(it)
+            .contains("Request to create a determinate sentence had a Sentencing Court exceeding 50 characters")
+        },
+      )
   }
 
   @Test
@@ -139,7 +152,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     val sentenceLengthPartMonths = Random.nextInt(0, 1000)
     val sentenceLengthPartDays = Random.nextInt(0, 1000)
     val requestBody = createOrUpdateSentenceRequestBody(
-      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      custodyType = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfSentence = dateOfSentence,
       espCustodialPeriodYears = espCustodialPeriodYears,
       espCustodialPeriodMonths = espCustodialPeriodMonths,
@@ -162,7 +175,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.sentences.size()").isEqualTo(2)
       .jsonPath("offender.sentences[1].id").isEqualTo(sentenceId)
-      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_DETERMINATE_CUSTODY_TYPE)
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[1].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)
       .jsonPath("offender.sentences[1].espCustodialPeriod.months").isEqualTo(espCustodialPeriodMonths)
@@ -196,7 +209,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     val sentenceLengthPartMonths = Random.nextInt(0, 1000)
     val sentenceLengthPartDays = Random.nextInt(0, 1000)
     val requestBody = createOrUpdateSentenceRequestBody(
-      custodyType = PPUD_VALID_CUSTODY_TYPE,
+      custodyType = PPUD_VALID_DETERMINATE_CUSTODY_TYPE,
       dateOfSentence = dateOfSentence,
       espCustodialPeriodYears = espCustodialPeriodYears,
       espCustodialPeriodMonths = espCustodialPeriodMonths,
@@ -221,7 +234,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     retrieved
       .jsonPath("offender.sentences.size()").isEqualTo(2)
       .jsonPath("offender.sentences[1].id").isEqualTo(firstCallSentenceId)
-      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_CUSTODY_TYPE)
+      .jsonPath("offender.sentences[1].custodyType").isEqualTo(PPUD_VALID_DETERMINATE_CUSTODY_TYPE)
       .jsonPath("offender.sentences[1].dateOfSentence").isEqualTo(dateOfSentence)
       .jsonPath("offender.sentences[1].espCustodialPeriod.years").isEqualTo(espCustodialPeriodYears)
       .jsonPath("offender.sentences[1].espCustodialPeriod.months").isEqualTo(espCustodialPeriodMonths)
