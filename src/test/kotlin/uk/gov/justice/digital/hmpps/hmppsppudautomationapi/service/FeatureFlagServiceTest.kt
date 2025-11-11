@@ -57,7 +57,7 @@ class FeatureFlagServiceTest {
   @Test
   fun `throws error if feature flag is not defined`() {
     val flag = randomString()
-    whenever(fliptClient.evaluateBoolean(eq(flag), eq(flag), argThat(hasRecentCurrentDateTime()))).thenThrow(
+    whenever(fliptClient.evaluateBoolean(eq(flag), eq("entityId"), argThat(hasRecentCurrentDateTime()))).thenThrow(
       FliptException.EvaluationException("Not Found"),
     )
     assertThrows<FeatureFlagException> { featureFlagService.enabled(flag) }
@@ -78,7 +78,7 @@ class FeatureFlagServiceTest {
   }
 
   private fun withFlag(key: String, enabled: Boolean) {
-    whenever(fliptClient.evaluateBoolean(eq(key), eq(key), argThat(hasRecentCurrentDateTime())))
+    whenever(fliptClient.evaluateBoolean(eq(key), eq("entityId"), argThat(hasRecentCurrentDateTime())))
       .thenReturn(
         flag(key, enabled),
       )

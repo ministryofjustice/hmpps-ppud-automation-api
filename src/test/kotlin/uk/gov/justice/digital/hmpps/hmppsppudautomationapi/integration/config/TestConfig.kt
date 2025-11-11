@@ -22,7 +22,7 @@ class TestConfig {
     whenever(booleanResponse.isEnabled).thenReturn(true)
     val fliptApiClient = mock(FliptClient::class.java)
     FeatureFlag.entries.forEach {
-      whenever(fliptApiClient.evaluateBoolean(eq(it.flagId), eq(it.flagId), anyMap())).thenReturn(booleanResponse)
+      whenever(fliptApiClient.evaluateBoolean(eq(it.flagId), org.mockito.kotlin.eq("entityId"), anyMap())).thenReturn(booleanResponse)
     }
     return fliptApiClient
   }

@@ -26,8 +26,9 @@ class FeatureFlagService(
       config.defaultFlagValue
     } else {
       val currentDateTime = LocalDateTime.now().format(dateTimeFormatter)
+      // we don't use the entity ID in our namespace on the Flipt server, but it cannot be null
       client
-        .evaluateBoolean(key, key, mapOf("currentDateTime" to currentDateTime))
+        .evaluateBoolean(key, "entityId", mapOf("currentDateTime" to currentDateTime))
         .isEnabled
     }
   } catch (e: Exception) {
