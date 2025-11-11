@@ -54,11 +54,11 @@ class OffenderRecallTest : IntegrationTestBase() {
 
     @JvmStatic
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
-      MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = "")),
+      MandatoryFieldTestData("decisionDateTime", createRecallRequestBody(decisionDateTime = null)),
       MandatoryFieldTestData("mappaLevel", createRecallRequestBody(mappaLevel = "")),
       MandatoryFieldTestData("policeForce", createRecallRequestBody(policeForce = "")),
       MandatoryFieldTestData("probationArea", createRecallRequestBody(probationArea = "")),
-      MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = "")),
+      MandatoryFieldTestData("receivedDateTime", createRecallRequestBody(receivedDateTime = null)),
       MandatoryFieldTestData("recommendedTo", createRecallRequestBody(recommendedTo = null)),
       MandatoryFieldTestData(
         "recommendedTo",
@@ -136,11 +136,11 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   @Test
   fun `given valid values in request body when recall called then recall is created using supplied values and 201 created and recall Id are returned`() {
-    val decisionDateTime = randomTimeToday()
-    val receivedDateTime = randomTimeToday()
+    val decisionDateTime = randomTimeToday().minusDays(1)
+    val receivedDateTime = decisionDateTime.plusHours(1)
     val requestBody = createRecallRequestBody(
-      decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      decisionDateTime = decisionDateTime,
+      receivedDateTime = receivedDateTime,
       recommendedTo = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
@@ -170,11 +170,11 @@ class OffenderRecallTest : IntegrationTestBase() {
   fun `creates indeterminate recall`() {
     val offenderId = "1" // set to existing offender in PPUD
     val releaseId = "2" // set to existing release for indeterminate sentence in PPUD
-    val decisionDateTime = randomTimeToday()
-    val receivedDateTime = randomTimeToday()
+    val decisionDateTime = randomTimeToday().minusDays(1)
+    val receivedDateTime = decisionDateTime.plusHours(1)
     val requestBody = createRecallRequestBody(
-      decisionDateTime = decisionDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-      receivedDateTime = receivedDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+      decisionDateTime = decisionDateTime,
+      receivedDateTime = receivedDateTime,
       recommendedTo = ppudUserRequestBody(PPUD_VALID_USER_FULL_NAME, PPUD_VALID_USER_TEAM),
     )
 
