@@ -100,7 +100,7 @@ class ReferenceServiceImplTest {
   @Test
   fun `returns all available supported determinate custody types, logging warnings for the missing ones`() {
     runBlocking {
-      testCustodyTypeRetrievalByCustodyGroup(DETERMINATE, listOf(EDS, EDS_NON_PAROLE, EPP, SOPC, DCR, DPP)) {
+      testCustodyTypeRetrievalByCustodyGroup(DETERMINATE, listOf(EDS, EDS_NON_PAROLE, EPP, SOPC, DCR)) {
         referenceService.retrieveDeterminateCustodyTypes()
       }
     }
