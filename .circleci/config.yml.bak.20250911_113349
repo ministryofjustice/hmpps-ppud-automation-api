@@ -1,5 +1,46 @@
 version: 2.1
 
+--------------------------------------------------------------------------------------------------------------------
+ The following is the output of running the migration script
+--------------------------------------------------------------------------------------------------------------------
+
+pablo.glenn hmpps-ppud-automation-api % /bin/bash -c ../hmpps-github-actions/migrate-repo.sh
+
+Migration script for CircleCI -> Github Actions
+===============================================
+
+This script will migrate elements of CircleCI workflows to Github Actions.
+Please pick one of the following options by typing the corresponding number and hitting Enter:
+
+1. Migrate security workflows only
+2. Migrate deployment workflows only
+3. Migrate security and deployment workflows
+4. Get information about this migration script
+Any other selection will exit
+Enter your selection: 2
+Migrating deployment workflows only
+Migrating using hmpps-template-kotlin template
+[WARNING] 11:33:50 --yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.
+Migrating deployment job for: dev .. preprod .. prod ..
+
+INFO: quay.io -> ghcr.io migration complete.
+
+Summary of deployment migration:
+===============================
+  - A pipeline.yml file has been created in .github/workflows based on build-test-deploy in .circleci/config.yml
+  - Please refer to the backup file to identify the jobs that still require migration
+  - See above for warnings about executor jobs that will require configuration/manual migration
+  - Also see above for warnings about duplicate environments in the CircleCI config
+  - Finally, please review the pipeline and modify as required to ensure that it will behave as expected
+
+Backup file: .circleci/config.yml.bak.20250911_113349
+
+Please contact the SRE team (#ask-prisons-sre) for assistance with any tasks that need to be migrateed.
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
 orbs:
   hmpps: ministryofjustice/hmpps@11
   slack: circleci/slack@4.10.1
