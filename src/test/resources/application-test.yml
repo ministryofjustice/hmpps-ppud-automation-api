@@ -5,9 +5,10 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
-# this property is mandatory, but for integration tests we don't care about its value, as FliptClient is mocked
+# these properties are mandatory, but for integration tests we don't care about their values, as FliptClient is mocked
 flipt:
   url: any
+  token: any
 
 hmpps:
   auth:
