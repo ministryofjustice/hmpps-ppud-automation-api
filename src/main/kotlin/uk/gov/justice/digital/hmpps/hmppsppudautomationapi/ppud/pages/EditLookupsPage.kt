@@ -8,6 +8,8 @@ import org.openqa.selenium.support.PageFactory
 import org.openqa.selenium.support.ui.Select
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 
 /*
  * These refer to the IDs that appear on the tables in PPUD
@@ -19,7 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
  *   4. Use the web inspector to get the ID from the table
  */
 @Component
-internal class EditLookupsPage(driver: WebDriver) {
+internal class EditLookupsPage(driver: WebDriver, private val featureFlagService: FeatureFlagService) {
 
   @FindBy(id = "content_ddlLOVList")
   private lateinit var lookupTypeDropdown: WebElement
@@ -32,6 +34,9 @@ internal class EditLookupsPage(driver: WebDriver) {
 
   @FindBy(id = "content_grdExtraBit")
   private lateinit var lookupsGridExtraBit: WebElement
+
+  @FindBy(id = "content_grdAddressLov")
+  private lateinit var lookupsGridAddressLov: WebElement
 
   private lateinit var configMap: Map<LookupName, LookupConfig>
 
@@ -49,7 +54,9 @@ internal class EditLookupsPage(driver: WebDriver) {
       LookupName.Ethnicities to LookupConfig("Ethnicity", lookupsContentGridLov, 2),
       LookupName.IndexOffences to LookupConfig("Index Offence", lookupsGridExtraBit, 2),
       LookupName.MappaLevels to LookupConfig("Mappa Level", lookupsContentGridLov, 2),
-      LookupName.PoliceForces to LookupConfig("Police Force", lookupsContentGridLov, 2),
+      // Temporarily commented out due to feature flag dependency. We cannot run the logic to pick the element based on
+      // the flag here, as it only runs once at initialization, and the flag state may change later.
+      // LookupName.PoliceForces to LookupConfig("Police Force", lookupsContentGridLov, 2),
       LookupName.ProbationServices to LookupConfig("Probation Service", lookupsGridExtraBit, 2),
       LookupName.ReleasedUnders to LookupConfig("Released Under", lookupsContentGridLov, 2),
       LookupName.Courts to LookupConfig("Court", lookupsGridLov, 2),
@@ -57,12 +64,27 @@ internal class EditLookupsPage(driver: WebDriver) {
   }
 
   fun extractLookupValues(lookupName: LookupName): List<String> {
-    val config = configMap.getValue(lookupName)
+    val config = getElementConfig(lookupName)
     Select(lookupTypeDropdown).selectByVisibleText(config.dropdownText)
     val rows = config.grid.findElements(By.xpath(".//tr"))
     rows.removeFirst()
     return rows
       .filter { it.findElement(By.xpath(".//td[last()]")).text == "Delete" }
       .map { it.findElement(By.xpath(".//td[${config.columnNumber}]")).text }
+  }
+
+  private fun getElementConfig(lookupName: LookupName): LookupConfig {
+    val config = if (lookupName == LookupName.PoliceForces) {
+      val policeForcesElement =
+        if (featureFlagService.enabled(FeatureFlag.PPUD_OCT_2025_ROLLOUT.flagId)) {
+          lookupsContentGridLov
+        } else {
+          lookupsGridAddressLov
+        }
+      LookupConfig("Police Force", policeForcesElement, 2)
+    } else {
+      configMap.getValue(lookupName)
+    }
+    return config
   }
 }

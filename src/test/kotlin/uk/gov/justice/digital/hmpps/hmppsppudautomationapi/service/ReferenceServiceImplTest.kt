@@ -29,8 +29,9 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Suppo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName.CustodyTypes
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.ReferenceDataPpudClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.DETERMINATE_CUSTODY_TYPES_CACHE_NAME
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata.ReferenceServiceImpl.Companion.INDETERMINATE_CUSTODY_TYPES_CACHE_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(MockitoExtension::class)
@@ -49,7 +50,7 @@ class ReferenceServiceImplTest {
   @Mock
   private lateinit var cacheManager: CacheManager
 
-  // TODO MRD-2769 find out why log testing fails
+  // TODO MRD-2769 find out why log testing fails in CircleCI
 //  private val logAppender: ListAppender<ILoggingEvent> = findLogAppender(ReferenceServiceImpl::class.java)
 
   @Test
@@ -139,7 +140,7 @@ class ReferenceServiceImplTest {
     // then
     assertThat(actualAvailableCustodyTypeNamesOfCustodyGroup).isEqualTo(expectedAvailableCustodyTypeNamesOfCustodyGroup)
 
-    // TODO MRD-2769 find out why log testing fails
+    // TODO MRD-2769 find out why log testing fails in CircleCI
 //    with(logAppender.list) {
 //      this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
 //      assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(

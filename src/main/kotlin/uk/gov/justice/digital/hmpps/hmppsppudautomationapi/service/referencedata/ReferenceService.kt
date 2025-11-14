@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service
+package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.referencedata
 
 interface ReferenceService {
   fun clearCaches()
