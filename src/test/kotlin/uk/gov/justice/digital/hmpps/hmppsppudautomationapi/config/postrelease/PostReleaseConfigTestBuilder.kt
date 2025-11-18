@@ -4,6 +4,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 fun postReleaseConfig(
   determinateLicenceType: String = randomString(),
+  dcrLicenceType: String = randomString(),
   ippLicenceType: String = randomString(),
   lifeLicenceType: String = randomString(),
-) = PostReleaseConfig(determinateLicenceType, ippLicenceType, lifeLicenceType)
+) = PostReleaseConfig(determinateLicenceType, dcrLicenceType, ippLicenceType, lifeLicenceType)
