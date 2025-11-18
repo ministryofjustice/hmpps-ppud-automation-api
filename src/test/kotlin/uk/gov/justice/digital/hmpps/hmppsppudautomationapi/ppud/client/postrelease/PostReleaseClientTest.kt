@@ -11,6 +11,7 @@ import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.postrelease.PostReleaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.postrelease.postReleaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.DCR
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.DETERMINATE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.IPP
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.LIFE
@@ -34,6 +35,9 @@ internal class PostReleaseClientTest {
   private val custodyTypesWithDeterminateLicenceType = enumValues<SupportedCustodyType>()
     .filter { it.licenceType === DETERMINATE }
 
+  private val custodyTypesWithDcrLicenceType = enumValues<SupportedCustodyType>()
+    .filter { it.licenceType === DCR }
+
   private val custodyTypesWithIppLicenceType = enumValues<SupportedCustodyType>()
     .filter { it.licenceType === IPP }
 
@@ -44,10 +48,20 @@ internal class PostReleaseClientTest {
   fun `update post release for determinate sentence`() {
     // given
     val determinateCustodyType =
-      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithIppLicenceType + custodyTypesWithLifeLicenceType)
+      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithIppLicenceType + custodyTypesWithLifeLicenceType + custodyTypesWithDcrLicenceType)
     val licenceType = postReleaseConfig.determinateLicenceType
 
     testUpdatePostRelease(determinateCustodyType, licenceType)
+  }
+
+  @Test
+  fun `update post release for DCR sentence`() {
+    // given
+    val dcrCustodyType =
+      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateLicenceType + custodyTypesWithIppLicenceType + custodyTypesWithLifeLicenceType)
+    val licenceType = postReleaseConfig.dcrLicenceType
+    
+    testUpdatePostRelease(dcrCustodyType, licenceType)
   }
 
   @Test
