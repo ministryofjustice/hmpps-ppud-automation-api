@@ -130,8 +130,9 @@ class RecallMinuteTest : IntegrationTestBase() {
   }
 
   // TODO MRD-2990 to investigate \r\n case's flakiness. Temporarily disabled in the meantime
+//  @ValueSource(strings = ["\\n", "\\r\\n"])
   @ParameterizedTest
-  @ValueSource(strings = ["\\n"/*, "\\r\\n"*/])
+  @ValueSource(strings = ["\\n"])
   fun `given minute text with line breaks in request body when add minute called then line breaks are preserved`(
     separator: String,
   ) {
