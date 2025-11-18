@@ -60,7 +60,7 @@ internal class PostReleaseClientTest {
     val dcrCustodyType =
       randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateLicenceType + custodyTypesWithIppLicenceType + custodyTypesWithLifeLicenceType)
     val licenceType = postReleaseConfig.dcrLicenceType
-    
+
     testUpdatePostRelease(dcrCustodyType, licenceType)
   }
 
