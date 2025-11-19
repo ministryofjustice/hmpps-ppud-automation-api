@@ -91,6 +91,7 @@ ppud:
     postRelease:
       licenceType:
         determinate: "Standard"
+        dcr: "Discretionary Conditional Release (DCR)"
         ipp: "IPP Licence"
         life: "Life Licence (LL)"
     releasedUnder:

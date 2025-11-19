@@ -6,6 +6,9 @@ enum class SupportedLicenceType {
   DETERMINATE {
     override fun getFullName(postReleaseConfig: PostReleaseConfig): String = postReleaseConfig.determinateLicenceType
   },
+  DCR {
+    override fun getFullName(postReleaseConfig: PostReleaseConfig): String = postReleaseConfig.dcrLicenceType
+  },
   IPP {
     override fun getFullName(postReleaseConfig: PostReleaseConfig): String = postReleaseConfig.ippLicenceType
   },

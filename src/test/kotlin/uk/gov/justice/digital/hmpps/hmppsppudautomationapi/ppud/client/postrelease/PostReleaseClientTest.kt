@@ -11,12 +11,13 @@ import org.mockito.kotlin.then
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.postrelease.PostReleaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.postrelease.postReleaseConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.DCR
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.DETERMINATE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.IPP
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.postrelease.SupportedLicenceType.LIFE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.updatePostReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.PostReleasePage
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnumInclusive
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 
 @ExtendWith(MockitoExtension::class)
@@ -34,6 +35,9 @@ internal class PostReleaseClientTest {
   private val custodyTypesWithDeterminateLicenceType = enumValues<SupportedCustodyType>()
     .filter { it.licenceType === DETERMINATE }
 
+  private val custodyTypesWithDcrLicenceType = enumValues<SupportedCustodyType>()
+    .filter { it.licenceType === DCR }
+
   private val custodyTypesWithIppLicenceType = enumValues<SupportedCustodyType>()
     .filter { it.licenceType === IPP }
 
@@ -43,18 +47,27 @@ internal class PostReleaseClientTest {
   @Test
   fun `update post release for determinate sentence`() {
     // given
-    val determinateCustodyType =
-      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithIppLicenceType + custodyTypesWithLifeLicenceType)
+    val determinateCustodyType = randomEnumInclusive(custodyTypesWithDeterminateLicenceType)
     val licenceType = postReleaseConfig.determinateLicenceType
 
     testUpdatePostRelease(determinateCustodyType, licenceType)
   }
 
   @Test
+  fun `update post release for DCR sentence`() {
+    // given
+    val dcrCustodyType =
+      randomEnumInclusive<SupportedCustodyType>(custodyTypesWithDcrLicenceType)
+    val licenceType = postReleaseConfig.dcrLicenceType
+
+    testUpdatePostRelease(dcrCustodyType, licenceType)
+  }
+
+  @Test
   fun `update post release for IPP sentence`() {
     // given
     val ippCustodyType =
-      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateLicenceType + custodyTypesWithLifeLicenceType)
+      randomEnumInclusive<SupportedCustodyType>(custodyTypesWithIppLicenceType)
     val licenceType = postReleaseConfig.ippLicenceType
 
     testUpdatePostRelease(ippCustodyType, licenceType)
@@ -64,7 +77,7 @@ internal class PostReleaseClientTest {
   fun `update post release for life sentence`() {
     // given
     val lifeCustodyType =
-      randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateLicenceType + custodyTypesWithIppLicenceType)
+      randomEnumInclusive<SupportedCustodyType>(custodyTypesWithLifeLicenceType)
     val licenceType = postReleaseConfig.lifeLicenceType
 
     testUpdatePostRelease(lifeCustodyType, licenceType)

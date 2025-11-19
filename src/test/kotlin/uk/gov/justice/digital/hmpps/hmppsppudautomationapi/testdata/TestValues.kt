@@ -183,6 +183,11 @@ inline fun <reified E : Enum<E>> randomEnum(exclude: List<E> = emptyList()): E {
   return validValues[Random.Default.nextInt(0, validValues.size)]
 }
 
+inline fun <reified E : Enum<E>> randomEnumInclusive(include: List<E>): E {
+  require(include.isNotEmpty()) { "Include list cannot be empty" }
+  return include[Random.Default.nextInt(0, include.size)]
+}
+
 fun randomPhoneNumber(): String {
   val number = Random.nextInt(100000000, 999999999)
   return "0$number"
