@@ -26,7 +26,7 @@ on:
       gradle-command:
         description: The gradle command to execute
         type: string
-        default: './gradlew check'
+        default: './gradlew test --tests "*FeatureFlagServiceTest*"'
         required: false
       artifact-name:
         description: Unique name (across the pipeline) for the uploaded artifact
@@ -114,3 +114,23 @@ jobs:
           fail-on-error: false
           list-suites: 'failed'
           list-tests: 'failed'
+
+ # temporarily defined as jobs instead of steps of the above job because I'm testing them as workflows. Put back
+ # in as steps once available as action (and reject if you are reviewing this)
+  notify_failure:
+    name: Notify Slack of failure
+    if: ${{ failure() }}
+    needs: validate
+    uses: ./.github/workflows/slack_workflow_notification.yml
+    with:
+      channel_id: ${{ vars.PROD_RELEASES_SLACK_CHANNEL }}
+      slack_bot_token: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+  notify_success:
+    name: Notify Slack of success
+    if: ${{ success() }}
+    needs: validate
+    uses: ./.github/workflows/slack_workflow_notification.yml
+    with:
+      channel_id: ${{ vars.PROD_RELEASES_SLACK_CHANNEL }}
+      slack_bot_token: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+      workflow_failed: false

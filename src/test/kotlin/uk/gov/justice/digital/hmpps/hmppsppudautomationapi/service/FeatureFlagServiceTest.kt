@@ -44,7 +44,7 @@ class FeatureFlagServiceTest {
   fun `returns true if feature flag is enabled`() {
     val flag = randomString()
     withFlag(flag, true)
-    assertTrue(featureFlagService.enabled(flag))
+    assertFalse(featureFlagService.enabled(flag))
   }
 
   @Test
