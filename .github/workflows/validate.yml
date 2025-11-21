@@ -87,7 +87,7 @@ jobs:
           export JAVA_OPTS="${{ inputs.java-options }}"
           ${{ inputs.gradle-command }}
       - name: Upload the test artifacts
-        if: ${{ inputs.upload-test-artifacts && !cancelled() }}
+        if: inputs.upload-test-artifacts && !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
@@ -95,7 +95,7 @@ jobs:
             ${{ inputs.build-dir }}/test-results
             ${{ inputs.build-dir }}/reports/tests
       - name: Upload the build artifacts
-        if: ${{ inputs.upload-build-artifacts && !cancelled() }}
+        if: inputs.upload-build-artifacts && !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build-artifact-name }}
@@ -103,7 +103,7 @@ jobs:
             ${{ inputs.build-dir }}/libs
           retention-days: 1
       - name: publish test report
-        if: ${{ inputs.upload-test-artifacts && !cancelled() && github.event.repository.visibility == 'public' }}
+        if: inputs.upload-test-artifacts && !cancelled() && github.event.repository.visibility == 'public'
         uses: dorny/test-reporter@v2
         with:
           artifact: ${{ inputs.artifact-name }}

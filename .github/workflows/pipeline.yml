@@ -27,19 +27,19 @@ jobs:
       matrix:
         environments: ['dev', 'preprod', 'prod']
     name: helm lint
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2
     secrets: inherit
     with:
       environment: ${{ matrix.environments }}
   validate:
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
     name: Validate the kotlin
-    uses: ./.github/workflows/validate.yml # WORKFLOW_VERSION
+    uses: ./.github/workflows/validate.yml
     secrets: inherit
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
     needs:
       - validate
     with:
@@ -54,7 +54,7 @@ jobs:
     needs:
     - build
     - helm_lint
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
     with:
       environment: 'dev'
@@ -66,7 +66,7 @@ jobs:
     - build
     - helm_lint
     - deploy_dev
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
     with:
       environment: 'preprod'
@@ -78,9 +78,30 @@ jobs:
     - build
     - helm_lint
     - deploy_preprod
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
     with:
       environment: 'prod'
       app_version: '${{ needs.build.outputs.app_version }}'
       helm_timeout: '5m'
+      slack_notification: 'true'
+  notify_slack_of_failure:
+    name: Notify Slack of failure
+    if: always() && contains(needs.*.result, 'failure')
+    needs:
+      - helm_lint
+      - validate
+      - build
+      - deploy_dev
+      - deploy_preprod
+      - deploy_prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Slack failure message
+        run: echo "Validation checks failed in workflow ${{ github.repository }} - ${{ github.workflow }}." > results_slack_message.txt
+      - name: Notify Slack of failure
+        uses: ministryofjustice/hmpps-github-actions/.github/actions/slack_failure_results@v2
+        with:
+          channel_id: ${{ vars.PROD_RELEASES_SLACK_CHANNEL }}
+          SLACK_BOT_TOKEN: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+          input_file: results_slack_message.txt
