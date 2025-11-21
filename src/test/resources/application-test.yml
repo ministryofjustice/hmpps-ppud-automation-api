@@ -17,6 +17,21 @@ hmpps:
 cache:
   refreshInitialDelaySeconds: 9999
 
+# PPUD has an IP address allow-list, so we need to run our tests in self-hosted GHA runners, as that's the only way we
+# can control the IP address from which our integration tests run. Self-hosted runners don't provide root access, which
+# means we can't use Docker, which we need to set up redis. Since redis is tested anyway in dev, we find it acceptable
+# to "disable" caching (a cache provider is still set up, it just doesn't actually cache anything).
+spring:
+  cache:
+    type: none
+
+# Since we turn off redis for tests, we also need to disable the
+# redis health check, otherwise the health check tests will fail.
+management:
+  health:
+    redis:
+      enabled: false
+
 documents:
   storageDirectory: ./build/tmp/docs
 

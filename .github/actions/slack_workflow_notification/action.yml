@@ -1,0 +1,80 @@
+name: 'notify a Slack channel of workflow result'
+description: 'Sends a Slack message to a specified channel with the result of the workflow run.'
+inputs:
+  channel_id:
+    description: 'The Slack channel ID to send the message to.'
+    required: true
+  slack_bot_token:
+    description: 'Slack bot token with permissions to post messages.'
+    required: true
+  mention_user:
+    description: 'Whether to mention the user who triggered the workflow.'
+    type: boolean
+    required: true
+    default: true
+  workflow_failed:
+    description: 'Whether the workflow has failed.'
+    type: boolean
+    required: true
+    default: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Look up Slack user by e-mail
+      if: ${{ inputs.mention_user }}
+      id: email
+      uses: slackapi/slack-github-action@v2.1.1
+      with:
+        method: users.lookupByEmail # https://api.slack.com/methods/users.lookupByEmail
+        token: ${{ inputs.SLACK_BOT_TOKEN }}
+        payload: |
+          email: ${{ github.event.pusher.email }}
+
+    - name: Get Slack user ID
+      if: ${{ steps.email.outputs.ok }}
+      shell: bash
+      run: |
+        SLACK_USER_ID=$(echo '${{ steps.email.outputs.response }}' | jq -r '.user.id')
+        echo "SLACK_USER_ID=$SLACK_USER_ID" >> $GITHUB_ENV
+
+    - name: Send a message to the channel
+      uses: slackapi/slack-github-action@v2.1.1
+      with:
+        errors: true
+        method: chat.postMessage # https://api.slack.com/methods/chat.postMessage
+        token: ${{ secrets.SLACK_BOT_TOKEN }}
+        payload: >
+          {
+          "channel": ${{ inputs.channel_id }},
+          "text": "${{ inputs.workflow_failed && ':x:' || ':github-success:' }} Github Actions ${{ github.workflow }} - ${{ github.event.workflow_run.conclusion }}",
+          "blocks": [
+            {
+              "type": "context",
+              "elements": [
+                {
+                  "type": "mrkdwn",
+                  "text": ":stop: Github Actions ${{ github.workflow }} - ${{ github.event.workflow_run.conclusion }}"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "${{ '<@env.$SLACK_USER_ID> ' || '' }}*${{ github.repository }}* ${{ github.workflow }} ${{ inputs.workflow_failed && 'failed' || 'succeeded' }}"
+              },
+              "accessory": {
+                  "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "text": "View job"
+                },
+                "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }
+            },
+            {
+              "type": "divider"
+            }
+          ]
+          }
+
