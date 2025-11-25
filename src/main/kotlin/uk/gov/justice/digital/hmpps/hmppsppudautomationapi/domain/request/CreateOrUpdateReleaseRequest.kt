@@ -8,6 +8,5 @@ data class CreateOrUpdateReleaseRequest(
   val postRelease: UpdatePostReleaseRequest = UpdatePostReleaseRequest(),
   @field:NotBlank
   val releasedFrom: String,
-  @field:NotBlank
-  val releasedUnder: String,
+  val releasedUnder: String?,
 )

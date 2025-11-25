@@ -347,7 +347,7 @@ fun generateUpdateOffenceRequest(): UpdateOffenceRequest = UpdateOffenceRequest(
 fun generateCreateOrUpdateReleaseRequest(
   dateOfRelease: LocalDate = randomDate(),
   releasedFrom: String = randomString("releasedFrom"),
-  releasedUnder: String = randomString("releasedUnder"),
+  releasedUnder: String? = randomString("releasedUnder"),
 ): CreateOrUpdateReleaseRequest = CreateOrUpdateReleaseRequest(
   dateOfRelease = dateOfRelease,
   releasedFrom = releasedFrom,
