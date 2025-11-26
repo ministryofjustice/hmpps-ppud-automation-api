@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Suppo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOrUpdateReleaseRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ReleaseNotFoundException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedReleasedUnderException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.SentenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
@@ -107,6 +108,11 @@ internal class ReleaseClient {
     }
     val releasedUnder =
       custodyType.releasedUnder?.getFullName(releaseConfig) ?: createOrUpdateReleaseRequest.releasedUnder
+
+    if (releasedUnder === null) {
+      throw UnsupportedReleasedUnderException("Sentence $sentenceId has a releasedUnder value of null")
+    }
+
     return Pair(custodyType, releasedUnder)
   }
 

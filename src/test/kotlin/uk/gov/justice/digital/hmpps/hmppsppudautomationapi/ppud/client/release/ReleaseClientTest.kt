@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Custo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedReleasedUnderException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.postrelease.PostReleaseClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.SentenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
@@ -160,6 +161,29 @@ internal class ReleaseClientTest {
       // when then
       assertThatThrownBy { client.createOrUpdateRelease(offenderId, sentenceId, request) }
         .isInstanceOf(UnsupportedCustodyTypeException::class.java)
+        .hasMessage(expectedExceptionMessage)
+    }
+  }
+
+  @Test
+  fun `throws UnsupportedReleasedUnderException if releasedUnder is null for a determinate custody type`() {
+    runBlocking {
+      // given
+      val offenderId = randomPpudId()
+      val sentenceId = randomPpudId()
+      val dateOfRelease = randomDate()
+      val releasedFrom = randomString("releasedFrom")
+      val requestReleasedUnder = null
+      val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
+      // custodyType has to be a determinate sentence/custody type as that's the only type this exception can be triggered by.
+      val custodyType = "Determinate"
+      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
+
+      val expectedExceptionMessage = "Sentence $sentenceId has a releasedUnder value of null"
+
+      // when then
+      assertThatThrownBy { client.createOrUpdateRelease(offenderId, sentenceId, request) }
+        .isInstanceOf(UnsupportedReleasedUnderException::class.java)
         .hasMessage(expectedExceptionMessage)
     }
   }
