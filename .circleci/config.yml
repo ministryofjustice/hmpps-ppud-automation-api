@@ -62,7 +62,8 @@ jobs:
     circleci_ip_ranges: true
     executor: java
     steps:
-      - checkout
+      - checkout:
+          method: full # needed for sonar scan to pick up all files
       - browser-tools/install-firefox:
           version: 115.6.0esr
       - restore_cache:
