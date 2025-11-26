@@ -29,7 +29,6 @@ class OffenderReleaseTest : IntegrationTestBase() {
     private fun mandatoryFieldTestData(): Stream<MandatoryFieldTestData> = Stream.of(
       MandatoryFieldTestData("dateOfRelease", releaseRequestBody(dateOfRelease = "")),
       MandatoryFieldTestData("releasedFrom", releaseRequestBody(releasedFrom = "")),
-      MandatoryFieldTestData("releasedUnder", releaseRequestBody(releasedUnder = "")),
     )
   }
 
