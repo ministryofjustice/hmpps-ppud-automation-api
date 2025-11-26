@@ -166,7 +166,7 @@ internal class ReleaseClientTest {
   }
 
   @Test
-  fun `throws UnsupportedReleasedUnderException if releasedUnder is null`() {
+  fun `throws UnsupportedReleasedUnderException if releasedUnder is null for a determinate custody type`() {
     runBlocking {
       // given
       val offenderId = randomPpudId()
@@ -175,6 +175,7 @@ internal class ReleaseClientTest {
       val releasedFrom = randomString("releasedFrom")
       val requestReleasedUnder = null
       val request = generateCreateOrUpdateReleaseRequest(dateOfRelease, releasedFrom, requestReleasedUnder)
+      // custodyType has to be a determinate sentence/custody type as that's the only type this exception can be triggered by.
       val custodyType = "Determinate"
       given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
 
