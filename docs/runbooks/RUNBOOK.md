@@ -21,12 +21,12 @@ Office hours (Mon-Fri, 09:00-17:00), best efforts.
 
 The `make-recall-decision` team develops and runs this service.
 
-Contact the [#making-recall-decisions](https://mojdt.slack.com/archives/C01D6R49H34) and [#make-recall-decisions-dev](https://mojdt.slack.com/archives/C03B57W0ALT) channels on slack.
+Contact the [#consider-a-recall](https://mojdt.slack.com/archives/C01D6R49H34) channel on slack.
 
 ### Contributing applications, daemons, services, middleware
 
 - Springboot application based on [hmpps-template-kotlin](https://github.com/ministryofjustice/hmpps-template-kotlin).
-- [CircleCI](https://circleci.com/) for CI/CD.
+- [GitHub Actions](https://github.com/features/actions) for CI/CD.
 
 ## System characteristics
 
@@ -84,8 +84,8 @@ environment variables:
 That means that if passwords/usernames are changed they will need updating in the 
 following locations:
 
-- Local development machined if not using developer username/password
-- [CircleCI pipeline environment variables](https://app.circleci.com/settings/project/github/ministryofjustice/hmpps-ppud-automation-api/environment-variables?return-to=https%3A%2F%2Fapp.circleci.com%2Fpipelines%2Fgithub%2Fministryofjustice%2Fhmpps-ppud-automation-api)
+- Local development machine if not using developer username/password
+- [GitHub Actions pipeline repository secrets](https://github.com/ministryofjustice/hmpps-ppud-automation-api/settings/secrets/actions) (not environment secrets)
 - Kubernetes secrets for the appropriate environment (see Secrets management below)
 
 ### Throttling and partial shutdown
@@ -122,11 +122,11 @@ The contents of the `hmpps-ppud-automation-api` secret are handled in the follow
 
 - `API_CLIENT_ID` - managed externally via tooling in the `hmpps-auth` project.
 - `API_CLIENT_SECRET` - managed externally via tooling in the `hmpps-auth` project.
-- `APPINSIGHTS_INSTRUMENTATIONKEY` - managed externally via the [hmpps-project-bootstrap](https://github.com/ministryofjustice/hmpps-project-bootstrap) tooling.
-- `PPUD_USERNAME` - managed manually through Kubernetes secrets
-- `PPUD_PASSWORD` - managed manually through Kubernetes secrets
-- `PPUD_ADMIN_USERNAME` - managed manually through Kubernetes secrets
-- `PPUD_ADMIN_PASSWORD` - managed manually through Kubernetes secrets
+- `APPLICATIONINSIGHTS_CONNECTION_STRING` - managed externally via the [cloud-platform-environments](https://github.com/ministryofjustice/cloud-platform-environments) tooling.
+- `PPUD_USERNAME` - managed manually through Kubernetes secrets (or as GitHub repository secrets for integration tests if the dev details are the ones that have changed)
+- `PPUD_PASSWORD` - managed manually through Kubernetes secrets (or as GitHub repository secrets for integration tests if the dev details are the ones that have changed)
+- `PPUD_ADMIN_USERNAME` - managed manually through Kubernetes secrets (or as GitHub repository secrets for integration tests if the dev details are the ones that have changed)
+- `PPUD_ADMIN_PASSWORD` - managed manually through Kubernetes secrets (or as GitHub repository secrets for integration tests if the dev details are the ones that have changed)
 
 Instructions on managing the Kubernetes secrets manually can be found in the [Cloud Platform User Guide - Adding Secrets to an application](https://user-guide.cloud-platform.service.justice.gov.uk/documentation/deploying-an-app/add-secrets-to-deployment.html#adding-secrets-to-an-application)
 
@@ -170,9 +170,10 @@ An HTTP 200 response code indicates that the application has started and is read
 
 ### Deployment
 
-We use CircleCI to manage deployments (see [.circleci/config.yml](../../.circleci/config.yml) for the full configuration):
+We use GitHub Actions to manage deployments (see [.github/workflows/pipeline.yml](../../.github/workflows/pipeline.yml) and
+[.github/workflows/deploy_to_env.yml](../../.github/workflows/deploy_to_env.yml) for the full configuration):
 
-- Built docker images are pushed to [quay.io](https://quay.io/repository/hmpps/hmpps-ppud-automation-api).
+- Built docker images are pushed to [ghcr.io](https://ghcr.io/ministryofjustice/hmpps-ppud-automation-api).
 - Deployment to kubernetes uses helm.
 
 ### Troubleshooting
