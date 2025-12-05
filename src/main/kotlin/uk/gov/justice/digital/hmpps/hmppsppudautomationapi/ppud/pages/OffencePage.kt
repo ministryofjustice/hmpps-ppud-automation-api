@@ -64,6 +64,7 @@ internal class OffencePage(
     return Offence(
       dateOfIndexOffence = if (dateOfIndexValue.isEmpty()) null else LocalDate.parse(dateOfIndexValue, dateFormatter),
       indexOffence = indexOffenceInput.getValue(),
+      offenceComment = indexOffenceCommentInput.getValue(),
     )
   }
 }

@@ -5,4 +5,5 @@ import java.time.LocalDate
 class Offence(
   val indexOffence: String = "",
   val dateOfIndexOffence: LocalDate? = null,
+  val offenceComment: String? = null,
 )
