@@ -7,4 +7,5 @@ import java.time.LocalDate
 internal fun offence(
   indexOffence: String = randomString(),
   dateOfIndexOffence: LocalDate? = randomDate(),
-) = Offence(indexOffence, dateOfIndexOffence)
+  offenceComment: String? = randomString(),
+) = Offence(indexOffence, dateOfIndexOffence, offenceComment)
