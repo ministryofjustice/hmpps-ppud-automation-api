@@ -2,18 +2,17 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client
 
 import org.openqa.selenium.WebDriver
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenceRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UploadAdditionalDocumentRequest
@@ -30,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.offender.validation.OffenderValidator
 import java.time.LocalDate
 
 @Component
@@ -65,6 +65,9 @@ internal class OperationalPpudClient(
   searchPage,
 ) {
 
+  @Autowired
+  private lateinit var offenderValidator: OffenderValidator
+
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
@@ -80,14 +83,6 @@ internal class OperationalPpudClient(
     return performLoggedInOperation {
       val resultLinks = searchUntilFound(croNumber, nomsId, familyName, dateOfBirth)
       resultLinks.mapNotNull { extractSearchResultOffenderDetails(it) }
-    }
-  }
-
-  suspend fun createOffender(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
-    log.info("Creating new offender in PPUD Client")
-
-    return performLoggedInOperation(disableRetry = true) {
-      createOffenderInternal(createOffenderRequest)
     }
   }
 
@@ -208,17 +203,6 @@ internal class OperationalPpudClient(
     }
 
     return searchPage.searchResultsLinks()
-  }
-
-  private suspend fun createOffenderInternal(createOffenderRequest: CreateOffenderRequest): CreatedOffender {
-    searchPage.navigateToNewOffender()
-    newOffenderPage.verifyOn()
-    newOffenderPage.createOffender(createOffenderRequest)
-    newOffenderPage.throwIfInvalid()
-    offenderPage.verifyOn()
-    offenderPage.updateAdditionalAddresses(createOffenderRequest.additionalAddresses)
-    offenderPage.throwIfInvalid()
-    return offenderPage.extractCreatedOffenderDetails(::extractCreatedSentence)
   }
 
   private fun updateOffenceInternal(
