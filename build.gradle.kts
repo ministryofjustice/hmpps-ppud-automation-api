@@ -1,7 +1,7 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.2.0"
   kotlin("plugin.spring") version "2.2.21"
-  id("org.sonarqube") version "6.3.1.5724"
+  id("org.sonarqube") version "7.2.1.6560"
   id("jacoco")
 }
 
