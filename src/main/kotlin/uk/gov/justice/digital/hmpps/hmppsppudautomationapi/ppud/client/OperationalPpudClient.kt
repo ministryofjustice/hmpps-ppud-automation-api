@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.context.annotation.RequestScope
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
@@ -231,7 +230,7 @@ internal class OperationalPpudClient(
     driver.navigate().to(url)
     return offenderPage.extractSearchResultOffenderDetails()
   }
-  
+
   private fun extractSentences(): (List<String>) -> List<Sentence> = { urls ->
     urls.map {
       driver.navigate().to("$ppudUrl$it")
