@@ -26,13 +26,13 @@ internal class OffenderValidator {
 
   private fun validateCustodyType(custodyTypeName: String, requestedAction: String): SupportedCustodyType {
     if (custodyTypeName.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender was missing a Custody Type value")
+      throw ValidationException("Request to $requestedAction an offender was missing a custodyType value")
     }
 
     val custodyType = try {
       SupportedCustodyType.forFullName(custodyTypeName)
     } catch (e: NoSuchElementException) {
-      throw UnsupportedCustodyTypeException("Request to $requestedAction an offender had an invalid Custody Type value: $custodyTypeName")
+      throw UnsupportedCustodyTypeException("Request to $requestedAction an offender had an invalid custodyType value: $custodyTypeName")
     }
 
     return custodyType

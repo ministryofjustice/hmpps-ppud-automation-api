@@ -30,7 +30,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank custody type`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "")
-    val expectedExceptionMessage = "Request to create an offender was missing a Custody Type value"
+    val expectedExceptionMessage = "Request to create an offender was missing a custodyType value"
 
     // when then
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
@@ -39,7 +39,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with invalid custody type`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "invalid")
-    val expectedExceptionMessage = "Request to create an offender had an invalid Custody Type value: invalid"
+    val expectedExceptionMessage = "Request to create an offender had an invalid custodyType value: invalid"
 
     assertThatThrownBy({ validator.validateOffenderCreationRequest(creationRequest) })
       .isInstanceOf(UnsupportedCustodyTypeException::class.java)
