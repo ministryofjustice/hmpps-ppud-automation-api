@@ -231,13 +231,7 @@ internal class OperationalPpudClient(
     driver.navigate().to(url)
     return offenderPage.extractSearchResultOffenderDetails()
   }
-
-  private fun extractCreatedSentence(sentenceLink: String): CreatedSentence {
-    driver.navigate().to("$ppudUrl$sentenceLink")
-    val sentencePage = sentencePageFactory.sentencePage()
-    return sentencePage.extractCreatedSentenceDetails()
-  }
-
+  
   private fun extractSentences(): (List<String>) -> List<Sentence> = { urls ->
     urls.map {
       driver.navigate().to("$ppudUrl$it")
