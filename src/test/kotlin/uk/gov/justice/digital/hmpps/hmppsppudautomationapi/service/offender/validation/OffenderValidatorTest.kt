@@ -49,7 +49,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank ethnicity value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", ethnicity = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid ethnicity value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank ethnicity value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -57,7 +57,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank firstNames value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", firstNames = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid firstNames value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank firstNames value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -65,7 +65,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank familyName value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", familyName = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid familyName value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank familyName value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -73,7 +73,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank gender value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", gender = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid gender value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank gender value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -81,7 +81,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank indexOffence value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", indexOffence = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid indexOffence value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank indexOffence value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -89,7 +89,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank mappaLevel value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", mappaLevel = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid mappaLevel value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank mappaLevel value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }
@@ -97,7 +97,7 @@ class OffenderValidatorTest {
   @Test
   fun `invalidates offender creation request with blank prisonNumber value`() {
     val creationRequest = generateCreateOffenderRequest(custodyType = "Determinate", prisonNumber = "")
-    val expectedExceptionMessage = "Request to create an offender had an invalid prisonNumber value: "
+    val expectedExceptionMessage = "Request to create an offender had a blank prisonNumber value"
 
     testInvalidCreationRequest(creationRequest, expectedExceptionMessage)
   }

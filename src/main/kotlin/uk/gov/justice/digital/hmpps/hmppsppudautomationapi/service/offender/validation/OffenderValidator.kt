@@ -50,43 +50,43 @@ internal class OffenderValidator {
 
   private fun validateEthinicity(request: CreateOffenderRequest, requestedAction: String) {
     if (request.ethnicity.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid ethnicity value: ${request.ethnicity}")
+      throw ValidationException("Request to $requestedAction an offender had a blank ethnicity value")
     }
   }
 
   private fun validateFirstNames(request: CreateOffenderRequest, requestedAction: String) {
     if (request.firstNames.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid firstNames value: ${request.firstNames}")
+      throw ValidationException("Request to $requestedAction an offender had a blank firstNames value")
     }
   }
 
   private fun validateFamilyName(request: CreateOffenderRequest, requestedAction: String) {
     if (request.familyName.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid familyName value: ${request.familyName}")
+      throw ValidationException("Request to $requestedAction an offender had a blank familyName value")
     }
   }
 
   private fun validateGender(request: CreateOffenderRequest, requestedAction: String) {
     if (request.gender.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid gender value: ${request.gender}")
+      throw ValidationException("Request to $requestedAction an offender had a blank gender value")
     }
   }
 
   private fun validateIndexOffences(request: CreateOffenderRequest, requestedAction: String) {
     if (request.indexOffence.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid indexOffence value: ${request.indexOffence}")
+      throw ValidationException("Request to $requestedAction an offender had a blank indexOffence value")
     }
   }
 
   private fun validateMappaLevel(request: CreateOffenderRequest, requestedAction: String) {
     if (request.mappaLevel.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid mappaLevel value: ${request.mappaLevel}")
+      throw ValidationException("Request to $requestedAction an offender had a blank mappaLevel value")
     }
   }
 
   private fun validatePrisonNumber(request: CreateOffenderRequest, requestedAction: String) {
     if (request.prisonNumber.isBlank()) {
-      throw ValidationException("Request to $requestedAction an offender had an invalid prisonNumber value: ${request.prisonNumber}")
+      throw ValidationException("Request to $requestedAction an offender had a blank prisonNumber value")
     }
   }
 }
