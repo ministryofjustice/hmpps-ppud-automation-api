@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.offender.validation
 
 import jakarta.validation.ValidationException
+import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.randomDeterminateCustodyType
@@ -20,11 +21,8 @@ class OffenderValidatorTest {
     // given
     val creationRequest = generateCreateOffenderRequest(custodyType = randomDeterminateCustodyType())
 
-    // when
-    validator.validateOffenderCreationRequest(creationRequest)
-
-    // then
-    // No assertions - just checking no exceptions are thrown
+    // when then
+    assertThatCode { validator.validateOffenderCreationRequest(creationRequest) }.doesNotThrowAnyException()
   }
 
   @Test
