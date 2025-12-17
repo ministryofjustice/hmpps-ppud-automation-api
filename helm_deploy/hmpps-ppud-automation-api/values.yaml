@@ -55,7 +55,7 @@ generic-service:
     pic-flipt:
       FLIPT_URL: "URL"
       FLIPT_TOKEN: "API_KEY"
-    application-insights:
+    hmpps-ppud-automation-api-application-insights:
       APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
 
   allowlist:
