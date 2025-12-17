@@ -2,7 +2,7 @@
 
 [![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-ppud-automation-api/badge?style=flat)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-ppud-automation-api)
 
-[![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-ppud-automation-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-ppud-automation-api)
+[![GitHub Actions](https://github.com/ministryofjustice/hmpps-ppud-automation-api/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ministryofjustice/hmpps-ppud-automation-api)
 
 [![Docker Repository on Quay](https://quay.io/repository/hmpps/hmpps-ppud-automation-api/status "Docker Repository on Quay")](https://quay.io/repository/hmpps/hmpps-ppud-automation-api)
 
@@ -17,13 +17,11 @@ The [runbook](docs/runbooks/RUNBOOK.md) can be found in this repo in the docs/ru
 
 ## Prerequisites
 
-Docker desktop needs to be installed
+Docker desktop needs to be installed if you're looking to run locally or test with redis running.
 
-Firefox needs to be installed.  Currently, the service does not work with versions
-after 120, but an upcoming fix to Selenium should address that.  When running in a
-Docker container, the service uses the [Extended Support Release (ESR) version of
-Firefox](https://www.mozilla.org/en-GB/firefox/enterprise/), so it is advisable to
-use that version for local testing.
+Firefox needs to be installed. When running in a Docker container, the service uses the latest
+[Extended Support Release (ESR) version of Firefox](https://www.mozilla.org/en-GB/firefox/enterprise/),
+so it is advisable to use that version for local testing.
 
 ## Environment Variables
 
@@ -108,12 +106,6 @@ the automation works correctly.
 
 ### Running Tests
 
-Run the following to start Redis for caching
-
-```
-docker-compose up redis
-```
-
 Run the following script to run all the integration and unit tests locally:
 
 ```
@@ -126,6 +118,14 @@ or to run linting followed by all tests, similar to running in CI, use:
 ./build.sh
 ```
 
+By default, the integration tests run with a NoOp cache, as configured in
+[application-test.yml](src/test/resources/application-test.yml). If you want to run the tests with redis, you can do so
+by removing said configuration value (the spring.cache.type one) and running the following to start Redis for caching:
+
+```
+docker-compose up redis
+```
+
 ### Things to Note About the Tests
 In order to inject a level of independence and avoid clashes with other tests that
 might be running, the integration tests create offenders to use in each test.
@@ -136,7 +136,7 @@ the matching offenders are deleted automatically.
 
 Occasionally, something may happen that means the offenders do not get deleted. This would
 typically be running tests locally and stopping them before they get a chance to tidy up.
-  Perhaps when stepping through to debug something.
+Perhaps when stepping through to debug something.
 
 Therefore, every so often, it's worth checking that there aren't any "FamilyName-<UUID>" 
 offenders in PPUD, and deleting any that do exist.  They may cause test failures at some
@@ -155,9 +155,6 @@ of Firefox is used, which is a few versions behind the latest version and change
 less frequently.  In the docker container, the path to the browser binary needs to
 be set in the environment variable `AUTOMATION_FIREFOX_BINARY`.  This is not normally
 necessary locally.
-
-The Firefox version is specified explicitly in the CircleCI config.yml and will need
-updating as and when a new ESR version is released.
 
 Chrome has also been used for the service locally on a Mac, but this could not be
 installed in the docker container because a matching installation was not available.
