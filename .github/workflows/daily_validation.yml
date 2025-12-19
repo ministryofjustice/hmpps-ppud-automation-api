@@ -5,3 +5,19 @@ on:
 jobs:
   validate:
     uses: ./.github/workflows/validate.yml
+    secrets: inherit
+  notify_slack_of_failure:
+    name: Notify Slack of failure
+    if: always() && contains(needs.*.result, 'failure')
+    needs:
+      - validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Slack failure message
+        run: echo "Daily validation checks failed in ${{ github.repository }}." > results_slack_message.txt
+      - name: Notify Slack of failure
+        uses: ministryofjustice/hmpps-github-actions/.github/actions/slack_failure_results@v2
+        with:
+          channel_id: ${{ vars.PROD_RELEASES_SLACK_CHANNEL }}
+          SLACK_BOT_TOKEN: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+          input_file: results_slack_message.txt
