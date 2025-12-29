@@ -41,8 +41,12 @@ internal abstract class BaseSentencePage(
   }
 
   fun isMatching(request: CreateOrUpdateSentenceRequest): Boolean {
-    // We use ::Offence, which will create an Offence with the offence page's URL as the index
-    // offence (which doesn't make sense), because it isn't relevant to the sentence comparison
+    // The extractSentenceDetails method requires an offence extractor function. Normally we
+    // would provide a function that actually extracts the offence details, but in this case we
+    // only care about the sentence details, not the offence details (the comparator doesn't take
+    // offence details into account), so we provide a simple function that creates an Offence
+    // with just the URL of the offence page, even if under normal circumstances such a function
+    // wouldn't make any sense.
     val existing = extractSentenceDetails(::Offence)
     return sentenceComparator.areMatching(existing, request)
   }
