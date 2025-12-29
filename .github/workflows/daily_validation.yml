@@ -2,6 +2,8 @@ name: Daily service validation
 on:
   schedule:
     - cron: "10 8 * * 1-5"
+permissions:
+  contents: read
 jobs:
   validate:
     uses: ./.github/workflows/validate.yml
