@@ -1,0 +1,35 @@
+### Retrieve a specific recall
+GET {{host}}/recall/{{recallId}}
+Authorization: Bearer {{$auth.token("token")}}
+
+### Upload an additional document to a recall
+PUT {{host}}/recall/{{recallId}}/additional-document
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "documentId": "",
+  "title": "",
+  "owningCaseworker": {}
+}
+
+### Upload a mandatory document to a recall
+PUT {{host}}/recall/{{recallId}}/mandatory-document
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "documentId": "",
+  "category": "RecallRequestEmail",
+  "owningCaseworker": {}
+}
+
+### Add a minute to a recall
+PUT {{host}}/recall/{{recallId}}/minutes
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "subject": "",
+  "text": ""
+}
