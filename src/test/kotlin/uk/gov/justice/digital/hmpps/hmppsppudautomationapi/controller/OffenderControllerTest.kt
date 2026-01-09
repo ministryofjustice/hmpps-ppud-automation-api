@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Creat
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.OffenderSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.OperationalPpudClient
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.offender.OffenderService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.recall.RecallService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.release.ReleaseService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.sentence.SentenceService
@@ -51,6 +52,9 @@ internal class OffenderControllerTest {
 
   @Mock
   private lateinit var createdOffender: CreatedOffender
+
+  @Mock
+  private lateinit var offenderService: OffenderService
 
   @Test
   fun `given search criteria when search is called then criteria are passed to PPUD client`() {
@@ -91,11 +95,11 @@ internal class OffenderControllerTest {
   fun `given offender data when createOffender is called then data is passed to PPUD client`() {
     runBlocking {
       val offenderRequest = generateCreateOffenderRequest()
-      given(ppudClient.createOffender(offenderRequest)).willReturn(createdOffender)
+      given(offenderService.createOffender(offenderRequest)).willReturn(createdOffender)
 
       controller.createOffender(offenderRequest)
 
-      then(ppudClient).should().createOffender(offenderRequest)
+      then(offenderService).should().createOffender(offenderRequest)
     }
   }
 
@@ -103,7 +107,7 @@ internal class OffenderControllerTest {
   fun `given offender creation succeeds when createOffender is called then offender details are returned`() {
     runBlocking {
       val offenderRequest = generateCreateOffenderRequest()
-      given(ppudClient.createOffender(offenderRequest)).willReturn(createdOffender)
+      given(offenderService.createOffender(offenderRequest)).willReturn(createdOffender)
 
       val result = controller.createOffender(offenderRequest)
 

@@ -126,7 +126,7 @@ internal class NewOffenderPage(
     return this
   }
 
-  suspend fun createOffender(createOffenderRequest: CreateOffenderRequest) {
+  fun createOffender(createOffenderRequest: CreateOffenderRequest) {
     // The index offence and establishment fields are autocomplete fields. After inputting
     // values, a dropdown is loaded with the options that satisfy the input text, from which
     // the final value must be selected. The dropdown can take a bit of time to show up, so
