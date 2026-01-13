@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Integrati
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.MandatoryFieldTestData
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomStringOfLength
 import java.util.function.Consumer
 import java.util.stream.Stream
 
@@ -149,6 +150,22 @@ class RecallMinuteTest : IntegrationTestBase() {
       .jsonPath("recall.id").isEqualTo(recallId)
       .jsonPath("recall.minutes.size()").isEqualTo(1)
       .jsonPath("recall.minutes[0].text").isEqualTo("123${System.lineSeparator()}456")
+  }
+
+  @Test
+  fun `given a subject line causes the minutes list element to overflow then element is still clicked`() {
+    val recallId = createTestRecallInPpud(offenderId, releaseId)
+    val subject = randomStringOfLength(999)
+    val text = randomStringOfLength(999)
+    val requestBody = addMinuteRequestBody(subject, text)
+
+    putMinute(recallId, requestBody)
+      .expectStatus().isOk
+
+    // This error only occurs when comparing an existing minute to the one due to be inserted
+    // so we need to putMinute again once we've added a really long one
+    putMinute(recallId, requestBody)
+      .expectStatus().isOk
   }
 
   private fun putMinute(recallId: String, requestBody: String): WebTestClient.ResponseSpec = webTestClient.put()

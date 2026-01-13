@@ -439,6 +439,14 @@ internal class RecallPage(
 
   private fun removeTeamName(nameWithTeam: String) = nameWithTeam.takeWhile { (it == '(').not() }
 
+  /**
+   * Within PPUD, the element which contains the list of minutes has an overflow of auto. The overflow-x on this
+   * can cause problems with selenium trying to find the clickable element when the minute subject is very long,
+   * as it stops being in view. This function allows will attempt to scroll the overflowing element until the element
+   * is clickable
+   *
+   * See: https://dsdmoj.atlassian.net/browse/MRD-2652
+   */
   private fun scrollUntilClickable(element: WebElement, scrollContainer: WebElement) {
     // Breaks at ~95 characters, ~40 characters always visible, and requires 1 press of right arrow per ~5 characters
     val textLength = element.text.length
