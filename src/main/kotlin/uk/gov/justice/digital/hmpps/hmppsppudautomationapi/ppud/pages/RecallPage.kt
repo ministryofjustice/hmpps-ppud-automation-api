@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages
 
 import org.openqa.selenium.By
+import org.openqa.selenium.Keys
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.FindBy
@@ -385,6 +386,7 @@ internal class RecallPage(
     val treeView = TreeView(minutesTreeViewRoot)
     val minuteEntryNodes = if (treeView.nodeWithTextIsExpandable(MINUTES_TEXT)) treeView.expandNodeWithText(MINUTES_TEXT).children() else emptyList()
     return minuteEntryNodes.map {
+      scrollUntilClickable(it, minutesTreeContainer)
       it.click()
       Minute(
         subject = minuteSubjectInput.getValue(),
@@ -436,4 +438,33 @@ internal class RecallPage(
   private fun extractRecallId() = pageHelper.extractId(pageDescription)
 
   private fun removeTeamName(nameWithTeam: String) = nameWithTeam.takeWhile { (it == '(').not() }
+
+  /**
+   * Within PPUD, the element which contains the list of minutes has an overflow of auto. The overflow-x on this
+   * can cause problems with selenium trying to find the clickable element when the minute subject is very long,
+   * as it stops being in view. This function allows will attempt to scroll the overflowing element until the element
+   * is clickable
+   *
+   * See: https://dsdmoj.atlassian.net/browse/MRD-2652
+   */
+  private fun scrollUntilClickable(element: WebElement, scrollContainer: WebElement) {
+    // Breaks at ~95 characters, ~40 characters always visible, and requires 1 press of right arrow per ~5 characters
+    val textLength = element.text.length
+    val estimatedAttempts = (textLength - 45) / 5
+    val maxAttempts = maxOf(1, estimatedAttempts)
+
+    var attempts = 0
+    while (attempts < maxAttempts) {
+      try {
+        element.click()
+        return
+      } catch (e: Exception) {
+        // Element not clickable yet, scroll right
+        scrollContainer.sendKeys(Keys.RIGHT)
+        Thread.sleep(10)
+        attempts++
+      }
+    }
+    throw AutomationException("Element could not be scrolled into view after $maxAttempts attempts ($textLength length, $estimatedAttempts estimatedAttempts)")
+  }
 }
