@@ -142,6 +142,43 @@ Therefore, every so often, it's worth checking that there aren't any "FamilyName
 offenders in PPUD, and deleting any that do exist.  They may cause test failures at some
 point if there is a prison number clash.
 
+### Debugging through screenshots
+In some cases, you'll find the service fails because the screen it is interacting with
+doesn't have an element it expects. It isn't always clear from the error stack what the
+issue is or how to solve it, in which cases it can be useful to have a screenshot of the
+screen right before the error happens. Since the screen is interacted with automatically
+by Selenium, this needs to be done programmatically.
+
+To take a screenshot, you need to have a hold of the root html element. You can do this in
+one of two ways:
+1. Declare a WebElement in the relevant class as follows:
+```
+    @FindBy(tagName = "html")
+    private lateinit var htmlTag: WebElement
+```
+2. Add the following line of code to the relevant method:
+
+```
+    val htmlTag = driver.findElement(By.tagName("html")))
+```
+
+Then, before the line of code that fails, add the following:
+
+```
+    val scrFile: File = htmlTag.getScreenshotAs(OutputType.FILE)
+    val destFile = File(Paths.get("test-results/<screenshot-name>.png").toString())
+    scrFile.copyTo(destFile, true)
+```
+
+If running the code from IntelliJ, it will store the screenshot in a 'test-results' folder in
+the project folder. Alternatively, you can store it in the temp folder (not sure where that
+will be, it'll depend on the environment):
+
+```
+    val tempDir = System.getProperty("java.io.tmpdir")
+    val destFile = File(Paths.get(tempDir, "$fileName.png").toString())
+```
+
 ## Selenium, Webdriver and Browser
 
 The service is set up to use Firefox as the browser, along with its associated
