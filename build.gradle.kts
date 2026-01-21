@@ -31,6 +31,9 @@ dependencies {
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 
+  // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
+  implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.13.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
