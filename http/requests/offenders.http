@@ -1,0 +1,141 @@
+### Create a new offender
+POST {{host}}/offender
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "address": {},
+  "additionalAddresses": [],
+  "custodyType": "",
+  "dateOfBirth": "",
+  "dateOfSentence": "",
+  "ethnicity": "",
+  "firstNames": "",
+  "familyName": "",
+  "gender": "",
+  "indexOffence": "",
+  "isInCustody": false,
+  "mappaLevel": "",
+  "prisonNumber": "",
+  "establishment": "",
+  "croNumber": "",
+  "nomsId": ""
+}
+
+### Delete an offender
+DELETE {{host}}/offender?familyNamePrefix={{$placeholder}}&testRunId={{$uuid}}
+Authorization: Bearer {{$auth.token("token")}}
+
+### Search for an offender
+POST {{host}}/offender/search
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "croNumber": "",
+  "nomsId": "",
+  "familyName": "",
+  "dateOfBirth": ""
+}
+
+### Get an offender by ID
+GET {{host}}/offender/{{offenderId}}
+Authorization: Bearer {{$auth.token("token")}}
+
+### Update an offender
+PUT {{host}}/offender/{{offenderId}}
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "address": {},
+  "additionalAddresses": [],
+  "dateOfBirth": "",
+  "ethnicity": "",
+  "familyName": "",
+  "firstNames": "",
+  "gender": "",
+  "isInCustody": false,
+  "prisonNumber": "",
+  "establishment": "",
+  "croNumber": "",
+  "nomsId": ""
+}
+
+### Create a recall against an existing offender
+POST {{host}}/offender/{{offenderId}}/release/{{releaseId}}/recall
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "decisionDateTime": "",
+  "isExtendedSentence": false,
+  "isInCustody": false,
+  "mappaLevel": "",
+  "policeForce": "",
+  "probationArea": "",
+  "receivedDateTime": "",
+  "recommendedTo": {},
+  "riskOfContrabandDetails": ""
+}
+
+### Create Sentence
+POST {{host}}/offender/{{offenderId}}/sentence
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "custodyType": "",
+  "dateOfSentence": "",
+  "licenceExpiryDate": "",
+  "mappaLevel": "",
+  "releaseDate": "",
+  "sentenceLength": {},
+  "espCustodialPeriod": {},
+  "espExtendedPeriod": {},
+  "sentenceExpiryDate": "",
+  "sentencingCourt": "",
+  "sentencedUnder": ""
+}
+
+### Update an existing sentence on an offender
+PUT {{host}}/offender/{{offenderId}}/sentence/{{sentenceId}}
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "custodyType": "",
+  "dateOfSentence": "",
+  "licenceExpiryDate": "",
+  "mappaLevel": "",
+  "releaseDate": "",
+  "sentenceLength": {},
+  "espCustodialPeriod": {},
+  "espExtendedPeriod": {},
+  "sentenceExpiryDate": "",
+  "sentencingCourt": "",
+  "sentencedUnder": ""
+}
+
+### Update an offence that is associated with a sentence on an offender
+PUT {{host}}/offender/{{offenderId}}/sentence/{{sentenceId}}/offence
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "indexOffence": "",
+  "indexOffenceComment": "",
+  "dateOfIndexOffence": ""
+}
+
+### Create or Update a Release and Post Release
+POST {{host}}/offender/{{offenderId}}/sentence/{{sentenceId}}/release
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "dateOfRelease": "",
+  "postRelease": {},
+  "releasedFrom": "",
+  "releasedUnder": ""
+}
