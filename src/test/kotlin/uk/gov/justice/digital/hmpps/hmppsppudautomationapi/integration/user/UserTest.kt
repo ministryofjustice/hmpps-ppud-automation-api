@@ -4,10 +4,10 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.user
 
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UserSearchRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.IntegrationTestBase
@@ -46,12 +46,12 @@ class UserTest : IntegrationTestBase() {
       .expectStatus()
       .isOk
       .expectBody()
-      .jsonPath("results[0].fullName").isEqualTo("aaaaaaaa")
       .jsonPath("results").value(valuesExtractor)
 
     assert(valuesExtractor.value != null)
     assert(valuesExtractor.value!!.isNotEmpty())
-    assert(valuesExtractor.value!!.last().lastEntry().value == PpudUser("zzzzzFricker, Joanne", "Performance Management").formattedFullNameAndTeam)
+    // This is a user we already expect to exist, as we need it for other testing, so should be safe to use here
+    assertNotNull(valuesExtractor.value!!.find { it.get("fullName") == "Consider a Recall Test" })
   }
 
   @Test

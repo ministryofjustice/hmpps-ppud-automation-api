@@ -45,6 +45,9 @@ internal class UserController(
     return ResponseEntity(UserResponse(results), HttpStatus.OK)
   }
 
+  // Though currently not in use, this endpoint was originally added as part of a plan to enable live support users to
+  // view the users in PPUD and configure our mapping done for them in the API service. We expect to need this when we
+  // are able to pick the topic up again, so will leave this endpoint here for now, even if currently unused.
   @Operation(
     summary = "Retrieve active users.",
     description = "Retrieve active users (NB. user Full Name is not unique.)",
