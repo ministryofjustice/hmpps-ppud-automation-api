@@ -112,6 +112,7 @@ internal val ppudKnownExistingOffender: TestOffender
       offence = TestOffence(
         "ATTEMPTED MURDER",
         "2001-02-12",
+        "Some offence comment",
       ),
     ),
     indeterminateSentence = IndeterminateTestSentence(
