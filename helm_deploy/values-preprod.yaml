@@ -2,7 +2,9 @@
 # Per environment values which override defaults in hmpps-ppud-automation-api/values.yaml
 
 generic-service:
-  replicaCount: 8
+  # Temporarily lowered to 2 to reduce resource consumption. Should be restored to 8 (number
+  # reached during load testing) once we're looking to go live with PPCS path in CaR
+  replicaCount: 2
 
   ingress:
     host: hmpps-ppud-automation-api-preprod.hmpps.service.justice.gov.uk
