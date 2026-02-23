@@ -22,7 +22,6 @@ import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedSentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
@@ -40,8 +39,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.SearchPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.BaseSentencePage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.sentences.SentencePageFactory
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.offender.validation.OffenderValidator
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateAddMinuteRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateRecall
@@ -107,6 +106,9 @@ class OperationalPpudClientTest {
 
   @Mock
   lateinit var createdOffender: CreatedOffender
+
+  @Mock
+  private lateinit var offenderValidator: OffenderValidator
 
   private val ppudUrl = "https://ppud.example.com"
 
@@ -182,20 +184,6 @@ class OperationalPpudClientTest {
         client.searchForOffender(croNumber = "cro", nomsId = null, familyName = null, dateOfBirth = null)
       }
       then(searchPage).should(times(2)).searchByCroNumber(any())
-    }
-  }
-
-  @Test
-  fun `given Selenium fails when a create offender operation fails then do not try again`() {
-    runBlocking {
-      // Create offender is not idempotent
-      given(newOffenderPage.createOffender(any())).willThrow(org.openqa.selenium.NoSuchElementException("Test Selenium exception"))
-      val createOffenderRequest = generateCreateOffenderRequest()
-
-      assertThrows<AutomationException> {
-        client.createOffender(createOffenderRequest)
-      }
-      then(newOffenderPage).should(times(1)).createOffender(any())
     }
   }
 
@@ -472,74 +460,6 @@ class OperationalPpudClientTest {
       then(offenderPage).should(inOrder).viewOffenderWithId(offenderId)
       then(offenderPage).should(inOrder).extractOffenderDetails(any())
       assertEquals(offender, result)
-    }
-  }
-
-  @Test
-  fun `given offender data when create offender is called then log in to PPUD and verify success`() {
-    runBlocking {
-      val createOffenderRequest = generateCreateOffenderRequest()
-      client.createOffender(createOffenderRequest)
-
-      assertThatLogsOnAndVerifiesSuccess()
-    }
-  }
-
-  @Test
-  fun `given offender data when create offender is called then log out once done`() {
-    runBlocking {
-      val createOffenderRequest = generateCreateOffenderRequest()
-      client.createOffender(createOffenderRequest)
-
-      val inOrder = inOrder(newOffenderPage, webDriverNavigation)
-      then(newOffenderPage).should(inOrder).createOffender(any())
-      then(webDriverNavigation).should(inOrder).to(absoluteLogoutUrl)
-    }
-  }
-
-  @Test
-  fun `given offender data when create offender is called then create offender`() {
-    runBlocking {
-      given(offenderPage.extractCreatedOffenderDetails(any())).willReturn(createdOffender)
-      val createOffenderRequest = generateCreateOffenderRequest()
-
-      client.createOffender(createOffenderRequest)
-
-      val inOrder = inOrder(newOffenderPage, searchPage, offenderPage)
-      then(searchPage).should(inOrder).navigateToNewOffender()
-      then(newOffenderPage).should(inOrder).verifyOn()
-      then(newOffenderPage).should(inOrder).createOffender(createOffenderRequest)
-      then(newOffenderPage).should(inOrder).throwIfInvalid()
-      then(offenderPage).should(inOrder).verifyOn()
-      then(offenderPage).should(inOrder).updateAdditionalAddresses(any())
-      then(offenderPage).should(inOrder).throwIfInvalid()
-    }
-  }
-
-  @Suppress("UNCHECKED_CAST")
-  @Test
-  fun `given offender data when create offender is called then return created offender details`() {
-    runBlocking {
-      val offenderId = randomPpudId()
-      val sentenceId = randomPpudId()
-      val linkToSentence = "/link/to/sentence"
-      val createdOffender = CreatedOffender(id = offenderId, sentence = CreatedSentence(id = sentenceId))
-      given(offenderPage.extractCreatedOffenderDetails(any()))
-        .will {
-          ((it.arguments.first()) as (String) -> CreatedSentence).invoke(linkToSentence)
-          createdOffender
-        }
-      given(sentencePageFactory.sentencePage()).willReturn(sentencePage)
-      val createOffenderRequest = generateCreateOffenderRequest()
-
-      val newOffender = client.createOffender(createOffenderRequest)
-
-      val inOrder = inOrder(searchPage, offenderPage, webDriverNavigation, sentencePage)
-      then(offenderPage).should(inOrder).throwIfInvalid()
-      then(webDriverNavigation).should(inOrder).to("$ppudUrl$linkToSentence")
-      then(sentencePage).should(inOrder).extractCreatedSentenceDetails()
-      assertEquals(offenderId, newOffender.id)
-      assertEquals(sentenceId, newOffender.sentence.id)
     }
   }
 

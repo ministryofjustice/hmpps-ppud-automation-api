@@ -221,21 +221,30 @@ fun randomDocumentCategory(exclude: DocumentCategory? = null): DocumentCategory 
  * This will create a request that is useful for mocked testing but uses random values
  * so some of the values won't be acceptable to PPUD.
  */
-fun generateCreateOffenderRequest(): CreateOffenderRequest = CreateOffenderRequest(
+fun generateCreateOffenderRequest(
+  custodyType: String = randomString("custodyType"),
+  ethnicity: String = randomString("ethnicity"),
+  firstNames: String = randomString("firstNames"),
+  familyName: String = randomString("familyName"),
+  gender: String = randomString("gender"),
+  indexOffence: String = randomString("indexOffence"),
+  mappaLevel: String = randomString("mappaLevel"),
+  prisonNumber: String = randomPrisonNumber(),
+): CreateOffenderRequest = CreateOffenderRequest(
   address = generateOffenderAddress(),
   croNumber = randomCroNumber(),
-  custodyType = randomString("custodyType"),
+  custodyType = custodyType,
   dateOfBirth = randomDate(),
   dateOfSentence = randomDate(),
-  ethnicity = randomString("ethnicity"),
-  firstNames = randomString("firstNames"),
-  familyName = randomString("familyName"),
-  gender = randomString("gender"),
-  indexOffence = randomString("indexOffence"),
+  ethnicity = ethnicity,
+  firstNames = firstNames,
+  familyName = familyName,
+  gender = gender,
+  indexOffence = indexOffence,
   isInCustody = Random.nextBoolean(),
-  mappaLevel = randomString("mappaLevel"),
+  mappaLevel = mappaLevel,
   nomsId = randomNomsId(),
-  prisonNumber = randomPrisonNumber(),
+  prisonNumber = prisonNumber,
   establishment = randomString("establishment"),
 )
 
