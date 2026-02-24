@@ -19,7 +19,7 @@ services:
       - PPUD_ADMIN_PASSWORD=${PPUD_ADMIN_PASSWORD}
 
   redis:
-    image: "redis:7.4.7-alpine"
+    image: "redis:7.4.8-alpine"
     networks:
       - hmpps
     ports:
