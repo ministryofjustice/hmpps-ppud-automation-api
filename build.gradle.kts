@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.3.0"
-  kotlin("plugin.spring") version "2.3.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.4.0"
+  kotlin("plugin.spring") version "2.3.10"
 }
 
 configurations {
@@ -16,7 +16,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.39.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.41.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.3")
   implementation("io.flipt:flipt-client-java:1.2.1")
 
@@ -29,7 +29,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
 
   // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
   implementation("org.apache.logging.log4j:log4j-api:2.25.3")
