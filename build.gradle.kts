@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.5.0"
-  kotlin("plugin.spring") version "2.3.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.6.0"
+  kotlin("plugin.spring") version "2.3.20"
 }
 
 configurations {
@@ -18,7 +18,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.seleniumhq.selenium:selenium-java:4.41.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.3")
-  implementation("io.flipt:flipt-client-java:1.2.1")
+  implementation("io.flipt:flipt-client-java:1.3.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -32,7 +32,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
 
   // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
-  implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+  implementation("org.apache.logging.log4j:log4j-api:2.25.4")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.13.0")
