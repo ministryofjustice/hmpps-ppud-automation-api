@@ -15,9 +15,6 @@ on:
         required: true
         default: false
         type: boolean
-permissions:
-  contents: read
-  packages: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -29,6 +26,8 @@ jobs:
     name: helm lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2
     secrets: inherit
+    permissions:
+      contents: read
     with:
       environment: ${{ matrix.environments }}
   validate:
@@ -36,10 +35,15 @@ jobs:
     name: Validate the kotlin
     uses: ./.github/workflows/validate.yml
     secrets: inherit
+    permissions:
+      contents: read
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
+    permissions:
+      contents: read
+      packages: write
     needs:
       - validate
     with:
@@ -56,6 +60,8 @@ jobs:
     - helm_lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
+    permissions:
+      contents: read
     with:
       environment: 'dev'
       app_version: '${{ needs.build.outputs.app_version }}'
@@ -68,6 +74,8 @@ jobs:
     - deploy_dev
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
+    permissions:
+      contents: read
     with:
       environment: 'preprod'
       app_version: '${{ needs.build.outputs.app_version }}'
@@ -80,6 +88,8 @@ jobs:
     - deploy_preprod
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2
     secrets: inherit
+    permissions:
+      contents: read
     with:
       environment: 'prod'
       app_version: '${{ needs.build.outputs.app_version }}'
@@ -96,11 +106,13 @@ jobs:
       - deploy_preprod
       - deploy_prod
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Prepare Slack failure message
         run: echo "Validation checks failed in workflow ${{ github.repository }} - ${{ github.workflow }}." > results_slack_message.txt
       - name: Notify Slack of failure
-        uses: ministryofjustice/hmpps-github-actions/.github/actions/slack_failure_results@v2
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/slack_failure_results@6ca6653862e916a9221d915216228aee57717570 # v2
         with:
           channel_id: ${{ vars.PROD_RELEASES_SLACK_CHANNEL }}
           SLACK_BOT_TOKEN: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}

@@ -53,29 +53,29 @@ on:
         type: boolean
         default: false
         required: false
-permissions:
-  contents: read
 
 jobs:
   validate:
     name: Validate the app
     # we use self-hosted runners here because PPUD can't allow-list all the GitHub IP addresses
     runs-on: [self-hosted, Linux, X64, hmpps-github-actions-runner]
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
           java-version: '${{ inputs.java-version }}'
       - name: Install Firefox
-        uses: browser-actions/setup-firefox@v1
+        uses: browser-actions/setup-firefox@fcf821c621167805dd63a29662bd7cb5676c81a8 # v1
         with:
           firefox-version: latest-esr
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
       - name: Run checks with gradle
         shell: bash
         env:
@@ -88,7 +88,7 @@ jobs:
           ${{ inputs.gradle-command }}
       - name: Upload the test artifacts
         if: inputs.upload-test-artifacts && !cancelled()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: ${{ inputs.artifact-name }}
           path: |
@@ -96,7 +96,7 @@ jobs:
             ${{ inputs.build-dir }}/reports/tests
       - name: Upload the build artifacts
         if: inputs.upload-build-artifacts && !cancelled()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: ${{ inputs.build-artifact-name }}
           path: |
@@ -104,7 +104,7 @@ jobs:
           retention-days: 1
       - name: publish test report
         if: inputs.upload-test-artifacts && !cancelled() && github.event.repository.visibility == 'public'
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@df6247429542221bc30d46a036ee47af1102c451 # v2
         with:
           artifact: ${{ inputs.artifact-name }}
           name: Test Report
