@@ -15,9 +15,6 @@ jobs:
       - validate
     runs-on: ubuntu-latest
     steps:
-      # This first action will tell us what minimum permissions are required to run the job, after which we can
-      # remove the action call and set the permissions explicitly.
-      - uses: GitHubSecurityLab/actions-permissions/monitor@bf82d13b9b10051d224345ab9184f5ede0a94289 # v1
       - name: Prepare Slack failure message
         run: echo "Daily validation checks failed in ${{ github.repository }}." > results_slack_message.txt
       - name: Notify Slack of failure
