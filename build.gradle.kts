@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.5.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.6.0"
   kotlin("plugin.spring") version "2.3.10"
 }
 
@@ -30,9 +30,34 @@ dependencies {
 
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
+  // Temporary fix to address CVE-2026-0540, CVE-2025-15599, should be removable once
+  // springdoc-openapi-starter-webmvc-ui above pulls later version of swagger-ui
+  implementation("org.webjars:swagger-ui:5.32.1")
 
   // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
   implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+
+  // The following pinned netty dependencies are to address CVE-2026-33871 and CVE-2026-33870. Spring Boot 3.5.13
+  // addresses this, but it is currently only a few days old, so will wait for a bit more before releasing a new HMPPS
+  // plug-in version with it and pulling it here
+  implementation("io.netty:netty-buffer:4.2.12.Final")
+  implementation("io.netty:netty-codec:4.2.12.Final")
+  implementation("io.netty:netty-codec-dns:4.2.12.Final")
+  implementation("io.netty:netty-codec-http:4.2.12.Final")
+  implementation("io.netty:netty-codec-http2:4.2.12.Final")
+  implementation("io.netty:netty-codec-socks:4.2.12.Final")
+  implementation("io.netty:netty-common:4.2.12.Final")
+  implementation("io.netty:netty-handler:4.2.12.Final")
+  implementation("io.netty:netty-handler-proxy:4.2.12.Final")
+  implementation("io.netty:netty-resolver:4.2.12.Final")
+  implementation("io.netty:netty-resolver-dns:4.2.12.Final")
+  implementation("io.netty:netty-resolver-dns-classes-macos:4.2.12.Final")
+  implementation("io.netty:netty-resolver-dns-native-macos:4.2.12.Final")
+  implementation("io.netty:netty-resolver-dns-native-macos:4.2.12.Final")
+  implementation("io.netty:netty-transport:4.2.12.Final")
+  implementation("io.netty:netty-transport-classes-epoll:4.2.12.Final")
+  implementation("io.netty:netty-transport-native-epoll:4.2.12.Final")
+  implementation("io.netty:netty-transport-native-unix-common:4.2.12.Final")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.13.0")
