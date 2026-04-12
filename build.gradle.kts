@@ -29,7 +29,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   // Temporary fix to address CVE-2026-0540, CVE-2025-15599, should be removable once
   // springdoc-openapi-starter-webmvc-ui above pulls later version of swagger-ui
   implementation("org.webjars:swagger-ui:5.32.1")
