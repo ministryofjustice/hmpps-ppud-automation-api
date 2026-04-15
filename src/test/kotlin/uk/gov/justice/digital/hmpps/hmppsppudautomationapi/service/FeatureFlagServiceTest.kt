@@ -37,7 +37,7 @@ class FeatureFlagServiceTest {
   @Mock
   private lateinit var fliptConfig: FliptConfig
 
-  // TODO MRD-2769 find out why log testing fails in CircleCI
+  // TODO MRD-2769 find out why log testing fails in GHA
 //  private val logAppender = findLogAppender(FeatureFlagService::class.java)
 
   @Test
@@ -94,7 +94,7 @@ class FeatureFlagServiceTest {
     .build()
 
   private fun assertWarningMessageWasLogged(defaultFlagValue: Boolean) {
-    // TODO MRD-2769 find out why log testing fails in CircleCI
+    // TODO MRD-2769 find out why log testing fails in GHA
 //    with(logAppender.list) {
 //      assertThat(size).isEqualTo(1)
 //      with(get(0)) {
