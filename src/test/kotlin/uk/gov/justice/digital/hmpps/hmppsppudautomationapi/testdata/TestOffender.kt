@@ -16,7 +16,7 @@ internal class TestOffender(
 class TestOffence(
   val indexOffence: String,
   val dateOfIndexOffence: String? = null,
-  val offenceComment: String? = null,
+  val indexOffenceComment: String? = null,
 )
 
 abstract class TestSentence(
