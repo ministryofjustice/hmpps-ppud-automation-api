@@ -1,6 +1,6 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.6.0"
-  kotlin("plugin.spring") version "2.3.10"
+  kotlin("plugin.spring") version "2.3.20"
 }
 
 configurations {
@@ -16,9 +16,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.41.0")
-  implementation("io.github.bonigarcia:webdrivermanager:6.3.3")
-  implementation("io.flipt:flipt-client-java:1.2.1")
+  implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
+  implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
+  implementation("io.flipt:flipt-client-java:1.3.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -29,13 +29,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
   // Temporary fix to address CVE-2026-0540, CVE-2025-15599, should be removable once
   // springdoc-openapi-starter-webmvc-ui above pulls later version of swagger-ui
-  implementation("org.webjars:swagger-ui:5.32.1")
+  implementation("org.webjars:swagger-ui:5.32.4")
 
   // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
-  implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+  implementation("org.apache.logging.log4j:log4j-api:2.25.4")
 
   // Temporarily pinned to address CVE-2026-34483, CVE-2026-29129 and CVE-2026-25854, should be removable once
   // spring-boot releases a 3.x version with the fix, or when we upgrade to spring-boot 4 (if the fix is included there)
