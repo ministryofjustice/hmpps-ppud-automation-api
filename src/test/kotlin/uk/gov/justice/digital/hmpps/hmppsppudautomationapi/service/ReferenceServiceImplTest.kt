@@ -50,7 +50,7 @@ class ReferenceServiceImplTest {
   @Mock
   private lateinit var cacheManager: CacheManager
 
-  // TODO MRD-2769 find out why log testing fails in CircleCI
+  // TODO MRD-2769 find out why log testing fails in GHA
 //  private val logAppender: ListAppender<ILoggingEvent> = findLogAppender(ReferenceServiceImpl::class.java)
 
   @Test
@@ -140,7 +140,7 @@ class ReferenceServiceImplTest {
     // then
     assertThat(actualAvailableCustodyTypeNamesOfCustodyGroup).isEqualTo(expectedAvailableCustodyTypeNamesOfCustodyGroup)
 
-    // TODO MRD-2769 find out why log testing fails in CircleCI
+    // TODO MRD-2769 find out why log testing fails in GHA
 //    with(logAppender.list) {
 //      this.forEach { assertThat(it.level).isEqualTo(Level.WARN) }
 //      assertThat(this.map { it.message }).containsExactlyInAnyOrderElementsOf(

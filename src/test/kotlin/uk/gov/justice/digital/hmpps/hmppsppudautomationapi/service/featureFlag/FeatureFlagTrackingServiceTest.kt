@@ -23,7 +23,7 @@ class FeatureFlagTrackingServiceTest {
   @Mock
   private lateinit var referenceService: ReferenceService
 
-  // TODO MRD-2769 find out why log testing fails in CircleCI
+  // TODO MRD-2769 find out why log testing fails in GHA
 //  private val logAppender = findLogAppender(FeatureFlagTrackingService::class.java)
 
   @Test
@@ -41,7 +41,7 @@ class FeatureFlagTrackingServiceTest {
 
       // then
       then(referenceService).shouldHaveNoInteractions()
-      // TODO MRD-2769 find out why log testing fails in CircleCI
+      // TODO MRD-2769 find out why log testing fails in GHA
 //      assertThat(logAppender.list).hasSameSizeAs(FeatureFlag.entries)
 //      with(logAppender.list) {
 //        FeatureFlag.entries.forEachIndexed { index, featureFlag ->
@@ -71,7 +71,7 @@ class FeatureFlagTrackingServiceTest {
 
       // then
       then(referenceService).shouldHaveNoInteractions()
-      // TODO MRD-2769 find out why log testing fails in CircleCI
+      // TODO MRD-2769 find out why log testing fails in GHA
 //      assertThat(logAppender.list).hasSameSizeAs(FeatureFlag.entries)
 //      with(logAppender.list) {
 //        FeatureFlag.entries.forEachIndexed { index, featureFlag ->
@@ -108,7 +108,7 @@ class FeatureFlagTrackingServiceTest {
 
       // then
       then(referenceService).should().refreshCaches()
-      // TODO MRD-2769 find out why log testing fails in CircleCI
+      // TODO MRD-2769 find out why log testing fails in GHA
 //      with(logAppender.list) {
 //        assertThat(size).isEqualTo(FeatureFlag.entries.size + updatedFlagValues.size)
 //        FeatureFlag.entries.forEachIndexed { index, featureFlag ->
@@ -151,7 +151,7 @@ class FeatureFlagTrackingServiceTest {
 
       // then
       then(referenceService).shouldHaveNoInteractions()
-      // TODO MRD-2769 find out why log testing fails in CircleCI
+      // TODO MRD-2769 find out why log testing fails in GHA
 //      with(logAppender.list) {
 //        assertThat(size).isEqualTo(FeatureFlag.entries.size + updatedFlagValues.size)
 //        FeatureFlag.entries.forEachIndexed { index, featureFlag ->
