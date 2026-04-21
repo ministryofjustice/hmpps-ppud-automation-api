@@ -96,10 +96,10 @@ class OffenderGetTest : IntegrationTestBase() {
       retrieveOffender(id)
         .jsonPath("$pathToFirstOffence.indexOffence").isEqualTo(determinateSentence.offence.indexOffence)
         .jsonPath("$pathToFirstOffence.dateOfIndexOffence").isEqualTo(determinateSentence.offence.dateOfIndexOffence)
-        .jsonPath("$pathToFirstOffence.offenceComment").isEqualTo(determinateSentence.offence.offenceComment)
+        .jsonPath("$pathToFirstOffence.indexOffenceComment").isEqualTo(determinateSentence.offence.indexOffenceComment)
         .jsonPath("$pathToSecondOffence.indexOffence").isEqualTo(indeterminateSentence.offence.indexOffence)
         .jsonPath("$pathToSecondOffence.dateOfIndexOffence").isEmpty
-        .jsonPath("$pathToSecondOffence.offenceComment").isEmpty
+        .jsonPath("$pathToSecondOffence.indexOffenceComment").isEmpty
     }
   }
 

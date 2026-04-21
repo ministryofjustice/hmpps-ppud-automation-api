@@ -87,7 +87,7 @@ class OffencePageTest {
       val dateOfIndexOffence = randomDate()
       given(dateOfIndexOffenceInput.getValue()).willReturn(dateTimeFormatter.format(dateOfIndexOffence))
       given(indexOffenceInput.getValue()).willReturn("offence")
-      given(indexOffenceCommentInput.getValue()).willReturn("offenceComment")
+      given(indexOffenceCommentInput.getValue()).willReturn("indexOffenceComment")
 
       val offence = offencePage.extractOffenceDetails()
 
@@ -97,7 +97,7 @@ class OffencePageTest {
         Offence(
           dateOfIndexOffence = dateOfIndexOffence,
           indexOffence = "offence",
-          offenceComment = "offenceComment",
+          indexOffenceComment = "indexOffenceComment",
         ),
       )
 
