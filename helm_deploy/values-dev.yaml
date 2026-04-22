@@ -14,6 +14,8 @@ generic-service:
     DOCUMENT_MANAGEMENT_API_URL: https://document-api-dev.hmpps.service.justice.gov.uk
     FLIPT_DEFAULT_FLAG_VALUE: true
     ENVIRONMENT_NAME: dev
+    SPRINGDOC_APIDOCS_ENABLED: "true"
+    SPRINGDOC_SWAGGERUI_ENABLED: "true"
 
   scheduledDowntime:
     enabled: true
