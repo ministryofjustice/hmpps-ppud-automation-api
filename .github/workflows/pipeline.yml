@@ -97,7 +97,7 @@ jobs:
       slack_notification: 'true'
   notify_slack_of_failure:
     name: Notify Slack of failure
-    if: always() && contains(needs.*.result, 'failure')
+    if: always() && github.ref == 'refs/heads/main' && contains(needs.*.result, 'failure')
     needs:
       - helm_lint
       - validate
