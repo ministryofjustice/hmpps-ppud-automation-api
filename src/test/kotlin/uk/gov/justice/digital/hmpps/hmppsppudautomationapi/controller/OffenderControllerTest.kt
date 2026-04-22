@@ -111,7 +111,7 @@ internal class OffenderControllerTest {
 
       val result = controller.createOffender(offenderRequest)
 
-      assertEquals(HttpStatus.CREATED, result.statusCode)
+      assertEquals(HttpStatus.I_AM_A_TEAPOT, result.statusCode) // to test failures aren't reported in Slack other than for main branch
       assertEquals(createdOffender, result.body?.offender)
     }
   }
