@@ -36,11 +36,14 @@ spring:
           hmpps-auth:
             token-uri: ${hmpps.auth.url}/oauth/token
 
-# Temporarily set when org.webjars:swagger-ui was set to 5.32.1 in build.gradle, as otherwise swagger-ui doesn't work.
-# Seems to be used in some places to build the path from which to retrieve resources, although it isn't officially
-# documented :/. Remove whenever no longer needed
 springdoc:
+  api-docs:
+    enabled: false
   swagger-ui:
+    enabled: false
+    # Temporarily set when org.webjars:swagger-ui was set to 5.32.1 in build.gradle, as otherwise swagger-ui doesn't work.
+    # Seems to be used in some places to build the path from which to retrieve resources, although it isn't officially
+    # documented :/. Remove whenever no longer needed
     version: 5.32.1
 
 server:
