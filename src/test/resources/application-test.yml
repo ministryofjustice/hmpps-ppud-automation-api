@@ -38,3 +38,9 @@ documents:
 document-management:
   client:
     timeout: 2
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
