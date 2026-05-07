@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.7.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.7.1"
   kotlin("plugin.spring") version "2.3.20"
 }
 
@@ -16,9 +16,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
-  implementation("org.seleniumhq.selenium:selenium-java:4.41.0")
-  implementation("io.github.bonigarcia:webdrivermanager:6.3.3")
-  implementation("io.flipt:flipt-client-java:1.2.1")
+  implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
+  implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
+  implementation("io.flipt:flipt-client-java:1.3.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
