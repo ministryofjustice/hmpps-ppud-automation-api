@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.7.1"
-  kotlin("plugin.spring") version "2.3.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.5"
+  kotlin("plugin.spring") version "2.3.21"
 }
 
 configurations {
@@ -12,10 +12,14 @@ dependencyCheck {
 }
 
 dependencies {
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
+  implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
+  implementation("org.springframework.boot:spring-boot-jackson2")
+
   implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
   implementation("io.flipt:flipt-client-java:1.3.1")
@@ -26,18 +30,24 @@ dependencies {
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.security:spring-security-oauth2-client")
-  implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+  implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
+  implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16")
-  // Temporary fix to address CVE-2026-0540, CVE-2025-15599, should be removable once
-  // springdoc-openapi-starter-webmvc-ui above pulls a later version of swagger-ui
+  // Not sure if we're affected, but release notes on 10.2.1 version of hmpps-gradle-spring-boot
+  // reported some issues encountered and recommended pinning swagger-ui to 5.32.2 and not updating
+  // the springdoc dependency for now
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.1")
+    implementation("org.webjars:swagger-ui:5.32.2")
   }
 
-  // Temporary fix to address CVE-2025-68161 until we upgrade to spring-boot 4 or a 3.5.x with the fix is released
-  implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+  testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-cache-test")
+  testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
 
   testImplementation("org.mock-server:mockserver-netty:5.15.0")
   testImplementation("io.jsonwebtoken:jjwt:0.13.0")

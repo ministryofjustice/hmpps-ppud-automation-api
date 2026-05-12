@@ -77,7 +77,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `given missing optional fields in request body when create offender called then 201 created is returned`() {
+  fun `given missing optional fields in request body when create sentence called then 201 created is returned`() {
     val offenderId = createTestOffenderInPpud()
     val requestBodyWithOnlyMandatoryFields =
       """

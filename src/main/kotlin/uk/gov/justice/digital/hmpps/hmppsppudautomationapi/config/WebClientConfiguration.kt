@@ -40,7 +40,7 @@ class WebClientConfiguration(
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    fun <T> Mono<T>.withRetry(): Mono<T> = this
+    fun <T : Any> Mono<T>.withRetry(): Mono<T> = this
       .retryWhen(
         Retry.backoff(2, Duration.ofMillis(500))
           .filter(::shouldBeRetried)

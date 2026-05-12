@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_G
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER_2
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomBoolean
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
@@ -116,6 +117,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
           "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
           "firstNames" : "${randomString("firstNames")}",
           "gender" : "$PPUD_VALID_GENDER",
+          "isInCustody" : "${randomBoolean()}",
           "prisonNumber" : "${randomPrisonNumber()}",
           "establishment" : "$PPUD_VALID_ESTABLISHMENT"
         }
@@ -138,6 +140,7 @@ class OffenderUpdateTest : IntegrationTestBase() {
           "firstNames" : "${randomString("firstNames")}",
           "gender" : "$PPUD_VALID_GENDER",
           "nomsId" : null,
+          "isInCustody" : "${randomBoolean()}",
           "prisonNumber" : "${randomPrisonNumber()}",
           "establishment" : "$PPUD_VALID_ESTABLISHMENT"
         }

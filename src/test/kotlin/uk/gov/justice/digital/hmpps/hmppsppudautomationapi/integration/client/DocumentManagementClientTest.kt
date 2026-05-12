@@ -54,7 +54,7 @@ class DocumentManagementClientTest(
       documentManagementClient.retrieveDocument(documentId)
     }
     assertTrue(
-      exception.message?.startsWith("500 Internal Server Error") == true,
+      exception.message.startsWith("500 Internal Server Error"),
       "Exception message was '${exception.message}'",
     )
   }
