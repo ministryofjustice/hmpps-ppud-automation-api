@@ -19,8 +19,8 @@ internal class ReleasePage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val dateFormatter: DateTimeFormatter,
-  @Value("\${ppud.release.category}") private val category: String,
-  @Value("\${ppud.release.releaseType}") private val releaseType: String,
+  @param:Value("\${ppud.release.category}") private val category: String,
+  @param:Value("\${ppud.release.releaseType}") private val releaseType: String,
 ) {
   private val pageDescription = "release page"
 

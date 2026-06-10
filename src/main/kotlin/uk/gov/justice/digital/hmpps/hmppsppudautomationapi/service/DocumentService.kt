@@ -15,7 +15,7 @@ import kotlin.io.path.exists
 internal class DocumentService(
   private val documentManagementClient: DocumentManagementClient,
   private val uuidProvider: () -> UUID,
-  @Value("\${documents.storageDirectory}") private val documentsStorageDirectory: String,
+  @param:Value("\${documents.storageDirectory}") private val documentsStorageDirectory: String,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

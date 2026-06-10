@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 data class PostReleaseConfig(
-  @Value("\${ppud.release.postRelease.licenceType.determinate}") val determinateLicenceType: String,
-  @Value("\${ppud.release.postRelease.licenceType.dcr}") val dcrLicenceType: String,
-  @Value("\${ppud.release.postRelease.licenceType.ipp}") val ippLicenceType: String,
-  @Value("\${ppud.release.postRelease.licenceType.life}") val lifeLicenceType: String,
+  @param:Value("\${ppud.release.postRelease.licenceType.determinate}") val determinateLicenceType: String,
+  @param:Value("\${ppud.release.postRelease.licenceType.dcr}") val dcrLicenceType: String,
+  @param:Value("\${ppud.release.postRelease.licenceType.ipp}") val ippLicenceType: String,
+  @param:Value("\${ppud.release.postRelease.licenceType.life}") val lifeLicenceType: String,
 )

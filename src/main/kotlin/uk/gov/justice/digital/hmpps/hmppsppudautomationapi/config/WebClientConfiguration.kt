@@ -29,12 +29,12 @@ import java.util.concurrent.TimeoutException
 
 @Configuration
 class WebClientConfiguration(
-  @Value("\${ppud.url}") private val ppudUrl: String,
-  @Value("\${ppud.health.timeout}") private val ppudHealthTimeout: Long,
-  @Value("\${document-management.api.url}") private val documentManagementApiRootUri: String,
-  @Value("\${document-management.client.timeout}") private val documentManagementTimeout: Long,
-  @Value("\${document-management.health.timeout}") private val documentManagementHealthTimeout: Long,
-  @Value("\${document-management.client.headers.serviceName}") private val documentManagementHeaderServiceName: String,
+  @param:Value("\${ppud.url}") private val ppudUrl: String,
+  @param:Value("\${ppud.health.timeout}") private val ppudHealthTimeout: Long,
+  @param:Value("\${document-management.api.url}") private val documentManagementApiRootUri: String,
+  @param:Value("\${document-management.client.timeout}") private val documentManagementTimeout: Long,
+  @param:Value("\${document-management.health.timeout}") private val documentManagementHealthTimeout: Long,
+  @param:Value("\${document-management.client.headers.serviceName}") private val documentManagementHeaderServiceName: String,
 ) {
 
   companion object {

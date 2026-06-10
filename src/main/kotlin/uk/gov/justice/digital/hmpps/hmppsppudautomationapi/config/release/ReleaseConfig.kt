@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 data class ReleaseConfig(
-  @Value("\${ppud.release.releasedUnder.ippLicence}") val ippLicence: String,
-  @Value("\${ppud.release.releasedUnder.lifeLicence}") val lifeLicence: String,
+  @param:Value("\${ppud.release.releasedUnder.ippLicence}") val ippLicence: String,
+  @param:Value("\${ppud.release.releasedUnder.lifeLicence}") val lifeLicence: String,
 )

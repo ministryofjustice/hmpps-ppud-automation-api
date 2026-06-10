@@ -85,10 +85,15 @@ management:
         time-to-live: 2000ms
 
 ppud:
+  username: ${PPUD_USERNAME:test-user}
+  password: ${PPUD_PASSWORD:test-password}
   url: https://internaltest.ppud.justice.gov.uk
   health:
     path: /Secure/MJSLogin.aspx
     timeout: 5
+  admin:
+    username: ${PPUD_ADMIN_USERNAME:test-admin-user}
+    password: ${PPUD_ADMIN_PASSWORD:test-admin-password}
   offender:
     caseworker:
       inCustody: "Recall Reps Packs(Recall 1)"

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
 internal class ReferenceDataCacheRefreshTask(
-  @Qualifier("scheduledReferenceService") private val referenceService: ReferenceService,
+  @param:Qualifier("scheduledReferenceService") private val referenceService: ReferenceService,
 ) {
   suspend fun performTask() {
     try {

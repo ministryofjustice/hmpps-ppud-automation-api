@@ -21,10 +21,10 @@ internal class NewOffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val youngOffenderCalculator: YoungOffenderCalculator,
-  @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
-  @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
-  @Value("\${ppud.offender.status}") private val status: String,
-  @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
+  @param:Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
+  @param:Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
+  @param:Value("\${ppud.offender.status}") private val status: String,
+  @param:Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
 ) {
 
   private val title = "New Offender"

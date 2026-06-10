@@ -25,7 +25,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class DocumentManagementClientTest(
-  @Value("\${document-management.client.timeout}") private val timeout: Long,
+  @param:Value("\${document-management.client.timeout}") private val timeout: Long,
 ) : IntegrationTestBase() {
 
   @Autowired
