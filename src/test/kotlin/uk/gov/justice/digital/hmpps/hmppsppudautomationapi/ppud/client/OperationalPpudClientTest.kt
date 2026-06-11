@@ -21,6 +21,8 @@ import org.mockito.kotlin.willReturnConsecutively
 import org.openqa.selenium.NotFoundException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
+import org.openqa.selenium.WebDriver.Options
+import org.openqa.selenium.WebDriver.Window
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.CreatedOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
@@ -64,6 +66,12 @@ class OperationalPpudClientTest {
 
   @Mock
   private lateinit var webDriverNavigation: Navigation
+
+  @Mock
+  private lateinit var webDriverOptions: Options
+
+  @Mock
+  private lateinit var webDriverWindow: Window
 
   @Mock
   private lateinit var navigationTreeViewComponent: NavigationTreeViewComponent
@@ -152,6 +160,8 @@ class OperationalPpudClientTest {
     )
 
     given(driver.navigate()).willReturn(webDriverNavigation)
+    given(driver.manage()).willReturn(webDriverOptions)
+    given(webDriverOptions.window()).willReturn(webDriverWindow)
   }
 
   @Test
