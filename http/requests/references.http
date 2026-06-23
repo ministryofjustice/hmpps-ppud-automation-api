@@ -1,0 +1,56 @@
+### Clear reference caches
+POST {{host}}/reference/clear-caches
+Authorization: Bearer {{$auth.token("token")}}
+
+### Refresh reference lists cache
+POST {{host}}/reference/refresh-caches
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Courts reference list
+GET {{host}}/reference/courts
+Authorization: Bearer {{$auth.token("token")}}
+
+### DEPRECATED Get custody type references
+GET {{host}}/reference/custody-types
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get determinate custody types reference list
+GET {{host}}/reference/determinate-custody-types
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Establishments reference list
+GET {{host}}/reference/establishments
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Ethnicities reference list
+GET {{host}}/reference/ethnicities
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Genders reference list
+GET {{host}}/reference/genders
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Indeterminate Custody Types reference list
+GET {{host}}/reference/indeterminate-custody-types
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Index Offences reference list
+GET {{host}}/reference/index-offences
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get MAPPA Levels reference list
+GET {{host}}/reference/mappa-levels
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Police Forces reference list
+GET {{host}}/reference/police-forces
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Probation Services reference list
+GET {{host}}/reference/probation-services
+Authorization: Bearer {{$auth.token("token")}}
+
+### Get Released Unders reference list
+GET {{host}}/reference/released-unders
+Authorization: Bearer {{$auth.token("token")}}
+

@@ -1,0 +1,14 @@
+### Retrieve active users
+GET {{host}}/user/list
+Authorization: Bearer {{$auth.token("token")}}
+
+### Search active users
+POST {{host}}/user/search
+Authorization: Bearer {{$auth.token("token")}}
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "userName": ""
+}
+
