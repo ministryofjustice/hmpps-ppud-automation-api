@@ -20,6 +20,7 @@ class CreateOffenderRequest(
   nomsId: String? = null,
   val prisonNumber: String,
   val establishment: String,
+  val sentencedAsYouth: String? = null,
 ) {
   val croNumber: String = croNumber ?: ""
   val nomsId: String = nomsId ?: ""

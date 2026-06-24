@@ -118,7 +118,8 @@ class OffenderCreateTest : IntegrationTestBase() {
           "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
           "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
           "prisonNumber" : "${randomPrisonNumber()}",
-          "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT",
+          "sentencedAsYouth" : "No"
         }
       """.trimIndent()
 
@@ -151,7 +152,8 @@ class OffenderCreateTest : IntegrationTestBase() {
         "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
         "nomsId" : null,
         "prisonNumber" : "${randomPrisonNumber()}",
-        "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+        "establishment" : "$PPUD_VALID_ESTABLISHMENT",
+        "sentencedAsYouth" : "No"
       }
       """.trimIndent()
 

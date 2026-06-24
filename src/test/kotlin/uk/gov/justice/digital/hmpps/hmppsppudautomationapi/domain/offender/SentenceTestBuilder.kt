@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Custo
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomYesOrNo
 import java.time.LocalDate
 
 fun sentence(
@@ -20,6 +21,7 @@ fun sentence(
   sentenceExpiryDate: LocalDate? = randomDate(),
   tariffExpiryDate: LocalDate? = randomDate(),
   sentencedUnder: String? = randomString(),
+  sentencedAsYouth: String? = randomYesOrNo(),
   sentenceLength: SentenceLength? = sentenceLength(),
   sentencingCourt: String = randomString(),
 ) = Sentence(
@@ -35,6 +37,7 @@ fun sentence(
   sentenceExpiryDate,
   tariffExpiryDate,
   sentencedUnder,
+  sentencedAsYouth,
   sentenceLength,
   sentencingCourt,
 )

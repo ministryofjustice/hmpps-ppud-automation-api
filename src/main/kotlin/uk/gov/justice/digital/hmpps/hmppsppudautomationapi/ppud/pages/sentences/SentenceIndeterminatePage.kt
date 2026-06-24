@@ -44,6 +44,7 @@ internal class SentenceIndeterminatePage(
     with(pageHelper) {
       enterDate(dateOfSentenceInput, request.dateOfSentence)
       enterText(sentencingCourtInput, request.sentencingCourt)
+      selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
     }
 
     saveButton.click()
@@ -70,6 +71,7 @@ internal class SentenceIndeterminatePage(
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentDaysInput, 0),
         ),
+        sentencedAsYouth = readSelectedOption(sentencedAsYouthDropdown),
         sentencingCourt = sentencingCourtInput.getValue(),
         // Do offence last because it navigates away
         offence = offenceExtractor(offenceLink),
@@ -98,6 +100,9 @@ internal class SentenceIndeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliSENTENCED_AS_YOUTH")
+  private lateinit var sentencedAsYouthDropdown: WebElement
 
   @FindBy(id = "cntDetails_PageFooter1_cmdSave")
   private lateinit var saveButton: WebElement

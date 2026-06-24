@@ -88,7 +88,8 @@ abstract class IntegrationTestBase {
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
       establishment: String = PPUD_VALID_ESTABLISHMENT,
-    ): String = """  
+      sentencedAsYouth: String = "No",
+    ): String = """
       {
         "address" : $address,
         "additionalAddresses" : [$additionalAddresses],
@@ -105,7 +106,8 @@ abstract class IntegrationTestBase {
         "mappaLevel" : "$mappaLevel",
         "nomsId" : "$nomsId",
         "prisonNumber" : "$prisonNumber",
-        "establishment" : "$establishment"
+        "establishment" : "$establishment",
+        "sentencedAsYouth" : "$sentencedAsYouth"
       }
     """.trimIndent()
 
@@ -156,7 +158,8 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-    ) = """ 
+      sentencedAsYouth: String? = null,
+    ) = """
         {
           "custodyType":"$custodyType",
           "dateOfSentence":"$dateOfSentence",
@@ -179,6 +182,7 @@ abstract class IntegrationTestBase {
           },
           "sentencingCourt":"$sentencingCourt",
           "sentencedUnder":"$sentencedUnder"
+          ${if (sentencedAsYouth != null) ""","sentencedAsYouth":"$sentencedAsYouth"""" else ""}
         }
     """.trimIndent()
 

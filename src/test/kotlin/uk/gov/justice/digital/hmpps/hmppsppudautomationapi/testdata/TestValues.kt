@@ -162,6 +162,8 @@ fun randomPrisonNumber(): String {
   return number
 }
 
+fun randomYesOrNo(): String = if (Random.nextBoolean()) "Yes" else "No"
+
 fun randomDate(): LocalDate = LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
 
 fun randomDateTime(): LocalDateTime {
@@ -231,6 +233,7 @@ fun generateCreateOffenderRequest(
   indexOffence: String = randomString("indexOffence"),
   mappaLevel: String = randomString("mappaLevel"),
   prisonNumber: String = randomPrisonNumber(),
+  sentencedAsYouth: String? = null,
 ): CreateOffenderRequest = CreateOffenderRequest(
   address = generateOffenderAddress(),
   croNumber = randomCroNumber(),
@@ -247,6 +250,7 @@ fun generateCreateOffenderRequest(
   nomsId = randomNomsId(),
   prisonNumber = prisonNumber,
   establishment = randomString("establishment"),
+  sentencedAsYouth = sentencedAsYouth,
 )
 
 /**
@@ -338,6 +342,7 @@ fun generateCreateOrUpdateSentenceRequest(
   sentenceLength = null,
   sentencingCourt = sentencingCourt,
   sentencedUnder = sentencedUnder,
+  sentencedAsYouth = null,
 )
 
 /**

@@ -110,6 +110,9 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
 
+  @FindBy(id = "content_ddliSENTENCED_AS_YOUTH")
+  private lateinit var sentencedAsYouthDropdown: WebElement
+
   @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoCompleteTextBox")
   private lateinit var currentEstablishmentInput: WebElement
 
@@ -163,6 +166,7 @@ internal class NewOffenderPage(
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
+    pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth, "Sentenced as Youth")
 
     // See comments further up regarding these three fields
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")

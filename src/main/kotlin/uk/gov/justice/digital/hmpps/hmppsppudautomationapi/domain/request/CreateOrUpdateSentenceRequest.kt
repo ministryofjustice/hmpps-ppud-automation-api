@@ -17,4 +17,5 @@ data class CreateOrUpdateSentenceRequest(
   val sentenceExpiryDate: LocalDate?,
   val sentencingCourt: String = "",
   val sentencedUnder: String?,
+  val sentencedAsYouth: String?,
 )

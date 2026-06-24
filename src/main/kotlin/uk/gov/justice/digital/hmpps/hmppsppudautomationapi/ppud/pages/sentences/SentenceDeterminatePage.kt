@@ -56,6 +56,7 @@ internal class SentenceDeterminatePage(
       enterInteger(sentenceLengthPartYearsInput, request.sentenceLength?.partYears)
       enterInteger(sentenceLengthPartMonthsInput, request.sentenceLength?.partMonths)
       enterInteger(sentenceLengthPartDaysInput, request.sentenceLength?.partDays)
+      selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
     }
 
     saveButton.click()
@@ -86,6 +87,7 @@ internal class SentenceDeterminatePage(
         mappaLevel = readSelectedOption(mappaLevelDropdown),
         releaseDate = readDateOrNull(releaseDateInput),
         sentencedUnder = readSelectedOption(sentencedUnderDropdown),
+        sentencedAsYouth = readSelectedOption(sentencedAsYouthDropdown),
         sentenceExpiryDate = readDateOrNull(sentenceExpiryDateInput),
         sentenceLength = SentenceLength(
           partYears = readIntegerOrDefault(sentenceLengthPartYearsInput, 0),
@@ -147,4 +149,7 @@ internal class SentenceDeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliSENTENCED_AS_YOUTH")
+  private lateinit var sentencedAsYouthDropdown: WebElement
 }

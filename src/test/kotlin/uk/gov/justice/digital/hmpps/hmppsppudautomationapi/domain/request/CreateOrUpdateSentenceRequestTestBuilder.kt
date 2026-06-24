@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.espPe
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomYesOrNo
 import java.time.LocalDate
 
 fun createOrUpdateSentenceRequest(
@@ -20,6 +21,7 @@ fun createOrUpdateSentenceRequest(
   sentenceExpiryDate: LocalDate? = randomDate(),
   sentencingCourt: String = randomString(),
   sentencedUnder: String? = randomString(),
+  sentencedAsYouth: String? = randomYesOrNo(),
 ) = CreateOrUpdateSentenceRequest(
   custodyType,
   dateOfSentence,
@@ -32,4 +34,5 @@ fun createOrUpdateSentenceRequest(
   sentenceExpiryDate,
   sentencingCourt,
   sentencedUnder,
+  sentencedAsYouth,
 )

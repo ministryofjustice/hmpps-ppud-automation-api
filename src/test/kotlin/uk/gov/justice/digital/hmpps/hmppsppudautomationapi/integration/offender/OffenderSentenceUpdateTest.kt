@@ -90,7 +90,8 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
           "custodyType":"$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
-          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
+          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER",
+          "sentencedAsYouth":"No"
         }
       """.trimIndent()
 
@@ -110,7 +111,8 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
           "custodyType":"$PPUD_VALID_INDETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "releaseDate":"${randomDate()}",
-          "sentencingCourt":"${randomString()}"
+          "sentencingCourt":"${randomString()}",
+          "sentencedAsYouth":"No"
         }
       """.trimIndent()
 
@@ -157,6 +159,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentencingCourt = randomString("sentCourt")
     val sentencedUnder = PPUD_VALID_SENTENCED_UNDER
+    val sentencedAsYouth = "Yes"
     val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceLengthPartYears = Random.nextInt(0, 1000)
@@ -175,6 +178,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       sentenceExpiryDate = sentenceExpiryDate,
       sentencingCourt = sentencingCourt,
       sentencedUnder = sentencedUnder,
+      sentencedAsYouth = sentencedAsYouth,
       sentenceLengthPartYears = sentenceLengthPartYears,
       sentenceLengthPartMonths = sentenceLengthPartMonths,
       sentenceLengthPartDays = sentenceLengthPartDays,
@@ -196,6 +200,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
       .jsonPath("offender.sentences[0].releaseDate").isEqualTo(releaseDate)
       .jsonPath("offender.sentences[0].sentencedUnder").isEqualTo(sentencedUnder)
+      .jsonPath("offender.sentences[0].sentencedAsYouth").isEqualTo(sentencedAsYouth)
       .jsonPath("offender.sentences[0].sentenceExpiryDate").isEqualTo(sentenceExpiryDate)
       .jsonPath("offender.sentences[0].sentenceLength.partYears").isEqualTo(sentenceLengthPartYears)
       .jsonPath("offender.sentences[0].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)
