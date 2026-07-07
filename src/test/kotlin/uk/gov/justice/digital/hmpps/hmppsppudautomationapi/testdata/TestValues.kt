@@ -64,6 +64,8 @@ const val PPUD_VALID_RELEASED_UNDER_2 = "CJA 2008"
 
 const val PPUD_VALID_SENTENCED_UNDER = PPUD_VALID_RELEASED_UNDER
 
+const val PPUD_VALID_SENTENCED_AS_YOUTH = "No"
+
 const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test Admin"
 
 const val PPUD_VALID_USER_TEAM = "Performance Management"

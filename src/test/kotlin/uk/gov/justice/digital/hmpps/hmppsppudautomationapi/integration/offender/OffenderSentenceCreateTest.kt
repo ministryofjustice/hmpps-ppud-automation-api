@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.Mandatory
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_DETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_UNDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -86,7 +87,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
           "dateOfSentence":"${randomDate()}",
           "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
           "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER",
-          "sentencedAsYouth":"No"
+          "sentencedAsYouth":"$PPUD_VALID_SENTENCED_AS_YOUTH"
         }
       """.trimIndent()
 
@@ -147,7 +148,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentencingCourt = randomString("sentCourt")
     val sentencedUnder = PPUD_VALID_SENTENCED_UNDER
-    val sentencedAsYouth = "Yes"
+    val sentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH
     val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceLengthPartYears = Random.nextInt(0, 1000)
@@ -207,7 +208,7 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
     val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentencingCourt = randomString("sentCourt")
     val sentencedUnder = PPUD_VALID_SENTENCED_UNDER
-    val sentencedAsYouth = "No"
+    val sentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH
     val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceLengthPartYears = Random.nextInt(0, 1000)

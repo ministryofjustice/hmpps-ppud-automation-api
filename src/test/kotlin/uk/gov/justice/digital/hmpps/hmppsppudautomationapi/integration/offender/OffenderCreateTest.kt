@@ -26,6 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_E
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
@@ -119,7 +120,7 @@ class OffenderCreateTest : IntegrationTestBase() {
           "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
           "prisonNumber" : "${randomPrisonNumber()}",
           "establishment" : "$PPUD_VALID_ESTABLISHMENT",
-          "sentencedAsYouth" : "No"
+          "sentencedAsYouth" : "$PPUD_VALID_SENTENCED_AS_YOUTH"
         }
       """.trimIndent()
 
@@ -153,7 +154,7 @@ class OffenderCreateTest : IntegrationTestBase() {
         "nomsId" : null,
         "prisonNumber" : "${randomPrisonNumber()}",
         "establishment" : "$PPUD_VALID_ESTABLISHMENT",
-        "sentencedAsYouth" : "No"
+        "sentencedAsYouth" : "$PPUD_VALID_SENTENCED_AS_YOUTH"
       }
       """.trimIndent()
 

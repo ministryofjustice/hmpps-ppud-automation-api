@@ -34,6 +34,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_P
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
@@ -88,7 +89,7 @@ abstract class IntegrationTestBase {
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
       establishment: String = PPUD_VALID_ESTABLISHMENT,
-      sentencedAsYouth: String = "No",
+      sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
     ): String = """
       {
         "address" : $address,
