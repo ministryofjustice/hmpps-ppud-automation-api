@@ -48,7 +48,7 @@ internal class SentenceIndeterminatePage(
       enterDate(dateOfSentenceInput, request.dateOfSentence)
       enterText(sentencingCourtInput, request.sentencingCourt)
       if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
-        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
+        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth?.name, "Sentenced as Youth")
       }
     }
 
@@ -76,7 +76,6 @@ internal class SentenceIndeterminatePage(
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentDaysInput, 0),
         ),
-        sentencedAsYouth = if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) readSelectedOption(sentencedAsYouthDropdown) else null,
         sentencingCourt = sentencingCourtInput.getValue(),
         // Do offence last because it navigates away
         offence = offenceExtractor(offenceLink),

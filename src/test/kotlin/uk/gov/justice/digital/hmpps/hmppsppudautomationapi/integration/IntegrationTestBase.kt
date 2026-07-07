@@ -20,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.config.TestConfig
@@ -89,7 +90,7 @@ abstract class IntegrationTestBase {
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
       establishment: String = PPUD_VALID_ESTABLISHMENT,
-      sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
+      sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
     ): String = """
       {
         "address" : $address,
@@ -159,7 +160,7 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-      sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
+      sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
     ) = """
         {
           "custodyType":"$custodyType",

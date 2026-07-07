@@ -2,11 +2,12 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.espPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentenceLength
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomYesOrNo
 import java.time.LocalDate
 
 fun createOrUpdateSentenceRequest(
@@ -21,7 +22,7 @@ fun createOrUpdateSentenceRequest(
   sentenceExpiryDate: LocalDate? = randomDate(),
   sentencingCourt: String = randomString(),
   sentencedUnder: String? = randomString(),
-  sentencedAsYouth: String? = randomYesOrNo(),
+  sentencedAsYouth: SentencedAsYouth? = randomEnum(),
 ) = CreateOrUpdateSentenceRequest(
   custodyType,
   dateOfSentence,

@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -64,7 +65,7 @@ const val PPUD_VALID_RELEASED_UNDER_2 = "CJA 2008"
 
 const val PPUD_VALID_SENTENCED_UNDER = PPUD_VALID_RELEASED_UNDER
 
-const val PPUD_VALID_SENTENCED_AS_YOUTH = "No"
+val PPUD_VALID_SENTENCED_AS_YOUTH = SentencedAsYouth.No
 
 const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test Admin"
 
@@ -164,8 +165,6 @@ fun randomPrisonNumber(): String {
   return number
 }
 
-fun randomYesOrNo(): String = if (Random.nextBoolean()) "Yes" else "No"
-
 fun randomDate(): LocalDate = LocalDate.parse("2005-01-01").minusDays(Random.nextLong(SIXTY_YEARS_IN_DAYS))
 
 fun randomDateTime(): LocalDateTime {
@@ -235,7 +234,7 @@ fun generateCreateOffenderRequest(
   indexOffence: String = randomString("indexOffence"),
   mappaLevel: String = randomString("mappaLevel"),
   prisonNumber: String = randomPrisonNumber(),
-  sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
+  sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
 ): CreateOffenderRequest = CreateOffenderRequest(
   address = generateOffenderAddress(),
   croNumber = randomCroNumber(),

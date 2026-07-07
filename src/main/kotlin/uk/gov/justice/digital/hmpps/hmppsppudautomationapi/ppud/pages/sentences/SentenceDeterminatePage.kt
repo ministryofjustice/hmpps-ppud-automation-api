@@ -60,7 +60,7 @@ internal class SentenceDeterminatePage(
       enterInteger(sentenceLengthPartMonthsInput, request.sentenceLength?.partMonths)
       enterInteger(sentenceLengthPartDaysInput, request.sentenceLength?.partDays)
       if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
-        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
+        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth?.name, "Sentenced as Youth")
       }
     }
 
@@ -92,7 +92,6 @@ internal class SentenceDeterminatePage(
         mappaLevel = readSelectedOption(mappaLevelDropdown),
         releaseDate = readDateOrNull(releaseDateInput),
         sentencedUnder = readSelectedOption(sentencedUnderDropdown),
-        sentencedAsYouth = if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) readSelectedOption(sentencedAsYouthDropdown) else null,
         sentenceExpiryDate = readDateOrNull(sentenceExpiryDateInput),
         sentenceLength = SentenceLength(
           partYears = readIntegerOrDefault(sentenceLengthPartYearsInput, 0),

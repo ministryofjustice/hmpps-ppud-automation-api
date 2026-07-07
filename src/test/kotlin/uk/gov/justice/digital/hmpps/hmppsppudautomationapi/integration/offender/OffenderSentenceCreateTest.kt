@@ -189,7 +189,6 @@ class OffenderSentenceCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[1].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL_2)
       .jsonPath("offender.sentences[1].releaseDate").isEqualTo(releaseDate)
       .jsonPath("offender.sentences[1].sentencedUnder").isEqualTo(sentencedUnder)
-      .jsonPath("offender.sentences[1].sentencedAsYouth").isEqualTo(sentencedAsYouth)
       .jsonPath("offender.sentences[1].sentenceExpiryDate").isEqualTo(sentenceExpiryDate)
       .jsonPath("offender.sentences[1].sentenceLength.partYears").isEqualTo(sentenceLengthPartYears)
       .jsonPath("offender.sentences[1].sentenceLength.partMonths").isEqualTo(sentenceLengthPartMonths)

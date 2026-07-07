@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import java.time.LocalDate
 
 class CreateOffenderRequest(
@@ -20,7 +21,7 @@ class CreateOffenderRequest(
   nomsId: String? = null,
   val prisonNumber: String,
   val establishment: String,
-  val sentencedAsYouth: String? = null,
+  val sentencedAsYouth: SentencedAsYouth? = null,
 ) {
   val croNumber: String = croNumber ?: ""
   val nomsId: String = nomsId ?: ""

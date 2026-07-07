@@ -22,7 +22,6 @@ data class Sentence(
   val sentenceExpiryDate: LocalDate? = null,
   val tariffExpiryDate: LocalDate? = null,
   val sentencedUnder: String? = null,
-  val sentencedAsYouth: String? = null,
   val sentenceLength: SentenceLength? = null,
   val sentencingCourt: String,
 )

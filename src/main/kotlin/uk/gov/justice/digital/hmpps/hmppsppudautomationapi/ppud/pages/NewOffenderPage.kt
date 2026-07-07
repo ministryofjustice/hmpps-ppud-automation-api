@@ -170,7 +170,7 @@ internal class NewOffenderPage(
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
     if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
-      pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth, "Sentenced as Youth")
+      pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth?.name, "Sentenced as Youth")
     }
 
     // See comments further up regarding these three fields
