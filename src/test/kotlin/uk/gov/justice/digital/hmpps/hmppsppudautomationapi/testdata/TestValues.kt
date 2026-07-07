@@ -235,7 +235,7 @@ fun generateCreateOffenderRequest(
   indexOffence: String = randomString("indexOffence"),
   mappaLevel: String = randomString("mappaLevel"),
   prisonNumber: String = randomPrisonNumber(),
-  sentencedAsYouth: String? = null,
+  sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
 ): CreateOffenderRequest = CreateOffenderRequest(
   address = generateOffenderAddress(),
   croNumber = randomCroNumber(),
@@ -344,7 +344,7 @@ fun generateCreateOrUpdateSentenceRequest(
   sentenceLength = null,
   sentencingCourt = sentencingCourt,
   sentencedUnder = sentencedUnder,
-  sentencedAsYouth = null,
+  sentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
 )
 
 /**

@@ -159,7 +159,7 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-      sentencedAsYouth: String? = null,
+      sentencedAsYouth: String = PPUD_VALID_SENTENCED_AS_YOUTH,
     ) = """
         {
           "custodyType":"$custodyType",
@@ -182,8 +182,8 @@ abstract class IntegrationTestBase {
             "partDays":"$sentenceLengthPartDays"
           },
           "sentencingCourt":"$sentencingCourt",
-          "sentencedUnder":"$sentencedUnder"
-          ${if (sentencedAsYouth != null) ""","sentencedAsYouth":"$sentencedAsYouth"""" else ""}
+          "sentencedUnder":"$sentencedUnder",
+          "sentencedAsYouth":"$sentencedAsYouth"
         }
     """.trimIndent()
 
