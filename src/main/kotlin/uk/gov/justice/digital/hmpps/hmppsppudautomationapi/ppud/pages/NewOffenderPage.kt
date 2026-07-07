@@ -13,6 +13,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
 
@@ -21,6 +23,7 @@ internal class NewOffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val youngOffenderCalculator: YoungOffenderCalculator,
+  private val featureFlagService: FeatureFlagService,
   @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
   @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
   @Value("\${ppud.offender.status}") private val status: String,
@@ -166,7 +169,9 @@ internal class NewOffenderPage(
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
     }
-    pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth, "Sentenced as Youth")
+    if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
+      pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth, "Sentenced as Youth")
+    }
 
     // See comments further up regarding these three fields
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")

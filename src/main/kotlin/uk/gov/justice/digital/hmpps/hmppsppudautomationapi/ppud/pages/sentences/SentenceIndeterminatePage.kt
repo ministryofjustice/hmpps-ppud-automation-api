@@ -15,6 +15,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 
 @Component
 internal class SentenceIndeterminatePage(
@@ -22,6 +24,7 @@ internal class SentenceIndeterminatePage(
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
   sentenceComparator: SentenceComparator,
+  private val featureFlagService: FeatureFlagService,
 ) : BaseSentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
   // Initialize
   init {
@@ -44,7 +47,9 @@ internal class SentenceIndeterminatePage(
     with(pageHelper) {
       enterDate(dateOfSentenceInput, request.dateOfSentence)
       enterText(sentencingCourtInput, request.sentencingCourt)
-      selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
+      if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
+        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth, "Sentenced as Youth")
+      }
     }
 
     saveButton.click()
@@ -71,7 +76,7 @@ internal class SentenceIndeterminatePage(
           readTextAsIntegerOrDefault(fullPunishmentMonthsInput, 0),
           readTextAsIntegerOrDefault(fullPunishmentDaysInput, 0),
         ),
-        sentencedAsYouth = readSelectedOption(sentencedAsYouthDropdown),
+        sentencedAsYouth = if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) readSelectedOption(sentencedAsYouthDropdown) else null,
         sentencingCourt = sentencingCourtInput.getValue(),
         // Do offence last because it navigates away
         offence = offenceExtractor(offenceLink),
