@@ -1,17 +1,23 @@
+ARG BASE_IMAGE=ghcr.io/ministryofjustice/hmpps-eclipse-temurin:21-jre-jammy
 FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk-jammy AS builder
 
+# BUILD_NUMBER is provided as a build argument by the build pipeline
 ARG BUILD_NUMBER
-ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
 
 WORKDIR /app
 ADD . .
 RUN ./gradlew --no-daemon assemble
 
-FROM eclipse-temurin:21-jre-jammy
-LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
+FROM ${BASE_IMAGE}
 
+# BUILD_NUMBER is provided as a build argument by the build pipeline
 ARG BUILD_NUMBER
-ENV BUILD_NUMBER ${BUILD_NUMBER:-1_0_0}
+ENV BUILD_NUMBER=${BUILD_NUMBER:-1_0_0}
+
+# the base image changes the user as its last command, but we need
+# root access for the commands below. we switch it back at the end
+USER root
 
 RUN apt-get update -yq  && \
     apt-get install -yq software-properties-common && \
@@ -20,13 +26,7 @@ RUN apt-get update -yq  && \
     apt-get -y upgrade && \
     apt-get install -y firefox-esr && \
     rm -rf /var/lib/apt/lists/*
-ENV AUTOMATION_FIREFOX_BINARY /usr/bin/firefox-esr
-
-ENV TZ=Europe/London
-RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
-
-RUN addgroup --gid 2000 --system appgroup && \
-    adduser --uid 2000 --system appuser --gid 2000
+ENV AUTOMATION_FIREFOX_BINARY=/usr/bin/firefox-esr
 
 WORKDIR /app
 COPY --from=builder --chown=appuser:appgroup /app/build/libs/hmpps-ppud-automation-api*.jar /app/app.jar
