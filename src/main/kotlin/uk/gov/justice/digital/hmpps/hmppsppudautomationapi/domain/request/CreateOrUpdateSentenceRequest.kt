@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request
 
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.EspPeriod
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import java.time.LocalDate
 
 // TODO split this up between create and update requests
@@ -17,4 +18,5 @@ data class CreateOrUpdateSentenceRequest(
   val sentenceExpiryDate: LocalDate?,
   val sentencingCourt: String = "",
   val sentencedUnder: String?,
+  val sentencedAsYouth: SentencedAsYouth?,
 )

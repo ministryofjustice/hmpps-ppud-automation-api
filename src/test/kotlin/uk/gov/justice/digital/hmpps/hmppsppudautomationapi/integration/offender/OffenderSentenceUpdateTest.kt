@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_D
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDETERMINATE_CUSTODY_TYPE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL_2
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_UNDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
@@ -90,7 +91,8 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
           "custodyType":"$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "mappaLevel":"$PPUD_VALID_MAPPA_LEVEL",
-          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER"
+          "sentencedUnder":"$PPUD_VALID_SENTENCED_UNDER",
+          "sentencedAsYouth":"$PPUD_VALID_SENTENCED_AS_YOUTH"
         }
       """.trimIndent()
 
@@ -110,7 +112,8 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
           "custodyType":"$PPUD_VALID_INDETERMINATE_CUSTODY_TYPE",
           "dateOfSentence":"${randomDate()}",
           "releaseDate":"${randomDate()}",
-          "sentencingCourt":"${randomString()}"
+          "sentencingCourt":"${randomString()}",
+          "sentencedAsYouth":"$PPUD_VALID_SENTENCED_AS_YOUTH"
         }
       """.trimIndent()
 
@@ -157,6 +160,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
     val licenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentencingCourt = randomString("sentCourt")
     val sentencedUnder = PPUD_VALID_SENTENCED_UNDER
+    val sentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH
     val releaseDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceExpiryDate = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val sentenceLengthPartYears = Random.nextInt(0, 1000)
@@ -175,6 +179,7 @@ class OffenderSentenceUpdateTest : IntegrationTestBase() {
       sentenceExpiryDate = sentenceExpiryDate,
       sentencingCourt = sentencingCourt,
       sentencedUnder = sentencedUnder,
+      sentencedAsYouth = sentencedAsYouth,
       sentenceLengthPartYears = sentenceLengthPartYears,
       sentenceLengthPartMonths = sentenceLengthPartMonths,
       sentenceLengthPartDays = sentenceLengthPartDays,

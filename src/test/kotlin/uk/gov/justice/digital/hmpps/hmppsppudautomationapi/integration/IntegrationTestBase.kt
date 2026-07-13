@@ -20,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.helpers.ValueConsumer
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.integration.config.TestConfig
@@ -34,6 +35,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_P
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_PROBATION_SERVICE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_FROM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_RELEASED_UNDER
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_FULL_NAME
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_USER_TEAM
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
@@ -88,7 +90,8 @@ abstract class IntegrationTestBase {
       nomsId: String = "",
       prisonNumber: String = randomPrisonNumber(),
       establishment: String = PPUD_VALID_ESTABLISHMENT,
-    ): String = """  
+      sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
+    ): String = """
       {
         "address" : $address,
         "additionalAddresses" : [$additionalAddresses],
@@ -105,7 +108,8 @@ abstract class IntegrationTestBase {
         "mappaLevel" : "$mappaLevel",
         "nomsId" : "$nomsId",
         "prisonNumber" : "$prisonNumber",
-        "establishment" : "$establishment"
+        "establishment" : "$establishment",
+        "sentencedAsYouth" : "$sentencedAsYouth"
       }
     """.trimIndent()
 
@@ -156,7 +160,8 @@ abstract class IntegrationTestBase {
       sentenceLengthPartDays: Int = Random.nextInt(0, 20),
       sentencingCourt: String = randomString("sentCourt"),
       sentencedUnder: String = randomString(),
-    ) = """ 
+      sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
+    ) = """
         {
           "custodyType":"$custodyType",
           "dateOfSentence":"$dateOfSentence",
@@ -178,7 +183,8 @@ abstract class IntegrationTestBase {
             "partDays":"$sentenceLengthPartDays"
           },
           "sentencingCourt":"$sentencingCourt",
-          "sentencedUnder":"$sentencedUnder"
+          "sentencedUnder":"$sentencedUnder",
+          "sentencedAsYouth":"$sentencedAsYouth"
         }
     """.trimIndent()
 

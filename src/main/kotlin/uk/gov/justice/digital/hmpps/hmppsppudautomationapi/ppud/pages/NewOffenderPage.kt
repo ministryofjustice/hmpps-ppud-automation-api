@@ -13,6 +13,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.util.YoungOffenderCalculator
 import java.time.Duration
 
@@ -21,6 +23,7 @@ internal class NewOffenderPage(
   private val driver: WebDriver,
   private val pageHelper: PageHelper,
   private val youngOffenderCalculator: YoungOffenderCalculator,
+  private val featureFlagService: FeatureFlagService,
   @param:Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
   @param:Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
   @param:Value("\${ppud.offender.status}") private val status: String,
@@ -110,6 +113,9 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddliYOUNG_OFFENDER")
   private lateinit var youngOffenderDropdown: WebElement
 
+  @FindBy(id = "content_ddliSENTENCED_AS_YOUTH")
+  private lateinit var sentencedAsYouthDropdown: WebElement
+
   @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoCompleteTextBox")
   private lateinit var currentEstablishmentInput: WebElement
 
@@ -162,6 +168,9 @@ internal class NewOffenderPage(
     pageHelper.selectCheckboxValue(ualCheckbox, createOffenderRequest.isInCustody.not())
     if (youngOffenderCalculator.isYoungOffender(createOffenderRequest.dateOfBirth)) {
       pageHelper.selectDropdownOptionIfNotBlank(youngOffenderDropdown, youngOffenderYes, "young offender")
+    }
+    if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
+      pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth?.name, "Sentenced as Youth")
     }
 
     // See comments further up regarding these three fields

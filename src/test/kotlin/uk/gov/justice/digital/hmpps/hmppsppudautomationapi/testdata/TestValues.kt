@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentenceLength
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SentencedAsYouth
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.Recall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.AddMinuteRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
@@ -63,6 +64,8 @@ const val PPUD_VALID_RELEASED_UNDER = "CJA 1991"
 const val PPUD_VALID_RELEASED_UNDER_2 = "CJA 2008"
 
 const val PPUD_VALID_SENTENCED_UNDER = PPUD_VALID_RELEASED_UNDER
+
+val PPUD_VALID_SENTENCED_AS_YOUTH = SentencedAsYouth.No
 
 const val PPUD_VALID_USER_FULL_NAME = "Consider a Recall Test Admin"
 
@@ -231,6 +234,7 @@ fun generateCreateOffenderRequest(
   indexOffence: String = randomString("indexOffence"),
   mappaLevel: String = randomString("mappaLevel"),
   prisonNumber: String = randomPrisonNumber(),
+  sentencedAsYouth: SentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
 ): CreateOffenderRequest = CreateOffenderRequest(
   address = generateOffenderAddress(),
   croNumber = randomCroNumber(),
@@ -247,6 +251,7 @@ fun generateCreateOffenderRequest(
   nomsId = randomNomsId(),
   prisonNumber = prisonNumber,
   establishment = randomString("establishment"),
+  sentencedAsYouth = sentencedAsYouth,
 )
 
 /**
@@ -338,6 +343,7 @@ fun generateCreateOrUpdateSentenceRequest(
   sentenceLength = null,
   sentencingCourt = sentencingCourt,
   sentencedUnder = sentencedUnder,
+  sentencedAsYouth = PPUD_VALID_SENTENCED_AS_YOUTH,
 )
 
 /**
