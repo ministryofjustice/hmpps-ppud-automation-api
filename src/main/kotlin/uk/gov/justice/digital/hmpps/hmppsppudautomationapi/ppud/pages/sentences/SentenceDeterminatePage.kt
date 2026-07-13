@@ -15,6 +15,8 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.Create
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.helpers.PageHelper.Companion.getValue
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlag
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.service.featureFlag.FeatureFlagService
 
 @Component
 internal class SentenceDeterminatePage(
@@ -22,6 +24,7 @@ internal class SentenceDeterminatePage(
   pageHelper: PageHelper,
   navigationTreeViewComponent: NavigationTreeViewComponent,
   sentenceComparator: SentenceComparator,
+  private val featureFlagService: FeatureFlagService,
 ) : BaseSentencePage(driver, pageHelper, navigationTreeViewComponent, sentenceComparator) {
   // Initialize
   init {
@@ -56,6 +59,9 @@ internal class SentenceDeterminatePage(
       enterInteger(sentenceLengthPartYearsInput, request.sentenceLength?.partYears)
       enterInteger(sentenceLengthPartMonthsInput, request.sentenceLength?.partMonths)
       enterInteger(sentenceLengthPartDaysInput, request.sentenceLength?.partDays)
+      if (featureFlagService.enabled(FeatureFlag.SENTENCED_AS_YOUTH.flagId)) {
+        selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, request.sentencedAsYouth?.name, "Sentenced as Youth")
+      }
     }
 
     saveButton.click()
@@ -147,4 +153,7 @@ internal class SentenceDeterminatePage(
 
   @FindBy(id = "cntDetails_txtSENTENCING_COURT")
   private lateinit var sentencingCourtInput: WebElement
+
+  @FindBy(id = "cntDetails_ddliSENTENCED_AS_YOUTH")
+  private lateinit var sentencedAsYouthDropdown: WebElement
 }
