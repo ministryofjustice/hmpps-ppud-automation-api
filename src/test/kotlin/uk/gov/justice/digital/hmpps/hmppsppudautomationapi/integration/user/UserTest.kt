@@ -51,7 +51,7 @@ class UserTest : IntegrationTestBase() {
     assert(valuesExtractor.value != null)
     assert(valuesExtractor.value!!.isNotEmpty())
     // This is a user we already expect to exist, as we need it for other testing, so should be safe to use here
-    assertNotNull(valuesExtractor.value!!.find { it.get("fullName") == "Consider a Recall Test" })
+    assertNotNull(valuesExtractor.value!!.find { it["fullName"] == "Consider a Recall Test" })
   }
 
   @Test

@@ -12,13 +12,13 @@ import org.mockito.kotlin.then
 import org.mockito.kotlin.times
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.cache.interceptor.SimpleKey
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
@@ -44,7 +44,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 @ContextConfiguration
 class ReferenceServiceTest {
 
-  @MockBean
+  @MockitoBean
   private lateinit var ppudClient: ReferenceDataPpudClient
 
   @Autowired

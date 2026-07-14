@@ -29,18 +29,18 @@ import java.util.concurrent.TimeoutException
 
 @Configuration
 class WebClientConfiguration(
-  @Value("\${ppud.url}") private val ppudUrl: String,
-  @Value("\${ppud.health.timeout}") private val ppudHealthTimeout: Long,
-  @Value("\${document-management.api.url}") private val documentManagementApiRootUri: String,
-  @Value("\${document-management.client.timeout}") private val documentManagementTimeout: Long,
-  @Value("\${document-management.health.timeout}") private val documentManagementHealthTimeout: Long,
-  @Value("\${document-management.client.headers.serviceName}") private val documentManagementHeaderServiceName: String,
+  @param:Value("\${ppud.url}") private val ppudUrl: String,
+  @param:Value("\${ppud.health.timeout}") private val ppudHealthTimeout: Long,
+  @param:Value("\${document-management.api.url}") private val documentManagementApiRootUri: String,
+  @param:Value("\${document-management.client.timeout}") private val documentManagementTimeout: Long,
+  @param:Value("\${document-management.health.timeout}") private val documentManagementHealthTimeout: Long,
+  @param:Value("\${document-management.client.headers.serviceName}") private val documentManagementHeaderServiceName: String,
 ) {
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    fun <T> Mono<T>.withRetry(): Mono<T> = this
+    fun <T : Any> Mono<T>.withRetry(): Mono<T> = this
       .retryWhen(
         Retry.backoff(2, Duration.ofMillis(500))
           .filter(::shouldBeRetried)

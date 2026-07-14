@@ -22,7 +22,7 @@ internal class ReferenceDataPpudClient(
   errorPage: ErrorPage,
   loginPage: LoginPage,
   searchPage: SearchPage,
-  @Value("\${ppud.reference.valueToExclude}") private val valueToExclude: String,
+  @param:Value("\${ppud.reference.valueToExclude}") private val valueToExclude: String,
   private val adminPage: AdminPage,
   private val editLookupsPage: EditLookupsPage,
 ) : PpudClientBase(

@@ -38,7 +38,7 @@ internal class EditLookupsPage(driver: WebDriver, private val featureFlagService
   @FindBy(id = "content_grdAddressLov")
   private lateinit var lookupsGridAddressLov: WebElement
 
-  private lateinit var configMap: Map<LookupName, LookupConfig>
+  private var configMap: Map<LookupName, LookupConfig>
 
   private data class LookupConfig(
     val dropdownText: String,
