@@ -36,14 +36,14 @@ internal class OffenderPage(
   private val dateFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
   private val youngOffenderCalculator: YoungOffenderCalculator,
-  @Value("\${ppud.url}") private val ppudUrl: String,
-  @Value("\${ppud.offender.caseworker.inCustody}") private val caseworkerInCustody: String,
-  @Value("\${ppud.offender.caseworker.ual}") private val caseworkerUal: String,
-  @Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
-  @Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
-  @Value("\${ppud.offender.status}") private val status: String,
-  @Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
-  @Value("\${ppud.offender.youngOffenderNo}") private val youngOffenderNo: String,
+  @param:Value("\${ppud.url}") private val ppudUrl: String,
+  @param:Value("\${ppud.offender.caseworker.inCustody}") private val caseworkerInCustody: String,
+  @param:Value("\${ppud.offender.caseworker.ual}") private val caseworkerUal: String,
+  @param:Value("\${ppud.offender.immigrationStatus}") private val immigrationStatus: String,
+  @param:Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
+  @param:Value("\${ppud.offender.status}") private val status: String,
+  @param:Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
+  @param:Value("\${ppud.offender.youngOffenderNo}") private val youngOffenderNo: String,
 ) {
 
   companion object {

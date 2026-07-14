@@ -38,11 +38,11 @@ internal class RecallPage(
   private val dateFormatter: DateTimeFormatter,
   private val dateTimeFormatter: DateTimeFormatter,
   private val contentCreator: ContentCreator,
-  @Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
-  @Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
-  @Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
-  @Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
-  @Value("\${ppud.recall.documentType.email}") private val documentTypeEmail: String,
+  @param:Value("\${ppud.recall.revocationIssuedByOwner}") private val revocationIssuedByOwner: String,
+  @param:Value("\${ppud.recall.returnToCustodyNotificationMethod}") private val returnToCustodyNotificationMethod: String,
+  @param:Value("\${ppud.recall.nextUalCheckMonths}") private val nextUalCheckMonths: Long,
+  @param:Value("\${ppud.recall.documentType.document}") private val documentTypeDocument: String,
+  @param:Value("\${ppud.recall.documentType.email}") private val documentTypeEmail: String,
 ) {
   companion object {
     const val MINUTES_TEXT = "Minutes"

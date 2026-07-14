@@ -7,6 +7,6 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Component("ppud")
 class PpudHealth(
-  @Qualifier(value = "ppudHealthCheckWebClient") private val webClient: WebClient,
-  @Value("\${ppud.health.path}") private val path: String,
+  @param:Qualifier(value = "ppudHealthCheckWebClient") private val webClient: WebClient,
+  @param:Value("\${ppud.health.path}") private val path: String,
 ) : PingHealthCheck(webClient, path)

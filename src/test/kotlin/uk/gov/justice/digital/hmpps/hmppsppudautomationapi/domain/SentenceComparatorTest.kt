@@ -79,8 +79,8 @@ internal class SentenceComparatorTest {
       sentenceExpiryDate = existing.sentenceExpiryDate,
       sentenceLength = SentenceLength(
         existing.sentenceLength!!.partYears,
-        existing.sentenceLength!!.partMonths,
-        existing.sentenceLength!!.partDays,
+        existing.sentenceLength.partMonths,
+        existing.sentenceLength.partDays,
       ),
       sentencingCourt = existing.sentencingCourt,
       sentencedUnder = existing.sentencedUnder!!,
@@ -173,12 +173,12 @@ internal class SentenceComparatorTest {
         partMonths = differsOrTheSame(
           keyDeterminateFieldToBeDifferent,
           "sentenceLength.partMonths",
-          existing.sentenceLength!!.partMonths,
+          existing.sentenceLength.partMonths,
         ),
         partDays = differsOrTheSame(
           keyDeterminateFieldToBeDifferent,
           "sentenceLength.partDays",
-          existing.sentenceLength!!.partDays,
+          existing.sentenceLength.partDays,
         ),
       ),
       sentencingCourt = differsOrTheSame(keyDeterminateFieldToBeDifferent, "sentencingCourt", existing.sentencingCourt),

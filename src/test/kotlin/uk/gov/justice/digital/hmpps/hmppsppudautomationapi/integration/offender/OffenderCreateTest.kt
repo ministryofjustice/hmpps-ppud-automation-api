@@ -26,9 +26,11 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_E
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_GENDER
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_INDEX_OFFENCE
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_MAPPA_LEVEL
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_VALID_SENTENCED_AS_YOUTH
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_NO
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.PPUD_YOUNG_OFFENDER_YES
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.ppudKnownExistingOffender
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomBoolean
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomCroNumber
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomDate
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomNomsId
@@ -116,9 +118,11 @@ class OffenderCreateTest : IntegrationTestBase() {
           "firstNames" : "${randomString("firstNames")}",
           "gender" : "$PPUD_VALID_GENDER",
           "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
+          "isInCustody" : "${randomBoolean()}",
           "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
           "prisonNumber" : "${randomPrisonNumber()}",
-          "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT",
+          "sentencedAsYouth" : "$PPUD_VALID_SENTENCED_AS_YOUTH"
         }
       """.trimIndent()
 
@@ -148,10 +152,12 @@ class OffenderCreateTest : IntegrationTestBase() {
         "firstNames" : "${randomString("firstNames")}",
         "gender" : "$PPUD_VALID_GENDER",
         "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
+        "isInCustody" : "${randomBoolean()}",
         "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
         "nomsId" : null,
         "prisonNumber" : "${randomPrisonNumber()}",
-        "establishment" : "$PPUD_VALID_ESTABLISHMENT"
+        "establishment" : "$PPUD_VALID_ESTABLISHMENT",
+        "sentencedAsYouth" : "$PPUD_VALID_SENTENCED_AS_YOUTH"
       }
       """.trimIndent()
 

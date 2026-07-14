@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 data class RecallConfig(
-  @Value("\${ppud.recall.recallType.determinate}") val determinateRecallType: String,
-  @Value("\${ppud.recall.recallType.indeterminate}") val indeterminateRecallType: String,
+  @param:Value("\${ppud.recall.recallType.determinate}") val determinateRecallType: String,
+  @param:Value("\${ppud.recall.recallType.indeterminate}") val indeterminateRecallType: String,
 )

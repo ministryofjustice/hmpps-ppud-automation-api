@@ -16,6 +16,8 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.then
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
+import org.openqa.selenium.WebDriver.Options
+import org.openqa.selenium.WebDriver.Window
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.LookupName
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.AdminPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.EditLookupsPage
@@ -33,6 +35,12 @@ class ReferenceDataPpudClientTest {
 
   @Mock
   private lateinit var webDriverNavigation: Navigation
+
+  @Mock
+  private lateinit var webDriverOptions: Options
+
+  @Mock
+  private lateinit var webDriverWindow: Window
 
   @Mock
   private lateinit var loginPage: LoginPage
@@ -87,6 +95,8 @@ class ReferenceDataPpudClientTest {
     )
 
     given(driver.navigate()).willReturn(webDriverNavigation)
+    given(driver.manage()).willReturn(webDriverOptions)
+    given(webDriverOptions.window()).willReturn(webDriverWindow)
   }
 
   @Test

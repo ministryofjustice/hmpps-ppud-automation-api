@@ -25,7 +25,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class DocumentManagementClientTest(
-  @Value("\${document-management.client.timeout}") private val timeout: Long,
+  @param:Value("\${document-management.client.timeout}") private val timeout: Long,
 ) : IntegrationTestBase() {
 
   @Autowired
@@ -54,7 +54,7 @@ class DocumentManagementClientTest(
       documentManagementClient.retrieveDocument(documentId)
     }
     assertTrue(
-      exception.message?.startsWith("500 Internal Server Error") == true,
+      exception.message.startsWith("500 Internal Server Error"),
       "Exception message was '${exception.message}'",
     )
   }
