@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.7"
   kotlin("plugin.spring") version "2.3.21"
 }
 
@@ -40,6 +40,21 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
+  }
+
+  // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
+  implementation("org.apache.tomcat.embed:tomcat-embed-websocket") {
+    version {
+      strictly("11.0.24")
+    }
+    because("Address CVE-2026-59084 - can be removed once uk.gov.justice.hmpps.gradle-spring-boot to 11.0.x ")
+  }
+  // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
+  implementation("org.apache.tomcat.embed:tomcat-embed-core") {
+    version {
+      strictly("11.0.24")
+    }
+    because("Address CVE-2026-59084 - can be removed once uk.gov.justice.hmpps.gradle-spring-boot to 11.0.x ")
   }
 
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
