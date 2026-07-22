@@ -1,6 +1,6 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.7"
-  kotlin("plugin.spring") version "2.3.21"
+  kotlin("plugin.spring") version "2.4.10"
 }
 
 configurations {
@@ -20,9 +20,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.springframework.boot:spring-boot-jackson2")
 
-  implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.46.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
-  implementation("io.flipt:flipt-client-java:1.3.1")
+  implementation("io.flipt:flipt-client-java:1.3.3")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -39,7 +39,7 @@ dependencies {
   // the springdoc dependency for now
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
+    implementation("org.webjars:swagger-ui:5.32.11")
   }
 
   // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
