@@ -66,6 +66,7 @@ jobs:
       environment: 'dev'
       app_version: '${{ needs.build.outputs.app_version }}'
       helm_timeout: '5m'
+      slack_notification: 'true'
   deploy_preprod:
     name: Deploy to the preprod environment
     needs:
