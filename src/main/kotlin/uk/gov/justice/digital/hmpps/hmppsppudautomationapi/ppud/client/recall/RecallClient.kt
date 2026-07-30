@@ -4,14 +4,9 @@ import org.openqa.selenium.WebDriver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.recall.RecallConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateRecallRequest
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.release.ReleaseClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.SentenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
@@ -24,19 +19,10 @@ internal class RecallClient {
   private lateinit var ppudClientConfig: PpudClientConfig
 
   @Autowired
-  private lateinit var recallConfig: RecallConfig
-
-  @Autowired
   private lateinit var recallPage: RecallPage
 
   @Autowired
   private lateinit var offenderPage: OffenderPage
-
-  @Autowired
-  private lateinit var sentenceClient: SentenceClient
-
-  @Autowired
-  private lateinit var releaseClient: ReleaseClient
 
   @Autowired
   private lateinit var navigationTreeViewComponent: NavigationTreeViewComponent
@@ -58,9 +44,8 @@ internal class RecallClient {
     // a re-attempt has been triggered (i.e. we're matching on the Recall created by CaR in a
     // previous attempt)
     if (foundMatch.not()) {
-      val recallType = calculateRecallType(releaseId)
       navigationTreeViewComponent.navigateToNewRecallFor(releaseId)
-      recallPage.createRecall(recallRequest, recallType)
+      recallPage.createRecall(recallRequest, recallRequest.recallTypeForPpud)
       recallPage.throwIfInvalid()
       recallPage.addContrabandMinuteIfNeeded(recallRequest)
 
@@ -70,18 +55,6 @@ internal class RecallClient {
     }
 
     return recallPage.extractCreatedRecallDetails()
-  }
-
-  private fun calculateRecallType(releaseId: String): String {
-    val sentenceId = releaseClient.getSentenceIdForRelease(releaseId)
-    val sentence = sentenceClient.getSentence(sentenceId)
-    val custodyType = try {
-      SupportedCustodyType.forFullName(sentence.custodyType)
-    } catch (ex: NoSuchElementException) {
-      throw UnsupportedCustodyTypeException("Sentence $sentenceId has an unsupported custody type: ${sentence.custodyType}")
-    }
-    val recallType = custodyType.recallType.getFullName(recallConfig)
-    return recallType
   }
 
   private fun navigateToMatchingRecall(

@@ -16,6 +16,7 @@ fun createRecallRequest(
   probationArea: String = randomString(),
   receivedDateTime: LocalDateTime = randomDateTime(),
   recommendedTo: PpudUser = generatePpudUser(),
+  recallTypeForPpud: String = randomString(),
   riskOfContrabandDetails: String? = randomString(),
 ): CreateRecallRequest = CreateRecallRequest(
   decisionDateTime,
@@ -26,5 +27,6 @@ fun createRecallRequest(
   probationArea,
   receivedDateTime,
   recommendedTo,
+  recallTypeForPpud,
   riskOfContrabandDetails,
 )

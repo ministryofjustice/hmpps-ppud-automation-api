@@ -10,7 +10,6 @@ import org.mockito.Mock
 import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.never
@@ -19,23 +18,13 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebDriver.Navigation
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.PpudClientConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.client.ppudClientConfig
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.recall.RecallConfig
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config.recall.recallConfig
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.PpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SupportedCustodyType
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.sentence
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.CreatedRecall
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.DETERMINATE_RECALL
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.recall.SupportedRecallType.INDETERMINATE_RECALL
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.UnsupportedCustodyTypeException
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.release.ReleaseClient
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.client.sentence.SentenceClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.OffenderPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.RecallPage
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.ppud.pages.components.NavigationTreeViewComponent
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generateCreateRecallRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.generatePpudUser
-import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomEnum
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomPpudId
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.testdata.randomString
 import java.time.LocalDateTime
@@ -48,9 +37,6 @@ internal class RecallClientTest {
 
   @Spy
   private val ppudClientConfig: PpudClientConfig = ppudClientConfig()
-
-  @Spy
-  private val recallConfig: RecallConfig = recallConfig()
 
   @Mock
   private lateinit var recallPage: RecallPage
@@ -66,18 +52,6 @@ internal class RecallClientTest {
 
   @Mock
   private lateinit var webDriverNavigation: Navigation
-
-  @Mock
-  private lateinit var releaseClient: ReleaseClient
-
-  @Mock
-  private lateinit var sentenceClient: SentenceClient
-
-  private val custodyTypesWithDeterminateRecallType =
-    enumValues<SupportedCustodyType>().filter { it.recallType === DETERMINATE_RECALL }
-
-  private val custodyTypesWithIndeterminateRecallType =
-    enumValues<SupportedCustodyType>().filter { it.recallType === INDETERMINATE_RECALL }
 
   @Test
   fun `returns ID of matching Recall if one found instead of creating new Recall`() {
@@ -117,28 +91,24 @@ internal class RecallClientTest {
       then(recallPage).should(never()).createRecall(any(), any())
       then(recallPage).should(never()).addContrabandMinuteIfNeeded(createRecallRequest)
       then(recallPage).should().extractCreatedRecallDetails()
-      then(releaseClient).shouldHaveNoInteractions()
     }
   }
 
   @Test
-  fun `creates new determinate Recall if no matching one found`() {
+  fun `creates new Recall with "To be determined" recall type`() {
     runBlocking {
-      val custodyType = randomEnum<SupportedCustodyType>(exclude = custodyTypesWithIndeterminateRecallType)
-      testCreateRecall(custodyType, recallConfig.determinateRecallType)
+      testCreateRecall("To be determined")
     }
   }
 
   @Test
-  fun `creates new indeterminate Recall if no matching one found`() {
+  fun `creates new Recall with "Emergency to be determined" recall type`() {
     runBlocking {
-      val custodyType = randomEnum<SupportedCustodyType>(exclude = custodyTypesWithDeterminateRecallType)
-      testCreateRecall(custodyType, recallConfig.indeterminateRecallType)
+      testCreateRecall("Emergency to be determined")
     }
   }
 
   private fun testCreateRecall(
-    custodyType: SupportedCustodyType,
     expectedRecallType: String,
   ): CreatedRecall {
     // given
@@ -151,12 +121,8 @@ internal class RecallClientTest {
     val createRecallRequest = generateCreateRecallRequest(
       receivedDateTime = receivedDateTime,
       recommendedTo = recommendedTo,
+      recallTypeForPpud = expectedRecallType,
     )
-
-    val sentenceId = randomString()
-    given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
-
-    given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType.fullName))
 
     val nonMatchingRecallLink = "/link/to/non-matching/recall"
     val persistedRecallLink = "/link/to/persisted/recall"
@@ -200,40 +166,14 @@ internal class RecallClientTest {
   }
 
   @Test
-  fun `throws UnsupportedCustodyTypeException if unexpected custody type encountered`() {
-    runBlocking {
-      // given
-      val offenderId = randomPpudId()
-      val releaseId = randomPpudId()
-      val createRecallRequest = generateCreateRecallRequest()
-
-      val sentenceId = randomString()
-      given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
-      val custodyType = randomString()
-      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = custodyType))
-
-      val expectedExceptionMessage = "Sentence $sentenceId has an unsupported custody type: $custodyType"
-
-      // when then
-      assertThatThrownBy { recallClient.createRecall(offenderId, releaseId, createRecallRequest) }
-        .isInstanceOf(UnsupportedCustodyTypeException::class.java)
-        .hasMessage(expectedExceptionMessage)
-    }
-  }
-
-  @Test
   fun `bubbles up exceptions raised during recall creation`() {
     runBlocking {
       // given
       val offenderId = randomPpudId()
       val releaseId = randomPpudId()
       val createRecallRequest = generateCreateRecallRequest()
-      val exceptionMessage = randomString()
-      val exception = RuntimeException(exceptionMessage)
+      val exception = RuntimeException(randomString())
 
-      val sentenceId = randomString()
-      given(releaseClient.getSentenceIdForRelease(releaseId)).willReturn(sentenceId)
-      given(sentenceClient.getSentence(sentenceId)).willReturn(sentence(custodyType = randomEnum<SupportedCustodyType>().fullName))
       given(recallPage.throwIfInvalid()).willThrow(exception)
 
       // when then
@@ -241,7 +181,7 @@ internal class RecallClientTest {
         .isSameAs(exception)
 
       val inOrder = inOrder(recallPage)
-      then(recallPage).should(inOrder).createRecall(eq(createRecallRequest), any())
+      then(recallPage).should(inOrder).createRecall(createRecallRequest, createRecallRequest.recallTypeForPpud)
       then(recallPage).should(inOrder).throwIfInvalid()
     }
   }

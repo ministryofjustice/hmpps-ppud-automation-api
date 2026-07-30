@@ -238,6 +238,7 @@ abstract class IntegrationTestBase {
       probationArea: String = PPUD_VALID_PROBATION_SERVICE,
       receivedDateTime: LocalDateTime? = decisionDateTime?.plusHours(1) ?: randomTimeToday().minusDays(1),
       recommendedTo: String? = ppudUserRequestBody(),
+      recallTypeForPpud: String = "To be determined",
       riskOfContrabandDetails: String = "",
     ): String = """
         {
@@ -249,6 +250,7 @@ abstract class IntegrationTestBase {
           "probationArea":"$probationArea",
           "receivedDateTime":"${receivedDateTime?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) ?: ""}",
           "recommendedTo":${recommendedTo ?: "null"},
+          "recallTypeForPpud":"$recallTypeForPpud",
           "riskOfContrabandDetails":"$riskOfContrabandDetails"
         }
     """.trimIndent()

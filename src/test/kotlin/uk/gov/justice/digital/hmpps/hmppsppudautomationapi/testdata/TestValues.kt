@@ -379,6 +379,7 @@ fun generateCreateRecallRequest(
   isInCustody: Boolean? = null,
   receivedDateTime: LocalDateTime = randomTimeToday(),
   recommendedTo: PpudUser = generatePpudUser(),
+  recallTypeForPpud: String = randomString("recallTypeForPpud"),
   riskOfContrabandDetails: String? = null,
 ): CreateRecallRequest = CreateRecallRequest(
   decisionDateTime = randomTimeToday(),
@@ -389,6 +390,7 @@ fun generateCreateRecallRequest(
   probationArea = randomString("probationArea"),
   receivedDateTime = receivedDateTime,
   recommendedTo = recommendedTo,
+  recallTypeForPpud = recallTypeForPpud,
   riskOfContrabandDetails = riskOfContrabandDetails ?: randomString("riskOfContrabandDetails"),
 )
 
