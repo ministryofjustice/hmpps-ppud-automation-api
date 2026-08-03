@@ -5,6 +5,36 @@ plugins {
 
 configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
+  testRuntimeClasspath {
+    // MockServer 5.15.0 uses json-unit-core 2.36.0 for JSON body matching.
+    // hmpps-subject-access-request-test-support pulls in json-unit-assertj:5.x which would
+    // upgrade json-unit-core to 5.x, breaking MockServer's JSON matching.
+    // Force json-unit-core back to the version MockServer was built against.
+    resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
+  }
+  // CVE version overrides - the hmpps-gradle-spring-boot plugin uses resolution rules that
+  // override BOM constraints, so we must use eachDependency to force specific versions.
+  // These can be removed once the plugin is upgraded to 11.0.x
+  all {
+    resolutionStrategy.eachDependency {
+      if (requested.group == "io.netty" && requested.name.startsWith("netty-") && !requested.name.startsWith("netty-tcnative")) {
+        useVersion("4.2.16.Final")
+        because("Address CVE-2026-44891, CVE-2026-55831, CVE-2026-55833 and other Netty CVEs")
+      }
+      if (requested.group == "org.apache.logging.log4j") {
+        useVersion("2.26.1")
+        because("Address CVE-2026-49844")
+      }
+      if (requested.group == "com.fasterxml.jackson.core" && requested.name == "jackson-databind") {
+        useVersion("2.22.1")
+        because("Address CVE-2026-54515 and CVE-2026-59889")
+      }
+      if (requested.group == "tools.jackson.core" && requested.name == "jackson-databind") {
+        useVersion("3.1.5")
+        because("Address CVE-2026-59889")
+      }
+    }
+  }
 }
 
 dependencyCheck {
