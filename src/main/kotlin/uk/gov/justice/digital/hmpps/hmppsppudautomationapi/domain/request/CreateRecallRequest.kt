@@ -18,6 +18,8 @@ class CreateRecallRequest(
   val receivedDateTime: LocalDateTime,
   @field:Valid
   val recommendedTo: PpudUser,
+  @field:NotBlank
+  val recallTypeForPpud: String,
   riskOfContrabandDetails: String? = null,
 ) {
   val riskOfContrabandDetails: String = riskOfContrabandDetails ?: ""

@@ -42,10 +42,6 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
-    private const val PPUD_EXPECTED_DETERMINATE_RECALL_TYPE = "Standard"
-
-    private const val PPUD_EXPECTED_INDETERMINATE_RECALL_TYPE = "Indeterminate Recall"
-
     private const val PPUD_EXPECTED_OWNING_TEAM = "Recall 1"
 
     private const val PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER = "EO Officer"
@@ -75,6 +71,7 @@ class OffenderRecallTest : IntegrationTestBase() {
         createRecallRequestBody(recommendedTo = ppudUserRequestBody(teamName = "")),
         errorFragment = "team",
       ),
+      MandatoryFieldTestData("recallTypeForPpud", createRecallRequestBody(recallTypeForPpud = "")),
     )
   }
 
@@ -156,7 +153,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_SERVICE)
       .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
-      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_DETERMINATE_RECALL_TYPE)
+      .jsonPath("recall.recallType").isEqualTo("Standard")
       .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
       .jsonPath("recall.recommendedToDateTime")
       .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))
@@ -190,7 +187,7 @@ class OffenderRecallTest : IntegrationTestBase() {
       .jsonPath("recall.probationArea").isEqualTo(PPUD_VALID_PROBATION_SERVICE)
       .jsonPath("recall.receivedDateTime").isEqualTo(receivedDateTime.withoutSeconds())
       .jsonPath("recall.recommendedToOwner").isEqualTo(PPUD_VALID_USER_FULL_NAME)
-      .jsonPath("recall.recallType").isEqualTo(PPUD_EXPECTED_INDETERMINATE_RECALL_TYPE)
+      .jsonPath("recall.recallType").isEqualTo("Standard")
       .jsonPath("recall.revocationIssuedByOwner").isEqualTo(PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER)
       .jsonPath("recall.recommendedToDateTime")
       .value(isSameDayAs(LocalDate.now(), "recommendedToDateTime is not today"))
