@@ -46,10 +46,10 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-    # Temporarily set when org.webjars:swagger-ui was set to 5.32.2 in build.gradle, as otherwise swagger-ui doesn't work.
+    # Temporarily set when org.webjars:swagger-ui was set to 5.32.11 in build.gradle, as otherwise swagger-ui doesn't work.
     # Seems to be used in some places to build the path from which to retrieve resources, although it isn't officially
     # documented :/. Remove whenever no longer needed
-    version: 5.32.2
+    version: 5.32.11
 
 server:
   port: 8080

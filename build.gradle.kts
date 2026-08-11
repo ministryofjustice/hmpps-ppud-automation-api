@@ -65,11 +65,13 @@ dependencies {
 
   // OpenAPI dependencies
   // Not sure if we're affected, but release notes on 10.2.1 version of hmpps-gradle-spring-boot
-  // reported some issues encountered and recommended pinning swagger-ui to 5.32.2 and not updating
+  // reported some issues encountered and recommended pinning swagger-ui to 5.32.11 and not updating
   // the springdoc dependency for now
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
+    implementation("org.webjars:swagger-ui:5.32.11") {
+      because("Address DOMPurify CVEs (CVE-2026-65898 through CVE-2026-65903 and CVE-2026-66010) - bundles DOMPurify 3.4.12")
+    }
   }
 
   // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
@@ -85,6 +87,25 @@ dependencies {
       strictly("11.0.24")
     }
     because("Address CVE-2026-59084 - can be removed once uk.gov.justice.hmpps.gradle-spring-boot to 11.0.x ")
+  }
+
+  implementation("org.apache.httpcomponents.client5:httpclient5") {
+    version {
+      strictly("5.6.2")
+    }
+    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
+  }
+  implementation("org.apache.httpcomponents.core5:httpcore5") {
+    version {
+      strictly("5.4.3")
+    }
+    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
+  }
+  implementation("org.apache.httpcomponents.core5:httpcore5-h2") {
+    version {
+      strictly("5.4.3")
+    }
+    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
   }
 
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
