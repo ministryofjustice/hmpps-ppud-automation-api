@@ -11,9 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.BDDMockito.any
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
+import org.mockito.kotlin.any
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.never
@@ -165,6 +165,7 @@ class PageHelperTest {
       .willReturn(listOf(optionElement))
       .willReturn(listOf())
     given(element.isEnabled).willReturn(true)
+    given(element.getCssValue(any())).willReturn("block")
     val option = randomString()
     val description = randomString()
     val exception = assertThrows<AutomationException> {
