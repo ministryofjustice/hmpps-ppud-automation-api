@@ -165,7 +165,9 @@ class PageHelperTest {
       .willReturn(listOf(optionElement))
       .willReturn(listOf())
     given(element.isEnabled).willReturn(true)
-    given(element.getCssValue(any())).willReturn("block")
+    given(element.getCssValue("visibility")).willReturn("visible")
+    given(element.getCssValue("display")).willReturn("block")
+    given(element.getCssValue("opacity")).willReturn("1")
     val option = randomString()
     val description = randomString()
     val exception = assertThrows<AutomationException> {
