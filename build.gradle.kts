@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.7"
-  kotlin("plugin.spring") version "2.3.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.4"
+  kotlin("plugin.spring") version "2.4.10"
 }
 
 configurations {
@@ -11,29 +11,6 @@ configurations {
     // upgrade json-unit-core to 5.x, breaking MockServer's JSON matching.
     // Force json-unit-core back to the version MockServer was built against.
     resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
-  }
-  // CVE version overrides - the hmpps-gradle-spring-boot plugin uses resolution rules that
-  // override BOM constraints, so we must use eachDependency to force specific versions.
-  // These can be removed once the plugin is upgraded to 11.0.x
-  all {
-    resolutionStrategy.eachDependency {
-      if (requested.group == "io.netty" && requested.name.startsWith("netty-") && !requested.name.startsWith("netty-tcnative")) {
-        useVersion("4.2.16.Final")
-        because("Address CVE-2026-44891, CVE-2026-55831, CVE-2026-55833 and other Netty CVEs")
-      }
-      if (requested.group == "org.apache.logging.log4j") {
-        useVersion("2.26.1")
-        because("Address CVE-2026-49844")
-      }
-      if (requested.group == "com.fasterxml.jackson.core" && requested.name == "jackson-databind") {
-        useVersion("2.22.1")
-        because("Address CVE-2026-54515 and CVE-2026-59889")
-      }
-      if (requested.group == "tools.jackson.core" && requested.name == "jackson-databind") {
-        useVersion("3.1.5")
-        because("Address CVE-2026-59889")
-      }
-    }
   }
 }
 
@@ -52,10 +29,12 @@ dependencies {
 
   implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
-  implementation("io.flipt:flipt-client-java:1.3.1")
+  implementation("io.flipt:flipt-client-java:1.3.3")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -64,48 +43,11 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
 
   // OpenAPI dependencies
-  // Not sure if we're affected, but release notes on 10.2.1 version of hmpps-gradle-spring-boot
-  // reported some issues encountered and recommended pinning swagger-ui to 5.32.11 and not updating
-  // the springdoc dependency for now
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.11") {
       because("Address DOMPurify CVEs (CVE-2026-65898 through CVE-2026-65903 and CVE-2026-66010) - bundles DOMPurify 3.4.12")
     }
-  }
-
-  // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
-  implementation("org.apache.tomcat.embed:tomcat-embed-websocket") {
-    version {
-      strictly("11.0.24")
-    }
-    because("Address CVE-2026-59084 - can be removed once uk.gov.justice.hmpps.gradle-spring-boot to 11.0.x ")
-  }
-  // hmpps-spring-boot plugin explicitly forcing the tomcat-embed-core version, so we can't override using constraints
-  implementation("org.apache.tomcat.embed:tomcat-embed-core") {
-    version {
-      strictly("11.0.24")
-    }
-    because("Address CVE-2026-59084 - can be removed once uk.gov.justice.hmpps.gradle-spring-boot to 11.0.x ")
-  }
-
-  implementation("org.apache.httpcomponents.client5:httpclient5") {
-    version {
-      strictly("5.6.2")
-    }
-    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
-  }
-  implementation("org.apache.httpcomponents.core5:httpcore5") {
-    version {
-      strictly("5.4.3")
-    }
-    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
-  }
-  implementation("org.apache.httpcomponents.core5:httpcore5-h2") {
-    version {
-      strictly("5.4.3")
-    }
-    because("Address CVEs CVE-2026-54428 & CVE-2026-54399 - review when upgrading webdrivermanager past 6.3.4")
   }
 
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
