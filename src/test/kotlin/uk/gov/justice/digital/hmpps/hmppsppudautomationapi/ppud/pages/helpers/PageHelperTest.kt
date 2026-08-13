@@ -13,9 +13,9 @@ import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
-import org.mockito.kotlin.any
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.never
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
