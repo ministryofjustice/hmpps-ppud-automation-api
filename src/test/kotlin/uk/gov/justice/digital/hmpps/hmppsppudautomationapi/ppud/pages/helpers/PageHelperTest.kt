@@ -11,11 +11,11 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.BDDMockito.any
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.never
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
@@ -165,6 +165,9 @@ class PageHelperTest {
       .willReturn(listOf(optionElement))
       .willReturn(listOf())
     given(element.isEnabled).willReturn(true)
+    given(element.getCssValue("visibility")).willReturn("visible")
+    given(element.getCssValue("display")).willReturn("block")
+    given(element.getCssValue("opacity")).willReturn("1")
     val option = randomString()
     val description = randomString()
     val exception = assertThrows<AutomationException> {

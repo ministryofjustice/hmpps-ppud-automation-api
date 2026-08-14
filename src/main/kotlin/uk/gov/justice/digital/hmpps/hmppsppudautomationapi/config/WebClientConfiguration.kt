@@ -24,6 +24,7 @@ import reactor.netty.http.client.HttpClient
 import reactor.util.retry.Retry
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.client.DocumentManagementClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ClientTimeoutException
+import uk.gov.justice.hmpps.kotlin.auth.ServletRequestResponseNonNullFilterFunction
 import java.time.Duration
 import java.util.concurrent.TimeoutException
 
@@ -133,6 +134,7 @@ class WebClientConfiguration(
     val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2Client.setDefaultClientRegistrationId(registrationId)
     return builder.baseUrl(rootUri)
+      .filter(ServletRequestResponseNonNullFilterFunction())
       .apply(oauth2Client.oauth2Configuration())
       .build()
   }
