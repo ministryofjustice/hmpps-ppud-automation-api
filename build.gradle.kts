@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.6"
   kotlin("plugin.spring") version "2.4.10"
 }
 
@@ -26,6 +26,18 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.springframework.boot:spring-boot-jackson2")
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.21.6") {
+    because("Address CVE-2026-19032 & CVE-2026-68497")
+  }
+  implementation("tools.jackson.core:jackson-databind:3.1.6") {
+    because("Address CVE-2026-19032 & CVE-2026-68497")
+  }
+  implementation("ch.qos.logback:logback-classic:1.6.3") {
+    because("Address CVE-2026-19880")
+  }
+  implementation("ch.qos.logback:logback-core:1.6.3") {
+    because("Address CVE-2026-19880")
+  }
 
   implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
@@ -44,11 +56,6 @@ dependencies {
 
   // OpenAPI dependencies
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
-  constraints {
-    implementation("org.webjars:swagger-ui:5.32.11") {
-      because("Address DOMPurify CVEs (CVE-2026-65898 through CVE-2026-65903 and CVE-2026-66010) - bundles DOMPurify 3.4.12")
-    }
-  }
 
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
