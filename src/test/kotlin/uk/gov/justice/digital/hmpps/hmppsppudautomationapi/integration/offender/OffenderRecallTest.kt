@@ -42,7 +42,7 @@ class OffenderRecallTest : IntegrationTestBase() {
 
   companion object {
 
-    private const val PPUD_EXPECTED_OWNING_TEAM = "Recall 1"
+    private const val PPUD_EXPECTED_OWNING_TEAM = "Performance Management"
 
     private const val PPUD_EXPECTED_REVOCATION_ISSUED_BY_OWNER = "EO Officer"
 

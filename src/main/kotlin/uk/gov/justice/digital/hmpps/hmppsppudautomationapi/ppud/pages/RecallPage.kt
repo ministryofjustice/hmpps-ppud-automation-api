@@ -73,6 +73,9 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_aceiOWNING_TEAM_AutoCompleteTextBox")
   private lateinit var owningTeamInput: WebElement
 
+  @FindBy(id = "cntDetails_aceiOWNING_TEAM_AutoSelect")
+  private lateinit var owningTeamDropdown: WebElement
+
   @FindBy(id = "igtxtcntDetails_dteUAL_CHECK")
   private lateinit var nextUalCheckInput: WebElement
 
@@ -222,6 +225,9 @@ internal class RecallPage(
     pageHelper.enterTextIfNotBlank(recommendedToOwnerInput, createRecallRequest.recommendedTo.fullName)
     val revocationIssuedByOwnerFullName = removeTeamName(revocationIssuedByOwner)
     pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerFullName)
+
+    pageHelper.enterTextIfNotBlank(owningTeamInput, createRecallRequest.recommendedTo.teamName)
+    pageHelper.selectDropdownOptionIfNotBlank(owningTeamDropdown, createRecallRequest.recommendedTo.teamName, "owning team")
 
     // Complete standalone fields
     pageHelper.selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
