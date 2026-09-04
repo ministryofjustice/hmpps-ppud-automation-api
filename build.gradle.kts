@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.7"
   kotlin("plugin.spring") version "2.4.10"
 }
 
@@ -10,7 +10,7 @@ configurations {
     // hmpps-subject-access-request-test-support pulls in json-unit-assertj:5.x which would
     // upgrade json-unit-core to 5.x, breaking MockServer's JSON matching.
     // Force json-unit-core back to the version MockServer was built against.
-    resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
+    resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.40.1")
   }
 }
 
@@ -26,10 +26,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.springframework.boot:spring-boot-jackson2")
-  implementation("com.fasterxml.jackson.core:jackson-databind:2.21.6") {
+  implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2") {
     because("Address CVE-2026-19032 & CVE-2026-68497")
   }
-  implementation("tools.jackson.core:jackson-databind:3.1.6") {
+  implementation("tools.jackson.core:jackson-databind:3.2.2") {
     because("Address CVE-2026-19032 & CVE-2026-68497")
   }
   implementation("ch.qos.logback:logback-classic:1.6.3") {
@@ -39,14 +39,14 @@ dependencies {
     because("Address CVE-2026-19880")
   }
 
-  implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
+  implementation("org.seleniumhq.selenium:selenium-java:4.48.0")
   implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
-  implementation("io.flipt:flipt-client-java:1.3.3")
+  implementation("io.flipt:flipt-client-java:1.3.4")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
