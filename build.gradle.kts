@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.9"
-  kotlin("plugin.spring") version "2.4.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.10"
+  kotlin("plugin.spring") version "2.4.20"
 }
 
 configurations {
@@ -10,7 +10,7 @@ configurations {
     // hmpps-subject-access-request-test-support pulls in json-unit-assertj:5.x which would
     // upgrade json-unit-core to 5.x, breaking MockServer's JSON matching.
     // Force json-unit-core back to the version MockServer was built against.
-    resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
+    resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.40.1")
   }
 }
 
@@ -26,21 +26,21 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.springframework.boot:spring-boot-jackson2")
-  implementation("ch.qos.logback:logback-classic:1.6.3") {
+  implementation("ch.qos.logback:logback-classic:1.6.4") {
     because("Address CVE-2026-19880")
   }
-  implementation("ch.qos.logback:logback-core:1.6.3") {
+  implementation("ch.qos.logback:logback-core:1.6.4") {
     because("Address CVE-2026-19880")
   }
 
-  implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
-  implementation("io.github.bonigarcia:webdrivermanager:6.3.4")
-  implementation("io.flipt:flipt-client-java:1.3.3")
+  implementation("org.seleniumhq.selenium:selenium-java:4.49.0")
+  implementation("io.github.bonigarcia:webdrivermanager:6.4.0")
+  implementation("io.flipt:flipt-client-java:1.3.4")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.3")
 
   // OAuth dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -49,7 +49,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
 
   // OpenAPI dependencies
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
 
   testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
