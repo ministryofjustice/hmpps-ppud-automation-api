@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.11"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.12"
   kotlin("plugin.spring") version "2.4.20"
 }
 
@@ -11,6 +11,7 @@ configurations {
     // upgrade json-unit-core to 5.x, breaking MockServer's JSON matching.
     // Force json-unit-core back to the version MockServer was built against.
     resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
+    resolutionStrategy.force("com.google.guava:guava:33.7.2-jre")
   }
 }
 
