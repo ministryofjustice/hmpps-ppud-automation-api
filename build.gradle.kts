@@ -13,6 +13,30 @@ configurations {
     resolutionStrategy.force("net.javacrumbs.json-unit:json-unit-core:2.36.0")
     resolutionStrategy.force("com.google.guava:guava:33.7.2-jre")
   }
+  all {
+    resolutionStrategy.eachDependency {
+      // CVE-2026-110257 to CVE-2026-110263
+      if (requested.group == "org.ow2.asm" && requested.name == "asm") {
+        useVersion("9.11.1")
+      }
+      // CVE-2026-93879
+      if (requested.group == "org.hibernate.validator" && requested.name == "hibernate-validator") {
+        useVersion("9.1.5.Final")
+      }
+      // CVE-2026-110879
+      if (requested.group == "com.fasterxml.jackson.core" && requested.name == "jackson-databind") {
+        useVersion("2.22.4")
+      }
+      // CVE-2026-110879
+      if (requested.group == "tools.jackson.core" && requested.name == "jackson-databind") {
+        useVersion("3.1.8")
+      }
+      // CVE-2026-102554
+      if (requested.group == "com.google.guava" && requested.name == "guava") {
+        useVersion("33.7.2-jre")
+      }
+    }
+  }
 }
 
 dependencyCheck {
@@ -27,11 +51,11 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("org.springframework.boot:spring-boot-jackson2")
-  implementation("ch.qos.logback:logback-classic:1.6.3") {
-    because("Address CVE-2026-19880")
+  implementation("ch.qos.logback:logback-classic:1.6.6") {
+    because("Address CVE-2026-104721")
   }
-  implementation("ch.qos.logback:logback-core:1.6.3") {
-    because("Address CVE-2026-19880")
+  implementation("ch.qos.logback:logback-core:1.6.6") {
+    because("Address CVE-2026-104721")
   }
 
   implementation("org.seleniumhq.selenium:selenium-java:4.43.0")
