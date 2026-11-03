@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppsppudautomationapi.config
 
-import io.netty.handler.ssl.SslContextBuilder
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -9,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
@@ -20,11 +17,11 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
-import reactor.netty.http.client.HttpClient
 import reactor.util.retry.Retry
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.client.DocumentManagementClient
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.ClientTimeoutException
 import uk.gov.justice.hmpps.kotlin.auth.ServletRequestResponseNonNullFilterFunction
+import uk.gov.justice.hmpps.kotlin.auth.healthWebClient
 import java.time.Duration
 import java.util.concurrent.TimeoutException
 
@@ -89,29 +86,10 @@ class WebClientConfiguration(
   }
 
   @Bean
-  fun ppudHealthCheckWebClient(): WebClient {
-    val sslContext = SslContextBuilder
-      .forClient()
-      .trustManager(InsecureTrustManagerFactory.INSTANCE)
-      .build()
-    val client: HttpClient = HttpClient.create()
-      .secure { t -> t.sslContext(sslContext) }
-      .responseTimeout(Duration.ofSeconds(ppudHealthTimeout))
-    return WebClient.builder()
-      .clientConnector(ReactorClientHttpConnector(client))
-      .baseUrl(ppudUrl)
-      .build()
-  }
+  fun ppudHealthCheckWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(ppudUrl, Duration.ofSeconds(ppudHealthTimeout))
 
   @Bean
-  fun documentManagementHealthCheckWebClient(): WebClient {
-    val client: HttpClient = HttpClient.create()
-      .responseTimeout(Duration.ofSeconds(documentManagementHealthTimeout))
-    return WebClient.builder()
-      .clientConnector(ReactorClientHttpConnector(client))
-      .baseUrl(documentManagementApiRootUri)
-      .build()
-  }
+  fun documentManagementHealthCheckWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(documentManagementApiRootUri, Duration.ofSeconds(documentManagementHealthTimeout))
 
   @Bean
   fun documentManagementApiWebClientAppScope(
