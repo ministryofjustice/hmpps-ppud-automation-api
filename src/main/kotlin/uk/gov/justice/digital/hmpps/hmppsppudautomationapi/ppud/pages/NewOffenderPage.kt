@@ -116,12 +116,6 @@ internal class NewOffenderPage(
   @FindBy(id = "content_ddliSENTENCED_AS_YOUTH")
   private lateinit var sentencedAsYouthDropdown: WebElement
 
-  @FindBy(id = "content_aceOwningTeam_AutoCompleteTextBox")
-  private lateinit var owningTeamInput: WebElement
-
-  @FindBy(id = "content_aceOwningTeam_AutoSelect")
-  private lateinit var owningTeamDropdown: WebElement
-
   @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoCompleteTextBox")
   private lateinit var currentEstablishmentInput: WebElement
 
@@ -149,7 +143,6 @@ internal class NewOffenderPage(
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
     currentEstablishmentInput.click()
     currentEstablishmentInput.sendKeys(createOffenderRequest.establishment)
-    pageHelper.enterTextIfNotBlank(owningTeamInput, RecallPage.DEFAULT_OWNING_TEAM)
 
     // The MAPPA level field is reset every time the custody type one has its value changes (or
     // at least when setting it to Determinate; I didn't test every option), so we make sure we
@@ -180,7 +173,7 @@ internal class NewOffenderPage(
       pageHelper.selectDropdownOptionIfNotBlank(sentencedAsYouthDropdown, createOffenderRequest.sentencedAsYouth?.name, "Sentenced as Youth")
     }
 
-    // See comments further up regarding these autocomplete fields
+    // See comments further up regarding these three fields
     pageHelper.selectDropdownOptionIfNotBlank(indexOffenceDropdown, createOffenderRequest.indexOffence, "index offence")
     pageHelper.selectDropdownOptionIfNotBlank(mappaLevelDropdown, createOffenderRequest.mappaLevel, "mappa level")
     pageHelper.selectDropdownOptionIfNotBlank(
@@ -188,8 +181,6 @@ internal class NewOffenderPage(
       createOffenderRequest.establishment,
       "establishment",
     )
-    pageHelper.selectDropdownOptionIfNotBlank(owningTeamDropdown, RecallPage.DEFAULT_OWNING_TEAM, "owning team")
-
     saveButton.click()
   }
 
