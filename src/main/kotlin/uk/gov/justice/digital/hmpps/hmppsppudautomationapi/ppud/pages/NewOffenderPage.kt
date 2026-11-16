@@ -181,7 +181,6 @@ internal class NewOffenderPage(
       createOffenderRequest.establishment,
       "establishment",
     )
-
     saveButton.click()
   }
 

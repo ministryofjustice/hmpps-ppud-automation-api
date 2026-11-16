@@ -46,6 +46,7 @@ internal class RecallPage(
 ) {
   companion object {
     const val MINUTES_TEXT = "Minutes"
+    const val DEFAULT_OWNING_TEAM = "Recall Team"
   }
 
   private val urlPathTemplate = "/Offender/Recall.aspx?data={id}"
@@ -139,6 +140,12 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_PageFooter1_docEdit_ddliDOCUMENT_TYPE")
   private lateinit var documentTypeDropdown: WebElement
 
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_TEAM_AutoCompleteTextBox")
+  private lateinit var docUploadOwningTeamInput: WebElement
+
+  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_TEAM_AutoSelect")
+  private lateinit var docUploadOwningTeamDropdown: WebElement
+
   @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_CASEWORKER_AutoCompleteTextBox")
   private lateinit var owningCaseworkerInput: WebElement
 
@@ -226,8 +233,8 @@ internal class RecallPage(
     val revocationIssuedByOwnerFullName = removeTeamName(revocationIssuedByOwner)
     pageHelper.enterTextIfNotBlank(revocationIssuedByOwnerInput, revocationIssuedByOwnerFullName)
 
-    pageHelper.enterTextIfNotBlank(owningTeamInput, createRecallRequest.recommendedTo.teamName)
-    pageHelper.selectDropdownOptionIfNotBlank(owningTeamDropdown, createRecallRequest.recommendedTo.teamName, "owning team")
+    pageHelper.enterTextIfNotBlank(owningTeamInput, DEFAULT_OWNING_TEAM)
+    pageHelper.selectDropdownOptionIfNotBlank(owningTeamDropdown, DEFAULT_OWNING_TEAM, "owning team")
 
     // Complete standalone fields
     pageHelper.selectDropdownOptionIfNotBlank(recallTypeDropdown, recallType, "recall type")
@@ -415,6 +422,8 @@ internal class RecallPage(
     documentTitleInput.sendKeys(title)
     replyActualInput.sendKeys(today)
     chooseFileInput.sendKeys(filepath)
+    pageHelper.enterTextIfNotBlank(docUploadOwningTeamInput, DEFAULT_OWNING_TEAM)
+    pageHelper.selectDropdownOptionIfNotBlank(docUploadOwningTeamDropdown, DEFAULT_OWNING_TEAM, "document upload owning team")
     pageHelper.selectDropdownOptionIfNotBlank(
       owningCaseworkerDropdown,
       owningCaseworker.formattedFullNameAndTeam,
