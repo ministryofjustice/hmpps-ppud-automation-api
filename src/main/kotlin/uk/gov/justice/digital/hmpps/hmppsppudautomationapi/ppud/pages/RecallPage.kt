@@ -140,12 +140,6 @@ internal class RecallPage(
   @FindBy(id = "cntDetails_PageFooter1_docEdit_ddliDOCUMENT_TYPE")
   private lateinit var documentTypeDropdown: WebElement
 
-  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_TEAM_AutoCompleteTextBox")
-  private lateinit var docUploadOwningTeamInput: WebElement
-
-  @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_TEAM_AutoSelect")
-  private lateinit var docUploadOwningTeamDropdown: WebElement
-
   @FindBy(id = "cntDetails_PageFooter1_docEdit_aceiOWNING_CASEWORKER_AutoCompleteTextBox")
   private lateinit var owningCaseworkerInput: WebElement
 
@@ -422,8 +416,6 @@ internal class RecallPage(
     documentTitleInput.sendKeys(title)
     replyActualInput.sendKeys(today)
     chooseFileInput.sendKeys(filepath)
-    pageHelper.enterTextIfNotBlank(docUploadOwningTeamInput, DEFAULT_OWNING_TEAM)
-    pageHelper.selectDropdownOptionIfNotBlank(docUploadOwningTeamDropdown, DEFAULT_OWNING_TEAM, "document upload owning team")
     pageHelper.selectDropdownOptionIfNotBlank(
       owningCaseworkerDropdown,
       owningCaseworker.formattedFullNameAndTeam,
