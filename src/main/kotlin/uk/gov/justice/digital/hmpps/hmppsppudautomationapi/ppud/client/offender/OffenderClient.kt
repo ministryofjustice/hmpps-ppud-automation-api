@@ -44,7 +44,7 @@ class OffenderClient {
     newOffenderPage.createOffender(request)
     newOffenderPage.throwIfInvalid()
     offenderPage.verifyOn()
-    offenderPage.updateAdditionalAddresses(request.additionalAddresses)
+    offenderPage.completeNewOffenderDetails(request)
     offenderPage.throwIfInvalid()
     return offenderPage.extractCreatedOffenderDetails(::extractCreatedSentence)
   }
