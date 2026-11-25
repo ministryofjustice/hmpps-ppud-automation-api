@@ -28,6 +28,7 @@ internal class NewOffenderPage(
   @param:Value("\${ppud.offender.prisonerCategory}") private val prisonerCategory: String,
   @param:Value("\${ppud.offender.status}") private val status: String,
   @param:Value("\${ppud.offender.youngOffenderYes}") private val youngOffenderYes: String,
+  @param:Value("\${ppud.offender.caseworker.ual}") private val caseWorkerUalValue: String,
 ) {
 
   private val title = "New Offender"
@@ -122,6 +123,12 @@ internal class NewOffenderPage(
   @FindBy(id = "content_aceCURRENT_ESTABLISHMENT_AutoSelect")
   private lateinit var currentEstablishmentDropdown: WebElement
 
+  @FindBy(id = "content_aceOwningCaseworker_AutoCompleteTextBox")
+  private lateinit var caseworkerInput: WebElement
+
+  @FindBy(id = "content_aceOwningCaseworker_AutoSelect")
+  private lateinit var caseworkerDropdown: WebElement
+
   init {
     PageFactory.initElements(driver, this)
   }
@@ -143,6 +150,14 @@ internal class NewOffenderPage(
     indexOffenceInput.sendKeys(createOffenderRequest.indexOffence)
     currentEstablishmentInput.click()
     currentEstablishmentInput.sendKeys(createOffenderRequest.establishment)
+
+    val isUAL = createOffenderRequest.isInCustody.not()
+
+    if (isUAL) {
+      caseworkerInput.click()
+      // The search doesn't find the correct entry when the team name in brackets is present, so remove it here
+      caseworkerInput.sendKeys(caseWorkerUalValue.substringBefore("(").trim())
+    }
 
     // The MAPPA level field is reset every time the custody type one has its value changes (or
     // at least when setting it to Determinate; I didn't test every option), so we make sure we
@@ -181,6 +196,9 @@ internal class NewOffenderPage(
       createOffenderRequest.establishment,
       "establishment",
     )
+    if (isUAL) {
+      pageHelper.selectDropdownOptionIfNotBlank(caseworkerDropdown, caseWorkerUalValue, "caseworker")
+    }
     saveButton.click()
   }
 

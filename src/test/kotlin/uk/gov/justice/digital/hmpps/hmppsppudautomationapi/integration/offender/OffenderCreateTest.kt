@@ -42,7 +42,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
 import java.util.stream.Stream
-import kotlin.random.Random
 
 class OffenderCreateTest : IntegrationTestBase() {
 
@@ -202,7 +201,7 @@ class OffenderCreateTest : IntegrationTestBase() {
     val dateOfSentence = randomDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
     val familyName = "$FAMILY_NAME_PREFIX-$testRunId"
     val firstNames = randomString("firstNames")
-    val isInCustody = Random.nextBoolean()
+    val isInCustody = true
     val nomsId = randomNomsId()
     val prisonNumber = randomPrisonNumber()
     val establishment = if (isInCustody) PPUD_VALID_ESTABLISHMENT else PPUD_VALID_ESTABLISHMENT_NOT_APPLICABLE
@@ -263,6 +262,34 @@ class OffenderCreateTest : IntegrationTestBase() {
       .jsonPath("offender.sentences[0].mappaLevel").isEqualTo(PPUD_VALID_MAPPA_LEVEL)
       .jsonPath("offender.sentences[0].offence.indexOffence").isEqualTo(PPUD_VALID_INDEX_OFFENCE)
       .jsonPath("offender.establishment").isEqualTo(establishment)
+  }
+
+  @Test
+  fun `given offender is UAL, caseworker is set to Recall UAL checks`() {
+    val requestBodyWithOnlyMandatoryFields =
+      """
+        {
+          "custodyType" : "$PPUD_VALID_DETERMINATE_CUSTODY_TYPE",
+          "dateOfBirth" : "${randomDate()}",
+          "dateOfSentence" : "${randomDate()}",
+          "ethnicity" : "$PPUD_VALID_ETHNICITY",
+          "familyName" : "$FAMILY_NAME_PREFIX-$testRunId",
+          "firstNames" : "${randomString("firstNames")}",
+          "gender" : "$PPUD_VALID_GENDER",
+          "indexOffence" : "$PPUD_VALID_INDEX_OFFENCE",
+          "isInCustody" : "${false}",
+          "mappaLevel" : "$PPUD_VALID_MAPPA_LEVEL",
+          "prisonNumber" : "${randomPrisonNumber()}",
+          "establishment" : "$PPUD_VALID_ESTABLISHMENT",
+          "sentencedAsYouth" : "$PPUD_VALID_SENTENCED_AS_YOUTH"
+        }
+      """.trimIndent()
+
+    val createdOffender = testPostOffender(requestBodyWithOnlyMandatoryFields)
+
+    val retrieved = retrieveOffender(createdOffender.id)
+
+    retrieved.jsonPath("offender.caseworker").isEqualTo("Recall UAL Checks")
   }
 
   @ParameterizedTest

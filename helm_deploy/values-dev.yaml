@@ -16,6 +16,7 @@ generic-service:
     ENVIRONMENT_NAME: dev
     SPRINGDOC_APIDOCS_ENABLED: "true"
     SPRINGDOC_SWAGGERUI_ENABLED: "true"
+    PPUD_OFFENDER_CASEWORKER_UAL: "Recall UAL checks(Recall 1)"
 
   scheduledDowntime:
     enabled: true
