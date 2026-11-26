@@ -63,7 +63,7 @@ class OffenderClientTest {
       then(newOffenderPage).should(inOrder).createOffender(request)
       then(newOffenderPage).should(inOrder).throwIfInvalid()
       then(offenderPage).should(inOrder).verifyOn()
-      then(offenderPage).should(inOrder).updateAdditionalAddresses(request.additionalAddresses)
+      then(offenderPage).should(inOrder).completeNewOffenderDetails(request)
       then(offenderPage).should(inOrder).throwIfInvalid()
       assertEquals(expectedCreatedOffender, newOffender)
     }

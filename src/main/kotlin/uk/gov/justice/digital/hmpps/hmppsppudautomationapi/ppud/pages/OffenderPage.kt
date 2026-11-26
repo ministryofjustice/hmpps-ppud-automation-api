@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Offen
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.OffenderAddress
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.SearchResultOffender
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.offender.Sentence
+import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.CreateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.domain.request.UpdateOffenderRequest
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.AutomationException
 import uk.gov.justice.digital.hmpps.hmppsppudautomationapi.exception.InvalidOffenderIdException
@@ -232,8 +233,15 @@ internal class OffenderPage(
     saveButton.click()
   }
 
-  fun updateAdditionalAddresses(additionalAddresses: List<OffenderAddress>) {
-    enterAdditionalAddresses(additionalAddresses)
+  fun completeNewOffenderDetails(request: CreateOffenderRequest) {
+    val isUal = request.isInCustody.not()
+    if (isUal) {
+      enterCaseworkerText(request.isInCustody)
+    }
+    enterAdditionalAddresses(request.additionalAddresses)
+    if (isUal) {
+      selectCaseworkerMatch(request.isInCustody)
+    }
     saveButton.click()
   }
 
